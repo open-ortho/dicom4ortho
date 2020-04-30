@@ -5,6 +5,7 @@ Created on Jul 3, 2018
 '''
 import unittest
 import logging
+from dicom-vl-photographic-image import photograph
 
 class Test(unittest.TestCase):
 
@@ -16,6 +17,9 @@ class Test(unittest.TestCase):
 
     def tearDown(self):
         pass
+
+    # def test_newfile(self):
+    #     photograph
 
 #     def timezone_offset_seconds(self,server_info):
 #         '''

@@ -3,6 +3,7 @@ import uuid
 VERSION = '0.0.1'
 date_format = '%Y%m%d'
 time_format = '%H%M%S.%f'
+dicom_preamble = b'\0' * 128
 
 # This is a unique ID generated for this specific software only.
 #  * Random generation using generate_dicom_uid() below

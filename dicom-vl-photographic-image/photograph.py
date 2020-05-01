@@ -13,38 +13,27 @@ from pydicom.dataset import Dataset, FileDataset
 import pydicom.sequence
 import PIL
 
-class DentalPhotograph:
+class DentalPhotograph(object):
 
     def __init__(self):
         self.SOPClassUID = pynetdicom.sop_class.VLPhotographicImageStorage
-        # self.SOPClassUID = '1.2.840.10008.5.1.4.1.1.77.1.4'
-        self.SOPInstanceUID = "1.2.3"
-        self.timeStr = datetime.datetime.now().strftime('%H%M%S.%f')  # long format with micro seconds
-        self.dateStr = datetime.datetime.now().strftime('%Y%m%d')
-        # self.preamble = None
-        self.preamble = b"\0" * 128
+        self.SOPInstanceUID = defaults.generate_dicom_uid()
+        self.timeStr = datetime.datetime.now().strftime(defaults.time_format)
+        self.dateStr = datetime.datetime.now().strftime(defaults.date_format)
 
+    def set_file_meta(self):
+        self.file_meta = Dataset()
+        self.file_meta.MediaStorageSOPClassUID = self.SOPClassUID
+        self.file_meta.MediaStorageSOPInstanceUID = self.SOPInstanceUID
+        self.file_meta.ImplementationClassUID = defaults.ImplementationClassUID
 
-        # Create some temporary filenames
-        suffix = '.dcm'
-        filename_little_endian = tempfile.NamedTemporaryFile(suffix=suffix).name
-        filename_big_endian = tempfile.NamedTemporaryFile(suffix=suffix).name
+    def set_dataset(self,filename):
 
-
-
-    def set_defaults(self):
-        # Populate required values for file meta information
-        file_meta = Dataset()
-
-        file_meta.MediaStorageSOPClassUID = self.SOPClassUID
-        file_meta.MediaStorageSOPInstanceUID = defaults.generate_dicom_uid()
-        file_meta.ImplementationClassUID = defaults.ImplementationClassUID
-        # file_meta.FileMetaInformationGroupLength = 2
-        # file_meta.FileMetaInformationVersion = b'01'
-        # Create the FileDataset instance (initially no data elements, but file_meta
-        # supplied)
-        self.ds = FileDataset(filename_little_endian, {},
-                        file_meta=file_meta, preamble=preamble)
+        self.ds = FileDataset(
+            filename, 
+            {},
+            file_meta=self.file_meta, 
+            preamble=defaults.dicom_preamble)
 
         self.ds.Modality = 'XC'
         self.ds.PatientName = "^"
@@ -346,11 +335,15 @@ def dciodvfy(filename):
         filename))
 
 
+dp = DentalPhotograph()
+dp.set_file_meta()
+dp.set_dataset('file1.dcm')
+dp.set_patient_firstname('First Name')
+dp.set_patient_lastname('Last Name')
 
 
 # reopen the data just for checking
 # for filename in (filename_little_endian):
-filename = filename_big_endian
 print('Load file {} ...'.format(filename))
 ds = pydicom.dcmread(filename)
 print(ds)

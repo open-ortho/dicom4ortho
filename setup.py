@@ -185,8 +185,7 @@ setup(
     # executes the function `main` from this package when invoked:
     entry_points={  # Optional
         'console_scripts': [
-            # The rollover monitor tool
-            'dicom-vl=dicom-vl-photographic-image:main',
+            'img2dicom=dicom-vl-photographic-image/__main__:main',
         ],
     },
 

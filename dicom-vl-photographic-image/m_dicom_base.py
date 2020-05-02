@@ -13,7 +13,7 @@ from pydicom.dataset import Dataset, FileDataset
 import pydicom.sequence
 import PIL
 
-class DentalPhotograph(object):
+class DicomBase(object):
 
     def __init__(self):
         self.SOPClassUID = pynetdicom.sop_class.VLPhotographicImageStorage
@@ -35,7 +35,6 @@ class DentalPhotograph(object):
             file_meta=self.file_meta, 
             preamble=defaults.dicom_preamble)
 
-        self.ds.Modality = 'XC'
         self.ds.PatientName = "^"
         self.ds.StudyDate = dateStr
         self.ds.StudyTime = timeStr

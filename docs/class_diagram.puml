@@ -1,0 +1,21 @@
+@startuml
+class DicomBase {
+    +set_firstname()
+    +set_lastname()
+    +set_sex()
+    +set_filemeta()
+    +set_patient_birthdate()
+}
+
+class PhotographBase {
+    +set_image()
+}
+
+class IntraoralPhotograph
+class ExtraoralPhotograph
+
+PhotographBase --|> DicomBase
+ExtraoralPhotograph --|> PhotographBase
+IntraoralPhotograph --|> PhotographBase
+
+@enduml

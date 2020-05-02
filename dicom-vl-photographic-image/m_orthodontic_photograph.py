@@ -14,7 +14,7 @@ import pydicom.sequence
 import PIL
 from m_dicom_base import DicomBase
 
-class DentalPhotograph(DicomBase):
+class PhotographBase(DicomBase):
 
     def __init__(self):
         super().__init__()
@@ -22,23 +22,6 @@ class DentalPhotograph(DicomBase):
     def set_dataset(self,filename):
         super().set_dataset(filename)
         self.ds.Modality = 'XC'
-
-    def set_dental_provider_firstname(self,firstname):
-        if self.ds.ReferringPhysicianName is None:
-            self.ds.ReferringPhysicianName = "^"
-
-        self.ds.ReferringPhysicianName = "{}^{}".format(
-            firstname,
-            self.ds.ReferringPhysicianName.split('^')[1])
-
-    def set_dental_provider_lastname(self, lastname):
-        if self.ds.ReferringPhysicianName is None:
-            self.ds.ReferringPhysicianName = "^"
-            
-        self.ds.PatientName = "{}^{}".format(
-            lastname,
-            self.ds.ReferringPhysicianName.split('^')[0])
-
 
     def set_image_type(self):
         """
@@ -94,6 +77,9 @@ class DentalPhotograph(DicomBase):
         self.ds.ImageType[0] = 'ORIGINAL'
 
     def is_derived_image(self):
+        """
+        A derived image is a manipulated image. It's not the original anymore, it's been most likely enhanced with some calculation or filters.
+        """
         self.ds.ImageType[0] = 'DERIVED'
 
     def set_image(self,image_path):
@@ -184,6 +170,14 @@ class DentalPhotograph(DicomBase):
             self.ds.PixelRepresentation = 0x0
             # Image Pixel M
             # Pixel Data (7FE0,0010) for this image. The order of pixels encoded for each image plane is left to right, top to bottom, i.e., the upper left pixel (labeled 1,1) is encoded first followed by the remainder of row 1, followed by the first pixel of row 2 (labeled 2,1) then the remainder of row 2 and so on.
+            # It's Planar Configuration which defines how the values are stored in the PixelData, which is defined to be 0, in this case.
+            # C.7.6.3.1.3 Planar Configuration
+            # Planar Configuration (0028,0006) indicates whether the color pixel data are encoded color-by-plane or color-by-pixel. This Attribute shall be present if Samples per Pixel (0028,0002) has a value greater than 1. It shall not be present otherwise.
+
+            # Enumerated Values:
+
+            # 0
+            # The sample values for the first pixel are followed by the sample values for the second pixel, etc. For RGB images, this means the order of the pixel values encoded shall be R1, G1, B1, R2, G2, B2, …, etc.
             self.ds.PixelData = b''
             if ds.SamplesPerPixel == 1:
                 for row in range(self.ds.Rows):
@@ -196,48 +190,6 @@ class DentalPhotograph(DicomBase):
                             self.ds.PixelData += px[row,column][sample]
             else:
                 print("Error: Incorrect value for SamplesPerPixel {}".format(ds.SamplesPerPixel))
-
-    def save_implicit_little_endian(self,filename):
-        # Set the transfer syntax
-        self.ds.file_meta.TransferSyntaxUID = pydicom.uid.ImplicitVRLittleEndian
-        self.ds.is_little_endian = True
-        self.ds.is_implicit_VR = True
-
-        print("Writing test file as Little Endian Implicit VR", filename_little_endian)
-        self.ds.save_as(filename,write_like_original=False)
-        print("File saved.")
-
-    def save_explicit_big_endian(self,filename):
-        # Write as a different transfer syntax XXX shouldn't need this but pydicom
-        # 0.9.5 bug not recognizing transfer syntax
-        self.ds.file_meta.TransferSyntaxUID = pydicom.uid.ExplicitVRBigEndian
-        self.ds.is_little_endian = False
-        self.ds.is_implicit_VR = False
-
-        print("Writing test file as Big Endian Explicit VR", filename_big_endian)
-        self.ds.save_as(filename, write_like_original=False)
-        print("File saved.")
-
-
-    # General Study Module M
-    ds.StudyInstanceUID = defaults.generate_dicom_uid()
-    ds.StudyID = '1'
-    ds.AccessionNumber = '1'
-
-    # General Series Module M
-    ds.SeriesInstanceUID = defaults.generate_dicom_uid()
-    ds.SeriesNumber = '1'
-    # ds.Laterality = ''
-
-    # General Equipment Module M
-    ds.Manufacturer = ''
-
-    # VL Photographic Equipment Module U
-    # ds.CameraOwnerName = ''
-    # ds.LensSepcification = ''
-    # ds.LensMake = ''
-    # ds.LensModel = ''
-    # ds.LensSerialNumber = ''
 
 
     # General Image Module M
@@ -254,16 +206,6 @@ class DentalPhotograph(DicomBase):
     ds.ImageLaterality = ''
 
 
-    # C.7.6.3.1.3 Planar Configuration
-    # Planar Configuration (0028,0006) indicates whether the color pixel data are encoded color-by-plane or color-by-pixel. This Attribute shall be present if Samples per Pixel (0028,0002) has a value greater than 1. It shall not be present otherwise.
-
-    # Enumerated Values:
-
-    # 0
-    # The sample values for the first pixel are followed by the sample values for the second pixel, etc. For RGB images, this means the order of the pixel values encoded shall be R1, G1, B1, R2, G2, B2, …, etc.
-
-    # 1
-    # Each color plane shall be encoded contiguously. For RGB images, this means the order of the pixel values encoded is R1, R2, R3, …, G1, G2, G3, …, B1, B2, B3, etc.
 
     # Note
     # Planar Configuration (0028,0006) is not meaningful when a compression Transfer Syntax is used that involves reorganization of sample components in the compressed bit stream. In such cases, since the Attribute is required to be present, then an appropriate value to use may be specified in the description of the Transfer Syntax in PS3.5, though in all likelihood the value of the Attribute will be ignored by the receiving implementation.

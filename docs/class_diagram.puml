@@ -5,11 +5,17 @@ class DicomBase {
     +set_sex()
     +set_filemeta()
     +set_patient_birthdate()
-}
+} 
 
 class PhotographBase {
-    +set_image()
+   +set_image()
+   +set_is_primary()
+   +set_is_derived()
+   +set_is_original()
+   +set_is_digitized()
 }
+
+class RadiographBase 
 
 class IntraoralPhotograph
 class ExtraoralPhotograph

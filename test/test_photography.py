@@ -18,6 +18,9 @@ class Test(unittest.TestCase):
     def tearDown(self):
         pass
 
+    def testOne(self):
+        
+
     # def test_newfile(self):
     #     photograph
 

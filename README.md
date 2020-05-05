@@ -29,3 +29,6 @@ Different equipment of the same type or product line (but having different seria
 
 ### StudyInstanceUID
 
+
+
+### SeriesInstanceUID

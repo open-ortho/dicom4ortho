@@ -58,7 +58,7 @@ class PhotographBase(dicom_photo.m_dicom_base.DicomBase):
 
             Other Values are implementation specific (optional).
         """
-        ds.ImageType = ['ORIGINAL','PRIMARY']
+        self.ds.ImageType = ['ORIGINAL','PRIMARY']
 
     def is_digitized_image(self):
         """
@@ -90,8 +90,8 @@ class PhotographBase(dicom_photo.m_dicom_base.DicomBase):
 
             # Note
 
-            self.ds.Rows = im.size[1]
-            self.ds.Columns = im.size[0]
+            self.ds.Rows = im.size[0]
+            self.ds.Columns = im.size[1]
 
             if im.mode == '1': # (1-bit pixels, black and white, stored with one pixel per byte)
                 self.ds.SamplesPerPixel = 1
@@ -182,17 +182,17 @@ class PhotographBase(dicom_photo.m_dicom_base.DicomBase):
             # 0
             # The sample values for the first pixel are followed by the sample values for the second pixel, etc. For RGB images, this means the order of the pixel values encoded shall be R1, G1, B1, R2, G2, B2, …, etc.
             self.ds.PixelData = b''
-            if ds.SamplesPerPixel == 1:
+            if self.ds.SamplesPerPixel == 1:
                 for row in range(self.ds.Rows):
                     for column in range(self.ds.Columns):
-                        self.ds.PixelData += px[row,column]
-            elif ds.SamplesPerPixel > 1:
+                        self.ds.PixelData += bytes([px[row,column]])
+            elif self.ds.SamplesPerPixel > 1:
                 for row in range(self.ds.Rows):
                     for column in range(self.ds.Columns):
                         for sample in range(self.ds.SamplesPerPixel):
-                            self.ds.PixelData += px[row,column][sample]
+                            self.ds.PixelData += bytes([px[row,column][sample]])
             else:
-                print("Error: Incorrect value for SamplesPerPixel {}".format(ds.SamplesPerPixel))
+                print("Error: Incorrect value for SamplesPerPixel {}".format(self.ds.SamplesPerPixel))
 
 
 """

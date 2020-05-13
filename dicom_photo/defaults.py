@@ -32,7 +32,7 @@ def generate_dicom_uid():
     print("Generating new Instance UID...")
     new_uuid = uuid.uuid4().bytes
     dicom_uid = '2.25'
-    for i in range(len(uuid)):
+    for i in range(len(new_uuid)):
         dicom_uid += '.' + str(new_uuid[i])
 
     return dicom_uid

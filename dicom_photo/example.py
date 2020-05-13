@@ -16,7 +16,6 @@ filename_big_endian = tempfile.NamedTemporaryFile(suffix=suffix).name
 print("Setting file meta information...")
 # Populate required values for file meta information
 file_meta = Dataset()
-file_meta.MediaStorageSOPClassUID = '1.2.840.10008.5.1.4.1.1.77.1.4'
 # file_meta.MediaStorageSOPClassUID = '1.2.840.10008.5.1.4.1.1.2'
 # file_meta.MediaStorageSOPInstanceUID = "1.2.3"
 # file_meta.ImplementationClassUID = "1.2.3.4"

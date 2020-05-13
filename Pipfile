@@ -8,6 +8,8 @@ pylint = "*"
 
 [packages]
 pydicom = "*"
+pillow = "*"
+pynetdicom = "*"
 
 [requires]
 python_version = "3.7"

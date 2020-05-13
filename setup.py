@@ -19,10 +19,8 @@ import re
 
 
 
-init_py = io.open('dicom-vl-photographic-image/__init__.py').read()
+init_py = io.open('dicom_photo/__init__.py').read()
 metadata = dict(re.findall("__([a-z]+)__ = '([^']+)'", init_py))
-# print("metadata_doc is:[{}]".format(re.findall('"""(.+)"""', init_py)))
-# metadata['doc'] = re.findall('"""(.+)"""', init_py)[0]
 metadata['doc'] = """ADICOM Visible Light Photographic Image IOD"""
 
 here = path.abspath(path.dirname(__file__))
@@ -36,7 +34,7 @@ with open(path.join(here, 'README.md'), encoding='utf-8') as f:
 
 setup(
     
-    python_requires='3',
+    python_requires='>=3',
     
     # This is the name of your project. The first time you publish this
     # package, this name will be registered for you. It will determine how
@@ -49,7 +47,7 @@ setup(
     # There are some restrictions on what makes a valid project name
     # specification here:
     # https://packaging.python.org/specifications/core-metadata/#name
-    name='dicom-vl-photographic-image',  # Required
+    name='dicom_photo',  # Required
 
     # Versions should comply with PEP 440:
     # https://www.python.org/dev/peps/pep-0440/
@@ -145,7 +143,11 @@ setup(
     #
     # For an analysis of "install_requires" vs pip's requirements files see:
     # https://packaging.python.org/en/latest/requirements.html
-    install_requires=[],  # Optional
+    install_requires=[
+        'argparse',
+        'pydicom',
+        'pynetdicom',
+        'pillow'],  # Optional
 
     # List additional groups of dependencies here (e.g. development
     # dependencies). Users will be able to install these using the "extras"
@@ -185,8 +187,7 @@ setup(
     # executes the function `main` from this package when invoked:
     entry_points={  # Optional
         'console_scripts': [
-            # The rollover monitor tool
-            'dicom-vl=dicom-vl-photographic-image:main',
+            'img2dicom=dicom_photo.__main__:main',
         ],
     },
 
@@ -207,10 +208,10 @@ setup(
 #     },
 
     # Call these classes after installation
-    cmdclass={
-        'develop': PostDevelopCommand,
-        'install': PostInstallCommand,
-    },
+    # cmdclass={
+    #     'develop': PostDevelopCommand,
+    #     'install': PostInstallCommand,
+    # },
 
 
 )

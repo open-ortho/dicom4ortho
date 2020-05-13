@@ -5,27 +5,33 @@ A.32.4 VL Photographic Image IOD
 import os
 import tempfile
 import datetime
-import defaults
+import dicom_photo.defaults as defaults
 
 import pydicom
 import pynetdicom
 from pydicom.dataset import Dataset, FileDataset
+from pynetdicom.sop_class import VLPhotographicImageStorage
 import pydicom.sequence
 import PIL
 
 class DicomBase(object):
 
-    def __init__(self):
-        self.SOPClassUID = pynetdicom.sop_class.VLPhotographicImageStorage
+    def __init__(
+        self, 
+        input_image_filename=None,
+        output_image_filename=None):
+        self.SOPClassUID = VLPhotographicImageStorage
         self.SOPInstanceUID = defaults.generate_dicom_uid()
-        self.timeStr = datetime.datetime.now().strftime(defaults.time_format)
-        self.dateStr = datetime.datetime.now().strftime(defaults.date_format)
+        self.timeStr = datetime.datetime.now().strftime(defaults.TIME_FORMAT)
+        self.dateStr = datetime.datetime.now().strftime(defaults.DATE_FORMAT)
+        self.input_image_filename = input_image_filename
+        self.output_image_filename = output_image_filename 
 
     def set_file_meta(self):
         self.file_meta = Dataset()
         self.file_meta.MediaStorageSOPClassUID = self.SOPClassUID
         self.file_meta.MediaStorageSOPInstanceUID = self.SOPInstanceUID
-        self.file_meta.ImplementationClassUID = defaults.ImplementationClassUID
+        self.file_meta.ImplementationClassUID = defaults.IMPLEMENTATION_CLASS_UID
 
     def set_dataset(self,filename):
 
@@ -33,11 +39,11 @@ class DicomBase(object):
             filename, 
             {},
             file_meta=self.file_meta, 
-            preamble=defaults.dicom_preamble)
+            preamble=defaults.DICOM_PREAMBLE)
 
         self.ds.PatientName = "^"
-        self.ds.StudyDate = dateStr
-        self.ds.StudyTime = timeStr
+        self.ds.StudyDate = self.dateStr
+        self.ds.StudyTime = self.timeStr
 
     def set_patient_firstname(self, firstname):
         self.ds.PatientName = "{}^{}".format(
@@ -56,7 +62,7 @@ class DicomBase(object):
         self.ds.PatientSex = patient_sex
 
     def set_patient_birthdate(self, patient_birthdate):
-        self.ds.PatientBirthDate = patient_birthdate.strftime(defaults.date_format)
+        self.ds.PatientBirthDate = patient_birthdate.strftime(defaults.DATE_FORMAT)
 
     def set_dental_provider_firstname(self,firstname):
         if self.ds.ReferringPhysicianName is None:
@@ -79,10 +85,10 @@ class DicomBase(object):
         # Date and time are required if images is part of a Series in which 
         # the images are temporally related. This sounds like the case for orthodontic
         # intraoral and extraoral photograph sets.
-        self.ds.ContentDate = date_captured.strftime(defaults.date_format)
+        self.ds.ContentDate = date_captured.strftime(defaults.DATE_FORMAT)
 
     def set_time_captured(self,time_captured):
-        self.ds.ContentTime = time_captured.strftime(defaults.time_format)  # long format with micro seconds
+        self.ds.ContentTime = time_captured.strftime(defaults.TIME_FORMAT)  # long format with micro seconds
 
     def save_implicit_little_endian(self,filename):
         # Set the transfer syntax
@@ -90,7 +96,7 @@ class DicomBase(object):
         self.ds.is_little_endian = True
         self.ds.is_implicit_VR = True
 
-        print("Writing test file as Little Endian Implicit VR", filename_little_endian)
+        print("Writing test file as Little Endian Implicit VR", filename)
         self.ds.save_as(filename,write_like_original=False)
         print("File saved.")
 
@@ -101,11 +107,12 @@ class DicomBase(object):
         self.ds.is_little_endian = False
         self.ds.is_implicit_VR = False
 
-        print("Writing test file as Big Endian Explicit VR", filename_big_endian)
+        print("Writing test file as Big Endian Explicit VR", filename)
         self.ds.save_as(filename, write_like_original=False)
         print("File saved.")
 
 
+"""
     # General Study Module M
     ds.StudyInstanceUID = defaults.generate_dicom_uid()
     ds.StudyID = '1'
@@ -166,7 +173,7 @@ class DicomBase(object):
     ds.LossyImageCompression = '00'
 
     # SOP Common M
-    ds.SOPClassUID = SOPClassUID
+    ds.SOPClassUID = self.SOPClassUID
     ds.SOPInstanceUID = SOPInstanceUID
 
 def dciodvfy(filename):
@@ -194,3 +201,4 @@ dciodvfy(filename)
 # remove the created file
 print('Remove file {} ...'.format(filename))
 os.remove(filename)
+"""

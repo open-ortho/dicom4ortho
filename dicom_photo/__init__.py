@@ -1,3 +1,6 @@
-__url__ = 'https://github.com/orgs/open-ortho'
-__author__ = 'Toni Magni'
-__email__ = 'open-ortho@panio.info'
+"""
+A package to convert photographs stored in conventional formats (jpeg, png, etc) into DICOM.
+"""
+from dicom_photo.defaults import *
+
+__version__ = defaults.VERSION

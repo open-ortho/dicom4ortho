@@ -5,19 +5,20 @@ A.32.4 VL Photographic Image IOD
 import os
 import tempfile
 import datetime
-import defaults
 
 import pydicom
 import pynetdicom
 from pydicom.dataset import Dataset, FileDataset
 import pydicom.sequence
 import PIL
-from m_dicom_base import DicomBase
+import dicom_photo.m_dicom_base
 
-class PhotographBase(DicomBase):
+class PhotographBase(dicom_photo.m_dicom_base.DicomBase):
 
     def __init__(self):
         super().__init__()
+        self.set_file_meta()
+
 
     def set_dataset(self,filename):
         super().set_dataset(filename)
@@ -83,6 +84,8 @@ class PhotographBase(DicomBase):
         self.ds.ImageType[0] = 'DERIVED'
 
     def set_image(self,image_path):
+        self.set_dataset('file1.dcm')
+
         with PIL.Image.open(image_path) as im:
 
             # Note
@@ -232,11 +235,6 @@ def dciodvfy(filename):
         filename))
 
 
-dp = DentalPhotograph()
-dp.set_file_meta()
-dp.set_dataset('file1.dcm')
-dp.set_patient_firstname('First Name')
-dp.set_patient_lastname('Last Name')
 
 
 # reopen the data just for checking

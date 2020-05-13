@@ -195,6 +195,7 @@ class PhotographBase(dicom_photo.m_dicom_base.DicomBase):
                 print("Error: Incorrect value for SamplesPerPixel {}".format(ds.SamplesPerPixel))
 
 
+"""
     # General Image Module M
     ds.InstanceNumber = '1'
     ds.PatientOrientation = ''
@@ -247,3 +248,4 @@ dciodvfy(filename)
 # remove the created file
 print('Remove file {} ...'.format(filename))
 os.remove(filename)
+"""

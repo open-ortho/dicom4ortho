@@ -1,5 +1,5 @@
 """
-A.32.4 VL Photographic Image IOD
+A.32.4 VL Photographic Image IOD 
 
 """
 import os
@@ -110,7 +110,7 @@ class PhotographBase(DicomBase):
                 self.ds.HighBit = 7
                 self.ds.PhotometricInterpretation = 'MONOCHROME2'
             elif im.mode == 'P': # (8-bit pixels, mapped to any other mode using a color palette)
-                print("ERROR: mode [{}] is not yet implemented."format(im.mode))
+                print("ERROR: mode [{}] is not yet implemented.".format(im.mode))
                 raise NotImplementedError
 
                 # self.ds.SamplesPerPixel = 1
@@ -127,7 +127,7 @@ class PhotographBase(DicomBase):
                 self.ds.HighBit = 7
                 self.ds.PhotometricInterpretation = 'RGB'
             elif im.mode == 'RGBA': # (4x8-bit pixels, true color with transparency mask)
-                print("ERROR: mode [{}] is not yet implemented."format(im.mode))
+                print("ERROR: mode [{}] is not yet implemented.".format(im.mode))
                 raise NotImplementedError
                 # self.ds.SamplesPerPixel = 4
                 # self.ds.PlanarConfiguration = 0
@@ -136,7 +136,7 @@ class PhotographBase(DicomBase):
                 # self.ds.HighBit = 7
                 # self.ds.PhotometricInterpretation = 'ARGB'
             elif im.mode == 'CMYK': #  (4x8-bit pixels, color separation)
-                print("ERROR: mode [{}] is not yet implemented."format(im.mode))
+                print("ERROR: mode [{}] is not yet implemented.".format(im.mode))
                 raise NotImplementedError
                 # self.ds.SamplesPerPixel = 4
                 # self.ds.PlanarConfiguration = 0
@@ -145,7 +145,7 @@ class PhotographBase(DicomBase):
                 # self.ds.HighBit = 7
                 # self.ds.PhotometricInterpretation = 'CMYK'
             elif im.mode == 'YCbCr': # (3x8-bit pixels, color video format) Note that this refers to the JPEG, and not the ITU-R BT.2020, standard
-                print("ERROR: mode [{}] is not yet implemented."format(im.mode))
+                print("ERROR: mode [{}] is not yet implemented.".format(im.mode))
                 raise NotImplementedError
                 # self.ds.SamplesPerPixel = 3
                 # self.ds.PlanarConfiguration = 0
@@ -154,16 +154,16 @@ class PhotographBase(DicomBase):
                 # self.ds.HighBit = 7
                 # self.ds.PhotometricInterpretation = 'YBR_FULL'
             elif im.mode == 'LAB': # (3x8-bit pixels, the L*a*b color space)
-                print("ERROR: mode [{}] is not yet implemented."format(im.mode))
+                print("ERROR: mode [{}] is not yet implemented.".format(im.mode))
                 raise NotImplementedError
             elif im.mode == 'HSV': # (3x8-bit pixels, Hue, Saturation, Value color space)
-                print("ERROR: mode [{}] is not yet implemented."format(im.mode))
+                print("ERROR: mode [{}] is not yet implemented.".format(im.mode))
                 raise NotImplementedError
             elif im.mode == 'I': # (32-bit signed integer pixels)
-                print("ERROR: mode [{}] is not yet implemented."format(im.mode))
+                print("ERROR: mode [{}] is not yet implemented.".format(im.mode))
                 raise NotImplementedError
             elif im.mode == 'F': # (32-bit floating point pixels)
-                print("ERROR: mode [{}] is not yet implemented."format(im.mode))
+                print("ERROR: mode [{}] is not yet implemented.".format(im.mode))
                 raise NotImplementedError
 
             px = im.load()

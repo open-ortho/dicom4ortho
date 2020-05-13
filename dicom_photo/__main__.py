@@ -1,3 +1,7 @@
+"""
+
+"""
+
 from argparse import ArgumentParser
 from argparse import RawDescriptionHelpFormatter
 import dicom-vl-photographic-image.defaults

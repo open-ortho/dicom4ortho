@@ -1,3 +1,17 @@
+## Feature Roadmap
+
+### v0
+
+* Load single PNG/JPG file
+* Manually set metadata from filename, or hard code
+
+### v1
+
+* Load entire directory, for batch conversion
+* Load metadata from filename, like the files of the linedrawings, using our abbreviations.
+
+## Resources
+
 * [Instructions for crating a DICOM object from scratch in DICOM](https://pydicom.github.io/pydicom/dev/auto_examples/input_output/plot_write_dicom.html#sphx-glr-auto-examples-input-output-plot-write-dicom-py)
 * [Writing DICOM Files](https://pydicom.github.io/pydicom/dev/old/writing_files.html)
 

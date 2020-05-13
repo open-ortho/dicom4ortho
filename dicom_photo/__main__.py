@@ -76,11 +76,8 @@ USAGE
         args = parser.parse_args()
 
         c = dicom_photo.controller.SimpleController(args)
-        c.convert_image_to_dicom_photograph
+        # c.convert_image_to_dicom_photograph()
 
-        dicom_photograph = dicom_photo.m_orthodontic_photograph.PhotographBase()
-        dicom_photograph.set_image(args.input_filename)
-        dicom_photograph.set_dataset(filename=args.output_filename)
 
     except KeyboardInterrupt:
         ### handle keyboard interrupt ###

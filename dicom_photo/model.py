@@ -189,7 +189,7 @@ class PhotographBase(DicomBase):
         self.ds.ImageType[0] = 'DERIVED'
 
     def set_image(self,filename=None):
-        if self.ds.input_image_filename == None:
+        if not hasattr(self.ds, 'input_image_filename'):
             self.ds.input_image_filename = filename
 
         with PIL.Image.open(self.ds.input_image_filename) as im:

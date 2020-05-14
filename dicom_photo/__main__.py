@@ -62,11 +62,15 @@ USAGE
                             dest="output_filename",  
                             help="Where to store the DICOM file. ",
                             metavar='<filename>')
-#         parser.add_argument("--tempserver", 
-#                             dest="tempserver", 
-#                             action="store_true",
-#                             default=None,
-#                             help="destination server is a temp server [default: %(default)s]")
+        parser.add_argument("-t", "--image-type",
+                            dest="image_type",  
+                            help="What type of image this is",
+                            default='EV01',
+                            metavar='<filename>')
+        parser.add_argument("--validate", 
+                            dest="validate", 
+                            action="store_true",
+                            help="Validate DICOM File")
         parser.add_argument(dest="input_filename", 
                             help="path of file to convert to DICOM",
                             metavar='<filename>')
@@ -76,7 +80,14 @@ USAGE
         args = parser.parse_args()
 
         c = dicom_photo.controller.SimpleController(args)
-        # c.convert_image_to_dicom_photograph()
+
+        if args.validate is True:
+            c.validate_dicom(args.input_filename)
+        else:
+            c.convert_image_to_dicom_photograph(
+                image_type=args.image_type,
+                input_image_filename=args.input_filename,
+                output_image_filename=args.output_filename)
 
 
     except KeyboardInterrupt:

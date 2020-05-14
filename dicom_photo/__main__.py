@@ -82,12 +82,13 @@ USAGE
         c = dicom_photo.controller.SimpleController(args)
 
         if args.validate is True:
-            c.validate_dicom(args.input_filename)
+            c.validate_dicom_file(args.input_filename)
         else:
             c.convert_image_to_dicom_photograph(
                 image_type=args.image_type,
                 input_image_filename=args.input_filename,
                 output_image_filename=args.output_filename)
+            c.photo.print()
 
 
     except KeyboardInterrupt:

@@ -114,6 +114,12 @@ class DicomBase(object):
         self.ds.save_as(filename, write_like_original=False)
         print("File saved.")
 
+    def load(self,filename):
+        self.ds = pydicom.dcmread(filename)
+
+    def print(self):
+        print(self.ds)
+
 
 class PhotographBase(DicomBase):
     """

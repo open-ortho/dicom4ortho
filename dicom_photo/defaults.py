@@ -23,8 +23,9 @@ DICOM_PREAMBLE = b'\0' * 128
 # This is a unique ID generated for this specific software only.
 #  * Random generation using generate_dicom_uid() below
 #  * Append Version of software to distinguish between different releases
-#  * Should always be constant, just change with version numbers
-IMPLEMENTATION_CLASS_UID = '2.25.34.34.153.156.139.154.17.234.176.144.0.5.27.208.218.88.' + VERSION
+#  * Should always be constant, just change with version numbers. splitting out -dev or other version postfix
+#  * Max length 64. Cannot contain characters.
+IMPLEMENTATION_CLASS_UID = '2.25.34.34.153.156.139.154.17.234.176.144.0.5.27.' + VERSION.split('-')[0]
 
 def generate_dicom_uid():
     """

@@ -39,7 +39,7 @@ class DicomBase(object):
     def set_dataset(self,filename=None):
         if self.output_image_filename is None:
             self.output_image_filename = filename
-
+        
         self.ds = FileDataset(
             self.output_image_filename, 
             {},
@@ -49,6 +49,8 @@ class DicomBase(object):
         self.ds.PatientName = "^"
         self.ds.StudyDate = self.dateStr
         self.ds.StudyTime = self.timeStr
+        self.ds.SOPClassUID = self.SOPClassUID
+        self.ds.SOPInstanceUID = self.SOPInstanceUID
 
     def set_patient_firstname(self, firstname):
         self.ds.PatientName = "{}^{}".format(

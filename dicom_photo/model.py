@@ -4,7 +4,7 @@ The model.
 import os
 import tempfile
 import datetime
-import dicom_photo.defaults as defaults
+import logging
 
 import pydicom
 import pynetdicom
@@ -12,6 +12,8 @@ from pydicom.dataset import Dataset, FileDataset
 from pynetdicom.sop_class import VLPhotographicImageStorage
 import pydicom.sequence
 import PIL
+
+import dicom_photo.defaults as defaults
 
 class DicomBase(object):
     """
@@ -99,9 +101,9 @@ class DicomBase(object):
         self.ds.is_little_endian = True
         self.ds.is_implicit_VR = True
 
-        print("Writing test file as Little Endian Implicit VR", filename)
+        logging.debug("Writing test file as Little Endian Implicit VR [{}]".format(filename))
         self.ds.save_as(filename,write_like_original=False)
-        print("File saved.")
+        logging.info("File [{}] saved.".format(filename))
 
     def save_explicit_big_endian(self,filename):
         # Write as a different transfer syntax XXX shouldn't need this but pydicom
@@ -110,9 +112,9 @@ class DicomBase(object):
         self.ds.is_little_endian = False
         self.ds.is_implicit_VR = False
 
-        print("Writing test file as Big Endian Explicit VR", filename)
+        logging.debug("Writing test file as Big Endian Explicit VR [{}]".format(filename))
         self.ds.save_as(filename, write_like_original=False)
-        print("File saved.")
+        logging.info("File [{}] saved.".format(filename))
 
     def load(self,filename):
         self.ds = pydicom.dcmread(filename)

@@ -3,6 +3,7 @@ Defaults and Constants.
 """
 
 import uuid
+import logging
 
 VERSION = '0.1.0-dev'
 __url__ = 'https://github.com/orgs/open-ortho'
@@ -29,10 +30,10 @@ def generate_dicom_uid():
     """
     A function to generate DICOM UIDs for new objects.
     """
-    print("Generating new Instance UID...")
     new_uuid = uuid.uuid4().bytes
     dicom_uid = '2.25'
     for i in range(len(new_uuid)):
         dicom_uid += '.' + str(new_uuid[i])
 
+    logging.debug("Generated new Instance UID {}".format(dicom_uid))
     return dicom_uid

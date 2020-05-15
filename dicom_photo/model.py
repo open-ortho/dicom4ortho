@@ -305,3 +305,7 @@ class PhotographBase(DicomBase):
                             self.ds.PixelData += bytes([px[row,column][sample]])
             else:
                 print("Error: Incorrect value for SamplesPerPixel {}".format(self.ds.SamplesPerPixel))
+
+            # PixelData has to always be divisible by 2. Add an extra byte if it's not.
+            if len(self.ds.PixelData) % 2 == 1:
+                self.ds.PixelData += b'0'

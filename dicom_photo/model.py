@@ -206,8 +206,8 @@ class PhotographBase(DicomBase):
 
             # Note
 
-            self.ds.Rows = im.size[0]
-            self.ds.Columns = im.size[1]
+            self.ds.Rows = im.size[1]
+            self.ds.Columns = im.size[0]
 
             if im.mode == '1': # (1-bit pixels, black and white, stored with one pixel per byte)
                 self.ds.SamplesPerPixel = 1
@@ -301,12 +301,12 @@ class PhotographBase(DicomBase):
             if self.ds.SamplesPerPixel == 1:
                 for row in range(self.ds.Rows):
                     for column in range(self.ds.Columns):
-                        self.ds.PixelData += bytes([px[row,column]])
+                        self.ds.PixelData += bytes([px[column,row]])
             elif self.ds.SamplesPerPixel > 1:
                 for row in range(self.ds.Rows):
                     for column in range(self.ds.Columns):
                         for sample in range(self.ds.SamplesPerPixel):
-                            self.ds.PixelData += bytes([px[row,column][sample]])
+                            self.ds.PixelData += bytes([px[column,row][sample]])
             else:
                 print("Error: Incorrect value for SamplesPerPixel {}".format(self.ds.SamplesPerPixel))
 

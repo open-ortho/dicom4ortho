@@ -104,6 +104,8 @@ USAGE
 
         if args.validate is True:
             c.validate_dicom_file(args.input_filename)
+        elif args.input_filename.lower().endswith('.csv'):
+            c.bulk_convert_from_csv(args.input_filename)
         else:
             c.convert_image_to_dicom_photograph(
                 image_type=args.image_type,

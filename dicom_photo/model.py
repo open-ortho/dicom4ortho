@@ -55,7 +55,7 @@ class DicomBase(object):
     def set_patient_firstname(self, firstname):
         self.ds.PatientName = "{}^{}".format(
             firstname,
-            self.ds.PatientName.split('^')[1])
+            str(self.ds.PatientName).split('^')[1])
 
     def set_patient_lastname(self, lastname):
         self.ds.PatientName = "{}^{}".format(
@@ -87,7 +87,6 @@ class DicomBase(object):
             lastname,
             self.ds.ReferringPhysicianName.split('^')[0])
 
-
     def set_date_captured(self,date_captured):
         # Date and time are required if images is part of a Series in which 
         # the images are temporally related. This sounds like the case for orthodontic
@@ -97,7 +96,10 @@ class DicomBase(object):
     def set_time_captured(self,time_captured):
         self.ds.ContentTime = time_captured.strftime(defaults.TIME_FORMAT)  # long format with micro seconds
 
-    def save_implicit_little_endian(self,filename):
+    def save_implicit_little_endian(self,filename=None):
+        if filename is None:
+            filename = self.output_image_filename
+
         # Set the transfer syntax
         self.ds.file_meta.TransferSyntaxUID = pydicom.uid.ImplicitVRLittleEndian
         self.ds.is_little_endian = True
@@ -107,7 +109,9 @@ class DicomBase(object):
         self.ds.save_as(filename,write_like_original=False)
         logging.info("File [{}] saved.".format(filename))
 
-    def save_explicit_big_endian(self,filename):
+    def save_explicit_big_endian(self,filename=None):
+        if filename is None:
+            filename = self.output_image_filename
         # Write as a different transfer syntax XXX shouldn't need this but pydicom
         # 0.9.5 bug not recognizing transfer syntax
         self.ds.file_meta.TransferSyntaxUID = pydicom.uid.ExplicitVRBigEndian
@@ -198,11 +202,14 @@ class PhotographBase(DicomBase):
         """
         self.ds.ImageType[0] = 'DERIVED'
 
+    def set_manufacturer(self,manufacturer):
+        self.ds.Manufacturer = manufacturer
+
     def set_image(self,filename=None):
-        if not hasattr(self.ds, 'input_image_filename'):
+        if filename is not None and not hasattr(self.ds, 'input_image_filename'):
             self.ds.input_image_filename = filename
 
-        with PIL.Image.open(self.ds.input_image_filename) as im:
+        with PIL.Image.open(self.input_image_filename) as im:
 
             # Note
 

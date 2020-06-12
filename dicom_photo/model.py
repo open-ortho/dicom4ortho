@@ -28,7 +28,7 @@ class DicomBase(object):
         self.timeStr = datetime.datetime.now().strftime(defaults.TIME_FORMAT)
         self.dateStr = datetime.datetime.now().strftime(defaults.DATE_FORMAT)
         self.input_image_filename = input_image_filename
-        self.output_image_filename = output_image_filename 
+        self.output_image_filename = output_image_filename
 
     def set_file_meta(self):
         self.file_meta = Dataset()
@@ -52,23 +52,48 @@ class DicomBase(object):
         self.ds.SOPClassUID = self.SOPClassUID
         self.ds.SOPInstanceUID = self.SOPInstanceUID
 
-    def set_patient_firstname(self, firstname):
+    @property
+    def patient_firstname(self):
+        return self.ds.PatientName.split('^')[0]
+
+    @patient_firstname.setter
+    def patient_firstname(self, firstname):
         self.ds.PatientName = "{}^{}".format(
             firstname,
             str(self.ds.PatientName).split('^')[1])
 
-    def set_patient_lastname(self, lastname):
+    @property
+    def patient_lastname(self):
+        return self.ds.PatientName.split('^')[1]
+
+    @patient_lastname.setter
+    def patient_lastname(self, lastname):
         self.ds.PatientName = "{}^{}".format(
             lastname,
-            self.ds.PatientName.split('^')[0])
+            str(self.ds.PatientName).split('^')[0])
 
-    def set_patient_id(self, patient_id):
+    @property
+    def patient_id(self):
+        return self.ds.PatientID
+
+    @patient_id.setter
+    def patient_id(self, patient_id):
         self.ds.PatientID = patient_id
 
-    def set_patient_sex(self, patient_sex):
+    @property
+    def patient_sex(self):
+        return self.ds.PatientSex
+
+    @patient_sex.setter
+    def patient_sex(self, patient_sex):
         self.ds.PatientSex = patient_sex
 
-    def set_patient_birthdate(self, patient_birthdate):
+    @property
+    def patient_birthdate(self):
+        return datetime.datetime.strptime(self.ds.PatientBirthDate, defaults.DATE_FORMAT).date()
+
+    @patient_birthdate.setter
+    def patient_birthdate(self, patient_birthdate):
         self.ds.PatientBirthDate = patient_birthdate.strftime(defaults.DATE_FORMAT)
 
     def set_dental_provider_firstname(self,firstname):
@@ -87,7 +112,15 @@ class DicomBase(object):
             lastname,
             self.ds.ReferringPhysicianName.split('^')[0])
 
-    def set_date_captured(self,date_captured):
+    @property
+    def date_captured(self):
+        # Date and time are required if images is part of a Series in which 
+        # the images are temporally related. This sounds like the case for orthodontic
+        # intraoral and extraoral photograph sets.
+        return datetime.datetime.strptime(self.ds.ContentDate, defaults.DATE_FORMAT).date()
+        
+    @date_captured.setter
+    def date_captured(self,date_captured):
         # Date and time are required if images is part of a Series in which 
         # the images are temporally related. This sounds like the case for orthodontic
         # intraoral and extraoral photograph sets.

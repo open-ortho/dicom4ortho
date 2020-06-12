@@ -33,7 +33,8 @@ class SimpleController(object):
         self.photo.output_image_filename = metadata['image_filename'].replace(metadata['image_filename'].split('.')[-1],'dcm')
 
         self.photo.set_dataset()
-        self.photo.set_patient_firstname(metadata['patient_firstname'])
+        self.photo.patient_firstname = metadata['patient_firstname']
+        self.photo.patient_lastname = metadata['patient_lastname']
         self.photo.set_image()
         self.photo.save_implicit_little_endian()
 

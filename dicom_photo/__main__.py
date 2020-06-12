@@ -87,7 +87,7 @@ USAGE
         )
         parser.add_argument(
             dest="input_filename", 
-            help="path of file to convert to DICOM",
+            help="path of file of CSV file with metadata and filename of file to convert to DICOM",
             metavar='<filename>',
         )
 

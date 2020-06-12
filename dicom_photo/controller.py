@@ -1,11 +1,14 @@
 """
 Controller
 """
+import datetime
 import dicom_photo.model as model
 import logging
 import os
 import os.path
 import csv
+
+import dicom_photo.defaults as defaults
 
 class SimpleController(object):
     """
@@ -35,6 +38,12 @@ class SimpleController(object):
         self.photo.set_dataset()
         self.photo.patient_firstname = metadata['patient_firstname']
         self.photo.patient_lastname = metadata['patient_lastname']
+        self.photo.patient_id = metadata['patient_id']
+        self.photo.patient_sex = metadata['patient_sex']
+        self.photo.patient_birthdate = datetime.datetime.strptime(metadata['patient_birthdate'], defaults.IMPORT_DATE_FORMAT).date()
+        self.photo.dental_provider_firstname = metadata['dental_provider_firstname']
+        self.photo.dental_provider_lastname = metadata['dental_provider_lastname']
+
         self.photo.set_image()
         self.photo.save_implicit_little_endian()
 

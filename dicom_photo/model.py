@@ -96,21 +96,31 @@ class DicomBase(object):
     def patient_birthdate(self, patient_birthdate):
         self.ds.PatientBirthDate = patient_birthdate.strftime(defaults.DATE_FORMAT)
 
-    def set_dental_provider_firstname(self,firstname):
+    @property
+    def dental_provider_firstname(self):
+        return self.ds.ReferringPhysicianName.split('^')[0]
+
+    @dental_provider_firstname.setter
+    def dental_provider_firstname(self,firstname):
+        if not hasattr(self.ds, 'ReferringPhysicianName'):
+            self.ds.ReferringPhysicianName = "^"
+
+        self.ds.ReferringPhysicianName = "{}^{}".format(
+            firstname,
+            str(self.ds.ReferringPhysicianName).split('^')[1])
+
+    @property
+    def dental_provider_lastname(self):
+        return self.ds.ReferringPhysicianName.split('^')[1]
+
+    @dental_provider_lastname.setter
+    def dental_provider_lastname(self,firstname):
         if self.ds.ReferringPhysicianName is None:
             self.ds.ReferringPhysicianName = "^"
 
         self.ds.ReferringPhysicianName = "{}^{}".format(
             firstname,
-            self.ds.ReferringPhysicianName.split('^')[1])
-
-    def set_dental_provider_lastname(self, lastname):
-        if self.ds.ReferringPhysicianName is None:
-            self.ds.ReferringPhysicianName = "^"
-            
-        self.ds.PatientName = "{}^{}".format(
-            lastname,
-            self.ds.ReferringPhysicianName.split('^')[0])
+            str(self.ds.ReferringPhysicianName).split('^')[0])
 
     @property
     def date_captured(self):

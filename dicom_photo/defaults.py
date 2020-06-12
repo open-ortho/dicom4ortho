@@ -16,6 +16,12 @@ __creation_date__ = '2020-05-01'
 
 DICOM3TOOLS_PATH = '/Users/cdstaff/dev/open-ortho/dicom-photography/resources/dicom3tools_macexe_1.00.snapshot.20191225051647'
 
+# Date format used when importing date from CSV file. 
+# The date in the CSV file should be in this format.
+IMPORT_DATE_FORMAT = '%Y-%m-%d'
+IMPORT_TIME_FORMAT = '%H%M%S.%f'
+
+# Date format in DICOM file
 DATE_FORMAT = '%Y%m%d'
 TIME_FORMAT = '%H%M%S.%f'
 DICOM_PREAMBLE = b'\0' * 128

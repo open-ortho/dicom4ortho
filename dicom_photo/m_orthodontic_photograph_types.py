@@ -4,8 +4,13 @@ from pydicom.dataset import Dataset
 import dicom_photo.m_dental_acquisition_context_module
 
 class OrthodonticPhotographTypes(object):
-    EV01 = [EO,RP,LR,CO]
-    EV02 = [EO,RP,LR,CR]
+    EV01 = []
+    EV02 = []
+
+    def __init__(self):
+        self.EV01 = [self.EO,self.RP,self.LR,self.CO]
+        self.EV02 = [self.EO,self.RP,self.LR,self.CR]
+
 
     def EO(self,ds):
         pass
@@ -24,17 +29,19 @@ class OrthodonticPhotographTypes(object):
         ds.ImageLaterality = 'B' # Both
 
     def LR(self,ds):
-        pass
+        ds.FunctionalCondition = self._get_sct_code_sequence('745165', 'Lips relaxed')
 
     def CO(self,ds):
-        pass
+        ds.OcclusalRelationship = self._get_sct_code_sequence('110320000',
+            'Centric occlusion (observable entity)')
 
     def CR(self,ds):
-        pass
+        ds.OcclusalRelationship = self._get_sct_code_sequence('736783005',
+            'Centric relation (observable entity)')
 
     def _face(self,ds):
         a_r_s = self._get_sct_code_sequence('302549007','Entire face (body structure)')
-        a_r_s[0].AnatomicRegionModifier = \
+        a_r_s[0].AnatomicRegionModifierSequence = \
                 self._get_sct_code_sequence('276727009','Null (qualifier value)')
         ds.AnatomicRegionSequence = a_r_s
 

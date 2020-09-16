@@ -5,7 +5,9 @@ Created on Jul 3, 2018
 '''
 import unittest
 import logging
-import dicom_photo.m_orthodontic_photograph
+import dicom_photo.model
+from dicom_photo.m_orthodontic_photograph_types import OrthodonticPhotographTypes
+from pydicom.dataset import Dataset
 
 class Test(unittest.TestCase):
 
@@ -18,7 +20,11 @@ class Test(unittest.TestCase):
         pass
 
     def testOne(self):
-       pass 
+        ot = OrthodonticPhotographTypes()
+        ds = Dataset()
+        for f in ot.EV01:
+            f(ds)
+        print("{}".format(ds))
 
     # def test_newfile(self):
     #     photograph

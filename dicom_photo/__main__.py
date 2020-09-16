@@ -70,6 +70,7 @@ USAGE
             "-o", "--output-filename",
             dest="output_filename",  
             help="Where to store the DICOM file. ",
+            default=None,
             metavar='<filename>',
         )
         parser.add_argument(
@@ -107,10 +108,10 @@ USAGE
         elif args.input_filename.lower().endswith('.csv'):
             c.bulk_convert_from_csv(args.input_filename)
         else:
-            c.convert_image_to_dicom_photograph(
-                image_type=args.image_type,
-                input_image_filename=args.input_filename,
-                output_image_filename=args.output_filename)
+            c.convert_image_to_dicom_photograph({
+                'image_type' : 'args.image_type',
+                'image_filename' : 'args.input_filename',
+                'output_image_filename' : 'args.output_filename'})
             c.photo.print()
 
 

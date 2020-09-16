@@ -31,9 +31,35 @@ class SimpleController(object):
 
 
     def convert_image_to_dicom_photograph(self, metadata):
+        ''' Converts a plain image into a DICOM object.
+
+        All image metadata are passed as a dict in metadata with the following keys:
+
+        image_filename: Input image file name
+
+        output_image_filename: the filename of the output .DCM image. You must
+        provide your extension here.
+
+        patient_firstname
+
+        patient_lastname
+
+        patient_id
+
+        patient_sex
+
+        patient_birthdate
+
+        dental_provider_firstname
+
+        dental_provider_lastname
+        '''
         self.photo = model.PhotographBase()
         self.photo.input_image_filename = metadata['image_filename']
-        self.photo.output_image_filename = metadata['image_filename'].replace(metadata['image_filename'].split('.')[-1],'dcm')
+        if ('output_image_filename' not in metadata) or (metadata['output_image_filename'] is None):
+            self.photo.output_image_filename = metadata['image_filename'].replace(metadata['image_filename'].split('.')[-1],'dcm')
+        else:
+            self.photo.output_image_filename = metadata['output_image_filename']
 
         self.photo.set_dataset()
         self.photo.patient_firstname = metadata['patient_firstname']
@@ -57,6 +83,11 @@ class SimpleController(object):
     #     self.photo.save_implicit_little_endian(output_image_filename)
 
     def validate_dicom_file(self,input_image_filename):
+        ''' Validate DICOM File.
+
+        Requires installation of dicom3tools.
+        '''
+
         self.print_dicom_file(input_image_filename)
         print('\nValidating file {}'.format(input_image_filename))
         dicom3tools_path = '/Users/cdstaff/dev/open-ortho/dicom-photography/resources/dicom3tools_macexe_1.00.snapshot.20191225051647'
@@ -66,6 +97,8 @@ class SimpleController(object):
 
 
     def print_dicom_file(self,input_image_filename):
+        ''' Print DICOM tags
+        '''
         self.photo.load(input_image_filename)
         self.photo.print()
 

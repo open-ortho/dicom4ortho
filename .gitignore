@@ -1,4 +1,5 @@
 resources/dicom3tools_*
 dist/*
+build
 *.pyc
 *.egg-info

@@ -1,14 +1,49 @@
-import os
-import tempfile
-import datetime
+from pydicom.sequence import Sequence
+from pydicom.dataset import Dataset
 
-import pydicom
-import pynetdicom
-from pydicom.dataset import Dataset, FileDataset
-import pydicom.sequence
-import PIL
-import dicom_photo.m_dicom_base
+import dicom_photo.m_dental_acquisition_context_module
 
+class OrthodonticPhotographTypes(object):
+    EV01 = [EO,RP,LR,CO]
+    EV02 = [EO,RP,LR,CR]
+
+    def EO(self,ds):
+        pass
+
+    def RP(self, ds):
+        self._face(ds)
+        ds.ImageLaterality = 'R'
+        ds.AcquisitionView = self._get_sct_code_sequence('30730003','Sagittal (qualifier value)')
+
+    def LP(self, ds):
+        self._face(ds)
+        ds.ImageLaterality = 'L'
+
+    def FF(self, ds):
+        self._face(ds)
+        ds.ImageLaterality = 'B' # Both
+
+    def LR(self,ds):
+        pass
+
+    def CO(self,ds):
+        pass
+
+    def CR(self,ds):
+        pass
+
+    def _face(self,ds):
+        a_r_s = self._get_sct_code_sequence('302549007','Entire face (body structure)')
+        a_r_s[0].AnatomicRegionModifier = \
+                self._get_sct_code_sequence('276727009','Null (qualifier value)')
+        ds.AnatomicRegionSequence = a_r_s
+
+    def _get_sct_code_sequence(self,value,meaning):
+        code_ds = Dataset()
+        code_ds.CodeMeaning = meaning
+        code_ds.CodeValue = value
+        code_ds.CodingSchemeDesignator = 'SCT'
+        return Sequence([code_ds])
 
 
 """

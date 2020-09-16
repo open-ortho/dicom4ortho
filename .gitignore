@@ -1,5 +1,4 @@
 resources/dicom3tools_*
-.vscode
 dist/*
 *.pyc
 *.egg-info

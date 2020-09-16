@@ -5,12 +5,11 @@ Created on Jul 3, 2018
 '''
 import unittest
 import logging
-from dicom-vl-photographic-image import photograph
+import dicom_photo.m_orthodontic_photograph
 
 class Test(unittest.TestCase):
 
     def setUp(self):
-        print(time)
         logging.basicConfig(format='%(asctime)s - %(levelname)s - %(funcName)s: %(message)s',
                     level=logging.DEBUG)
         
@@ -19,7 +18,7 @@ class Test(unittest.TestCase):
         pass
 
     def testOne(self):
-        
+       pass 
 
     # def test_newfile(self):
     #     photograph

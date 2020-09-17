@@ -16,27 +16,24 @@ import dicom_photo.m_orthodontic_photograph_types
 class DicomBase(object):
     """ Functions and fields common to most DICOM images.
     """
-    def __init__(self, 
-            input_image_filename = None,
-            output_image_filename = None):
+
+    def __init__(self,**kwargs):
         self.sop_instance_uid = defaults.generate_dicom_uid()
         self.time_string = datetime.datetime.now().strftime(defaults.TIME_FORMAT)
         self.date_string = datetime.datetime.now().strftime(defaults.DATE_FORMAT)
-        self.input_image_filename = input_image_filename
-        self.output_image_filename = output_image_filename
+        self.input_image_filename = kwargs['input_image_filename']
+        self.output_image_filename = kwargs['output_image_filename']
         self.file_meta = Dataset()
         self._ds = None
+        self._set_dataset()
 
     def set_file_meta(self):
         self.file_meta.MediaStorageSOPInstanceUID = self.sop_instance_uid
         self.file_meta.ImplementationClassUID = defaults.IMPLEMENTATION_CLASS_UID
 
-    def set_dataset(self,filename=None):
-        if self.output_image_filename is None:
-            self.output_image_filename = filename
-
+    def _set_dataset(self):
         self._ds = FileDataset(
-            self.output_image_filename, 
+            self.output_image_filename,
             {},
             file_meta=self.file_meta, 
             preamble=defaults.DICOM_PREAMBLE)
@@ -177,13 +174,13 @@ class PhotographBase(DicomBase):
     A.32.4 VL Photographic Image IOD 
     """
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self,**kwargs):
+        super().__init__(**kwargs)
         self.set_file_meta()
         self.file_meta.MediaStorageSOPClassUID = VLPhotographicImageStorage
+        self._set_dataset()
 
-    def set_dataset(self,filename=None):
-        super().set_dataset(filename)
+    def _set_dataset(self):
         self._ds.SOPClassUID = VLPhotographicImageStorage
         self._ds.Modality = 'XC'
 
@@ -373,11 +370,26 @@ class PhotographBase(DicomBase):
 class OrthodonticPhotograph(PhotographBase):
     """ An Orthodontic Photograph as defined in WP-1100
 
+        arguments:
+
+        photo_type: a 4 digit ortho photo type code as specifed in WP-1100. Ex. EV01
+
+        input_image_filename: name of input image file
+
+        output_image_filename: name of output image file
     """
-    def __init__(self, orthodontic_photograph_type):
-        super().__init__()
-        self._type = orthodontic_photograph_type
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        if callable(kwargs['photo_type']):
+            self._type = kwargs['photo_type']
+        else:
+            photo_type = kwargs['photo_type'].replace('-','')
+            self._type = getattr(dicom_photo.m_orthodontic_photograph_types.OrthodonticPhotographTypes(),
+                photo_type)
+        
+        self._set_dicom_attributes()
 
     def _set_dicom_attributes(self):
         for set_attr in self._type:
+            logging.debug('Setting DICOM attributes for {}', self._type)
             set_attr(self._ds)

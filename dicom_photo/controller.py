@@ -1,12 +1,12 @@
 """
 Controller
 """
-import datetime
-import dicom_photo.model as model
-import logging
 import os
 import os.path
 import csv
+import datetime
+import logging
+import dicom_photo.model as model
 
 import dicom_photo.defaults as defaults
 
@@ -16,11 +16,8 @@ class SimpleController(object):
     """
 
     def __init__(self, args):
-        self.photo = model.PhotographBase()
-        self.photo.input_image_filename = args.input_filename
-        self.photo.output_image_filename = args.output_filename
-
-        self.photo.set_dataset()
+        self._cli_args = args
+        self.photo = None
 
     def bulk_convert_from_csv(self, csv_input):
         with open(csv_input, mode='r') as csv_file:
@@ -54,14 +51,18 @@ class SimpleController(object):
 
         dental_provider_lastname
         '''
-        self.photo = model.PhotographBase()
-        self.photo.input_image_filename = metadata['image_filename']
-        if ('output_image_filename' not in metadata) or (metadata['output_image_filename'] is None):
-            self.photo.output_image_filename = metadata['image_filename'].replace(metadata['image_filename'].split('.')[-1],'dcm')
-        else:
-            self.photo.output_image_filename = metadata['output_image_filename']
 
-        self.photo.set_dataset()
+        if ('output_image_filename' not in metadata) or (metadata['output_image_filename'] is None):
+            outputfilename = metadata['image_filename'].replace(metadata['image_filename'].split('.')[-1],'dcm')
+        else:
+            outputfilename = metadata['output_image_filename']
+            
+        self.photo = model.OrthodonticPhotograph(
+            photo_type = metadata['image_type'], 
+            input_image_filename = metadata['image_filename'],
+            output_image_filename = outputfilename)
+            
+
         self.photo.patient_firstname = metadata['patient_firstname']
         self.photo.patient_lastname = metadata['patient_lastname']
         self.photo.patient_id = metadata['patient_id']
@@ -99,6 +100,9 @@ class SimpleController(object):
     def print_dicom_file(self,input_image_filename):
         ''' Print DICOM tags
         '''
-        self.photo.load(input_image_filename)
-        self.photo.print()
+        _photo = model.DicomBase(
+            input_image_filename = input_image_filename,
+            output_image_filename = None)
+        _photo.load(input_image_filename)
+        _photo.print()
 

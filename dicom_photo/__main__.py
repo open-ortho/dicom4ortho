@@ -2,13 +2,12 @@
 
 """
 
+import sys
+import logging
 from argparse import ArgumentParser
 from argparse import RawDescriptionHelpFormatter
 import dicom_photo.defaults as defaults
-import dicom_photo.m_orthodontic_photograph
-import dicom_photo.controller
-import sys, os
-import logging
+import dicom_photo.controller as controller
 
 class CLIError(Exception):
     '''Generic exception to raise and log different fatal errors.'''
@@ -101,7 +100,7 @@ USAGE
         logging.basicConfig(format='%(asctime)s - %(levelname)s - %(funcName)s: %(message)s',
                     level=args.log_level)
 
-        c = dicom_photo.controller.SimpleController(args)
+        c = controller.SimpleController(args)
 
         if args.validate is True:
             c.validate_dicom_file(args.input_filename)

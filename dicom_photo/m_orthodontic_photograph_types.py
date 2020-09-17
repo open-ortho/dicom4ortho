@@ -11,7 +11,10 @@ class OrthodonticPhotographTypes(object):
         self.EV04 = [self._EO,self._RP,self._LC,self._CR]
         self.EV05 = [self._EO,self._RP,self._FS,self._CO]
         self.EV06 = [self._EO,self._RP,self._FS,self._CR]
-        self.EV07 = [self._EO,self._RP,self._MD,self._PF]
+        self.EV07 = [self._EO,self._RP,self._PF,self._or_none]
+        self.EV08 = [self._EO,self._RP,self._LR,self._CO,self._45]
+        self.EV09 = [self._EO,self._LP,self._LC,self._CO,self._45]
+        self.EV10 = [self._EO,self._RP,self._LC,self._CR,self._45]
 
 
     def _EO(self,dataset):
@@ -60,12 +63,18 @@ class OrthodonticPhotographTypes(object):
     def _CR(self,dataset):
         dataset.OcclusalRelationship = self._get_sct_code_sequence('736783005',
             'Centric relation (observable entity)')
+    
+    def _or_none(self,dataset):
+        """ Null Occlusal Relationship
+        """
+        dataset.OcclusalRelationship = self._null()
 
     def _MD(self,dataset):
         """ Mandibular 
         """
-        dataset.OcclusalRelationship = self._get_sct_code_sequence('736783005',
-            'Centric relation (observable entity)')
+        a_r_s = self._get_sct_code_sequence('181812008','Entire mandible (body structure)')
+        a_r_s[0].AnatomicRegionModifierSequence = self._null()
+        dataset.AnatomicRegionSequence = a_r_s
 
     def _MX(self,dataset):
         """ Maxillary
@@ -90,7 +99,8 @@ class OrthodonticPhotographTypes(object):
     def _PF(self,dataset):
         """ Mandible Postured Forward
         """
-        pass
+        dataset.FunctionalCondition = self._get_sct_code_sequence('787611004',
+            'Photographic image extraoral with mandible postured forward (record artifact)')
 
     def _OF(self,dataset):
         """ Other Face
@@ -165,7 +175,8 @@ class OrthodonticPhotographTypes(object):
     def _45(self,dataset):
         """ 45º View
         """
-        pass
+        dataset.AcquisitionView = self._get_sct_code_sequence('30730003',
+            'Photographic image extraoral with 45 degree view (record artifact)')
 
     def _OV(self,dataset):
         """ Occlusal View
@@ -243,10 +254,17 @@ class OrthodonticPhotographTypes(object):
         """
         pass
 
+    def _null(self):
+        return self._get_sct_code_sequence('276727009','Null (qualifier value)')
+
+    def _mandible(self,dataset):
+        a_r_s = self._get_sct_code_sequence('181812008','Entire mandible (body structure)')
+        a_r_s[0].AnatomicRegionModifierSequence = self._null()
+        dataset.AnatomicRegionSequence = a_r_s
+
     def _face(self,dataset):
         a_r_s = self._get_sct_code_sequence('302549007','Entire face (body structure)')
-        a_r_s[0].AnatomicRegionModifierSequence = \
-                self._get_sct_code_sequence('276727009','Null (qualifier value)')
+        a_r_s[0].AnatomicRegionModifierSequence = self._null()
         dataset.AnatomicRegionSequence = a_r_s
 
     def _get_sct_code_sequence(self,value,meaning):

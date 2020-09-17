@@ -70,6 +70,7 @@ class SimpleController(object):
         self.photo.patient_birthdate = datetime.datetime.strptime(metadata['patient_birthdate'], defaults.IMPORT_DATE_FORMAT).date()
         self.photo.dental_provider_firstname = metadata['dental_provider_firstname']
         self.photo.dental_provider_lastname = metadata['dental_provider_lastname']
+        self.photo.equipment_manufacturer = metadata['manufacturer']
 
         self.photo.set_image()
         self.photo.save_implicit_little_endian()

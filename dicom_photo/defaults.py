@@ -33,6 +33,9 @@ DICOM_PREAMBLE = b'\0' * 128
 #  * Max length 64. Cannot contain characters.
 IMPLEMENTATION_CLASS_UID = '2.25.34.34.153.156.139.154.17.234.176.144.0.5.27.' + VERSION.split('-')[0]
 
+# The default IDs used for SeriesNumber StudyID and InstanceNumber
+IDS_NUMBERS = '000'
+
 def generate_dicom_uid():
     """
     A function to generate DICOM UIDs for new objects.

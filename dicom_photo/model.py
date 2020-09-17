@@ -5,7 +5,7 @@ import datetime
 import logging
 
 import pydicom
-import pydicom.sequence
+from pydicom.sequence import Sequence
 from pydicom.dataset import Dataset, FileDataset
 from pynetdicom.sop_class import VLPhotographicImageStorage
 import PIL
@@ -26,6 +26,11 @@ class DicomBase(object):
         self.file_meta = Dataset()
         self._ds = None
         self._set_dataset()
+        self._set_general_series()
+        self._set_general_study()
+        self._set_general_image()
+        self._set_acquisition_context()
+        self._set_sop_common()
 
     def set_file_meta(self):
         self.file_meta.MediaStorageSOPInstanceUID = self.sop_instance_uid
@@ -39,9 +44,28 @@ class DicomBase(object):
             preamble=defaults.DICOM_PREAMBLE)
 
         self._ds.PatientName = "^"
+
+    def _set_general_study(self):
+        self._ds.AccessionNumber = ''
+        self._ds.StudyInstanceUID = defaults.generate_dicom_uid()
+        self._ds.StudyID = defaults.IDS_NUMBERS
         self._ds.StudyDate = self.date_string
         self._ds.StudyTime = self.time_string
+
+    def _set_general_series(self):
+        self._ds.SeriesInstanceUID = defaults.generate_dicom_uid()
+        self._ds.SeriesNumber = defaults.IDS_NUMBERS
+
+    def _set_general_image(self):
+        self._ds.InstanceNumber = defaults.IDS_NUMBERS
+        self._ds_PatientOrientation = ''
+
+    def _set_acquisition_context(self):
+        self._ds.AcquisitionContextSequence = Sequence([])
+
+    def _set_sop_common(self):
         self._ds.SOPInstanceUID = self.sop_instance_uid
+
 
     @property
     def patient_firstname(self):
@@ -132,6 +156,14 @@ class DicomBase(object):
         # intraoral and extraoral photograph sets.
         self._ds.ContentDate = date_captured.strftime(defaults.DATE_FORMAT)
 
+    @property
+    def equipment_manufacturer(self):
+        return self._ds.manufacturer
+
+    @equipment_manufacturer.setter
+    def equipment_manufacturer(self, manufacturer):
+        self._ds.Manufacturer = manufacturer
+
     def set_time_captured(self,time_captured):
         """
         """
@@ -178,13 +210,19 @@ class PhotographBase(DicomBase):
         super().__init__(**kwargs)
         self.set_file_meta()
         self.file_meta.MediaStorageSOPClassUID = VLPhotographicImageStorage
-        self._set_dataset()
+        self._set_sop_common()
+        self._set_general_series()
+        self._set_vl_image()
 
-    def _set_dataset(self):
+    def _set_sop_common(self):
+        super()._set_sop_common()
         self._ds.SOPClassUID = VLPhotographicImageStorage
+    
+    def _set_general_series(self):
+        super()._set_general_series()
         self._ds.Modality = 'XC'
 
-    def set_image_type(self):
+    def _set_vl_image(self):
         """
         Define if this is a scanned image, or an original capture.
         C.8.12.1.1.6 Image Type
@@ -220,6 +258,10 @@ class PhotographBase(DicomBase):
         """
         self._ds.ImageType = ['ORIGINAL','PRIMARY']
 
+        # Specifies whether an Image has undergone lossy compression (at a
+        # point in its lifetime).
+        self._ds.LossyImageCompression = '' 
+
     def is_digitized_image(self):
         """
         A digitized image is considered as secondary capture for DICOM. As an example, if the original photograph was taken with an analog camera, and the negative, positive or print was then scanned, the scanned image should be recorded in DICOM as secondary, and this method should be used.
@@ -248,8 +290,11 @@ class PhotographBase(DicomBase):
         """
         self._ds.ImageType[0] = 'DERIVED'
 
-    def set_manufacturer(self,manufacturer):
-        self._ds.Manufacturer = manufacturer
+    def lossy_compression(self, lossy):
+        if lossy == True:
+            self._ds.LossyImageCompression('01')
+        elif lossy == False:
+            self._ds.LossyImageCompression('00')
 
     def set_image(self,filename=None):
         if filename is not None and not hasattr(self._ds, 'input_image_filename'):

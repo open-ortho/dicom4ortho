@@ -4,6 +4,13 @@ from pydicom.dataset import Dataset
 import dicom_photo.m_dental_acquisition_context_module
 
 class OrthodonticPhotographTypes(object):
+    ''' Orthodontic Photograph Types as defined in ADA WP-1100
+
+    Naming convention: types are prefixes wit an underscore to indicate that
+    these are private types, with the additional benefit that the term 45 can
+    follow the same convention. Python does not allow variable or funcion
+    names to start with a digit.
+    '''
     def __init__(self):
         self.EV01 = [self._EO,self._RP,self._LR,self._CO]
         self.EV02 = [self._EO,self._RP,self._LR,self._CR]
@@ -34,6 +41,16 @@ class OrthodonticPhotographTypes(object):
         self.EV27 = [self._EO,self._LP,self._FS,self._CR]
         self.EV28 = [self._EO,self._LP,self._FS]
         self.EV29 = [self._EO,self._LP,self._LR,self._CO,self._45]
+        self.EV30 = [self._EO,self._LP,self._LC,self._CR,self._45]
+        self.EV31 = [self._EO,self._LP,self._LC,self._CO,self._45]
+        self.EV32 = [self._EO,self._LP,self._LC,self._CR,self._45]
+        self.EV33 = [self._EO,self._LP,self._FS,self._CO,self._45]
+        self.EV34 = [self._EO,self._LP,self._FS,self._CR,self._45]
+        self.EV35 = [self._EO,self._LP,self._PF,self._45]
+        self.EV36 = [self._EO,self._OF,self._IV]
+        self.EV37 = [self._EO,self._OF,self._SV]
+        self.EV38 = [self._EO,self._OF,self._CS]
+        self.EV39 = [self._EO,self._OF,self._FI]
 
 
     def _EO(self,dataset):

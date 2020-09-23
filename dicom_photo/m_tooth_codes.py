@@ -2,8 +2,8 @@
 '''
 
 SCT_TOOTH_CODES = {
-    '11' : ['',''],
-    '12' : ['',''],
+    '11' : ['22120004','Structure of maxillary right central incisor tooth (body structure)'],
+    '12' : ['11712009','Structure of maxillary right lateral incisor tooth (body structure)'],
     '13' : ['',''],
     '14' : ['',''],
     '15' : ['',''],

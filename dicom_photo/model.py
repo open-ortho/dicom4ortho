@@ -428,9 +428,11 @@ class OrthodonticPhotograph(PhotographBase):
         if callable(kwargs['photo_type']):
             self._type = kwargs['photo_type']
         else:
+            # Allow for both dash separated and not separated naming
             photo_type = kwargs['photo_type'].replace('-','')
-            self._type = getattr(dicom_photo.m_orthodontic_photograph_types.OrthodonticPhotographTypes(),
-                photo_type)
+
+            # Get the array of functions to set this required type.
+            self._type = (dicom_photo.m_orthodontic_photograph_types.OrthodonticPhotographTypes().views[photo_type])
         
         self._set_dicom_attributes()
 

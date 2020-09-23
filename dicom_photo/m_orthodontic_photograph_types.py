@@ -22,81 +22,82 @@ class OrthodonticPhotographTypes(object):
     opt = OrthodonticPhotographTypes(teeth=['24','25','26','27','28','34','35','36','37','38'])
     '''
     def __init__(self,teeth=None):
-        self.EV01 = [self._EO,self._RP,self._LR,self._CO]
-        self.EV02 = [self._EO,self._RP,self._LR,self._CR]
-        self.EV03 = [self._EO,self._RP,self._LC,self._CO]
-        self.EV04 = [self._EO,self._RP,self._LC,self._CR]
-        self.EV05 = [self._EO,self._RP,self._FS,self._CO]
-        self.EV06 = [self._EO,self._RP,self._FS,self._CR]
-        self.EV07 = [self._EO,self._RP,self._PF,self._or_none]
-        self.EV08 = [self._EO,self._RP,self._LR,self._CO,self._45]
-        self.EV09 = [self._EO,self._RP,self._LR,self._CR,self._45]
-        self.EV10 = [self._EO,self._LP,self._LC,self._CO,self._45]
-        self.EV11 = [self._EO,self._RP,self._LC,self._CR,self._45]
-        self.EV12 = [self._EO,self._RP,self._FS,self._CO,self._45]
-        self.EV13 = [self._EO,self._RP,self._FS,self._CR,self._45]
-        self.EV14 = [self._EO,self._RP,self._PF,self._45]
-        self.EV15 = [self._EO,self._FF,self._LR,self._CO]
-        self.EV16 = [self._EO,self._FF,self._LR,self._CR]
-        self.EV17 = [self._EO,self._FF,self._LC,self._CO]
-        self.EV18 = [self._EO,self._FF,self._LC,self._CR]
-        self.EV19 = [self._EO,self._FF,self._FS,self._CO]
-        self.EV20 = [self._EO,self._FF,self._FS,self._CR]
-        self.EV21 = [self._EO,self._FF,self._PF]
-        self.EV22 = [self._EO,self._LP,self._LR,self._CO]
-        self.EV23 = [self._EO,self._LP,self._LR,self._CR]
-        self.EV24 = [self._EO,self._LP,self._LC,self._CO]
-        self.EV25 = [self._EO,self._LC,self._LC,self._CR]
-        self.EV26 = [self._EO,self._LP,self._FS,self._CO]
-        self.EV27 = [self._EO,self._LP,self._FS,self._CR]
-        self.EV28 = [self._EO,self._LP,self._FS]
-        self.EV29 = [self._EO,self._LP,self._LR,self._CO,self._45]
-        self.EV30 = [self._EO,self._LP,self._LC,self._CR,self._45]
-        self.EV31 = [self._EO,self._LP,self._LC,self._CO,self._45]
-        self.EV32 = [self._EO,self._LP,self._LC,self._CR,self._45]
-        self.EV33 = [self._EO,self._LP,self._FS,self._CO,self._45]
-        self.EV34 = [self._EO,self._LP,self._FS,self._CR,self._45]
-        self.EV35 = [self._EO,self._LP,self._PF,self._45]
-        self.EV36 = [self._EO,self._OF,self._IV]
-        self.EV37 = [self._EO,self._OF,self._SV]
-        self.EV38 = [self._EO,self._OF,self._CS]
-        self.EV39 = [self._EO,self._OF,self._OC]
-        self.EV40 = [self._EO,self._OF,self._FI]
-        self.EV41 = [self._EO,self._OF,self._AN]
-        self.EV42 = [self._EO,self._FF,self._MO]
-        self.EV43 = [self._EO,self._FF,self._NW]
+        self.views = {
+                "EV01" : [self._EO,self._RP,self._LR,self._CO],
+                "EV02" : [self._EO,self._RP,self._LR,self._CR],
+                "EV03" : [self._EO,self._RP,self._LC,self._CO],
+                "EV04" : [self._EO,self._RP,self._LC,self._CR],
+                "EV05" : [self._EO,self._RP,self._FS,self._CO],
+                "EV06" : [self._EO,self._RP,self._FS,self._CR],
+                "EV07" : [self._EO,self._RP,self._PF,self._or_none],
+                "EV08" : [self._EO,self._RP,self._LR,self._CO,self._45],
+                "EV09" : [self._EO,self._RP,self._LR,self._CR,self._45],
+                "EV10" : [self._EO,self._LP,self._LC,self._CO,self._45],
+                "EV11" : [self._EO,self._RP,self._LC,self._CR,self._45],
+                "EV12" : [self._EO,self._RP,self._FS,self._CO,self._45],
+                "EV13" : [self._EO,self._RP,self._FS,self._CR,self._45],
+                "EV14" : [self._EO,self._RP,self._PF,self._45],
+                "EV15" : [self._EO,self._FF,self._LR,self._CO],
+                "EV16" : [self._EO,self._FF,self._LR,self._CR],
+                "EV17" : [self._EO,self._FF,self._LC,self._CO],
+                "EV18" : [self._EO,self._FF,self._LC,self._CR],
+                "EV19" : [self._EO,self._FF,self._FS,self._CO],
+                "EV20" : [self._EO,self._FF,self._FS,self._CR],
+                "EV21" : [self._EO,self._FF,self._PF],
+                "EV22" : [self._EO,self._LP,self._LR,self._CO],
+                "EV23" : [self._EO,self._LP,self._LR,self._CR],
+                "EV24" : [self._EO,self._LP,self._LC,self._CO],
+                "EV25" : [self._EO,self._LC,self._LC,self._CR],
+                "EV26" : [self._EO,self._LP,self._FS,self._CO],
+                "EV27" : [self._EO,self._LP,self._FS,self._CR],
+                "EV28" : [self._EO,self._LP,self._FS],
+                "EV29" : [self._EO,self._LP,self._LR,self._CO,self._45],
+                "EV30" : [self._EO,self._LP,self._LC,self._CR,self._45],
+                "EV31" : [self._EO,self._LP,self._LC,self._CO,self._45],
+                "EV32" : [self._EO,self._LP,self._LC,self._CR,self._45],
+                "EV33" : [self._EO,self._LP,self._FS,self._CO,self._45],
+                "EV34" : [self._EO,self._LP,self._FS,self._CR,self._45],
+                "EV35" : [self._EO,self._LP,self._PF,self._45],
+                "EV36" : [self._EO,self._OF,self._IV],
+                "EV37" : [self._EO,self._OF,self._SV],
+                "EV38" : [self._EO,self._OF,self._CS],
+                "EV39" : [self._EO,self._OF,self._OC],
+                "EV40" : [self._EO,self._OF,self._FI],
+                "EV41" : [self._EO,self._OF,self._AN],
+                "EV42" : [self._EO,self._FF,self._MO],
+                "EV43" : [self._EO,self._FF,self._NW],
 
-        self.IV01 = [self._IO,self._RB,self._CO]
-        self.IV02 = [self._IO,self._RB,self._CO,self._WM]
-        self.IV03 = [self._IO,self._RB,self._CO,self._WM_BC]
-        self.IV04 = [self._IO,self._RB,self._CR,self._NM]
-        self.IV05 = [self._IO,self._RB,self._CR,self._WM]
-        self.IV06 = [self._IO,self._RB,self._CR,self._WM_BC]
-        self.IV07 = [self._IO,self._FV,self._CO,self._NM]
-        self.IV08 = [self._IO,self._FV,self._CR,self._NM]
-        self.IV09 = [self._IO,self._FV,self._TA,self._NM]
-        self.IV10 = [self._IO,self._FV,self._MO,self._NM]
-        self.IV11 = [self._IO,self._FV,self._IV,self._CO,self._NM]
-        self.IV12 = [self._IO,self._FV,self._IV,self._CR,self._NM]
-        self.IV13 = [self._IO,self._FV,self._TT,self._NM]
-        self.IV14 = [self._IO,self._RL,self._CR,self._OJ,self._NM]
-        self.IV15 = [self._IO,self._RL,self._CO,self._OJ,self._NM]
-        self.IV16 = [self._IO,self._LL,self._CO,self._OJ,self._NM]
-        self.IV17 = [self._IO,self._LL,self._CR,self._OJ,self._NM]
-        self.IV18 = [self._IO,self._LB,self._CO,self._NM]
-        self.IV19 = [self._IO,self._LB,self._CO,self._WM]
-        self.IV20 = [self._IO,self._LB,self._CO,self._WM_BC]
-        self.IV21 = [self._IO,self._LB,self._CR,self._NM]
-        self.IV22 = [self._IO,self._LB,self._CR,self._WM]
-        self.IV23 = [self._IO,self._LB,self._CR,self._WM_BC]
-        self.IV24 = [self._IO,self._MX,self._MO,self._OV,self._WM]
-        self.IV25 = [self._IO,self._MX,self._MO,self._OV,self._WM_BC]
-        self.IV26 = [self._IO,self._MD,self._MO,self._OV,self._WM]
-        self.IV27 = [self._IO,self._MD,self._MO,self._OV,self._WM_BC]
-        self.IV28 = [self._IO,self._GR]
-        self.IV29 = [self._IO,self._FR]
-        self.IV30 = [self._IO,self._PA]
-
+                "IV01" : [self._IO,self._RB,self._CO],
+                "IV02" : [self._IO,self._RB,self._CO,self._WM],
+                "IV03" : [self._IO,self._RB,self._CO,self._WM_BC],
+                "IV04" : [self._IO,self._RB,self._CR,self._NM],
+                "IV05" : [self._IO,self._RB,self._CR,self._WM],
+                "IV06" : [self._IO,self._RB,self._CR,self._WM_BC],
+                "IV07" : [self._IO,self._FV,self._CO,self._NM],
+                "IV08" : [self._IO,self._FV,self._CR,self._NM],
+                "IV09" : [self._IO,self._FV,self._TA,self._NM],
+                "IV10" : [self._IO,self._FV,self._MO,self._NM],
+                "IV11" : [self._IO,self._FV,self._IV,self._CO,self._NM],
+                "IV12" : [self._IO,self._FV,self._IV,self._CR,self._NM],
+                "IV13" : [self._IO,self._FV,self._TT,self._NM],
+                "IV14" : [self._IO,self._RL,self._CR,self._OJ,self._NM],
+                "IV15" : [self._IO,self._RL,self._CO,self._OJ,self._NM],
+                "IV16" : [self._IO,self._LL,self._CO,self._OJ,self._NM],
+                "IV17" : [self._IO,self._LL,self._CR,self._OJ,self._NM],
+                "IV18" : [self._IO,self._LB,self._CO,self._NM],
+                "IV19" : [self._IO,self._LB,self._CO,self._WM],
+                "IV20" : [self._IO,self._LB,self._CO,self._WM_BC],
+                "IV21" : [self._IO,self._LB,self._CR,self._NM],
+                "IV22" : [self._IO,self._LB,self._CR,self._WM],
+                "IV23" : [self._IO,self._LB,self._CR,self._WM_BC],
+                "IV24" : [self._IO,self._MX,self._MO,self._OV,self._WM],
+                "IV25" : [self._IO,self._MX,self._MO,self._OV,self._WM_BC],
+                "IV26" : [self._IO,self._MD,self._MO,self._OV,self._WM],
+                "IV27" : [self._IO,self._MD,self._MO,self._OV,self._WM_BC],
+                "IV28" : [self._IO,self._GR],
+                "IV29" : [self._IO,self._FR],
+                "IV30" : [self._IO,self._PA],
+        }
 
     def _EO(self,dataset):
         pass
@@ -368,18 +369,14 @@ class OrthodonticPhotographTypes(object):
         code_dataset.CodingSchemeDesignator = 'SCT'
         return Sequence([code_dataset])
 
-    def _get_tooth_code_sequence(self,tooth):
-        if  is_valid_tooth_number(tooth):
-            return self._get_sct_code_sequence(tooth_number_codes[tooth])
-
     def _add_teeth(self,dataset,teeth):
         teeth_sequences = []
         for tooth in teeth:
-            if tooth_numbers.is_valid_tooth_number(tooth):
+            if ToothCodes.is_valid_tooth_number(tooth):
                 teeth_sequences.append(
-                    self._get_sct_code_sequence(tooth_numbers.SCT_TOOTH_CODES[tooth]))
+                    self._get_sct_code_sequence(**ToothCodes.SCT_TOOTH_CODES[tooth]))
 
-        if not hasattr(dataset,PrimaryAnatomicStructureSequence):
+        if not hasattr(dataset,'PrimaryAnatomicStructureSequence'):
             dataset.PrimaryAnatomicStructureSequence = Sequence([])
 
         # I'm not sure if i can use append on a Sequence() object.

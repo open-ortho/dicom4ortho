@@ -1,7 +1,12 @@
+''' Add SCT codes in DICOM object for Orthodontic Views.
+
+'''
+
 from pydicom.sequence import Sequence
 from pydicom.dataset import Dataset
 
 import dicom_photo.m_dental_acquisition_context_module
+import dicom_photo.m_tooth_codes as ToothCodes
 
 class OrthodonticPhotographTypes(object):
     ''' Orthodontic Photograph Types as defined in ADA WP-1100
@@ -10,8 +15,13 @@ class OrthodonticPhotographTypes(object):
     these are private types, with the additional benefit that the term 45 can
     follow the same convention. Python does not allow variable or funcion
     names to start with a digit.
+
+    If teeth are present, add them in a list as strings using ISO tooth
+    numbering convention. Example:
+
+    opt = OrthodonticPhotographTypes(teeth=['24','25','26','27','28','34','35','36','37','38'])
     '''
-    def __init__(self,tooth_number=None):
+    def __init__(self,teeth=None):
         self.EV01 = [self._EO,self._RP,self._LR,self._CO]
         self.EV02 = [self._EO,self._RP,self._LR,self._CR]
         self.EV03 = [self._EO,self._RP,self._LC,self._CO]
@@ -333,6 +343,11 @@ class OrthodonticPhotographTypes(object):
         """
         pass
 
+    def _GR(self,dataset):
+        """ Gengival Recession
+        """
+        pass
+
     def _null(self):
         return self._get_sct_code_sequence('276727009','Null (qualifier value)')
 
@@ -353,72 +368,19 @@ class OrthodonticPhotographTypes(object):
         code_dataset.CodingSchemeDesignator = 'SCT'
         return Sequence([code_dataset])
 
-    def _validate_tooth_number(self,tooth):
-        valid_teeth = [
-            '11','12','13','14','15','16','17','18',
-            '21','22','23','24','25','26','27','28',
-            '31','32','33','34','35','36','37','38',
-            '41','42','43','44','45','46','47','48',
-            '51','52','53','54','55',
-            '61','62','63','64','65',
-            '71','72','73','74','75',
-            '81','82','83','84','85'
-        ]
+    def _get_tooth_code_sequence(self,tooth):
+        if  is_valid_tooth_number(tooth):
+            return self._get_sct_code_sequence(tooth_number_codes[tooth])
 
-        if tooth in valid_teeth: return True
-        else: return False
+    def _add_teeth(self,dataset,teeth):
+        teeth_sequences = []
+        for tooth in teeth:
+            if tooth_numbers.is_valid_tooth_number(tooth):
+                teeth_sequences.append(
+                    self._get_sct_code_sequence(tooth_numbers.SCT_TOOTH_CODES[tooth]))
 
-"""
-    # General Image Module M
-    dataset.InstanceNumber = '1'
-    dataset.PatientOrientation = ''
+        if not hasattr(dataset,PrimaryAnatomicStructureSequence):
+            dataset.PrimaryAnatomicStructureSequence = Sequence([])
 
-
-    # Laterality (0020,0060) is a Series level Attribute and must be the same for
-    # all Images in the Series, hence it must be absent if Image Laterality (0020,0062) 
-    # has different values for Images in the same Series.
-    # In the case of orthodontic photographic session, we need to identify if we 
-    # should store one image per series, and entire set in the same study, 
-    # or entire set in the same series.
-    dataset.ImageLaterality = ''
-
-
-
-    # Note
-    # Planar Configuration (0028,0006) is not meaningful when a compression Transfer Syntax is used that involves reorganization of sample components in the compressed bit stream. In such cases, since the Attribute is required to be present, then an appropriate value to use may be specified in the description of the Transfer Syntax in PS3.5, though in all likelihood the value of the Attribute will be ignored by the receiving implementation.
-    dataset.PlanarConfiguration = 0
-
-
-
-    # Acquistion Context M
-    dataset.AcquisitionContextSequence = pydicom.sequence.Sequence([])
-    dataset.AnatomicRegionSequence = pydicom.sequence.Sequence([])
-
-    # VL Image M
-    dataset.LossyImageCompression = '00'
-
-    # SOP Common M
-    dataset.SOPClassUID = SOPClassUID
-    dataset.SOPInstanceUID = SOPInstanceUID
-
-def dciodvfy(filename):
-    print('\nValidating file {}'.format(filename))
-    dicom3tools_path = '/Users/cdatasettaff/dev/open-ortho/dicom-photography/resources/dicom3tools_macexe_1.00.snapshot.20191225051647'
-    os.system('{} {}'.format(
-        os.path.join(dicom3tools_path,'dciodvfy'),
-        filename))
-
-
-
-
-# reopen the data just for checking
-# for filename in (filename_little_endian):
-print('Load file {} ...'.format(filename))
-dataset = pydicom.dcmread(filename)
-print(dataset)
-dciodvfy(filename)
-
-# remove the created file
-print('Remove file {} ...'.format(filename))
-os.remove(filename)
-"""
+        # I'm not sure if i can use append on a Sequence() object.
+        dataset.PrimaryAnatomicStructureSequence.append(teeth_sequences)

@@ -11,7 +11,7 @@ class OrthodonticPhotographTypes(object):
     follow the same convention. Python does not allow variable or funcion
     names to start with a digit.
     '''
-    def __init__(self):
+    def __init__(self,tooth_number=None):
         self.EV01 = [self._EO,self._RP,self._LR,self._CO]
         self.EV02 = [self._EO,self._RP,self._LR,self._CR]
         self.EV03 = [self._EO,self._RP,self._LC,self._CO]
@@ -50,10 +50,48 @@ class OrthodonticPhotographTypes(object):
         self.EV36 = [self._EO,self._OF,self._IV]
         self.EV37 = [self._EO,self._OF,self._SV]
         self.EV38 = [self._EO,self._OF,self._CS]
-        self.EV39 = [self._EO,self._OF,self._FI]
+        self.EV39 = [self._EO,self._OF,self._OC]
+        self.EV40 = [self._EO,self._OF,self._FI]
+        self.EV41 = [self._EO,self._OF,self._AN]
+        self.EV42 = [self._EO,self._FF,self._MO]
+        self.EV43 = [self._EO,self._FF,self._NW]
+
+        self.IV01 = [self._IO,self._RB,self._CO]
+        self.IV02 = [self._IO,self._RB,self._CO,self._WM]
+        self.IV03 = [self._IO,self._RB,self._CO,self._WM_BC]
+        self.IV04 = [self._IO,self._RB,self._CR,self._NM]
+        self.IV05 = [self._IO,self._RB,self._CR,self._WM]
+        self.IV06 = [self._IO,self._RB,self._CR,self._WM_BC]
+        self.IV07 = [self._IO,self._FV,self._CO,self._NM]
+        self.IV08 = [self._IO,self._FV,self._CR,self._NM]
+        self.IV09 = [self._IO,self._FV,self._TA,self._NM]
+        self.IV10 = [self._IO,self._FV,self._MO,self._NM]
+        self.IV11 = [self._IO,self._FV,self._IV,self._CO,self._NM]
+        self.IV12 = [self._IO,self._FV,self._IV,self._CR,self._NM]
+        self.IV13 = [self._IO,self._FV,self._TT,self._NM]
+        self.IV14 = [self._IO,self._RL,self._CR,self._OJ,self._NM]
+        self.IV15 = [self._IO,self._RL,self._CO,self._OJ,self._NM]
+        self.IV16 = [self._IO,self._LL,self._CO,self._OJ,self._NM]
+        self.IV17 = [self._IO,self._LL,self._CR,self._OJ,self._NM]
+        self.IV18 = [self._IO,self._LB,self._CO,self._NM]
+        self.IV19 = [self._IO,self._LB,self._CO,self._WM]
+        self.IV20 = [self._IO,self._LB,self._CO,self._WM_BC]
+        self.IV21 = [self._IO,self._LB,self._CR,self._NM]
+        self.IV22 = [self._IO,self._LB,self._CR,self._WM]
+        self.IV23 = [self._IO,self._LB,self._CR,self._WM_BC]
+        self.IV24 = [self._IO,self._MX,self._MO,self._OV,self._WM]
+        self.IV25 = [self._IO,self._MX,self._MO,self._OV,self._WM_BC]
+        self.IV26 = [self._IO,self._MD,self._MO,self._OV,self._WM]
+        self.IV27 = [self._IO,self._MD,self._MO,self._OV,self._WM_BC]
+        self.IV28 = [self._IO,self._GR]
+        self.IV29 = [self._IO,self._FR]
+        self.IV30 = [self._IO,self._PA]
 
 
     def _EO(self,dataset):
+        pass
+
+    def _IO(self,dataset):
         pass
 
     def _RP(self, dataset):
@@ -160,6 +198,11 @@ class OrthodonticPhotographTypes(object):
         flipped and/or rotated to appear as if it has been taken directly
         without a mirror used for intraoral photographs only. Does not apply
         to extraoral photographs
+        """
+        pass
+
+    def _NM(self,dataset):
+        """ No Mirror
         """
         pass
 
@@ -310,6 +353,20 @@ class OrthodonticPhotographTypes(object):
         code_dataset.CodingSchemeDesignator = 'SCT'
         return Sequence([code_dataset])
 
+    def _validate_tooth_number(self,tooth):
+        valid_teeth = [
+            '11','12','13','14','15','16','17','18',
+            '21','22','23','24','25','26','27','28',
+            '31','32','33','34','35','36','37','38',
+            '41','42','43','44','45','46','47','48',
+            '51','52','53','54','55',
+            '61','62','63','64','65',
+            '71','72','73','74','75',
+            '81','82','83','84','85'
+        ]
+
+        if tooth in valid_teeth: return True
+        else: return False
 
 """
     # General Image Module M

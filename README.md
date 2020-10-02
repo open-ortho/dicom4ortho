@@ -13,7 +13,7 @@
 
 ## Resources
 
-* [Instructions for crating a DICOM object from scratch in DICOM](https://pydicom.github.io/pydicom/dev/auto_examples/input_output/plot_write_dicom.html#sphx-glr-auto-examples-input-output-plot-write-dicom-py)
+* [Instructions for creating a DICOM object from scratch in DICOM](https://pydicom.github.io/pydicom/dev/auto_examples/input_output/plot_write_dicom.html#sphx-glr-auto-examples-input-output-plot-write-dicom-py)
 * [Writing DICOM Files](https://pydicom.github.io/pydicom/dev/old/writing_files.html)
 
 Required for testing currently:
@@ -32,7 +32,7 @@ This basically defined the IOD. So in our case it's static, and it defines VL Im
 
 ### Instance UID
 
-This is a differnt unique ID for each image. Needs to be freshly generated.
+This is a different unique ID for each image. Needs to be freshly generated.
 
 * Part 5 B.2 to specify how to generate
 

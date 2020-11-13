@@ -83,6 +83,22 @@ class DicomBase(object):
         self._ds.SeriesInstanceUID = uuid
 
     @property
+    def study_description(self):
+        return self._ds.StudyDescription
+
+    @study_description.setter
+    def study_description(self, description):
+        self._ds.StudyDescription = description
+
+    @property
+    def series_description(self):
+        return self._ds.SeriesDescription
+
+    @series_description.setter
+    def series_description(self, description):
+        self._ds.SeriesDescription = description
+
+    @property
     def patient_firstname(self):
         return self._ds.PatientName.split('^')[0]
 

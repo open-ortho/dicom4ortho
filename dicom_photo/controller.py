@@ -64,7 +64,9 @@ class SimpleController(object):
             output_image_filename = outputfilename)
             
         self.photo.study_instance_uid = metadata['study_instance_uid']
+        self.photo.study_description = metadata['study_description']
         self.photo.series_instance_uid = metadata['series_instance_uid']
+        self.photo.series_description = metadata['series_description']
         self.photo.patient_firstname = metadata['patient_firstname']
         self.photo.patient_lastname = metadata['patient_lastname']
         self.photo.patient_id = metadata['patient_id']

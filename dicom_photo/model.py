@@ -66,6 +66,21 @@ class DicomBase(object):
     def _set_sop_common(self):
         self._ds.SOPInstanceUID = self.sop_instance_uid
 
+    @property
+    def study_instance_uid(self):
+        return self._ds.StudyInstanceUID
+
+    @study_instance_uid.setter
+    def study_instance_uid(self, uuid):
+        self._ds.StudyInstanceUID = uuid
+
+    @property
+    def series_instance_uid(self):
+        return self._ds.SeriesInstanceUID
+
+    @series_instance_uid.setter
+    def series_instance_uid(self, uuid):
+        self._ds.SeriesInstanceUID = uuid
 
     @property
     def patient_firstname(self):

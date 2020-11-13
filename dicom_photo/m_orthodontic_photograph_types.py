@@ -147,7 +147,7 @@ class OrthodonticPhotographTypes(object):
     def _CR(self,dataset):
         dataset.OcclusalRelationship = self._get_sct_code_sequence('736783005',
             'Centric relation (observable entity)')
-    
+
     def _or_none(self,dataset):
         """ Null Occlusal Relationship
         """

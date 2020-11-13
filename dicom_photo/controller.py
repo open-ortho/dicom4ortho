@@ -23,7 +23,8 @@ class SimpleController(object):
         with open(csv_input, mode='r') as csv_file:
             csv_reader = csv.DictReader(csv_file, delimiter=',')
             for row in csv_reader:
-                row['image_filename'] = os.path.join(os.path.dirname(csv_input),row['image_filename'])
+                row['image_filename'] =\
+                os.path.join(os.path.dirname(csv_input),row['image_filename'])
                 self.convert_image_to_dicom_photograph(metadata=row)
 
 
@@ -62,7 +63,8 @@ class SimpleController(object):
             input_image_filename = metadata['image_filename'],
             output_image_filename = outputfilename)
             
-
+        self.photo.study_instance_uid = metadata['study_instance_uid']
+        self.photo.series_instance_uid = metadata['series_instance_uid']
         self.photo.patient_firstname = metadata['patient_firstname']
         self.photo.patient_lastname = metadata['patient_lastname']
         self.photo.patient_id = metadata['patient_id']

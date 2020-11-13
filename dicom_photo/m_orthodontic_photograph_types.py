@@ -1,7 +1,7 @@
+# pylint: disable=invalid-name
 ''' Add SCT codes in DICOM object for Orthodontic Views.
 
 '''
-
 from pydicom.sequence import Sequence
 from pydicom.dataset import Dataset
 
@@ -100,7 +100,10 @@ class OrthodonticPhotographTypes(object):
         }
 
     def _EO(self,dataset):
-        pass
+        # Here we assume all extraoral images to be unpaird. Pairing should be
+        # set at a higher level: only the operator knows if they will be
+        # collecting a pair or not.
+        dataset.ImageLaterality = 'U'
 
     def _IO(self,dataset):
         pass
@@ -109,7 +112,6 @@ class OrthodonticPhotographTypes(object):
         """ Right Profile
         """
         self._face(dataset)
-        dataset.ImageLaterality = 'R'
         dataset.AcquisitionView = self._get_sct_code_sequence('30730003','Sagittal (qualifier value)')
         dataset.PatientOrientation = ['A','F'] # Anterior, Foot
 
@@ -117,19 +119,16 @@ class OrthodonticPhotographTypes(object):
         """ Left Profile
         """
         self._face(dataset)
-        dataset.ImageLaterality = 'L'
         dataset.PatientOrientation = ['P','F'] # Anterior, Foot
 
     def _FF(self, dataset):
         self._face(dataset)
-        dataset.ImageLaterality = 'B' # Both
         dataset.PatientOrientation = ['R','F'] # Right, Foot
 
     def _FS(self, dataset):
         """ Full Smile
         """
         self._face(dataset)
-        dataset.ImageLaterality = 'B' # Both
 
     def _LC(self,dataset):
         """ Lips Closed
@@ -155,7 +154,7 @@ class OrthodonticPhotographTypes(object):
         dataset.OcclusalRelationship = self._null()
 
     def _MD(self,dataset):
-        """ Mandibular 
+        """ Mandibular
         """
         a_r_s = self._get_sct_code_sequence('181812008','Entire mandible (body structure)')
         a_r_s[0].AnatomicRegionModifierSequence = self._null()

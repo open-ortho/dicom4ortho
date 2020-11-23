@@ -129,6 +129,7 @@ class OrthodonticPhotographTypes(object):
         """ Full Smile
         """
         self._face(dataset)
+        dataset.PatientOrientation = ['R','F'] # Right, Foot
 
     def _LC(self,dataset):
         """ Lips Closed

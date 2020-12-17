@@ -38,19 +38,18 @@ class SimpleController(object):
         output_image_filename: the filename of the output .DCM image. You must
         provide your extension here.
 
-        patient_firstname
+        metadata:
 
-        patient_lastname
-
-        patient_id
-
-        patient_sex
-
-        patient_birthdate
-
-        dental_provider_firstname
-
-        dental_provider_lastname
+            patient_firstname           :
+            patient_lastname            :
+            patient_id                  :
+            patient_sex                 :
+            patient_birthdate           :
+            dental_provider_firstname   :
+            dental_provider_lastname    :
+            teeth                       : array of teeth visible in the photograph. 
+                                          Use ISO notation in string. Example: 
+                                          teeth=['24','25','26','27','28','34','35','36','37','38']
         '''
 
         if ('output_image_filename' not in metadata) or (metadata['output_image_filename'] is None):
@@ -75,6 +74,15 @@ class SimpleController(object):
         self.photo.dental_provider_firstname = metadata['dental_provider_firstname']
         self.photo.dental_provider_lastname = metadata['dental_provider_lastname']
         self.photo.equipment_manufacturer = metadata['manufacturer']
+
+        # TODO: check if metadata['teeth'] contains teeth and add
+        # What teeth are shown in the images is something we cannot guess from
+        # what image type is taken, and shold be entered manually or
+        # automtaicaly by the implementing software. Therefore, i would like
+        # the controller to have an option to add teeth and provide this option
+        # to the end user which, in this case, is the CLI, and the CSV import
+        # file.
+        # if metadata['teeth'] 
 
         self.photo.set_image()
         self.photo.save_implicit_little_endian()

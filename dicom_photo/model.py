@@ -457,17 +457,33 @@ class OrthodonticPhotograph(PhotographBase):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         if callable(kwargs['photo_type']):
+            # If a custom function was passed, then use it.
             self._type = kwargs['photo_type']
         else:
+            # Otherwise we shall look up the tags to add based on the function
+            # defined in OrthodontiPhotographTypes
             # Allow for both dash separated and not separated naming
             photo_type = kwargs['photo_type'].replace('-','')
 
             # Get the array of functions to set this required type.
             self._type = (dicom_photo.m_orthodontic_photograph_types.OrthodonticPhotographTypes().views[photo_type])
-        
+
         self._set_dicom_attributes()
 
     def _set_dicom_attributes(self):
         for set_attr in self._type:
             logging.debug('Setting DICOM attributes for {}', self._type)
             set_attr(self._ds)
+
+    def add_teeth(self, teeth):
+        teeth_sequences = []
+        for tooth in teeth:
+            if ToothCodes.is_valid_tooth_number(tooth):
+                teeth_sequences.append(
+                    self._get_sct_code_sequence(**ToothCodes.SCT_TOOTH_CODES[tooth]))
+
+        if not hasattr(dataset, 'PrimaryAnatomicStructureSequence'):
+            self._ds.PrimaryAnatomicStructureSequence = Sequence([])
+
+        # I'm not sure if i can use append on a Sequence() object.
+        self._ds.PrimaryAnatomicStructureSequence.append(teeth_sequences)

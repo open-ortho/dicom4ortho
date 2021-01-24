@@ -48,9 +48,9 @@ USAGE
         # Setup argument parser
         parser = ArgumentParser(description=program_license, formatter_class=RawDescriptionHelpFormatter)
         parser.add_argument(
-            "-v", "--verbose", 
+            "-v", "--verbose",
             dest="verbose",
-            action="store_true", 
+            action="store_true",
             help="set verbosity level [default: %(default)s]",
         )
         parser.add_argument(
@@ -61,33 +61,33 @@ USAGE
             help="Configure the logging level. Available values: debug, info, warning, error, critical.",
         )
         parser.add_argument(
-            '-V', '--version', 
-            action='version', 
+            '-V', '--version',
+            action='version',
             version=program_version_message,
         )
         parser.add_argument(
             "-o", "--output-filename",
-            dest="output_filename",  
+            dest="output_filename",
             help="Where to store the DICOM file. ",
             default=None,
             metavar='<filename>',
         )
         parser.add_argument(
             "-t", "--image-type",
-            dest="image_type",  
+            dest="image_type",
             help="What type of image this is",
             default='EV01',
             metavar='<filename>',
         )
         parser.add_argument(
-            "--validate", 
-            dest="validate", 
+            "--validate",
+            dest="validate",
             action="store_true",
             help="Validate DICOM File",
         )
         parser.add_argument(
-            dest="input_filename", 
-            help="path of file of CSV file with metadata and filename of file gto convert to DICOM",
+            dest="input_filename",
+            help="path of file of CSV file with metadata and filename of file to convert to DICOM",
             metavar='<filename>',
         )
 

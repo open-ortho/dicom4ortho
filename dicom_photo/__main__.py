@@ -156,7 +156,8 @@ USAGE
         else:
             c.convert_image_to_dicom_photograph({
                 'image_type': 'args.image_type',
-                'image_filename': 'args.input_filename',
+                'input_image_filename': 'args.input_filename',
+                'teeth' : 'MAXIMUM_NUMBER_ALLOWED',
                 'output_image_filename': 'args.output_filename'})
             c.photo.print()
 

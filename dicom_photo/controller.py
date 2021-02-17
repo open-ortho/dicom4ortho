@@ -29,9 +29,9 @@ class SimpleController(object):
         with open(csv_input, mode='r') as csv_file:
             csv_reader = csv.DictReader(csv_file, delimiter=',')
             for row in csv_reader:
-                row['image_filename'] =\
+                row['input_image_filename'] =\
                     os.path.join(os.path.dirname(csv_input),
-                                 row['image_filename'])
+                                 row['input_image_filename'])
                 self.convert_image_to_dicom_photograph(metadata=row)
 
     def convert_image_to_dicom_photograph(self, metadata):
@@ -39,7 +39,7 @@ class SimpleController(object):
 
         All image metadata are passed as a dict in metadata with the following keys:
 
-        image_filename: Input image file name
+        input_image_filename: Input image file name
 
         output_image_filename: the filename of the output .DCM image. You must
         provide your extension here.
@@ -62,15 +62,10 @@ class SimpleController(object):
         '''
 
         if ('output_image_filename' not in metadata) or (metadata['output_image_filename'] is None):
-            outputfilename = metadata['image_filename'].replace(
-                metadata['image_filename'].split('.')[-1], 'dcm')
-        else:
-            outputfilename = metadata['output_image_filename']
+            metadata['output_image_filename'] = metadata['input_image_filename'].replace(
+                metadata['input_image_filename'].split('.')[-1], 'dcm')
 
-        self.photo = OrthodonticPhotograph(
-            photo_type=metadata['image_type'],
-            input_image_filename=metadata['image_filename'],
-            output_image_filename=outputfilename)
+        self.photo = OrthodonticPhotograph(**metadata)
 
         self.photo.study_instance_uid = metadata['study_instance_uid']
         self.photo.study_description = metadata['study_description']

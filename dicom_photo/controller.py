@@ -8,8 +8,13 @@ import datetime
 import logging
 import dicom_photo.model as model
 
-import dicom_photo.defaults as defaults
+# Just importing will do to execute the code in the module. Pylint will
+# complain though.
+# pylint: disable=unused-import
+import dicom_photo.m_dental_acquisition_context_module
 
+import dicom_photo.defaults as defaults
+from dicom_photo.m_orthodontic_photograph import OrthodonticPhotograph
 
 class SimpleController(object):
     """
@@ -62,7 +67,7 @@ class SimpleController(object):
         else:
             outputfilename = metadata['output_image_filename']
 
-        self.photo = model.OrthodonticPhotograph(
+        self.photo = OrthodonticPhotograph(
             photo_type=metadata['image_type'],
             input_image_filename=metadata['image_filename'],
             output_image_filename=outputfilename)

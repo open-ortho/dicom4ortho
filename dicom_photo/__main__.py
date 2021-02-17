@@ -4,14 +4,15 @@
 
 import sys
 import logging
-from argparse import ArgumentParser
-from argparse import RawDescriptionHelpFormatter
-import dicom_photo.defaults as defaults
-import dicom_photo.controller as controller
-import pkg_resources
 import textwrap
 import csv
-from prettytable import from_csv, PrettyTable
+from argparse import ArgumentParser
+from argparse import RawDescriptionHelpFormatter
+import pkg_resources
+from prettytable import PrettyTable
+
+import dicom_photo.defaults as defaults
+import dicom_photo.controller as controller
 
 LIST_IMAGE_TYPES = 'list-image-types'
 
@@ -33,12 +34,12 @@ def print_image_types():
     image_types_filename = pkg_resources.resource_filename(
         'dicom_photo.resources', 'image_types.csv')
     logging.debug("Image type filenames is: {}".format(image_types_filename))
-    HEADER1 = 'Type'
-    HEADER2 = 'Abbreviated'
-    HEADER3 = 'Full Meaning'
+    header1 = 'Type'
+    header2 = 'Abbreviated'
+    header3 = 'Full Meaning'
     with open(image_types_filename) as image_types_csvfile:
         reader = csv.reader(image_types_csvfile)
-        image_types_table = PrettyTable([HEADER1,HEADER2,HEADER3])
+        image_types_table = PrettyTable([header1,header2,header3])
         for row in reader:
             wrapped_meaning = textwrap.wrap(row[2], 47)
             image_types_table.add_row([row[0],
@@ -48,8 +49,8 @@ def print_image_types():
                 image_types_table.add_row(['','','  {}'.format(subseq)])
         # image_types_table = from_csv(image_types_csvfile)
 
-    image_types_table.align[HEADER2] = "l"
-    image_types_table.align[HEADER3] = "l"
+    image_types_table.align[header2] = "l"
+    image_types_table.align[header3] = "l"
     print(image_types_table)
 
 

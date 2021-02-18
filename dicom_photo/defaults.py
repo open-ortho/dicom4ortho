@@ -36,6 +36,8 @@ IMPLEMENTATION_CLASS_UID = '2.25.34.34.153.156.139.154.17.234.176.144.0.5.27.' +
 # The default IDs used for SeriesNumber StudyID and InstanceNumber
 IDS_NUMBERS = '000'
 
+ADD_MAX_ALLOWED_TEETH = 'ALL'
+
 def generate_dicom_uid():
     """
     A function to generate DICOM UIDs for new objects.

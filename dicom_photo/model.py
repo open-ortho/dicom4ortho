@@ -7,17 +7,18 @@ import logging
 import pydicom
 from pydicom.sequence import Sequence
 from pydicom.dataset import Dataset, FileDataset
+
+# pylint: disable=no-name-in-module
 from pynetdicom.sop_class import VLPhotographicImageStorage
 import PIL
 
 import dicom_photo.defaults as defaults
-import dicom_photo.m_orthodontic_photograph_types
 
 class DicomBase(object):
     """ Functions and fields common to most DICOM images.
     """
 
-    def __init__(self,**kwargs):
+    def __init__(self, **kwargs):
         self.sop_instance_uid = defaults.generate_dicom_uid()
         self.time_string = datetime.datetime.now().strftime(defaults.TIME_FORMAT)
         self.date_string = datetime.datetime.now().strftime(defaults.DATE_FORMAT)
@@ -40,7 +41,7 @@ class DicomBase(object):
         self._ds = FileDataset(
             self.output_image_filename,
             {},
-            file_meta=self.file_meta, 
+            file_meta=self.file_meta,
             preamble=defaults.DICOM_PREAMBLE)
 
         self._ds.PatientName = "^"
@@ -140,14 +141,15 @@ class DicomBase(object):
 
     @patient_birthdate.setter
     def patient_birthdate(self, patient_birthdate):
-        self._ds.PatientBirthDate = patient_birthdate.strftime(defaults.DATE_FORMAT)
+        self._ds.PatientBirthDate = patient_birthdate.strftime(
+            defaults.DATE_FORMAT)
 
     @property
     def dental_provider_firstname(self):
         return self._ds.ReferringPhysicianName.split('^')[0]
 
     @dental_provider_firstname.setter
-    def dental_provider_firstname(self,firstname):
+    def dental_provider_firstname(self, firstname):
         if not hasattr(self._ds, 'ReferringPhysicianName'):
             self._ds.ReferringPhysicianName = "^"
 
@@ -160,7 +162,7 @@ class DicomBase(object):
         return self._ds.ReferringPhysicianName.split('^')[1]
 
     @dental_provider_lastname.setter
-    def dental_provider_lastname(self,firstname):
+    def dental_provider_lastname(self, firstname):
         if self._ds.ReferringPhysicianName is None:
             self._ds.ReferringPhysicianName = "^"
 
@@ -181,7 +183,7 @@ class DicomBase(object):
         return datetime.datetime.strptime(self._ds.ContentDate, defaults.DATE_FORMAT).date()
 
     @date_captured.setter
-    def date_captured(self,date_captured):
+    def date_captured(self, date_captured):
         # Date and time are required if images is part of a Series in which
         # the images are temporally related. This sounds like the case for orthodontic
         # intraoral and extraoral photograph sets.
@@ -195,12 +197,13 @@ class DicomBase(object):
     def equipment_manufacturer(self, manufacturer):
         self._ds.Manufacturer = manufacturer
 
-    def set_time_captured(self,time_captured):
+    def set_time_captured(self, time_captured):
         """
         """
-        self._ds.ContentTime = time_captured.strftime(defaults.TIME_FORMAT)  # long format with micro seconds
+        self._ds.ContentTime = time_captured.strftime(
+            defaults.TIME_FORMAT)  # long format with micro seconds
 
-    def save_implicit_little_endian(self,filename=None):
+    def save_implicit_little_endian(self, filename=None):
         if filename is None:
             filename = self.output_image_filename
 
@@ -209,11 +212,12 @@ class DicomBase(object):
         self._ds.is_little_endian = True
         self._ds.is_implicit_VR = True
 
-        logging.debug("Writing test file as Little Endian Implicit VR [{}]", filename)
-        self._ds.save_as(filename,write_like_original=False)
+        logging.debug(
+            "Writing test file as Little Endian Implicit VR [{}]", filename)
+        self._ds.save_as(filename, write_like_original=False)
         logging.info("File [{}] saved.".format(filename))
 
-    def save_explicit_big_endian(self,filename=None):
+    def save_explicit_big_endian(self, filename=None):
         if filename is None:
             filename = self.output_image_filename
         # Write as a different transfer syntax XXX shouldn't need this but pydicom
@@ -222,22 +226,24 @@ class DicomBase(object):
         self._ds.is_little_endian = False
         self._ds.is_implicit_VR = False
 
-        logging.debug("Writing test file as Big Endian Explicit VR [{}]", filename)
+        logging.debug(
+            "Writing test file as Big Endian Explicit VR [{}]", filename)
         self._ds.save_as(filename, write_like_original=False)
-        logging.info("File [{}] saved.",filename)
+        logging.info("File [{}] saved.", filename)
 
-    def load(self,filename):
+    def load(self, filename):
         self._ds = pydicom.dcmread(filename)
 
     def print(self):
         print(self._ds)
 
+
 class PhotographBase(DicomBase):
     """
-    A.32.4 VL Photographic Image IOD 
+    A.32.4 VL Photographic Image IOD
     """
 
-    def __init__(self,**kwargs):
+    def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.set_file_meta()
         self.file_meta.MediaStorageSOPClassUID = VLPhotographicImageStorage
@@ -248,7 +254,7 @@ class PhotographBase(DicomBase):
     def _set_sop_common(self):
         super()._set_sop_common()
         self._ds.SOPClassUID = VLPhotographicImageStorage
-    
+
     def _set_general_series(self):
         super()._set_general_series()
         self._ds.Modality = 'XC'
@@ -287,11 +293,11 @@ class PhotographBase(DicomBase):
 
             Other Values are implementation specific (optional).
         """
-        self._ds.ImageType = ['ORIGINAL','PRIMARY']
+        self._ds.ImageType = ['ORIGINAL', 'PRIMARY']
 
         # Specifies whether an Image has undergone lossy compression (at a
         # point in its lifetime).
-        self._ds.LossyImageCompression = '' 
+        self._ds.LossyImageCompression = ''
 
     def is_digitized_image(self):
         """
@@ -303,7 +309,7 @@ class PhotographBase(DicomBase):
     def is_primary_image(self):
         """ A primary image is one that was generated by the device that was
         used to capture the original photograph from the patient.
-        
+
         As an example, if the original photograph was taken with a digital
         camera, that image should be recorded in DICOM using this method. See
         C.7.6.1.1.2 Image Type
@@ -314,8 +320,8 @@ class PhotographBase(DicomBase):
         self._ds.ImageType[0] = 'ORIGINAL'
 
     def is_derived_image(self):
-        """ A derived image is a manipulated image. 
-        
+        """ A derived image is a manipulated image.
+
         It's not the original anymore, it's been most likely enhanced with
         some calculation or filters.
         """
@@ -327,7 +333,7 @@ class PhotographBase(DicomBase):
         elif lossy == False:
             self._ds.LossyImageCompression('00')
 
-    def set_image(self,filename=None):
+    def set_image(self, filename=None):
         if filename is not None and not hasattr(self._ds, 'input_image_filename'):
             self._ds.input_image_filename = filename
 
@@ -338,7 +344,8 @@ class PhotographBase(DicomBase):
             self._ds.Rows = im.size[1]
             self._ds.Columns = im.size[0]
 
-            if im.mode == '1': # (1-bit pixels, black and white, stored with one pixel per byte)
+            # (1-bit pixels, black and white, stored with one pixel per byte)
+            if im.mode == '1':
                 self._ds.SamplesPerPixel = 1
                 try:
                     del self._ds.PlanarConfiguration
@@ -347,7 +354,7 @@ class PhotographBase(DicomBase):
                 self._ds.BitsStored = 1
                 self._ds.HighBit = 0
                 self._ds.PhotometricInterpretation = 'MONOCHROME2'
-            elif im.mode == 'L': # (8-bit pixels, black and white)
+            elif im.mode == 'L':  # (8-bit pixels, black and white)
                 self._ds.SamplesPerPixel = 1
                 try:
                     del self._ds.PlanarConfiguration
@@ -357,8 +364,10 @@ class PhotographBase(DicomBase):
                 self._ds.BitsStored = 8
                 self._ds.HighBit = 7
                 self._ds.PhotometricInterpretation = 'MONOCHROME2'
-            elif im.mode == 'P': # (8-bit pixels, mapped to any other mode using a color palette)
-                print("ERROR: mode [{}] is not yet implemented.".format(im.mode))
+            # (8-bit pixels, mapped to any other mode using a color palette)
+            elif im.mode == 'P':
+                print(
+                    "ERROR: mode [{}] is not yet implemented.".format(im.mode))
                 raise NotImplementedError
 
                 # self.ds.SamplesPerPixel = 1
@@ -366,7 +375,7 @@ class PhotographBase(DicomBase):
                 # self.ds.BitsStored = 8
                 # self.ds.HighBit = 7
                 # self.ds.PhotometricInterpretation = 'PALETTE COLOR'
-            elif im.mode == 'RGB': # (3x8-bit pixels, true color)
+            elif im.mode == 'RGB':  # (3x8-bit pixels, true color)
                 self._ds.SamplesPerPixel = 3
                 # Planar Configuration (0028,0006) is not meaningful when a compression Transfer Syntax is used that involves reorganization of sample components in the compressed bit stream. In such cases, since the Attribute is required to be present, then an appropriate value to use may be specified in the description of the Transfer Syntax in PS3.5, though in all likelihood the value of the Attribute will be ignored by the receiving implementation.
                 self._ds.PlanarConfiguration = 0
@@ -374,8 +383,10 @@ class PhotographBase(DicomBase):
                 self._ds.BitsStored = 8
                 self._ds.HighBit = 7
                 self._ds.PhotometricInterpretation = 'RGB'
-            elif im.mode == 'RGBA': # (4x8-bit pixels, true color with transparency mask)
-                print("ERROR: mode [{}] is not yet implemented.".format(im.mode))
+            # (4x8-bit pixels, true color with transparency mask)
+            elif im.mode == 'RGBA':
+                print(
+                    "ERROR: mode [{}] is not yet implemented.".format(im.mode))
                 raise NotImplementedError
                 # self.ds.SamplesPerPixel = 4
                 # self.ds.PlanarConfiguration = 0
@@ -383,8 +394,9 @@ class PhotographBase(DicomBase):
                 # self.ds.BitsStored = 8
                 # self.ds.HighBit = 7
                 # self.ds.PhotometricInterpretation = 'ARGB'
-            elif im.mode == 'CMYK': #  (4x8-bit pixels, color separation)
-                print("ERROR: mode [{}] is not yet implemented.".format(im.mode))
+            elif im.mode == 'CMYK':  # (4x8-bit pixels, color separation)
+                print(
+                    "ERROR: mode [{}] is not yet implemented.".format(im.mode))
                 raise NotImplementedError
                 # self.ds.SamplesPerPixel = 4
                 # self.ds.PlanarConfiguration = 0
@@ -392,8 +404,10 @@ class PhotographBase(DicomBase):
                 # self.ds.BitsStored = 8
                 # self.ds.HighBit = 7
                 # self.ds.PhotometricInterpretation = 'CMYK'
-            elif im.mode == 'YCbCr': # (3x8-bit pixels, color video format) Note that this refers to the JPEG, and not the ITU-R BT.2020, standard
-                print("ERROR: mode [{}] is not yet implemented.".format(im.mode))
+            # (3x8-bit pixels, color video format) Note that this refers to the JPEG, and not the ITU-R BT.2020, standard
+            elif im.mode == 'YCbCr':
+                print(
+                    "ERROR: mode [{}] is not yet implemented.".format(im.mode))
                 raise NotImplementedError
                 # self.ds.SamplesPerPixel = 3
                 # self.ds.PlanarConfiguration = 0
@@ -401,17 +415,22 @@ class PhotographBase(DicomBase):
                 # self.ds.BitsStored = 8
                 # self.ds.HighBit = 7
                 # self.ds.PhotometricInterpretation = 'YBR_FULL'
-            elif im.mode == 'LAB': # (3x8-bit pixels, the L*a*b color space)
-                print("ERROR: mode [{}] is not yet implemented.".format(im.mode))
+            elif im.mode == 'LAB':  # (3x8-bit pixels, the L*a*b color space)
+                print(
+                    "ERROR: mode [{}] is not yet implemented.".format(im.mode))
                 raise NotImplementedError
-            elif im.mode == 'HSV': # (3x8-bit pixels, Hue, Saturation, Value color space)
-                print("ERROR: mode [{}] is not yet implemented.".format(im.mode))
+            # (3x8-bit pixels, Hue, Saturation, Value color space)
+            elif im.mode == 'HSV':
+                print(
+                    "ERROR: mode [{}] is not yet implemented.".format(im.mode))
                 raise NotImplementedError
-            elif im.mode == 'I': # (32-bit signed integer pixels)
-                print("ERROR: mode [{}] is not yet implemented.".format(im.mode))
+            elif im.mode == 'I':  # (32-bit signed integer pixels)
+                print(
+                    "ERROR: mode [{}] is not yet implemented.".format(im.mode))
                 raise NotImplementedError
-            elif im.mode == 'F': # (32-bit floating point pixels)
-                print("ERROR: mode [{}] is not yet implemented.".format(im.mode))
+            elif im.mode == 'F':  # (32-bit floating point pixels)
+                print(
+                    "ERROR: mode [{}] is not yet implemented.".format(im.mode))
                 raise NotImplementedError
 
             px = im.load()
@@ -430,44 +449,17 @@ class PhotographBase(DicomBase):
             if self._ds.SamplesPerPixel == 1:
                 for row in range(self._ds.Rows):
                     for column in range(self._ds.Columns):
-                        self._ds.PixelData += bytes([px[column,row]])
+                        self._ds.PixelData += bytes([px[column, row]])
             elif self._ds.SamplesPerPixel > 1:
                 for row in range(self._ds.Rows):
                     for column in range(self._ds.Columns):
                         for sample in range(self._ds.SamplesPerPixel):
-                            self._ds.PixelData += bytes([px[column,row][sample]])
+                            self._ds.PixelData += bytes(
+                                [px[column, row][sample]])
             else:
-                print("Error: Incorrect value for SamplesPerPixel {}".format(self._ds.SamplesPerPixel))
+                print("Error: Incorrect value for SamplesPerPixel {}".format(
+                    self._ds.SamplesPerPixel))
 
             # PixelData has to always be divisible by 2. Add an extra byte if it's not.
             if len(self._ds.PixelData) % 2 == 1:
                 self._ds.PixelData += b'0'
-
-class OrthodonticPhotograph(PhotographBase):
-    """ An Orthodontic Photograph as defined in WP-1100
-
-        arguments:
-
-        photo_type: a 4 digit ortho photo type code as specifed in WP-1100. Ex. EV01
-
-        input_image_filename: name of input image file
-
-        output_image_filename: name of output image file
-    """
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-        if callable(kwargs['photo_type']):
-            self._type = kwargs['photo_type']
-        else:
-            # Allow for both dash separated and not separated naming
-            photo_type = kwargs['photo_type'].replace('-','')
-
-            # Get the array of functions to set this required type.
-            self._type = (dicom_photo.m_orthodontic_photograph_types.OrthodonticPhotographTypes().views[photo_type])
-        
-        self._set_dicom_attributes()
-
-    def _set_dicom_attributes(self):
-        for set_attr in self._type:
-            logging.debug('Setting DICOM attributes for {}', self._type)
-            set_attr(self._ds)

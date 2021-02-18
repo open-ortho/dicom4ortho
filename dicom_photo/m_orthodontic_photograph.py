@@ -141,8 +141,8 @@ def _WM(dataset):
     used for intraoral photographs only. Does not apply to extraoral
     photographs
     """
-    pass
-
+    dataset.ImageView = _get_sct_code_sequence(
+        '789135000','Mirrored view uncorrected')
 
 def _WM_BC(dataset):
     """ With Mirror But Corrected
@@ -151,13 +151,15 @@ def _WM_BC(dataset):
     without a mirror used for intraoral photographs only. Does not apply
     to extraoral photographs
     """
-    pass
+    dataset.ImageView = _get_sct_code_sequence(
+        '787610003','Mirror corrected')
 
 
 def _NM(dataset):
     """ No Mirror
     """
-    pass
+    dataset.ImageView = _get_sct_code_sequence(
+        '255589003','Direct')
 
 
 def _RB(dataset):
@@ -168,6 +170,8 @@ def _RB(dataset):
     _jaw_region(dataset)
     dataset.AcquisitionView = _get_sct_code_sequence(
         '30730003', 'Sagittal (qualifier value)')
+    dataset.FunctionalCondition = _get_sct_code_sequence(
+        '286866000', 'Mouth Closed')
     dataset.PatientOrientation = ['A', 'F']  # Anterior, Foot
 
 
@@ -179,6 +183,8 @@ def _LB(dataset):
     _jaw_region(dataset)
     dataset.AcquisitionView = _get_sct_code_sequence(
         '30730003', 'Sagittal (qualifier value)')
+    dataset.FunctionalCondition = _get_sct_code_sequence(
+        '286866000', 'Mouth Closed')
     dataset.PatientOrientation = ['P', 'F']  # Anterior, Foot
 
 
@@ -400,7 +406,7 @@ IMAGE_TYPES = {
     "EV42": [_EO, _FF, _MO],
     "EV43": [_EO, _FF, _NW],
 
-    "IV01": [_IO, _RB, _CO],
+    "IV01": [_IO, _RB, _CO, _NM],
     "IV02": [_IO, _RB, _CO, _WM],
     "IV03": [_IO, _RB, _CO, _WM_BC],
     "IV04": [_IO, _RB, _CR, _NM],
@@ -482,8 +488,8 @@ ALLOWED_TEETH = {
         '41', '42', '43', '44', '45', '46', '47', '48',
     ],
     "IV02": [
-        '21', '22', '23', '24', '15', '26', '27', '28',
-        '31', '32', '33', '34', '35', '36', '37', '38',
+        '11', '12', '13', '14', '15', '16', '17', '18',
+        '41', '42', '43', '44', '45', '46', '47', '48',
     ],
     "IV03": [ ],
     "IV04": [ ],
@@ -500,8 +506,14 @@ ALLOWED_TEETH = {
     "IV15": [ ],
     "IV16": [ ],
     "IV17": [ ],
-    "IV18": [ ],
-    "IV19": [ ],
+    "IV18": [
+        '21', '22', '23', '24', '15', '26', '27', '28',
+        '31', '32', '33', '34', '35', '36', '37', '38',
+    ],
+    "IV19": [
+        '21', '22', '23', '24', '15', '26', '27', '28',
+        '31', '32', '33', '34', '35', '36', '37', '38',
+    ],
     "IV20": [ ],
     "IV21": [ ],
     "IV22": [ ],

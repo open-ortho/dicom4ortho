@@ -11,6 +11,7 @@ from pydicom.dataset import Dataset
 
 from dicom_photo.model import PhotographBase
 import dicom_photo.m_tooth_codes as ToothCodes
+from dicom_photo import defaults
 
 
 def _EO(dataset):
@@ -553,7 +554,7 @@ class OrthodonticPhotograph(PhotographBase):
 
     def add_teeth(self, teeth):
         logging.debug("Adding teeth")
-        if teeth == 'MAXIMUM_NUMBER_ALLOWED':
+        if teeth == defaults.ADD_MAX_ALLOWED_TEETH:
             logging.debug("Setting all possibly allowed teeth.")
             teeth = ALLOWED_TEETH[self.image_type]
 

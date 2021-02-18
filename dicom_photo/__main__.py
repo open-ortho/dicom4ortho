@@ -16,6 +16,7 @@ import dicom_photo.controller as controller
 
 LIST_IMAGE_TYPES = 'list-image-types'
 
+
 class CLIError(Exception):
     '''Generic exception to raise and log different fatal errors.'''
 
@@ -39,14 +40,14 @@ def print_image_types():
     header3 = 'Full Meaning'
     with open(image_types_filename) as image_types_csvfile:
         reader = csv.reader(image_types_csvfile)
-        image_types_table = PrettyTable([header1,header2,header3])
+        image_types_table = PrettyTable([header1, header2, header3])
         for row in reader:
             wrapped_meaning = textwrap.wrap(row[2], 47)
             image_types_table.add_row([row[0],
-                                      row[1],
-                                      wrapped_meaning[0]])
+                                       row[1],
+                                       wrapped_meaning[0]])
             for subseq in wrapped_meaning[1:]:
-                image_types_table.add_row(['','','  {}'.format(subseq)])
+                image_types_table.add_row(['', '', '  {}'.format(subseq)])
         # image_types_table = from_csv(image_types_csvfile)
 
     image_types_table.align[header2] = "l"
@@ -108,12 +109,6 @@ USAGE
             default=None,
             metavar='<filename>',
         )
-        # parser.add_argument(
-        #     "-l", "--list-image-types",
-        #     dest="list_image_types",
-        #     action="store_true",
-        #     help="Prints a list of allowed image types for --image-type",
-        # )
         parser.add_argument(
             "-t", "--image-type",
             dest="image_type",
@@ -122,6 +117,22 @@ USAGE
             types. [default: %(default)s]".format(LIST_IMAGE_TYPES),
             default='EV01',
             metavar='<filename>',
+        )
+        parser.add_argument(
+            "--teeth",
+            dest="teeth",
+            nargs="*",
+            help="Add this tooth to image. Tooth should be clearly visible. \
+            Use ISO tooth numbering. Add as many as necessary, divided by a \
+            space, like: '--teeth 18 17 16'.",
+        )
+        parser.add_argument(
+            "--add-max-allowed-teeth",
+            dest="add_max_allowed_teeth",
+            action="store_true",
+            help="Adds the maximum allowed teeth for each image type. Assumes \
+            adult patient with all teeth present and clearly visible for the \
+            specified image type.",
         )
         parser.add_argument(
             "--validate",
@@ -148,15 +159,22 @@ USAGE
             sys.exit(0)
 
         c = controller.SimpleController(args)
+        if args.add_max_allowed_teeth:
+            teeth = defaults.ADD_MAX_ALLOWED_TEETH
+        elif args.teeth:
+            teeth = args.teeth
+        else:
+            teeth = None
 
         if args.validate is True:
             c.validate_dicom_file(args.input_filename)
         elif args.input_filename.lower().endswith('.csv'):
-            c.bulk_convert_from_csv(args.input_filename)
+            c.bulk_convert_from_csv(args.input_filename, teeth=teeth)
         else:
             c.convert_image_to_dicom_photograph({
                 'image_type': 'args.image_type',
                 'input_image_filename': 'args.input_filename',
+                'teeth': teeth,
                 'output_image_filename': 'args.output_filename'})
             c.photo.print()
 

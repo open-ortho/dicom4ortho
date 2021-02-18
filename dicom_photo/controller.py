@@ -25,14 +25,14 @@ class SimpleController(object):
         self._cli_args = args
         self.photo = None
 
-    def bulk_convert_from_csv(self, csv_input):
+    def bulk_convert_from_csv(self, csv_input, teeth=None):
         with open(csv_input, mode='r') as csv_file:
             csv_reader = csv.DictReader(csv_file, delimiter=',')
             for row in csv_reader:
                 row['input_image_filename'] =\
                     os.path.join(os.path.dirname(csv_input),
                                  row['input_image_filename'])
-                row['teeth'] = 'MAXIMUM_NUMBER_ALLOWED'
+                row['teeth'] = teeth
                 self.convert_image_to_dicom_photograph(metadata=row)
 
     def convert_image_to_dicom_photograph(self, metadata):

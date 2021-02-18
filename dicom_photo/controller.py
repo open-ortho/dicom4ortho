@@ -32,6 +32,7 @@ class SimpleController(object):
                 row['input_image_filename'] =\
                     os.path.join(os.path.dirname(csv_input),
                                  row['input_image_filename'])
+                row['teeth'] = 'MAXIMUM_NUMBER_ALLOWED'
                 self.convert_image_to_dicom_photograph(metadata=row)
 
     def convert_image_to_dicom_photograph(self, metadata):

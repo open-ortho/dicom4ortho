@@ -164,7 +164,7 @@ USAGE
         elif args.teeth:
             teeth = args.teeth
         else:
-            teeth = None
+            teeth = []
 
         if args.validate is True:
             c.validate_dicom_file(args.input_filename)

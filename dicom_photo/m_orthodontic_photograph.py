@@ -21,7 +21,10 @@ def _EO(dataset):
 
 
 def _IO(dataset):
-    pass
+    # Here we assume all extraoral images to be unpaired. Pairing should be
+    # set at a higher level: only the operator knows if they will be
+    # collecting a pair or not.
+    dataset.ImageLaterality = 'U'
 
 
 def _RP(dataset):
@@ -161,7 +164,10 @@ def _RB(dataset):
 
     used to document posterior occlusion
     """
-    pass
+    _jaw_region(dataset)
+    dataset.AcquisitionView = _get_sct_code_sequence(
+        '30730003', 'Sagittal (qualifier value)')
+    dataset.PatientOrientation = ['A', 'F']  # Anterior, Foot
 
 
 def _LB(dataset):
@@ -169,7 +175,10 @@ def _LB(dataset):
 
     used to document posterior occlusion
     """
-    pass
+    _jaw_region(dataset)
+    dataset.AcquisitionView = _get_sct_code_sequence(
+        '30730003', 'Sagittal (qualifier value)')
+    dataset.PatientOrientation = ['P', 'F']  # Anterior, Foot
 
 
 def _RL(dataset):
@@ -328,6 +337,11 @@ def _face(dataset):
     a_r_s[0].AnatomicRegionModifierSequence = _null()
     dataset.AnatomicRegionSequence = a_r_s
 
+def _jaw_region(dataset):
+    a_r_s = _get_sct_code_sequence(
+        '181811001', 'Jaw Region')
+    a_r_s[0].AnatomicRegionModifierSequence = _null()
+    dataset.AnatomicRegionSequence = a_r_s
 
 def _get_sct_code_dataset(value, meaning):
     code_dataset = Dataset()

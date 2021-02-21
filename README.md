@@ -47,12 +47,12 @@
 
 [![dicom4ortho Screen Shot][product-screenshot]](https://example.com)
 
-The DICOM standard is there and ready for any developer in the orthodontic
-community to implement. However, they can be complicated and implementation
-can be time consuming. We wanted to create a proof of concept to demonstrate
-how to properly store orthodontic visible light images (aka photographs)
-using DICOM, while ensuring all necessary codes to uniquely identify each
-image type are in the proper place.
+The DICOM standard is ready for any developer in the orthodontic community to
+implement. However, it can be complicated and implementation can be time
+consuming. We want to create a proof of concept to demonstrate how to
+properly store orthodontic visible light images (aka photographs) using
+DICOM, while ensuring all codes (necessary to uniquely identify each image
+type) are in the proper place.
 
 Here's why:
 
@@ -67,7 +67,7 @@ You may suggest changes by forking this repo and creating a pull request or
 opening an issue. Thanks to all the people have have contributed to this
 project!
 
-A list of commonly used resources that I find helpful are listed in the
+A list of commonly used resources that we find helpful are listed in the
 acknowledgements.
 
 ### Built With
@@ -100,7 +100,22 @@ Only Python 3+ is supported
 <!-- USAGE EXAMPLES -->
 ## Usage
 
-Once installed, 
+The DICOM images require a lot of information which is not contained in a
+flat PNG or JPEG image. This information would, in a production environment,
+usually come from the practice management software, or photo management
+software.
+
+The easieset wayt to feed this information to dicom4ortho's CLI is using a
+CSV file. You can find an example CSV file in [this examples file](resources/example/input_from.csv)
+
+Once installed, if necessary, start the virtual environment:
+
+    $ pipenv shell
+
+then use dicom4ortho like this:
+
+    $ dicom4ortho df
+
 _For more examples, please refer to the [Documentation](https://example.com)_
 
 <!-- ROADMAP -->
@@ -160,3 +175,4 @@ Project Link: [https://github.com/open-ortho/dicom4ortho](https://github.com/ope
 [linkedin-shield]: https://img.shields.io/badge/-LinkedIn-black.svg?style=for-the-badge&logo=linkedin&colorB=555
 [linkedin-url]: https://linkedin.com/in/open-ortho
 [product-screenshot]: images/screenshot.png
+[example-csv-url]: resources/example/input_from.csv

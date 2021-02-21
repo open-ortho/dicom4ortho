@@ -80,7 +80,7 @@ setup(
 
     entry_points={  # Optional
         'console_scripts': [
-            'img2dicom=dicom_photo.__main__:main',
+            'dicom4ortho=dicom_photo.__main__:main',
         ],
     },
 

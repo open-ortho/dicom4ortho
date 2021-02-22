@@ -16,7 +16,7 @@ import io
 import re
 
 
-init_py = io.open('dicom_photo/__init__.py').read()
+init_py = io.open('dicom4ortho/__init__.py').read()
 metadata = dict(re.findall("__([a-z]+)__ = '([^']+)'", init_py))
 metadata['doc'] = """A DICOM Implementation for Orthodontic Images"""
 
@@ -33,7 +33,7 @@ setup(
 
     python_requires='>=3',
 
-    name='dicom_photo',  # Required
+    name='dicom4ortho',  # Required
 
     version='0.0.1',  # Required
 
@@ -80,7 +80,7 @@ setup(
 
     entry_points={  # Optional
         'console_scripts': [
-            'dicom4ortho=dicom_photo.__main__:main',
+            'dicom4ortho=dicom4ortho.__main__:main',
         ],
     },
 

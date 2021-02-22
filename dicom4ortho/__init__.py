@@ -3,9 +3,9 @@ png, etc) into DICOM.
 
 """
 
-import dicom_photo.defaults
+import dicom4ortho.defaults
 
-__version__ = dicom_photo.defaults.VERSION
+__version__ = dicom4ortho.defaults.VERSION
 __url__ = 'https://github.com/orgs/open-ortho/'
 __author__ = 'Toni Magni'
 __email__ = 'openortho@afm.co'

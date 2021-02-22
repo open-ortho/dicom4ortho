@@ -12,7 +12,7 @@ from pydicom.dataset import Dataset, FileDataset
 from pynetdicom.sop_class import VLPhotographicImageStorage
 import PIL
 
-import dicom_photo.defaults as defaults
+import dicom4ortho.defaults as defaults
 
 class DicomBase(object):
     """ Functions and fields common to most DICOM images.

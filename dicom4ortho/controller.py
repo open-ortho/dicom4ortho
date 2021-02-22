@@ -5,16 +5,15 @@ import os
 import os.path
 import csv
 import datetime
-import logging
-import dicom_photo.model as model
+import dicom4ortho.model as model
 
 # Just importing will do to execute the code in the module. Pylint will
 # complain though.
 # pylint: disable=unused-import
-import dicom_photo.m_dental_acquisition_context_module
+import dicom4ortho.m_dental_acquisition_context_module
 
-import dicom_photo.defaults as defaults
-from dicom_photo.m_orthodontic_photograph import OrthodonticPhotograph
+import dicom4ortho.defaults as defaults
+from dicom4ortho.m_orthodontic_photograph import OrthodonticPhotograph
 
 class SimpleController(object):
     """
@@ -33,9 +32,9 @@ class SimpleController(object):
                     os.path.join(os.path.dirname(csv_input),
                                  row['input_image_filename'])
                 row['teeth'] = teeth
-                self.convert_image_to_dicom_photograph(metadata=row)
+                self.convert_image_to_dicom4orthograph(metadata=row)
 
-    def convert_image_to_dicom_photograph(self, metadata):
+    def convert_image_to_dicom4orthograph(self, metadata):
         ''' Converts a plain image into a DICOM object.
 
         All image metadata are passed as a dict in metadata with the following keys:
@@ -94,7 +93,7 @@ class SimpleController(object):
         self.photo.set_image()
         self.photo.save_implicit_little_endian()
 
-    # def convert_image_to_dicom_photograph(
+    # def convert_image_to_dicom4orthograph(
     #     self,
     #     image_type,
     #     input_image_filename,

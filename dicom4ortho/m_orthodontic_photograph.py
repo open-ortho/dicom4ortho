@@ -9,9 +9,9 @@ import logging
 from pydicom.sequence import Sequence
 from pydicom.dataset import Dataset
 
-from dicom_photo.model import PhotographBase
-import dicom_photo.m_tooth_codes as ToothCodes
-from dicom_photo import defaults
+from dicom4ortho.model import PhotographBase
+import dicom4ortho.m_tooth_codes as ToothCodes
+from dicom4ortho import defaults
 
 
 def _EO(dataset):

@@ -11,8 +11,8 @@ from argparse import RawDescriptionHelpFormatter
 import pkg_resources
 from prettytable import PrettyTable
 
-import dicom_photo.defaults as defaults
-import dicom_photo.controller as controller
+import dicom4ortho.defaults as defaults
+import dicom4ortho.controller as controller
 
 LIST_IMAGE_TYPES = 'list-image-types'
 
@@ -33,7 +33,7 @@ class CLIError(Exception):
 
 def print_image_types():
     image_types_filename = pkg_resources.resource_filename(
-        'dicom_photo.resources', 'image_types.csv')
+        'dicom4ortho.resources', 'image_types.csv')
     logging.debug("Image type filenames is: {}".format(image_types_filename))
     header1 = 'Type'
     header2 = 'Abbreviated'
@@ -173,7 +173,7 @@ USAGE
         elif args.input_filename.lower().endswith('.csv'):
             c.bulk_convert_from_csv(args.input_filename, teeth=teeth)
         else:
-            c.convert_image_to_dicom_photograph({
+            c.convert_image_to_dicom4orthograph({
                 'image_type': 'args.image_type',
                 'input_image_filename': 'args.input_filename',
                 'teeth': teeth,

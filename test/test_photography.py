@@ -5,13 +5,13 @@ Created on Jul 3, 2018
 '''
 import unittest
 import logging
-import dicom_photo.m_orthodontic_photograph
+import dicom4ortho.m_orthodontic_photograph
 
 from pydicom.dataset import Dataset
 # Just importing will do to execute the code in the module. Pylint will
 # complain though.
 # pylint: disable=unused-import
-import dicom_photo.m_dental_acquisition_context_module
+import dicom4ortho.m_dental_acquisition_context_module
 class Test(unittest.TestCase):
 
     def setUp(self):
@@ -24,7 +24,7 @@ class Test(unittest.TestCase):
 
     def testOne(self):
         ds = Dataset()
-        for f in dicom_photo.m_orthodontic_photograph.IMAGE_TYPES['EV01']:
+        for f in dicom4ortho.m_orthodontic_photograph.IMAGE_TYPES['EV01']:
             f(ds)
         print("{}".format(ds))
 

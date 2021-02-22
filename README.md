@@ -9,7 +9,7 @@
 <br />
 <p align="center">
   <a href="https://github.com/open-ortho/dicom4ortho">
-    <img src="images/open-ortho.png" alt="Logo" width="80" height="80">
+    <img src="https://raw.githubusercontent.com/open-ortho/dicom4ortho/master/images/open-ortho.png" alt="Logo" width="80" height="80">
   </a>
 
   <h3 align="center">dicom4ortho</h3>
@@ -59,8 +59,6 @@
 
 <!-- ABOUT THE PROJECT -->
 ## About The Project
-
-[![dicom4ortho Screen Shot][product-screenshot]](https://example.com)
 
 The DICOM standard is ready for any developer in the orthodontic community to
 implement. However, it can be complicated and implementation can be time

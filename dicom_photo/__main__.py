@@ -95,7 +95,8 @@ USAGE
             dest="log_level",
             default=logging.INFO,
             type=lambda x: getattr(logging, x.upper()),
-            help="Configure the logging level. Available values: debug, info, warning, error, critical.",
+            help="Configure the logging level. Available values: debug, info, \
+            warning, error, critical.",
         )
         parser.add_argument(
             '-V', '--version',
@@ -142,7 +143,8 @@ USAGE
         )
         parser.add_argument(
             dest="input_filename",
-            help="path of file of CSV file with metadata and filename of file to convert to DICOM",
+            help="path of file or CSV file with metadata and filename of files \
+            to convert to DICOM",
             metavar='<filename>',
         )
 

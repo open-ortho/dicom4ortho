@@ -35,6 +35,20 @@
   - [Prerequisites](#prerequisites)
   - [Installation](#installation)
 - [Usage](#usage)
+  - [CSV Image file format](#csv-image-file-format)
+    - [`patient_firstname`](#patient_firstname)
+    - [patient_lastname](#patient_lastname)
+    - [patient_id](#patient_id)
+    - [patient_sex](#patient_sex)
+    - [patient_birthdate](#patient_birthdate)
+    - [dental_provider_firstname](#dental_provider_firstname)
+    - [dental_provider_lastname](#dental_provider_lastname)
+    - [image_type](#image_type)
+    - [manufacturer](#manufacturer)
+    - [input_image_filename](#input_image_filename)
+    - [study_instance_uid](#study_instance_uid)
+    - [study_description](#study_description)
+    - [series_instance_uid,series_description](#series_instance_uidseries_description)
 - [Roadmap](#roadmap)
 - [Contributing](#contributing)
 - [License](#license)
@@ -105,25 +119,90 @@ flat PNG or JPEG image. This information would, in a production environment,
 usually come from the practice management software, or photo management
 software.
 
-The easieset wayt to feed this information to dicom4ortho's CLI is using a
-CSV file. You can find an example CSV file in [this examples file](resources/example/input_from.csv)
+The easiest way to feed this information to `dicom4ortho`'s CLI is using a
+CSV file. You can find an example CSV file [here](resources/example/input_from.csv)
 
 Once installed, if necessary, start the virtual environment:
 
-    $ pipenv shell
+    pipenv shell
 
 then use dicom4ortho like this:
 
-    $ dicom4ortho df
+    $ dicom4ortho <filename>
 
-_For more examples, please refer to the [Documentation](https://example.com)_
+Where `filename` should be a `.csv` file. Passing a single image file with
+metadata through arguments is planned for future implementations.
+
+### CSV Image file format
+
+The CSV file should be:
+
+- with `,` as separator
+- `UTF-8` encoded
+
+Each CSV file should containt the following columns (header)
+
+#### `patient_firstname`
+
+Patient first name. First part of DICOM tag `(0010, 0010) Patient's Name`.
+
+#### patient_lastname
+
+Patient last name. Second part of DICOM tag `(0010, 0010) Patient's Name`.
+
+#### patient_id
+
+Patient ID. DICOM `(0010, 0020) Patient ID` tag.
+
+#### patient_sex
+
+Patient's gender. DICOM `(0010, 0040) Patient's Sex` tag.
+
+#### patient_birthdate
+
+Patient's date of birth in YYYY-MM-DD format. DICOM `(0010, 0030) Patient's
+Birth Date` tag.
+
+#### dental_provider_firstname
+
+First name of orthodontic (or dental) provider. First part of DICOM `(0008,
+0090) Referring Physician's Name` tag.
+
+#### dental_provider_lastname
+
+Last name of orthodontic (or dental) provider. Second part of DICOM `(0008,
+0090) Referring Physician's Name` tag.
+
+#### image_type
+
+Image type as defined by ADA SCDI WP-1100. Type
+
+    dicom4ortho list-image-types
+
+for a list of allowed image types.
+
+#### manufacturer
+
+Manufacturer of Camera. For example, when using an iPhone, use `Apple`
+here. Overrides input file's EXIF metadata.
+
+#### input_image_filename
+
+Full path of flat JPG/PNG/TIFF image file to use as input.
+
+#### study_instance_uid
+
+The unique identifier that distinguishes this study from any other study.
+This is a DICOM UID object, and goes into the the DICOM `(0020, 000d) Study
+Instance UID` tag.
+
+#### study_description
+#### series_instance_uid,series_description
 
 <!-- ROADMAP -->
 ## Roadmap
 
 See the [open issues](https://github.com/open-ortho/dicom4ortho/issues) for a list of proposed features (and known issues).
-
-
 
 <!-- CONTRIBUTING -->
 ## Contributing
@@ -136,14 +215,10 @@ Contributions are what make the open source community such an amazing place to b
 4. Push to the Branch (`git push origin feature/AmazingFeature`)
 5. Open a Pull Request
 
-
-
 <!-- LICENSE -->
 ## License
 
-Distributed under the MIT License. See `LICENSE` for more information.
-
-
+Distributed under the MIT License. See [LICENSE](LICENSE) for more information.
 
 <!-- CONTACT -->
 ## Contact
@@ -151,8 +226,6 @@ Distributed under the MIT License. See `LICENSE` for more information.
 Toni Magni- [@zgypa](https://twitter.com/zgypa) - open-ortho@afm.co
 
 Project Link: [https://github.com/open-ortho/dicom4ortho](https://github.com/open-ortho/dicom4ortho)
-
-
 
 <!-- ACKNOWLEDGEMENTS -->
 ## Acknowledgements

@@ -5,7 +5,7 @@ Defaults and Constants.
 import uuid
 import logging
 
-VERSION = '0.1.0-dev'
+VERSION = '0.0.1-dev'
 __url__ = 'https://github.com/orgs/open-ortho'
 __author__ = 'Toni Magni'
 __email__ = 'open-ortho@panio.info'

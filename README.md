@@ -12,7 +12,7 @@
     <img src="https://raw.githubusercontent.com/open-ortho/dicom4ortho/master/images/open-ortho.png" alt="Logo" width="80" height="80">
   </a>
 
-  <h3 align="center">dicom4ortho 0.1.0-dev</h3>
+  <h3 align="center">dicom4ortho 0.1.0</h3>
 
   <p align="center">
     A Python library to create fully defined orthodontic photographs in DICOM.

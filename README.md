@@ -36,7 +36,7 @@
   - [Installation](#installation)
 - [Usage](#usage)
   - [CSV Image file format](#csv-image-file-format)
-    - [`patient_firstname`](#patient_firstname)
+    - [patient_firstname](#patient_firstname)
     - [patient_lastname](#patient_lastname)
     - [patient_id](#patient_id)
     - [patient_sex](#patient_sex)
@@ -48,7 +48,8 @@
     - [input_image_filename](#input_image_filename)
     - [study_instance_uid](#study_instance_uid)
     - [study_description](#study_description)
-    - [series_instance_uid,series_description](#series_instance_uidseries_description)
+    - [series_instance_uid](#series_instance_uid)
+    - [series_description](#series_description)
 - [Roadmap](#roadmap)
 - [Contributing](#contributing)
 - [License](#license)
@@ -142,7 +143,7 @@ The CSV file should be:
 
 Each CSV file should containt the following columns (header)
 
-#### `patient_firstname`
+#### patient_firstname
 
 Patient first name. First part of DICOM tag `(0010, 0010) Patient's Name`.
 
@@ -192,12 +193,47 @@ Full path of flat JPG/PNG/TIFF image file to use as input.
 
 #### study_instance_uid
 
-The unique identifier that distinguishes this study from any other study.
-This is a DICOM UID object, and goes into the the DICOM `(0020, 000d) Study
-Instance UID` tag.
+The unique identifier that distinguishes this study from any other study. For
+orthodontic purposes, all images taken during the same patient visit, should
+go under the same study, thus have the same study UID.
+
+This is a DICOM UID object and goes into the DICOM `(0020, 000d) Study
+Instance UID` tag. The exact format is defined in [DICOM Part 5 Data
+Structures and Encoding - Value Encoding - Value
+Representation](http://dicom.nema.org/medical/dicom/current/output/html/part05.html#sect_6.2)
+
 
 #### study_description
-#### series_instance_uid,series_description
+
+A description for this specific study. For orthodontic purposes, this value
+could be something like 'Initial Visit'.
+
+This is a DICOM UID object and goes into the DICOM `(0008, 1030) Study
+Description`. Maximum 64 characters are allowed, as defined the [DICOM LO
+VR](http://dicom.nema.org/medical/dicom/current/output/html/part05.html#sect_6.2)
+
+
+#### series_instance_uid
+
+The unique identifier that distinguishes this series from any other series.
+For orthodontic purposes, all images taken with the same imaging device (for
+photographs, this would be the camera) and during the same study (hence
+appointment visit) should be part of the same series, thus have the same
+series UID.
+
+This is a DICOM UID object and goest into the DICOM `(0020, 000e) Series
+Instance UID` tag. The exact format is defined in [DICOM Part 5 Data
+Structures and Encoding - Value Encoding - Value
+Representation](http://dicom.nema.org/medical/dicom/current/output/html/part05.html#sect_6.2)
+
+#### series_description
+
+A description for this specific series. For orthodontic purposes, this value
+could be something like 'Orthodontic Intraoral Series'.
+
+This is a DICOM UID object and goes into the DICOM `(0008, 103e) Series
+Description`. Maximum 64 characters are allowed, as defined the [DICOM LO
+VR](http://dicom.nema.org/medical/dicom/current/output/html/part05.html#sect_6.2)
 
 <!-- ROADMAP -->
 ## Roadmap
@@ -213,7 +249,7 @@ Contributions are what make the open source community such an amazing place to b
 2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
 3. Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
 4. Push to the Branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
+5. Open a [Pull Request](https://docs.github.com/en/github/collaborating-with-issues-and-pull-requests/creating-a-pull-request)
 
 <!-- LICENSE -->
 ## License

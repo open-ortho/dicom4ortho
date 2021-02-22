@@ -8,16 +8,13 @@ LINTER="$(which pylint)" || {
     echo "Cannot find xmllint. Install first."
     exit 1
 }
-PANDOC="$(which pandoc)" || {
-    echo "Cannot find pandoc. Install first"
-    exit 1
-}
 
 print_help() {
     echo
     echo "Available commands:"
     echo "  clean   : Remove dist/ folders for modules"
     echo "  build   : Builds distribution packages in dist/"
+    echo "  deploy  : Deploy packages in dist/ to PyPi"
     echo "  all     : clean then build"
     echo
 }
@@ -42,6 +39,7 @@ build() {
 
 deploy() {
     echo "Deploy not implemented."
+    python -m twine upload --repository pypi dist/*
 }
 
 all() {
@@ -56,6 +54,10 @@ clean)
     ;;
 build)
     build
+    exit
+    ;;
+deploy)
+    deploy
     exit
     ;;
 all)

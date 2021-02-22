@@ -1,6 +1,8 @@
 """ A package to convert photographs stored in conventional formats (jpeg,
 png, etc) into DICOM.
+
 """
+
 import dicom_photo.defaults
 
 __version__ = dicom_photo.defaults.VERSION

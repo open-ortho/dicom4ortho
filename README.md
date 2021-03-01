@@ -34,7 +34,7 @@
 - [Getting Started](#getting-started)
   - [Prerequisites](#prerequisites)
   - [Installation](#installation)
-  - [dicom3tools](#dicom3tools)
+  - [Validation with dicom3tools](#validation-with-dicom3tools)
 - [Usage](#usage)
   - [CSV Image file format](#csv-image-file-format)
     - [patient_firstname](#patient_firstname)
@@ -113,7 +113,7 @@ Install using pip by running
 
 Only Python 3+ is supported
 
-### dicom3tools
+### Validation with dicom3tools
 
 The dicom3tools are used to validate and is only used when the `--validate`
 option is used. This is just a conveninece wrapper for debugging, and it's

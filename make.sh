@@ -24,17 +24,26 @@ lint() {
     $LINTER -E "${MAIN}"
 }
 
+unittest() {
+    python -m unittest
+}
+
 clean() {
     rm -rf "${DIST}" || exit
-    rm -rf *.egg-info
-    find . -path '*/__pycache*' -delete
     echo "Cleaned up ${DIST} folder."
+    rm -rf *.egg-info
+    echo "Removed all .egg-info files."
+    rm -f test/resources/*.dcm
+    echo "Removed *.dcm files in test/resources."
+    find . -path '*/__pycache*' -delete
+    echo "Deleted all __pycache files."
 }
 
 build() {
     mkdir ${DIST} 2> /dev/null
     lint || exit
-    python -m setup.py sdist
+    unittest || exit
+    python -m setup sdist
 }
 
 deploy() {

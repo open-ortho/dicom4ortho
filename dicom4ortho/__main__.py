@@ -149,7 +149,7 @@ USAGE
         )
 
         # Process arguments
-        args = parser.parse_args()
+        args = parser.parse_args(argv)
         if args.verbose is True:
             args.log_level = logging.DEBUG
 
@@ -172,6 +172,7 @@ USAGE
             c.validate_dicom_file(args.input_filename)
         elif args.input_filename.lower().endswith('.csv'):
             c.bulk_convert_from_csv(args.input_filename, teeth=teeth)
+            sys.exit(0)
         else:
             c.convert_image_to_dicom4orthograph({
                 'image_type': 'args.image_type',

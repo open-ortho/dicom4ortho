@@ -16,7 +16,7 @@ class Test(unittest.TestCase):
 
     def setUp(self):
         logging.basicConfig(format='%(asctime)s - %(levelname)s - %(funcName)s: %(message)s',
-                    level=logging.DEBUG)
+                    level=logging.INFO)
 
 
     def tearDown(self):
@@ -26,7 +26,7 @@ class Test(unittest.TestCase):
         ds = Dataset()
         for f in dicom4ortho.m_orthodontic_photograph.IMAGE_TYPES['EV01']:
             f(ds)
-        print("{}".format(ds))
+        logging.debug("{}".format(ds))
 
         self.assertEqual(ds.ImageLaterality,'U')
 

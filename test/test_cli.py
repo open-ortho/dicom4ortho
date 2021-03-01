@@ -1,7 +1,7 @@
 '''
-Created on Jul 3, 2018
+Unit tests for command line interface.
 
-@author: afm
+@author: Toni Magni
 '''
 import unittest
 import logging

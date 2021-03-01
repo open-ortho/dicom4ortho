@@ -1,7 +1,7 @@
 '''
-Created on Jul 3, 2018
+Unittests for DICOM objects.
 
-@author: afm
+@author: Toni Magni
 '''
 import unittest
 import logging

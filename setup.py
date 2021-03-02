@@ -30,7 +30,7 @@ setup(
 
     name='dicom4ortho',  # Required
 
-    version='0.1.1-dev',  # Required
+    version='0.1.1',  # Required
 
     description=metadata['doc'],  # Required
 

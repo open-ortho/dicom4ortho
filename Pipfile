@@ -5,6 +5,8 @@ verify_ssl = true
 
 [dev-packages]
 pylint = "*"
+twine = "*"
+autopep8 = "*"
 
 [packages]
 pydicom = "*"

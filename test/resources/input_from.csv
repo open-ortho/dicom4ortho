@@ -1,0 +1,4 @@
+patient_firstname,patient_lastname,patient_id,patient_sex,patient_birthdate,dental_provider_firstname,dental_provider_lastname,image_type,manufacturer,input_image_filename,study_instance_uid,study_description,series_instance_uid,series_description
+John,Doe,99999,M,2000-01-01,Edward,Angle,EV-01,Apple,EV-01_EO.RP.LR.CO.png,2.25.14.234.26.210.233.205.66.81.191.173.5.183.4.209,Initial Visit,2.25.93.121.155.1.129.129.72.149.161.125.220.221.184.14,Orthodontic Extraoral Series
+John,Doe,99999,M,2000-01-01,Edward,Angle,EV-17,Apple,EV-17_EO.FF.LC.CO.png,2.25.14.234.26.210.233.205.66.81.191.173.5.183.4.209,Initial Visit,2.25.93.121.155.1.129.129.72.149.161.125.220.221.184.14,Orthodontic Extraoral Series
+John,Doe,99999,M,2000-01-01,Edward,Angle,IV-25,Apple,IV-25_IO.MX.MO.OV.WM.BC.png,2.25.14.234.26.210.233.205.66.81.191.173.5.183.4.209,Initial Visit,2.25.94.122.155.1.129.129.72.149.161.125.220.221.184.14,Orthodontic Intraoral Series

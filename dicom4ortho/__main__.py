@@ -6,6 +6,7 @@ import sys
 import logging
 import textwrap
 import csv
+import os
 from argparse import ArgumentParser
 from argparse import RawDescriptionHelpFormatter
 import pkg_resources
@@ -66,14 +67,6 @@ def main(argv=None):
     program_version = "v%s" % defaults.VERSION
     program_version_message = '%%(prog)s %s' % (program_version)
     program_license = '''{short_description}
-
-  Created by Toni Magni on {creation_date}.
-
-  Licensed under the Apache License 2.0
-  http://www.apache.org/licenses/LICENSE-2.0
-
-  Distributed on an "AS IS" basis without warranties
-  or conditions of any kind, either express or implied.
 
 USAGE
 '''.format(
@@ -149,16 +142,24 @@ USAGE
         )
 
         # Process arguments
-        args = parser.parse_args()
+        args = parser.parse_args(argv[1:])
         if args.verbose is True:
             args.log_level = logging.DEBUG
 
         logging.basicConfig(format='%(asctime)s - %(levelname)s - %(funcName)s: %(message)s',
                             level=args.log_level)
 
+        logging.debug("passed arguments: {}".format(argv))
+        for k,v in sorted(vars(args).items()):
+            logging.debug("{0}: {1}".format(k,v))
+
         if args.input_filename == LIST_IMAGE_TYPES:
             print_image_types()
-            sys.exit(0)
+            return 0
+
+        if not os.path.isfile(args.input_filename):
+            logging.error("Cannot locate file {}:".format(args.input_filename))
+            return 1
 
         c = controller.SimpleController(args)
         if args.add_max_allowed_teeth:
@@ -170,8 +171,10 @@ USAGE
 
         if args.validate is True:
             c.validate_dicom_file(args.input_filename)
+            return 0
         elif args.input_filename.lower().endswith('.csv'):
             c.bulk_convert_from_csv(args.input_filename, teeth=teeth)
+            return 0
         else:
             c.convert_image_to_dicom4orthograph({
                 'image_type': 'args.image_type',
@@ -179,12 +182,12 @@ USAGE
                 'teeth': teeth,
                 'output_image_filename': 'args.output_filename'})
             c.photo.print()
+            return 0
 
     except KeyboardInterrupt:
         ### handle keyboard interrupt ###
-        exit(120)
-        return 0
+        return 120
 
 
 if __name__ == "__main__":
-    exit(main())
+    sys.exit(main(sys.argv[1:]))

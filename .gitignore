@@ -1,3 +1,4 @@
+.vscode/*
 resources/dicom3tools_*
 dist/*
 build

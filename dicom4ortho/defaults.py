@@ -5,8 +5,8 @@ Defaults and Constants.
 import uuid
 import logging
 
-VERSION = '0.1.0'
-__url__ = 'https://github.com/orgs/open-ortho'
+VERSION = '0.1.1'
+__url__ = 'https://github.com/open-ortho/dicom4ortho'
 __author__ = 'Toni Magni'
 __email__ = 'open-ortho@panio.info'
 __updated__ = ''
@@ -14,9 +14,9 @@ __short_description__ = 'A package to convert photographs stored in conventional
 __creation_date__ = '2020-05-01'
 
 
-DICOM3TOOLS_PATH = '/Users/cdstaff/dev/open-ortho/dicom-photography/resources/dicom3tools_macexe_1.00.snapshot.20191225051647'
+DICOM3TOOLS_PATH = '/opt/dicom3tools/'
 
-# Date format used when importing date from CSV file. 
+# Date format used when importing date from CSV file.
 # The date in the CSV file should be in this format.
 IMPORT_DATE_FORMAT = '%Y-%m-%d'
 IMPORT_TIME_FORMAT = '%H%M%S.%f'

@@ -12,7 +12,7 @@
     <img src="https://raw.githubusercontent.com/open-ortho/dicom4ortho/master/images/open-ortho.png" alt="Logo" width="80" height="80">
   </a>
 
-  <h3 align="center">dicom4ortho 0.1.0</h3>
+  <h3 align="center">dicom4ortho 0.1.1</h3>
 
   <p align="center">
     A Python library to create fully defined orthodontic photographs in DICOM.
@@ -34,6 +34,7 @@
 - [Getting Started](#getting-started)
   - [Prerequisites](#prerequisites)
   - [Installation](#installation)
+  - [Validation with dicom3tools](#validation-with-dicom3tools)
 - [Usage](#usage)
   - [CSV Image file format](#csv-image-file-format)
     - [patient_firstname](#patient_firstname)
@@ -87,6 +88,7 @@ acknowledgements.
 
 * [pydicom](https://pydicom.github.io/)
 * [pillow](https://python-pillow.org/)
+* [dicom3tools](https://www.dclunie.com/dicom3tools.html)
 
 <!-- GETTING STARTED -->
 ## Getting Started
@@ -96,7 +98,8 @@ interface as well.
 
 ### Prerequisites
 
-An installation of Python 3+.
+- An installation of Python 3+.
+- optional: [dicom3tools](https://www.dclunie.com/dicom3tools.html)
 
 ### Installation
 
@@ -109,6 +112,18 @@ Install using pip by running
     $ pip install dicom4ortho
 
 Only Python 3+ is supported
+
+### Validation with dicom3tools
+
+The dicom3tools are used to validate and is only used when the `--validate`
+option is used. This is just a conveninece wrapper for debugging, and it's
+installation is not necessary for normal operation.
+
+The [dicom3tools](https://www.dclunie.com/dicom3tools.html) can be installed
+from compiled binaries, which are available for macOS and Windows.
+
+Once installed, point `DICOM3TOOLS_PATH` in `defaults.py` to the installation
+of the dicom3tools.
 
 <!-- USAGE EXAMPLES -->
 ## Usage

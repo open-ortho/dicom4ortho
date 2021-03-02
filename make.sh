@@ -47,7 +47,7 @@ build() {
 }
 
 deploy() {
-    echo "Deploy not implemented."
+    echo "Deplyoing to PyPi."
     python -m twine upload --repository pypi dist/*
 }
 

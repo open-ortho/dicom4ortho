@@ -1,20 +1,15 @@
 """ A DICOM Implementation for Orthodontic Images
 """
 
-# Always prefer setuptools over distutils
-from setuptools import setup, find_packages
-from setuptools.command.develop import develop
-from setuptools.command.install import install
-from setuptools.command.bdist_egg import bdist_egg
-from subprocess import check_call
-
-# To use a consistent encoding
-from codecs import open
-from os import path
-
 import io
 import re
 
+
+# To use a consistent encoding
+import codecs
+from os import path
+
+from setuptools import setup, find_packages
 
 init_py = io.open('dicom4ortho/__init__.py').read()
 metadata = dict(re.findall("__([a-z]+)__ = '([^']+)'", init_py))
@@ -23,7 +18,7 @@ metadata['doc'] = """A DICOM Implementation for Orthodontic Images"""
 here = path.abspath(path.dirname(__file__))
 
 # Get the long description from the README file
-with open(path.join(here, 'README.md'), encoding='utf-8') as f:
+with codecs.open(path.join(here, 'README.md'), encoding='utf-8') as f:
     long_description = f.read()
 
 # # Arguments marked as "Required" below must be included for upload to PyPI.
@@ -35,7 +30,7 @@ setup(
 
     name='dicom4ortho',  # Required
 
-    version='0.0.1',  # Required
+    version='0.1.0-dev',  # Required
 
     description=metadata['doc'],  # Required
 

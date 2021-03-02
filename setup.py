@@ -78,7 +78,7 @@ setup(
         'pynetdicom',
         'pillow',
         'prettytable'
-        ],
+    ],
 
     entry_points={  # Optional
         'console_scripts': [
@@ -86,6 +86,12 @@ setup(
         ],
     },
 
+    package_data={
+        '': [
+            'LICENSE',
+            'resources/image_types.csv'
+        ]
+    },
     # List additional URLs that are relevant to your project as a dict.
     #
     # This field corresponds to the "Project-URL" metadata fields:

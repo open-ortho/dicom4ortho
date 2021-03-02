@@ -68,14 +68,6 @@ def main(argv=None):
     program_version_message = '%%(prog)s %s' % (program_version)
     program_license = '''{short_description}
 
-  Created by Toni Magni on {creation_date}.
-
-  Licensed under the Apache License 2.0
-  http://www.apache.org/licenses/LICENSE-2.0
-
-  Distributed on an "AS IS" basis without warranties
-  or conditions of any kind, either express or implied.
-
 USAGE
 '''.format(
         short_description=defaults.__short_description__,

@@ -58,14 +58,19 @@ setup(
 
         # Indicate who your project is intended for
         'Intended Audience :: Developers',
-        'Topic :: Software Development :: Build Tools',
+        'Intended Audience :: Healthcare Industry',
+        'Topic :: Scientific/Engineering :: Medical Science Apps.',
+        'Topic :: Scientific/Engineering :: Image Processing',
 
-        # Pick your license as you wish
         'License :: OSI Approved :: MIT License',
 
         # Specify the Python versions you support here. In particular, ensure
         # that you indicate whether you support Python 2, Python 3 or both.
         'Programming Language :: Python :: 3',
+        'Operating System :: MacOS :: MacOS X',
+        'Operating System :: Microsoft :: Windows',
+        'Operating System :: POSIX',
+
     ],
 
     keywords='DICOM VL Visible Light Photography Orthodontics',  # Optional
@@ -76,7 +81,9 @@ setup(
         'argparse',
         'pydicom',
         'pynetdicom',
-        'pillow'],  # Optional
+        'pillow',
+        'prettytable'
+        ],
 
     entry_points={  # Optional
         'console_scripts': [

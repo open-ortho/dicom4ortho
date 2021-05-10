@@ -5,6 +5,7 @@ import os
 import os.path
 import csv
 import datetime
+import pathlib
 import dicom4ortho.model as model
 
 # Just importing will do to execute the code in the module. Pylint will
@@ -62,8 +63,8 @@ class SimpleController(object):
         '''
 
         if ('output_image_filename' not in metadata) or (metadata['output_image_filename'] is None):
-            metadata['output_image_filename'] = metadata['input_image_filename'].replace(
-                metadata['input_image_filename'].split('.')[-1], 'dcm')
+            p = pathlib.Path(metadata['input_image_filename'])
+            metadata['output_image_filename'] = str(p.with_suffix('.dcm'))
 
         self.photo = OrthodonticPhotograph(**metadata)
 

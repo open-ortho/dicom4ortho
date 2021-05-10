@@ -579,9 +579,12 @@ class OrthodonticPhotograph(PhotographBase):
 
         if "teeth" in kwargs:
             self.add_teeth(kwargs['teeth'])
-        self._ds.ImageComments = "{}^{}".format(
+        ImageComments = "{}^{}".format(
             self.image_type,
             "^".join(defaults.image_types[self.image_type]))
+        # NBSP character OxA0 is not allowed in Image Comments. Replace with a
+        # Space (0x20)
+        self._ds.ImageComments = ImageComments.replace('\xa0','\x20')
         self._set_dicom_attributes()
 
 

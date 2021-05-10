@@ -579,7 +579,11 @@ class OrthodonticPhotograph(PhotographBase):
 
         if "teeth" in kwargs:
             self.add_teeth(kwargs['teeth'])
+        self._ds.ImageComments = "{}^{}".format(
+            self.image_type,
+            "^".join(defaults.image_types[self.image_type]))
         self._set_dicom_attributes()
+
 
     def _set_dicom_attributes(self):
         for set_attr in self._type:

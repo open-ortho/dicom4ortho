@@ -40,7 +40,7 @@ class SimpleController(object):
             defaults.image_types = {}
             reader = csv.reader(image_types_csvfile)
             for row in reader:
-                defaults.image_types[row[0]] = row[1:2]
+                defaults.image_types[row[0]] = row[1:]
 
     def bulk_convert_from_csv(self, csv_input, teeth=None):
         with open(csv_input, mode='r') as csv_file:

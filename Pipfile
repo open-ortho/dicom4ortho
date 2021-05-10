@@ -14,5 +14,8 @@ pillow = "*"
 pynetdicom = "*"
 dicom-photo = {path = ".", editable = true}
 
+# There is a vulnerability flaw in <1.26.4 of urllib3.
+urllib3 = ">=1.26.4"
+
 [requires]
 python_version = "3"

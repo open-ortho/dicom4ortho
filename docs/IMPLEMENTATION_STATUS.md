@@ -10,10 +10,9 @@ that particular image.
 
 | view | encode | decode | notes |
 | ---- | ------ | ------ | ----- |
-| EV01 | done   | no     |       |
-| EV02 | done   | no     |       |
-| EV03 | done   | no     |       |
-| EV04 | done   | no     |       |
+| EV01 |        | no     |       |
+| EV02 |        | no     |       |
+| EV03 |        | no     |       |
 | EV05 |        | no     |       |
 | EV06 |        | no     |       |
 | EV07 |        | no     |       |

@@ -1,6 +1,12 @@
 Installation
 ============
 
+Getting Started
+---------------
+
+Like any other Python module, install the module than use it. There is a
+CLI interface as well.
+
 Install using pipenv by running
 
 .. code-block:: bash

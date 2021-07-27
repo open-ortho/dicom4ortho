@@ -18,8 +18,7 @@
     <link rel="author" title="About these documents" href="#" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Installation" href="installation.html" />
-    <link rel="prev" title="dicom4ortho documentation" href="index.html" /> 
+    <link rel="prev" title="DICOM UIDs" href="notes.html" /> 
   </head><body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
@@ -28,10 +27,7 @@
           <a href="genindex.html" title="General Index"
              accesskey="I">index</a></li>
         <li class="right" >
-          <a href="installation.html" title="Installation"
-             accesskey="N">next</a> |</li>
-        <li class="right" >
-          <a href="index.html" title="dicom4ortho documentation"
+          <a href="notes.html" title="DICOM UIDs"
              accesskey="P">previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="index.html">dicom4ortho docs 0.1 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">About The Project</a></li> 
@@ -46,11 +42,14 @@
   <section id="about-the-project">
 <h1>About The Project<a class="headerlink" href="#about-the-project" title="Permalink to this headline">¶</a></h1>
 <p>The DICOM standard is ready for any developer in the orthodontic
-community to implement. However, it can be complicated and
-implementation can be time consuming. We want to create a proof of
-concept to demonstrate how to properly store orthodontic visible light
-images (aka photographs) using DICOM, while ensuring all codes
-(necessary to uniquely identify each image type) are in the proper
+community to implement. However, it can be complicated and implementation can be
+time consuming. The DICOM standard is also does not contain an explicit
+explanation on orthodntic photographs, allowing the developer too much freedom.</p>
+<p>This is why we decided to implement ANSI Standard ADA-1107, which defines
+exactly how to use DICOM to encode orthodontic photographs.</p>
+<p>We want to create a proof of concept to demonstrate how to properly store
+orthodontic visible light images (aka photographs) using DICOM, while ensuring
+all codes (necessary to uniquely identify each image type) are in the proper
 place.</p>
 <p>Here’s why:</p>
 <ul class="simple">
@@ -67,12 +66,76 @@ or opening an issue. Thanks to all the people have have contributed to
 this project!</p>
 <p>A list of commonly used resources that we find helpful are listed in the
 acknowledgements.</p>
+<section id="feature-roadmap">
+<h2>Feature Roadmap<a class="headerlink" href="#feature-roadmap" title="Permalink to this headline">¶</a></h2>
+<p>See the <a class="reference external" href="https://github.com/open-ortho/dicom4ortho/issues">open
+issues</a> for a list
+of proposed features (and known issues).</p>
+<section id="v0">
+<h3>v0<a class="headerlink" href="#v0" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><p>Load single PNG/JPG file</p></li>
+<li><p>Manually set metadata from filename, or hard code</p></li>
+</ul>
+</section>
+<section id="v1">
+<h3>v1<a class="headerlink" href="#v1" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><p>Load entire directory, for batch conversion</p></li>
+<li><p>Load metadata from filename, like the files of the linedrawings,
+using our abbreviations.</p></li>
+</ul>
+</section>
+</section>
 <section id="built-with">
 <h2>Built With<a class="headerlink" href="#built-with" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
 <li><p><a class="reference external" href="https://pydicom.github.io/">pydicom</a></p></li>
 <li><p><a class="reference external" href="https://python-pillow.org/">pillow</a></p></li>
 <li><p><a class="reference external" href="https://www.dclunie.com/dicom3tools.html">dicom3tools</a></p></li>
+</ul>
+</section>
+<section id="contributing">
+<h2>Contributing<a class="headerlink" href="#contributing" title="Permalink to this headline">¶</a></h2>
+<p>Contributions are what make the open source community such an amazing
+place to be learn, inspire, and create. Any contributions you make are
+<strong>greatly appreciated</strong>.</p>
+<ol class="arabic simple">
+<li><p>Fork the Project</p></li>
+<li><p>Create your Feature Branch
+(<code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">checkout</span> <span class="pre">-b</span> <span class="pre">feature/AmazingFeature</span></code>)</p></li>
+<li><p>Commit your Changes (<code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">commit</span> <span class="pre">-m</span> <span class="pre">'Add</span> <span class="pre">some</span> <span class="pre">AmazingFeature'</span></code>)</p></li>
+<li><p>Push to the Branch (<code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">push</span> <span class="pre">origin</span> <span class="pre">feature/AmazingFeature</span></code>)</p></li>
+<li><p>Open a <a class="reference external" href="https://docs.github.com/en/github/collaborating-with-issues-and-pull-requests/creating-a-pull-request">Pull
+Request</a></p></li>
+</ol>
+</section>
+<section id="license">
+<h2>License<a class="headerlink" href="#license" title="Permalink to this headline">¶</a></h2>
+<p>Distributed under the MIT License. See <a class="reference external" href="LICENSE">LICENSE</a> for more
+information.</p>
+</section>
+<section id="contact">
+<h2>Contact<a class="headerlink" href="#contact" title="Permalink to this headline">¶</a></h2>
+<p>Toni Magni- [&#64;zgypa](<a class="reference external" href="https://twitter.com/zgypa">https://twitter.com/zgypa</a>) - <a class="reference external" href="mailto:open-ortho&#37;&#52;&#48;afm&#46;co">open-ortho<span>&#64;</span>afm<span>&#46;</span>co</a></p>
+<p>Project Link: <a class="reference external" href="https://open-ortho.github.io">https://open-ortho.github.io</a></p>
+</section>
+<section id="resources">
+<h2>Resources<a class="headerlink" href="#resources" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p><a class="reference external" href="https://pydicom.github.io/pydicom/dev/auto_examples/input_output/plot_write_dicom.html#sphx-glr-auto-examples-input-output-plot-write-dicom-py">Instructions for creating a DICOM object from scratch in
+DICOM</a></p></li>
+<li><p><a class="reference external" href="https://pydicom.github.io/pydicom/dev/old/writing_files.html">Writing DICOM
+Files</a></p></li>
+</ul>
+<p>Required for testing currently: <a class="reference external" href="https://www.dclunie.com/dicom3tools.html">dicom3tools</a>, in particular dciodvfy binary.</p>
+</section>
+<section id="acknowledgements">
+<h2>Acknowledgements<a class="headerlink" href="#acknowledgements" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p><a class="reference external" href="https://www.webpagefx.com/tools/emoji-cheat-sheet">DICOM</a></p></li>
+<li><p><a class="reference external" href="https://www.ada.org/en/science-research/dental-standards/standards-committee-on-dental-informatics">American Dental Association Standards Committee for Dental
+Informatics</a></p></li>
 </ul>
 </section>
 </section>
@@ -87,17 +150,24 @@ acknowledgements.</p>
   <h3><a href="index.html">Table of Contents</a></h3>
   <ul>
 <li><a class="reference internal" href="#">About The Project</a><ul>
+<li><a class="reference internal" href="#feature-roadmap">Feature Roadmap</a><ul>
+<li><a class="reference internal" href="#v0">v0</a></li>
+<li><a class="reference internal" href="#v1">v1</a></li>
+</ul>
+</li>
 <li><a class="reference internal" href="#built-with">Built With</a></li>
+<li><a class="reference internal" href="#contributing">Contributing</a></li>
+<li><a class="reference internal" href="#license">License</a></li>
+<li><a class="reference internal" href="#contact">Contact</a></li>
+<li><a class="reference internal" href="#resources">Resources</a></li>
+<li><a class="reference internal" href="#acknowledgements">Acknowledgements</a></li>
 </ul>
 </li>
 </ul>
 
   <h4>Previous topic</h4>
-  <p class="topless"><a href="index.html"
-                        title="previous chapter">dicom4ortho documentation</a></p>
-  <h4>Next topic</h4>
-  <p class="topless"><a href="installation.html"
-                        title="next chapter">Installation</a></p>
+  <p class="topless"><a href="notes.html"
+                        title="previous chapter">DICOM UIDs</a></p>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
@@ -126,10 +196,7 @@ acknowledgements.</p>
           <a href="genindex.html" title="General Index"
              >index</a></li>
         <li class="right" >
-          <a href="installation.html" title="Installation"
-             >next</a> |</li>
-        <li class="right" >
-          <a href="index.html" title="dicom4ortho documentation"
+          <a href="notes.html" title="DICOM UIDs"
              >previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="index.html">dicom4ortho docs 0.1 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">About The Project</a></li> 

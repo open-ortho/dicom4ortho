@@ -1,0 +1,177 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>Feature Roadmap &#8212; dicom4ortho docs 0.1 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/classic.css" />
+    
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="Status of Implementation" href="implementation_status.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="implementation_status.html" title="Status of Implementation"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">dicom4ortho docs 0.1 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Feature Roadmap</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section id="feature-roadmap">
+<h1>Feature Roadmap<a class="headerlink" href="#feature-roadmap" title="Permalink to this headline">¶</a></h1>
+<section id="v0">
+<h2>v0<a class="headerlink" href="#v0" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p>Load single PNG/JPG file</p></li>
+<li><p>Manually set metadata from filename, or hard code</p></li>
+</ul>
+</section>
+<section id="v1">
+<h2>v1<a class="headerlink" href="#v1" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p>Load entire directory, for batch conversion</p></li>
+<li><p>Load metadata from filename, like the files of the linedrawings,
+using our abbreviations.</p></li>
+</ul>
+</section>
+</section>
+<section id="resources">
+<h1>Resources<a class="headerlink" href="#resources" title="Permalink to this headline">¶</a></h1>
+<ul class="simple">
+<li><p><a class="reference external" href="https://pydicom.github.io/pydicom/dev/auto_examples/input_output/plot_write_dicom.html#sphx-glr-auto-examples-input-output-plot-write-dicom-py">Instructions for creating a DICOM object from scratch in
+DICOM</a></p></li>
+<li><p><a class="reference external" href="https://pydicom.github.io/pydicom/dev/old/writing_files.html">Writing DICOM
+Files</a></p></li>
+</ul>
+<p>Required for testing currently:
+<a class="reference external" href="https://www.dclunie.com/dicom3tools.html">dicom3tools</a>, in
+particular dciodvfy binary.</p>
+</section>
+<section id="uids">
+<h1>UIDs<a class="headerlink" href="#uids" title="Permalink to this headline">¶</a></h1>
+<p>Dicom uses a bunch of UIDs for things.</p>
+<section id="sop-class-uids">
+<h2>SOP Class UIDs<a class="headerlink" href="#sop-class-uids" title="Permalink to this headline">¶</a></h2>
+<p>This basically defined the IOD. So in our case it’s static, and it
+defines VL Image IOD</p>
+<ul class="simple">
+<li><p>Part 4 B.5</p></li>
+</ul>
+</section>
+<section id="instance-uid">
+<h2>Instance UID<a class="headerlink" href="#instance-uid" title="Permalink to this headline">¶</a></h2>
+<p>This is a different unique ID for each image. Needs to be freshly
+generated.</p>
+<ul class="simple">
+<li><p>Part 5 B.2 to specify how to generate</p></li>
+</ul>
+</section>
+<section id="implementation-class-uid">
+<h2>Implementation Class UID<a class="headerlink" href="#implementation-class-uid" title="Permalink to this headline">¶</a></h2>
+<p>Basically, this a unique ID for the software. Probably want a different
+one for each version.</p>
+<p>Different equipment of the same type or product line (but having
+different serial numbers) shall use the same Implementation Class UID if
+they share the same implementation environment (i.e., software).</p>
+<ul class="simple">
+<li><p>Part 7 D.3.3.2</p></li>
+</ul>
+</section>
+<section id="studyinstanceuid">
+<h2>StudyInstanceUID<a class="headerlink" href="#studyinstanceuid" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="seriesinstanceuid">
+<h2>SeriesInstanceUID<a class="headerlink" href="#seriesinstanceuid" title="Permalink to this headline">¶</a></h2>
+<p>Version v0.1.0-dev</p>
+</section>
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Feature Roadmap</a><ul>
+<li><a class="reference internal" href="#v0">v0</a></li>
+<li><a class="reference internal" href="#v1">v1</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#resources">Resources</a></li>
+<li><a class="reference internal" href="#uids">UIDs</a><ul>
+<li><a class="reference internal" href="#sop-class-uids">SOP Class UIDs</a></li>
+<li><a class="reference internal" href="#instance-uid">Instance UID</a></li>
+<li><a class="reference internal" href="#implementation-class-uid">Implementation Class UID</a></li>
+<li><a class="reference internal" href="#studyinstanceuid">StudyInstanceUID</a></li>
+<li><a class="reference internal" href="#seriesinstanceuid">SeriesInstanceUID</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="implementation_status.html"
+                        title="previous chapter">Status of Implementation</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/notes.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="implementation_status.html" title="Status of Implementation"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">dicom4ortho docs 0.1 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Feature Roadmap</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2021, open-ortho.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.1.2.
+    </div>
+  </body>
+</html>

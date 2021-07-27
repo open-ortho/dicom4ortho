@@ -22,4 +22,5 @@ help:
 github:
 	@make html
 	@rsync -auv --delete $(BUILDDIR)/html/. ./docs
+	@touch ./docs/.nojekyll
 

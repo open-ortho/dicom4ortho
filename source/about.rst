@@ -32,8 +32,3 @@ Built With
 -  `pydicom <https://pydicom.github.io/>`__
 -  `pillow <https://python-pillow.org/>`__
 -  `dicom3tools <https://www.dclunie.com/dicom3tools.html>`__
-
-.. raw:: html
-
-   <!-- GETTING STARTED -->
-

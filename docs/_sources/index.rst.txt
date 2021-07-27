@@ -6,6 +6,9 @@
 dicom4ortho documentation
 ============================================
 
+A Python library to create fully defined orthodontic photographs in
+DICOM. Implementation of ANSI Standard ADA-1107.
+
 .. toctree::
    :maxdepth: 2
    :caption: Contents:
@@ -14,6 +17,7 @@ dicom4ortho documentation
    installation
    usage
    csv_file
+   validation
    implementation_status
    notes
 

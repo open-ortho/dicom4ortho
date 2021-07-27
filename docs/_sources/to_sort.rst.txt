@@ -1,37 +1,5 @@
 |Contributors| |Forks| |Stargazers| |Issues| |MIT License| |LinkedIn|
 
-.. raw:: html
-
-   <!-- PROJECT LOGO -->
-
-.. raw:: html
-
-   <p align="center">
-
-.. raw:: html
-
-   <h3 align="center">
-
-dicom4ortho 0.1.2-dev
-
-.. raw:: html
-
-   </h3>
-
-.. raw:: html
-
-   <p align="center">
-
-A Python library to create fully defined orthodontic photographs in
-DICOM. Explore the docs » View Demo · Report Bug · Request Feature
-
-.. raw:: html
-
-   </p>
-
-.. raw:: html
-
-   </p>
 
 Getting Started
 ---------------
@@ -39,24 +7,6 @@ Getting Started
 Like any other Python module, install the module than use it. There is a
 CLI interface as well.
 
-
-Validation with dicom3tools
-~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-The dicom3tools are used to validate and is only used when the
-``--validate`` option is used. This is just a conveninece wrapper for
-debugging, and it’s installation is not necessary for normal operation.
-
-The `dicom3tools <https://www.dclunie.com/dicom3tools.html>`__ can be
-installed from compiled binaries, which are available for macOS and
-Windows.
-
-Once installed, point ``DICOM3TOOLS_PATH`` in ``defaults.py`` to the
-installation of the dicom3tools.
-
-.. raw:: html
-
-   <!-- USAGE EXAMPLES -->
 
 Known Issues
 ------------

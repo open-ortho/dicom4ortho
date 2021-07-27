@@ -6,7 +6,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-    <title>Installation &#8212; dicom4ortho docs 0.1 documentation</title>
+    <title>Validation with dicom3tools &#8212; dicom4ortho docs 0.1 documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="_static/classic.css" />
     
@@ -18,8 +18,8 @@
     <link rel="author" title="About these documents" href="about.html" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Usage" href="usage.html" />
-    <link rel="prev" title="About The Project" href="about.html" /> 
+    <link rel="next" title="Status of Implementation" href="implementation_status.html" />
+    <link rel="prev" title="CSV Image file format" href="csv_file.html" /> 
   </head><body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
@@ -28,13 +28,13 @@
           <a href="genindex.html" title="General Index"
              accesskey="I">index</a></li>
         <li class="right" >
-          <a href="usage.html" title="Usage"
+          <a href="implementation_status.html" title="Status of Implementation"
              accesskey="N">next</a> |</li>
         <li class="right" >
-          <a href="about.html" title="About The Project"
+          <a href="csv_file.html" title="CSV Image file format"
              accesskey="P">previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="index.html">dicom4ortho docs 0.1 documentation</a> &#187;</li>
-        <li class="nav-item nav-item-this"><a href="">Installation</a></li> 
+        <li class="nav-item nav-item-this"><a href="">Validation with dicom3tools</a></li> 
       </ul>
     </div>  
 
@@ -43,23 +43,16 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <section id="installation">
-<h1>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h1>
-<p>Install using pipenv by running</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ pipenv install dicom4ortho
-</pre></div>
-</div>
-<p>Install using pip by running</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ pip install dicom4ortho
-</pre></div>
-</div>
-<section id="prerequisites">
-<h2>Prerequisites<a class="headerlink" href="#prerequisites" title="Permalink to this headline">¶</a></h2>
-<ul class="simple">
-<li><p>An installation of Python 3+.</p></li>
-<li><p>optional: <a class="reference external" href="https://www.dclunie.com/dicom3tools.html">dicom3tools</a></p></li>
-</ul>
-</section>
+  <section id="validation-with-dicom3tools">
+<h1>Validation with dicom3tools<a class="headerlink" href="#validation-with-dicom3tools" title="Permalink to this headline">¶</a></h1>
+<p>The dicom3tools are used to validate and is only used when the
+<code class="docutils literal notranslate"><span class="pre">--validate</span></code> option is used. This is just a conveninece wrapper for
+debugging, and it’s installation is not necessary for normal operation.</p>
+<p>The <a class="reference external" href="https://www.dclunie.com/dicom3tools.html">dicom3tools</a> can be
+installed from compiled binaries, which are available for macOS and
+Windows.</p>
+<p>Once installed, point <code class="docutils literal notranslate"><span class="pre">DICOM3TOOLS_PATH</span></code> in <code class="docutils literal notranslate"><span class="pre">defaults.py</span></code> to the
+installation of the dicom3tools.</p>
 </section>
 
 
@@ -69,24 +62,16 @@
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
-  <h3><a href="index.html">Table of Contents</a></h3>
-  <ul>
-<li><a class="reference internal" href="#">Installation</a><ul>
-<li><a class="reference internal" href="#prerequisites">Prerequisites</a></li>
-</ul>
-</li>
-</ul>
-
   <h4>Previous topic</h4>
-  <p class="topless"><a href="about.html"
-                        title="previous chapter">About The Project</a></p>
+  <p class="topless"><a href="csv_file.html"
+                        title="previous chapter">CSV Image file format</a></p>
   <h4>Next topic</h4>
-  <p class="topless"><a href="usage.html"
-                        title="next chapter">Usage</a></p>
+  <p class="topless"><a href="implementation_status.html"
+                        title="next chapter">Status of Implementation</a></p>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
-      <li><a href="_sources/installation.rst.txt"
+      <li><a href="_sources/validation.rst.txt"
             rel="nofollow">Show Source</a></li>
     </ul>
    </div>
@@ -111,13 +96,13 @@
           <a href="genindex.html" title="General Index"
              >index</a></li>
         <li class="right" >
-          <a href="usage.html" title="Usage"
+          <a href="implementation_status.html" title="Status of Implementation"
              >next</a> |</li>
         <li class="right" >
-          <a href="about.html" title="About The Project"
+          <a href="csv_file.html" title="CSV Image file format"
              >previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="index.html">dicom4ortho docs 0.1 documentation</a> &#187;</li>
-        <li class="nav-item nav-item-this"><a href="">Installation</a></li> 
+        <li class="nav-item nav-item-this"><a href="">Validation with dicom3tools</a></li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">

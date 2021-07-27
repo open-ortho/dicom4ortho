@@ -18,4 +18,3 @@ Prerequisites
 
 -  An installation of Python 3+.
 -  optional: `dicom3tools <https://www.dclunie.com/dicom3tools.html>`__
-

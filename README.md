@@ -129,6 +129,10 @@ of the dicom3tools.
 <!-- USAGE EXAMPLES -->
 ## Usage
 
+The official documentation of this project is available on line
+[here](https://open-ortho.github.io/dicom4ortho). Source code for the
+documentation is in this repository under the `gh-pages` branch.
+
 The DICOM images require a lot of information which is not contained in a
 flat PNG or JPEG image. This information would, in a production environment,
 usually come from the practice management software, or photo management

@@ -17,7 +17,7 @@
   <p align="center">
     A Python library to create fully defined orthodontic photographs in DICOM.
     <br />
-    <a href="https://github.com/open-ortho/dicom4ortho/docs"><strong>Explore the docs »</strong></a>
+    <a href="https://open-ortho.github.io/dicom4ortho/"><strong>Explore the docs »</strong></a>
     <br />
     <br />
     <a href="https://github.com/open-ortho/dicom4ortho">View Demo</a>

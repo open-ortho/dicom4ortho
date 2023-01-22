@@ -5,10 +5,7 @@ Unit tests for controller.
 '''
 import unittest
 import logging
-import os
 import logging
-import importlib.resources
-import dicom4ortho.__main__
 import dicom4ortho.defaults as defaults
 import dicom4ortho.controller as controller
 
@@ -27,4 +24,4 @@ class Test(unittest.TestCase):
         self.assertEqual(len(defaults.image_types), 73)
         self.assertEqual(len(defaults.image_types['EV01']), 2)
         self.assertEqual(defaults.image_types['EV01'][0], "EO.RP.LR.CO")
-        self.assertEqual(defaults.image_types['EV04'][1], "Extraoral, Right Profile (subject is facing observer's right), Lips Closed, Centric Relation")
+        self.assertEqual(defaults.image_types['EV04'][1], "Extraoral, Right Profile (subject is facing observer's right), Lips Closed, Centric Relation")

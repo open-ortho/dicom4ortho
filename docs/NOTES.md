@@ -24,7 +24,7 @@ dciodvfy binary.
 
 Dicom uses a bunch of UIDs for things.
 
-### SOP Class UIDs 
+### SOP Class UIDs
 
 This basically defined the IOD. So in our case it's static, and it defines VL Image IOD
 

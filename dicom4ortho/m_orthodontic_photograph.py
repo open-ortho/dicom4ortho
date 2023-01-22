@@ -41,10 +41,14 @@ def _LP(dataset):
     """ Left Profile
     """
     _face(dataset)
+    dataset.AcquisitionView = _get_sct_code_sequence(
+        '30730003', 'Sagittal (qualifier value)')
     dataset.PatientOrientation = ['P', 'F']  # Anterior, Foot
 
 
 def _FF(dataset):
+    """" Full Face
+    """
     _face(dataset)
     dataset.PatientOrientation = ['R', 'F']  # Right, Foot
 
@@ -53,6 +57,8 @@ def _FS(dataset):
     """ Full Smile
     """
     _face(dataset)
+    dataset.FunctionalCondition = _get_sct_code_sequence(
+        '225583004', 'Smiles (finding)')
     dataset.PatientOrientation = ['R', 'F']  # Right, Foot
 
 
@@ -98,19 +104,25 @@ def _MD(dataset):
 def _MX(dataset):
     """ Maxillary
     """
-    pass
+    a_r_s = _get_sct_code_sequence(
+        '181813003', 'Entire maxilla (body structure)')
+    a_r_s[0].AnatomicRegionModifierSequence = _null()
+    dataset.AnatomicRegionSequence = a_r_s
 
 
 def _MO(dataset):
     """ Mouth Open
     """
-    pass
+    dataset.FunctionalCondition = _get_sct_code_sequence(
+        '262016004', 'Open mouth (finding)')
 
 
 def _TA(dataset):
     """ Teeth Apart
     """
-    pass
+    dataset.FunctionalCondition = _get_sct_code_sequence(
+        '789130005',
+        'Photographic image with mouth partially opened position and teeth apart (record artifact)')
 
 
 def _OJ(dataset):
@@ -122,8 +134,9 @@ def _OJ(dataset):
 def _PF(dataset):
     """ Mandible Postured Forward
     """
-    dataset.FunctionalCondition = _get_sct_code_sequence('787611004',
-                                                         'Photographic image extraoral with mandible postured forward (record artifact)')
+    dataset.FunctionalCondition = _get_sct_code_sequence(
+        '787611004',
+        'Photographic image extraoral with mandible postured forward (record artifact)')
 
 
 def _OF(dataset):
@@ -142,7 +155,8 @@ def _WM(dataset):
     photographs
     """
     dataset.ImageView = _get_sct_code_sequence(
-        '789135000','Mirrored view uncorrected')
+        '789135000', 'Mirrored view uncorrected')
+
 
 def _WM_BC(dataset):
     """ With Mirror But Corrected
@@ -152,14 +166,14 @@ def _WM_BC(dataset):
     to extraoral photographs
     """
     dataset.ImageView = _get_sct_code_sequence(
-        '787610003','Mirror corrected')
+        '787610003', 'Mirror corrected')
 
 
 def _NM(dataset):
     """ No Mirror
     """
     dataset.ImageView = _get_sct_code_sequence(
-        '255589003','Direct')
+        '255589003', 'Direct')
 
 
 def _RB(dataset):
@@ -193,21 +207,21 @@ def _RL(dataset):
 
     used to document the dental occlusion from the subject's right side
     """
-    pass
+    dataset.PatientOrientation = ['A', 'F']  # Anterior, Foot
 
 
 def _LL(dataset):
-    """ Left Buccal
+    """ Left Lateral
 
     used to document the dental occlusion from the subject's left side
     """
-    pass
+    dataset.PatientOrientation = ['P', 'F']  # Posterior, Foot
 
 
 def _FV(dataset):
     """ Frontal View
     """
-    pass
+    dataset.PatientOrientation = ['L', 'F']  # Left, Foot
 
 
 def _IV(dataset):
@@ -215,20 +229,25 @@ def _IV(dataset):
 
     use IO.IV to show depth of bite and overjet from below
     """
-    pass
+    dataset.AcquisitionView = _get_sct_code_sequence(
+        '261089000',
+        'Inferior (qualifier value)')
 
 
 def _SV(dataset):
     """ Superior View
     """
-    pass
+    dataset.AcquisitionView = _get_sct_code_sequence(
+        '264217000',
+        'Superior (qualifier value)')
 
 
 def _45(dataset):
     """ 45º View
     """
-    dataset.AcquisitionView = _get_sct_code_sequence('30730003',
-                                                     'Photographic image extraoral with 45 degree view (record artifact)')
+    dataset.AcquisitionView = _get_sct_code_sequence(
+        '30730003',
+        'Photographic image extraoral with 45 degree view (record artifact)')
 
 
 def _OV(dataset):
@@ -344,11 +363,13 @@ def _face(dataset):
     a_r_s[0].AnatomicRegionModifierSequence = _null()
     dataset.AnatomicRegionSequence = a_r_s
 
+
 def _jaw_region(dataset):
     a_r_s = _get_sct_code_sequence(
         '181811001', 'Jaw Region')
     a_r_s[0].AnatomicRegionModifierSequence = _null()
     dataset.AnatomicRegionSequence = a_r_s
+
 
 def _get_sct_code_dataset(value, meaning):
     code_dataset = Dataset()
@@ -356,6 +377,7 @@ def _get_sct_code_dataset(value, meaning):
     code_dataset.CodeValue = value
     code_dataset.CodingSchemeDesignator = 'SCT'
     return code_dataset
+
 
 def _get_sct_code_sequence(value, meaning):
     return Sequence([_get_sct_code_dataset(value, meaning)])
@@ -491,21 +513,21 @@ ALLOWED_TEETH = {
         '11', '12', '13', '14', '15', '16', '17', '18',
         '41', '42', '43', '44', '45', '46', '47', '48',
     ],
-    "IV03": [ ],
-    "IV04": [ ],
-    "IV05": [ ],
-    "IV06": [ ],
-    "IV07": [ ],
-    "IV08": [ ],
-    "IV09": [ ],
-    "IV10": [ ],
-    "IV11": [ ],
-    "IV12": [ ],
-    "IV13": [ ],
-    "IV14": [ ],
-    "IV15": [ ],
-    "IV16": [ ],
-    "IV17": [ ],
+    "IV03": [],
+    "IV04": [],
+    "IV05": [],
+    "IV06": [],
+    "IV07": [],
+    "IV08": [],
+    "IV09": [],
+    "IV10": [],
+    "IV11": [],
+    "IV12": [],
+    "IV13": [],
+    "IV14": [],
+    "IV15": [],
+    "IV16": [],
+    "IV17": [],
     "IV18": [
         '21', '22', '23', '24', '15', '26', '27', '28',
         '31', '32', '33', '34', '35', '36', '37', '38',
@@ -514,17 +536,17 @@ ALLOWED_TEETH = {
         '21', '22', '23', '24', '15', '26', '27', '28',
         '31', '32', '33', '34', '35', '36', '37', '38',
     ],
-    "IV20": [ ],
-    "IV21": [ ],
-    "IV22": [ ],
-    "IV23": [ ],
-    "IV24": [ ],
-    "IV25": [ ],
-    "IV26": [ ],
-    "IV27": [ ],
-    "IV28": [ ],
-    "IV29": [ ],
-    "IV30": [ ],
+    "IV20": [],
+    "IV21": [],
+    "IV22": [],
+    "IV23": [],
+    "IV24": [],
+    "IV25": [],
+    "IV26": [],
+    "IV27": [],
+    "IV28": [],
+    "IV29": [],
+    "IV30": [],
 
 }
 
@@ -557,7 +579,14 @@ class OrthodonticPhotograph(PhotographBase):
 
         if "teeth" in kwargs:
             self.add_teeth(kwargs['teeth'])
+        ImageComments = "{}^{}".format(
+            self.image_type,
+            "^".join(defaults.image_types[self.image_type]))
+        # NBSP character OxA0 is not allowed in Image Comments. Replace with a
+        # Space (0x20)
+        self._ds.ImageComments = ImageComments.replace('\xa0','\x20')
         self._set_dicom_attributes()
+
 
     def _set_dicom_attributes(self):
         for set_attr in self._type:
@@ -578,4 +607,3 @@ class OrthodonticPhotograph(PhotographBase):
                 if ToothCodes.is_valid_tooth_number(tooth):
                     self._ds.PrimaryAnatomicStructureSequence.append(
                         _get_sct_code_dataset(*ToothCodes.SCT_TOOTH_CODES[tooth]))
-

@@ -5,7 +5,7 @@ Defaults and Constants.
 import uuid
 import logging
 
-VERSION = '0.1.3'
+VERSION = '0.1.4'
 __url__ = 'https://github.com/open-ortho/dicom4ortho'
 __author__ = 'Toni Magni'
 __email__ = 'open-ortho@panio.info'
@@ -37,6 +37,9 @@ IMPLEMENTATION_CLASS_UID = '2.25.34.34.153.156.139.154.17.234.176.144.0.5.27.' +
 IDS_NUMBERS = '000'
 
 ADD_MAX_ALLOWED_TEETH = 'ALL'
+
+# This is populated by controller.SimpleController._load_image_types()
+image_types = {}
 
 def generate_dicom_uid():
     """

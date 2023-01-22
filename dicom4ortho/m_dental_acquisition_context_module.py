@@ -11,7 +11,7 @@ from pydicom.datadict import DicomDictionary, keyword_dict
 dental_acquisition_context = {
     0x10011001: ('SQ', '1', "Acquisition View", '', 'AcquisitionView'),
     0x10011002: ('SQ', '1', "Image View", '', 'ImageView'),
-    0x10011003: ('SQ', '1', "Functional condition present during"
+    0x10011003: ('SQ', '1', "Functional condition present during "
                  "acquisition", '', 'FunctionalCondition'),
     0x10011004: ('SQ', '1', "Occlusal Relationship", '', 'OcclusalRelationship'),
 }

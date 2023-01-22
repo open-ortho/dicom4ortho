@@ -5,6 +5,9 @@ import os
 import os.path
 import csv
 import datetime
+import logging
+import pathlib
+import pkg_resources
 import dicom4ortho.model as model
 
 # Just importing will do to execute the code in the module. Pylint will
@@ -22,7 +25,22 @@ class SimpleController(object):
 
     def __init__(self, args):
         self._cli_args = args
+        self._load_image_types()
         self.photo = None
+
+    def _load_image_types(self):
+        ''' Loads image_types.csv into a dictionary in defaults.image_types
+
+        This is needed to save the full text of the image type in the Image Comments DICOM tag.
+        '''
+        image_types_filename = pkg_resources.resource_filename(
+            'dicom4ortho.resources', 'image_types.csv')
+        logging.debug("Image type filenames is: {}".format(image_types_filename))
+        with open(image_types_filename) as image_types_csvfile:
+            defaults.image_types = {}
+            reader = csv.reader(image_types_csvfile)
+            for row in reader:
+                defaults.image_types[row[0]] = row[1:]
 
     def bulk_convert_from_csv(self, csv_input, teeth=None):
         with open(csv_input, mode='r') as csv_file:
@@ -62,8 +80,8 @@ class SimpleController(object):
         '''
 
         if ('output_image_filename' not in metadata) or (metadata['output_image_filename'] is None):
-            metadata['output_image_filename'] = metadata['input_image_filename'].replace(
-                metadata['input_image_filename'].split('.')[-1], 'dcm')
+            p = pathlib.Path(metadata['input_image_filename'])
+            metadata['output_image_filename'] = str(p.with_suffix('.dcm'))
 
         self.photo = OrthodonticPhotograph(**metadata)
 

@@ -12,7 +12,7 @@
     <img src="https://raw.githubusercontent.com/open-ortho/dicom4ortho/master/images/open-ortho.png" alt="Logo" width="80" height="80">
   </a>
 
-  <h3 align="center">dicom4ortho 0.1.3</h3>
+  <h3 align="center">dicom4ortho 0.1.4</h3>
 
   <p align="center">
     A Python library to create fully defined orthodontic photographs in DICOM.
@@ -51,6 +51,7 @@
     - [study_description](#study_description)
     - [series_instance_uid](#series_instance_uid)
     - [series_description](#series_description)
+- [Known Issues](#known-issues)
 - [Roadmap](#roadmap)
 - [Contributing](#contributing)
 - [License](#license)
@@ -127,6 +128,10 @@ of the dicom3tools.
 
 <!-- USAGE EXAMPLES -->
 ## Usage
+
+The official documentation of this project is available on line
+[here](https://open-ortho.github.io/dicom4ortho). Source code for the
+documentation is in this repository under the `gh-pages` branch.
 
 The DICOM images require a lot of information which is not contained in a
 flat PNG or JPEG image. This information would, in a production environment,
@@ -247,6 +252,11 @@ could be something like 'Orthodontic Intraoral Series'.
 This is a DICOM UID object and goes into the DICOM `(0008, 103e) Series
 Description`. Maximum 64 characters are allowed, as defined the [DICOM LO
 VR](http://dicom.nema.org/medical/dicom/current/output/html/part05.html#sect_6.2)
+
+## Known Issues
+
+Please check the [Implementation Status](docs/IMPLEMENTATION_STATUS.md)
+document.
 
 <!-- ROADMAP -->
 ## Roadmap

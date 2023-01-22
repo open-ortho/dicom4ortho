@@ -11,7 +11,7 @@ autopep8 = "*"
 [packages]
 pydicom = "*"
 # There is a vulnerability flaw in <8.2.0 of Pillow.
-pillow = ">=8.2.0"
+pillow = ">=9.2.0"
 pynetdicom = "*"
 dicom-photo = {path = ".", editable = true}
 # There is a vulnerability flaw in <1.26.5 of urllib3.

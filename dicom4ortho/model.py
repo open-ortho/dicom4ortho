@@ -125,7 +125,7 @@ class DicomBase(object):
 
     @patient_id.setter
     def patient_id(self, patient_id):
-        self._ds.PatientID = patient_id
+        self._ds.PatientID = str(patient_id) # Patient ID in DICOM must be a String.
 
     @property
     def patient_sex(self):

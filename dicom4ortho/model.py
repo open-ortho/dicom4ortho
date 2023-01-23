@@ -195,6 +195,19 @@ class DicomBase(object):
             str(self._ds.ReferringPhysicianName).split('^')[0])
 
     @property
+    def acquisition_datetime(self):
+        return self._ds.AcquisitionDateTime
+
+    @acquisition_datetime.setter
+    def acquisition_datetime(self, _acquisition_datetime):
+        """
+        Set Acquisition DateTime using local Time Zone.
+        """
+        dtz = _acquisition_datetime.astimezone().strftime(
+            f"{defaults.DATE_FORMAT}{defaults.TIME_FORMAT}%z")
+        self._ds.AcquisitionDateTime = dtz
+
+    @property
     def date_captured(self):
         ''' Date of image capture.
 

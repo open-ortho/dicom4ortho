@@ -6,6 +6,8 @@ Unittests for DICOM objects.
 import unittest
 import logging
 import dicom4ortho.m_orthodontic_photograph
+from dicom4ortho.m_orthodontic_photograph import OrthodonticPhotograph
+from datetime import datetime
 
 from pydicom.dataset import Dataset
 # Just importing will do to execute the code in the module. Pylint will
@@ -30,6 +32,17 @@ class Test(unittest.TestCase):
 
         self.assertEqual(ds.ImageLaterality,'U')
 
+    def testDates(self):
+        o = OrthodonticPhotograph()
+        o.study_datetime = datetime(1592,2,3,12,14,11)
+        self.assertEqual(o._ds.StudyDate, "15920203")
+        self.assertEqual(o._ds.StudyTime, "121411.000000")
+        self.assertEqual(o.study_datetime, datetime(1592,2,3,12,14,11))
+
+        o.series_datetime = datetime(1492,2,3,13,14)
+        self.assertEqual(o._ds.SeriesDate, "14920203")
+        self.assertEqual(o._ds.SeriesTime, "131400.000000")
+        self.assertEqual(o.series_datetime, datetime(1492,2,3,13,14))
     # def test_newfile(self):
     #     photograph
 

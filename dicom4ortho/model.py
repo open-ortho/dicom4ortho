@@ -68,6 +68,30 @@ class DicomBase(object):
         self._ds.SOPInstanceUID = self.sop_instance_uid
 
     @property
+    def series_datetime(self):
+        return datetime.datetime.strptime(
+            f"{self._ds.SeriesDate}{self._ds.SeriesTime}", 
+            f"{defaults.DATE_FORMAT}{defaults.TIME_FORMAT}"
+        )
+
+    @series_datetime.setter
+    def series_datetime(self, _seriesdatetime):
+        self._ds.SeriesTime = _seriesdatetime.strftime(defaults.TIME_FORMAT)
+        self._ds.SeriesDate = _seriesdatetime.strftime(defaults.DATE_FORMAT)
+
+    @property
+    def study_datetime(self):
+        return datetime.datetime.strptime(
+            f"{self._ds.StudyDate}{self._ds.StudyTime}", 
+            f"{defaults.DATE_FORMAT}{defaults.TIME_FORMAT}"
+        )
+
+    @study_datetime.setter
+    def study_datetime(self, _studydatetime):
+        self._ds.StudyTime = _studydatetime.strftime(defaults.TIME_FORMAT)
+        self._ds.StudyDate = _studydatetime.strftime(defaults.DATE_FORMAT)
+
+    @property
     def study_instance_uid(self):
         return self._ds.StudyInstanceUID
 

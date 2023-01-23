@@ -7,6 +7,7 @@ import logging
 import pydicom
 from pydicom.sequence import Sequence
 from pydicom.dataset import Dataset, FileDataset
+import numpy
 
 # pylint: disable=no-name-in-module
 from pynetdicom.sop_class import VLPhotographicImageStorage
@@ -412,17 +413,30 @@ class PhotographBase(DicomBase):
         elif lossy == False:
             self._ds.LossyImageCompression('00')
 
-    def set_image(self, filename=None):
-        if filename is not None and not hasattr(self._ds, 'input_image_filename'):
-            self._ds.input_image_filename = filename
+    def _set_image_data(self,filename=None):
+        """ Sets general Image Module Data and Metadata
 
-        with PIL.Image.open(self.input_image_filename) as im:
+            Image Pixel M
+            Pixel Data (7FE0,0010) for this image. The order of pixels encoded for each image plane is left to right, top to bottom, i.e., the upper left pixel (labeled 1,1) is encoded first followed by the remainder of row 1, followed by the first pixel of row 2 (labeled 2,1) then the remainder of row 2 and so on.
+            It's Planar Configuration which defines how the values are stored in the PixelData, which is defined to be 0, in this case.
+            C.7.6.3.1.3 Planar Configuration
+            Planar Configuration (0028,0006) indicates whether the color pixel data are encoded color-by-plane or color-by-pixel. This Attribute shall be present if Samples per Pixel (0028,0002) has a value greater than 1. It shall not be present otherwise.
+
+            Enumerated Values:
+
+            0
+            The sample values for the first pixel are followed by the sample values for the second pixel, etc. For RGB images, this means the order of the pixel values encoded shall be R1, G1, B1, R2, G2, B2, …, etc.
+        """
+        filename = filename or self.input_image_filename
+        with PIL.Image.open(filename) as im:
 
             # Note
 
-            self._ds.Rows = im.size[1]
-            self._ds.Columns = im.size[0]
-
+            # self._ds.Rows = im.size[1]
+            # self._ds.Columns = im.size[0]
+            self._ds.Rows = im.height
+            self._ds.Columns = im.width
+            self._ds.PixelRepresentation = 0x0
             # (1-bit pixels, black and white, stored with one pixel per byte)
             if im.mode == '1':
                 self._ds.SamplesPerPixel = 1
@@ -433,6 +447,10 @@ class PhotographBase(DicomBase):
                 self._ds.BitsStored = 1
                 self._ds.HighBit = 0
                 self._ds.PhotometricInterpretation = 'MONOCHROME2'
+                # @TODO: Not sure if this works
+                # Got this from https://stackoverflow.com/questions/5602155/numpy-boolean-array-with-1-bit-entries
+                npa = numpy.array(im.getdata(),dtype=numpy.bool)
+                self._ds.PixelData = numpy.packbits(npa, axis=None).tobytes()
             elif im.mode == 'L':  # (8-bit pixels, black and white)
                 self._ds.SamplesPerPixel = 1
                 try:
@@ -443,6 +461,7 @@ class PhotographBase(DicomBase):
                 self._ds.BitsStored = 8
                 self._ds.HighBit = 7
                 self._ds.PhotometricInterpretation = 'MONOCHROME2'
+                self._ds.PixelData = numpy.array(im.getdata(),dtype=numpy.uint8).tobytes()
             # (8-bit pixels, mapped to any other mode using a color palette)
             elif im.mode == 'P':
                 print(
@@ -462,6 +481,7 @@ class PhotographBase(DicomBase):
                 self._ds.BitsStored = 8
                 self._ds.HighBit = 7
                 self._ds.PhotometricInterpretation = 'RGB'
+                self._ds.PixelData = numpy.array(im.getdata(),dtype=numpy.uint8)[:,:3].tobytes()
             # (4x8-bit pixels, true color with transparency mask)
             elif im.mode == 'RGBA':
                 print(
@@ -512,33 +532,7 @@ class PhotographBase(DicomBase):
                     "ERROR: mode [{}] is not yet implemented.".format(im.mode))
                 raise NotImplementedError
 
-            px = im.load()
-            self._ds.PixelRepresentation = 0x0
-            # Image Pixel M
-            # Pixel Data (7FE0,0010) for this image. The order of pixels encoded for each image plane is left to right, top to bottom, i.e., the upper left pixel (labeled 1,1) is encoded first followed by the remainder of row 1, followed by the first pixel of row 2 (labeled 2,1) then the remainder of row 2 and so on.
-            # It's Planar Configuration which defines how the values are stored in the PixelData, which is defined to be 0, in this case.
-            # C.7.6.3.1.3 Planar Configuration
-            # Planar Configuration (0028,0006) indicates whether the color pixel data are encoded color-by-plane or color-by-pixel. This Attribute shall be present if Samples per Pixel (0028,0002) has a value greater than 1. It shall not be present otherwise.
+        return filename
 
-            # Enumerated Values:
-
-            # 0
-            # The sample values for the first pixel are followed by the sample values for the second pixel, etc. For RGB images, this means the order of the pixel values encoded shall be R1, G1, B1, R2, G2, B2, …, etc.
-            self._ds.PixelData = b''
-            if self._ds.SamplesPerPixel == 1:
-                for row in range(self._ds.Rows):
-                    for column in range(self._ds.Columns):
-                        self._ds.PixelData += bytes([px[column, row]])
-            elif self._ds.SamplesPerPixel > 1:
-                for row in range(self._ds.Rows):
-                    for column in range(self._ds.Columns):
-                        for sample in range(self._ds.SamplesPerPixel):
-                            self._ds.PixelData += bytes(
-                                [px[column, row][sample]])
-            else:
-                print("Error: Incorrect value for SamplesPerPixel {}".format(
-                    self._ds.SamplesPerPixel))
-
-            # PixelData has to always be divisible by 2. Add an extra byte if it's not.
-            if len(self._ds.PixelData) % 2 == 1:
-                self._ds.PixelData += b'0'
+    def set_image(self, filename=None):
+        filename = self._set_image_data(filename=filename)

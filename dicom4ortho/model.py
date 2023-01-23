@@ -66,6 +66,7 @@ class DicomBase(object):
 
     def _set_sop_common(self):
         self._ds.SOPInstanceUID = self.sop_instance_uid
+        self._ds.TimezoneOffsetFromUTC = datetime.datetime.now().astimezone().strftime("%z")
 
     @property
     def series_datetime(self):
@@ -195,6 +196,34 @@ class DicomBase(object):
             str(self._ds.ReferringPhysicianName).split('^')[0])
 
     @property
+    def timezone(self) -> datetime.timezone:
+        ''' Set timezone of TimezoneOffsetFromUTC from a Python datetime.timezone object.
+
+        If you know the timezone in string format, like "-0900", then you might be better off to set the `_ds` object directly.
+
+        Example:
+
+            from datetime import timezone, timedelta
+            
+            o = OrthodonticPhotograph()
+
+            o.timezone = timezone(timedelta(hours=-9))
+
+        Args:
+            timezone: datetime.timezone
+        Returns:
+            datetime.timezone: Python timezone object
+        '''
+        """
+        :return: timezone from TimezoneOffsetFromUTC as a Python datetime.timezone object.
+        """
+        return datetime.timezone(datetime.timedelta(hours=int(self._ds.TimezoneOffsetFromUTC)/100))
+
+    @timezone.setter
+    def timezone(self, timezone:datetime.timezone) -> None:
+        self._ds.TimezoneOffsetFromUTC = datetime.datetime.now(timezone).strftime("%z")
+
+    @property
     def acquisition_datetime(self):
         return self._ds.AcquisitionDateTime
 
@@ -202,10 +231,14 @@ class DicomBase(object):
     def acquisition_datetime(self, _acquisition_datetime):
         """
         Set Acquisition DateTime using local Time Zone.
+
+        Also set Acquisition Date and Acquisition Time
         """
         dtz = _acquisition_datetime.astimezone().strftime(
             f"{defaults.DATE_FORMAT}{defaults.TIME_FORMAT}%z")
         self._ds.AcquisitionDateTime = dtz
+        self._ds.AcquisitionDate = _acquisition_datetime.strftime(defaults.DATE_FORMAT)
+        self._ds.AcquisitionTime = _acquisition_datetime.strftime(defaults.TIME_FORMAT)
 
     @property
     def date_captured(self):

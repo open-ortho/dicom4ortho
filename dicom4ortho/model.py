@@ -22,8 +22,8 @@ class DicomBase(object):
         self.sop_instance_uid = defaults.generate_dicom_uid()
         self.time_string = datetime.datetime.now().strftime(defaults.TIME_FORMAT)
         self.date_string = datetime.datetime.now().strftime(defaults.DATE_FORMAT)
-        self.input_image_filename = kwargs['input_image_filename']
-        self.output_image_filename = kwargs['output_image_filename']
+        self.input_image_filename = kwargs.get('input_image_filename')
+        self.output_image_filename = kwargs.get('output_image_filename')
         self.file_meta = Dataset()
         self._ds = None
         self._set_dataset()

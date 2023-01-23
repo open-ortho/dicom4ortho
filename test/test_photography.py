@@ -7,7 +7,7 @@ import unittest
 import logging
 import dicom4ortho.m_orthodontic_photograph
 from dicom4ortho.m_orthodontic_photograph import OrthodonticPhotograph
-from datetime import datetime
+from datetime import datetime, timezone, timedelta
 
 from pydicom.dataset import Dataset
 # Just importing will do to execute the code in the module. Pylint will
@@ -46,12 +46,16 @@ class Test(unittest.TestCase):
     
         o.acquisition_datetime = datetime(1992,2,3,12,14,11)
         self.assertEqual(o._ds.AcquisitionDateTime, "19920203121411.000000+0100")
-    # def test_newfile(self):
-    #     photograph
+        self.assertEqual(o._ds.AcquisitionDate, "19920203")
+        self.assertEqual(o._ds.AcquisitionTime, "121411.000000")
 
-#     def timezone_offset_seconds(self,server_info):
-#         '''
-#         This is a copy from topsServe_rollmonitor, because i want to make sure
-#         if that one gets modified and breaks, this ones doesn't.
-#
-#         Convert the timezone string in server_info into a signed integer of seconds.
+        o.timezone = timezone(timedelta(hours=-9))
+        self.assertEqual(o._ds.TimezoneOffsetFromUTC, "-0900")
+        self.assertEqual(o.timezone, timezone(timedelta(hours=-9)))
+
+        o.set_time_captured(datetime(1993,10,12,22,32,43))
+        self.assertEqual(o._ds.AcquisitionDateTime, "19931012223243.000000+0200")
+        self.assertEqual(o._ds.AcquisitionDate, "19931012")
+        self.assertEqual(o._ds.AcquisitionTime, "223243.000000")
+        self.assertEqual(o._ds.ContentDate, "19931012")
+        self.assertEqual(o._ds.ContentTime, "223243.000000")

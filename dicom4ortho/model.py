@@ -268,10 +268,19 @@ class DicomBase(object):
         self._ds.Manufacturer = manufacturer
 
     def set_time_captured(self, time_captured):
+        """ Set both AcquisitionDate/Time and ContentDate/Time to the same values.
+
+        Sets in General Image Module:
+
+        * Acquisition Date (0008,0022)
+        * Content Date (0008,0023)
+        * Acquisition DateTime (0008,002A)
+        * Acquisition Time (0008,0032)
+        * Content Time (0008,0033)
         """
-        """
-        self._ds.ContentTime = time_captured.strftime(
-            defaults.TIME_FORMAT)  # long format with micro seconds
+        self.acquisition_datetime = time_captured # This sets also AcquisitionDate and AcquisitionTime
+        self._ds.ContentTime = self._ds.AcquisitionTime
+        self._ds.ContentDate = self._ds.AcquisitionDate
 
     def save_implicit_little_endian(self, filename=None):
         if filename is None:

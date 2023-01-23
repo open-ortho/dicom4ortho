@@ -565,27 +565,28 @@ class OrthodonticPhotograph(PhotographBase):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        if callable(kwargs['image_type']):
-            # If a custom function was passed, then use it.
-            self._type = kwargs['image_type']
-        else:
-            # Otherwise we shall look up the tags to add based on the function
-            # defined in OrthodontiPhotographTypes
-            # Allow for both dash separated and not separated naming
-            self.image_type = kwargs['image_type'].replace('-', '')
+        if kwargs.get('image_type') is not None:
+            if callable(kwargs.get('image_type')):
+                # If a custom function was passed, then use it.
+                self._type = kwargs('image_type')
+            else:
+                # Otherwise we shall look up the tags to add based on the function
+                # defined in OrthodontiPhotographTypes
+                # Allow for both dash separated and not separated naming
+                self.image_type = kwargs.get('image_type').replace('-', '')
 
-            # Get the array of functions to set this required type.
-            self._type = (IMAGE_TYPES[self.image_type])
+                # Get the array of functions to set this required type.
+                self._type = (IMAGE_TYPES[self.image_type])
 
-        if "teeth" in kwargs:
-            self.add_teeth(kwargs['teeth'])
-        ImageComments = "{}^{}".format(
-            self.image_type,
-            "^".join(defaults.image_types[self.image_type]))
-        # NBSP character OxA0 is not allowed in Image Comments. Replace with a
-        # Space (0x20)
-        self._ds.ImageComments = ImageComments.replace('\xa0','\x20')
-        self._set_dicom_attributes()
+            if "teeth" in kwargs:
+                self.add_teeth(kwargs.get('teeth'))
+            ImageComments = "{}^{}".format(
+                self.image_type,
+                "^".join(defaults.image_types[self.image_type]))
+            # NBSP character OxA0 is not allowed in Image Comments. Replace with a
+            # Space (0x20)
+            self._ds.ImageComments = ImageComments.replace('\xa0','\x20')
+            self._set_dicom_attributes()
 
 
     def _set_dicom_attributes(self):
@@ -607,3 +608,21 @@ class OrthodonticPhotograph(PhotographBase):
                 if ToothCodes.is_valid_tooth_number(tooth):
                     self._ds.PrimaryAnatomicStructureSequence.append(
                         _get_sct_code_dataset(*ToothCodes.SCT_TOOTH_CODES[tooth]))
+
+
+class OrthodonticSeries():
+    
+    # SeriesInstanceUID
+    UID = None
+
+    Photos = []
+
+    def __init__(self, uid=defaults.generate_dicom_uid()) -> None:
+        self.UID = uid
+
+    def add(self, photo:OrthodonticPhotograph) -> None:
+        photo.series_instance_uid(self.UID)
+        self.Photos.add(photo)
+
+    def save(self) -> None:
+        pass

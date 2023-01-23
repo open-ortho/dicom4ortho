@@ -8,6 +8,7 @@ import logging
 import dicom4ortho.m_orthodontic_photograph
 from dicom4ortho.m_orthodontic_photograph import OrthodonticPhotograph
 from datetime import datetime, timezone, timedelta
+from pathlib import Path
 
 from pydicom.dataset import Dataset
 # Just importing will do to execute the code in the module. Pylint will
@@ -59,3 +60,11 @@ class Test(unittest.TestCase):
         self.assertEqual(o._ds.AcquisitionTime, "223243.000000")
         self.assertEqual(o._ds.ContentDate, "19931012")
         self.assertEqual(o._ds.ContentTime, "223243.000000")
+
+    @unittest.skip()
+    def testNEF(self):
+        o = OrthodonticPhotograph()
+        o.input_image_filename = (Path(".") / "test" / "DSC_0001.NEF")
+        o.output_image_filename = o.input_image_filename.with_suffix(".dcm")
+        o.set_image()
+        o.save_implicit_little_endian()

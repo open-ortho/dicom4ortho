@@ -77,7 +77,8 @@ setup(
         'pydicom',
         'pynetdicom',
         'pillow',
-        'prettytable'
+        'prettytable',
+        'numpy'
     ],
 
     entry_points={  # Optional

@@ -61,7 +61,53 @@ class Test(unittest.TestCase):
         self.assertEqual(o._ds.ContentDate, "19931012")
         self.assertEqual(o._ds.ContentTime, "223243.000000")
 
-    @unittest.skip()
+    def testNames(self):
+        o = OrthodonticPhotograph()
+        o.dental_provider_firstname = "Toni"
+        self.assertEqual(o._ds.ReferringPhysicianName, "^Toni")
+
+        o = OrthodonticPhotograph()
+        o.dental_provider_lastname = "Magni"
+        self.assertEqual(o._ds.ReferringPhysicianName, "Magni^")
+
+        o = OrthodonticPhotograph()
+        o.dental_provider_firstname = "Toni"
+        o.dental_provider_lastname = "Magni"
+        self.assertEqual(o._ds.ReferringPhysicianName, "Magni^Toni")
+        self.assertEqual(o.dental_provider_firstname, "Toni")
+        self.assertEqual(o.dental_provider_lastname, "Magni")
+
+        o = OrthodonticPhotograph()
+        o.patient_firstname = "Toni"
+        self.assertEqual(o._ds.PatientName, "^Toni")
+
+        o = OrthodonticPhotograph()
+        o.patient_lastname = "Magni"
+        self.assertEqual(o._ds.PatientName, "Magni^")
+
+        o = OrthodonticPhotograph()
+        o.patient_firstname = "Toni"
+        o.patient_lastname = "Magni"
+        self.assertEqual(o._ds.PatientName, "Magni^Toni")
+        self.assertEqual(o.patient_firstname, "Toni")
+        self.assertEqual(o.patient_lastname, "Magni")
+
+        o = OrthodonticPhotograph()
+        o.operator_firstname = "Toni"
+        self.assertEqual(o._ds.OperatorsName, "^Toni")
+
+        o = OrthodonticPhotograph()
+        o.operator_lastname = "Magni"
+        self.assertEqual(o._ds.OperatorsName, "Magni^")
+
+        o = OrthodonticPhotograph()
+        o.operator_firstname = "Toni"
+        o.operator_lastname = "Magni"
+        self.assertEqual(o._ds.OperatorsName, "Magni^Toni")
+        self.assertEqual(o.operator_firstname, "Toni")
+        self.assertEqual(o.operator_lastname, "Magni")
+
+    @unittest.skip("No NEF file uploaded to repository")
     def testNEF(self):
         o = OrthodonticPhotograph()
         o.input_image_filename = (Path(".") / "test" / "DSC_0001.NEF")

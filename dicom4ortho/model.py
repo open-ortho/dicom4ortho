@@ -6,7 +6,8 @@ import logging
 
 import pydicom
 from pydicom.sequence import Sequence
-from pydicom.dataset import Dataset, FileDataset
+from pydicom.dataset import Dataset, FileDataset, DataElement
+from pydicom.datadict import tag_for_keyword, dictionary_VR
 import numpy
 
 # pylint: disable=no-name-in-module
@@ -14,6 +15,7 @@ from pynetdicom.sop_class import VLPhotographicImageStorage
 import PIL
 
 import dicom4ortho.defaults as defaults
+
 
 class DicomBase(object):
     """ Functions and fields common to most DICOM images.
@@ -69,134 +71,160 @@ class DicomBase(object):
         self._ds.SOPInstanceUID = self.sop_instance_uid
         self._ds.TimezoneOffsetFromUTC = datetime.datetime.now().astimezone().strftime("%z")
 
-    @property
+    def _set_name(self, tagname, name, position):
+        """ Helper function for setting firstname of PN Datatype
+        
+        :param position: set to 1 for firstname, 0 for lastname.
+        """
+        if tagname not in self._ds:
+            self._ds[tagname] = DataElement(
+                tag_for_keyword(tagname), dictionary_VR(tag_for_keyword(tagname)), "^")
+
+        newpart = name
+        oldpart = str(self._ds[tagname].value).split('^')[position]
+        if position == 0:
+            firstname = newpart
+            lastname = oldpart
+        elif position == 1:
+            firstname = oldpart
+            lastname = newpart
+
+        value = f"{lastname}^{firstname}"
+
+        self._ds[tagname] = DataElement(
+            tag_for_keyword(tagname), dictionary_VR, value)
+
+
+    @ property
     def series_datetime(self):
         return datetime.datetime.strptime(
-            f"{self._ds.SeriesDate}{self._ds.SeriesTime}", 
+            f"{self._ds.SeriesDate}{self._ds.SeriesTime}",
             f"{defaults.DATE_FORMAT}{defaults.TIME_FORMAT}"
         )
 
-    @series_datetime.setter
+    @ series_datetime.setter
     def series_datetime(self, _seriesdatetime):
         self._ds.SeriesTime = _seriesdatetime.strftime(defaults.TIME_FORMAT)
         self._ds.SeriesDate = _seriesdatetime.strftime(defaults.DATE_FORMAT)
 
-    @property
+    @ property
     def study_datetime(self):
         return datetime.datetime.strptime(
-            f"{self._ds.StudyDate}{self._ds.StudyTime}", 
+            f"{self._ds.StudyDate}{self._ds.StudyTime}",
             f"{defaults.DATE_FORMAT}{defaults.TIME_FORMAT}"
         )
 
-    @study_datetime.setter
+    @ study_datetime.setter
     def study_datetime(self, _studydatetime):
         self._ds.StudyTime = _studydatetime.strftime(defaults.TIME_FORMAT)
         self._ds.StudyDate = _studydatetime.strftime(defaults.DATE_FORMAT)
 
-    @property
+    @ property
     def study_instance_uid(self):
         return self._ds.StudyInstanceUID
 
-    @study_instance_uid.setter
+    @ study_instance_uid.setter
     def study_instance_uid(self, uuid):
         self._ds.StudyInstanceUID = uuid
 
-    @property
+    @ property
     def series_instance_uid(self):
         return self._ds.SeriesInstanceUID
 
-    @series_instance_uid.setter
+    @ series_instance_uid.setter
     def series_instance_uid(self, uuid):
         self._ds.SeriesInstanceUID = uuid
 
-    @property
+    @ property
+    def operator_firstname(self):
+        return str(self._ds.OperatorsName).split('^')[1]
+
+    @ operator_firstname.setter
+    def operator_firstname(self, firstname):
+        self._set_name("OperatorsName", firstname, 0)
+
+    @ property
+    def operator_lastname(self):
+        return str(self._ds.OperatorsName).split('^')[0]
+
+    @ operator_lastname.setter
+    def operator_lastname(self, lastname):
+        self._set_name("OperatorsName", lastname, 1)
+
+    @ property
     def study_description(self):
         return self._ds.StudyDescription
 
-    @study_description.setter
+    @ study_description.setter
     def study_description(self, description):
         self._ds.StudyDescription = description
 
-    @property
+    @ property
     def series_description(self):
         return self._ds.SeriesDescription
 
-    @series_description.setter
+    @ series_description.setter
     def series_description(self, description):
         self._ds.SeriesDescription = description
 
-    @property
+    @ property
     def patient_firstname(self):
-        return self._ds.PatientName.split('^')[0]
-
-    @patient_firstname.setter
-    def patient_firstname(self, firstname):
-        self._ds.PatientName = "{}^{}".format(
-            firstname,
-            str(self._ds.PatientName).split('^')[1])
-
-    @property
-    def patient_lastname(self):
         return self._ds.PatientName.split('^')[1]
 
-    @patient_lastname.setter
-    def patient_lastname(self, lastname):
-        self._ds.PatientName = "{}^{}".format(
-            lastname,
-            str(self._ds.PatientName).split('^')[0])
+    @ patient_firstname.setter
+    def patient_firstname(self, firstname):
+        self._set_name("PatientName",firstname,0)
 
-    @property
+    @ property
+    def patient_lastname(self):
+        return self._ds.PatientName.split('^')[0]
+
+    @ patient_lastname.setter
+    def patient_lastname(self, lastname):
+        self._set_name("PatientName",lastname,1)
+    @ property
     def patient_id(self):
         return self._ds.PatientID
 
-    @patient_id.setter
+    @ patient_id.setter
     def patient_id(self, patient_id):
-        self._ds.PatientID = str(patient_id) # Patient ID in DICOM must be a String.
+        # Patient ID in DICOM must be a String.
+        self._ds.PatientID = str(patient_id)
 
-    @property
+    @ property
     def patient_sex(self):
         return self._ds.PatientSex
 
-    @patient_sex.setter
+    @ patient_sex.setter
     def patient_sex(self, patient_sex):
         self._ds.PatientSex = patient_sex
 
-    @property
+    @ property
     def patient_birthdate(self):
         return datetime.datetime.strptime(self._ds.PatientBirthDate, defaults.DATE_FORMAT).date()
 
-    @patient_birthdate.setter
+    @ patient_birthdate.setter
     def patient_birthdate(self, patient_birthdate):
         self._ds.PatientBirthDate = patient_birthdate.strftime(
             defaults.DATE_FORMAT)
 
-    @property
+    @ property
     def dental_provider_firstname(self):
-        return self._ds.ReferringPhysicianName.split('^')[0]
-
-    @dental_provider_firstname.setter
-    def dental_provider_firstname(self, firstname):
-        if not hasattr(self._ds, 'ReferringPhysicianName'):
-            self._ds.ReferringPhysicianName = "^"
-
-        self._ds.ReferringPhysicianName = "{}^{}".format(
-            firstname,
-            str(self._ds.ReferringPhysicianName).split('^')[1])
-
-    @property
-    def dental_provider_lastname(self):
         return self._ds.ReferringPhysicianName.split('^')[1]
 
-    @dental_provider_lastname.setter
-    def dental_provider_lastname(self, firstname):
-        if self._ds.ReferringPhysicianName is None:
-            self._ds.ReferringPhysicianName = "^"
+    @ dental_provider_firstname.setter
+    def dental_provider_firstname(self, firstname):
+        self._set_name("ReferringPhysicianName", firstname, 0)
 
-        self._ds.ReferringPhysicianName = "{}^{}".format(
-            firstname,
-            str(self._ds.ReferringPhysicianName).split('^')[0])
+    @ property
+    def dental_provider_lastname(self):
+        return self._ds.ReferringPhysicianName.split('^')[0]
 
-    @property
+    @ dental_provider_lastname.setter
+    def dental_provider_lastname(self, lastname):
+        self._set_name("ReferringPhysicianName", lastname, 1)
+
+    @ property
     def timezone(self) -> datetime.timezone:
         ''' Set timezone of TimezoneOffsetFromUTC from a Python datetime.timezone object.
 
@@ -205,7 +233,7 @@ class DicomBase(object):
         Example:
 
             from datetime import timezone, timedelta
-            
+
             o = OrthodonticPhotograph()
 
             o.timezone = timezone(timedelta(hours=-9))
@@ -220,15 +248,16 @@ class DicomBase(object):
         """
         return datetime.timezone(datetime.timedelta(hours=int(self._ds.TimezoneOffsetFromUTC)/100))
 
-    @timezone.setter
-    def timezone(self, timezone:datetime.timezone) -> None:
-        self._ds.TimezoneOffsetFromUTC = datetime.datetime.now(timezone).strftime("%z")
+    @ timezone.setter
+    def timezone(self, timezone: datetime.timezone) -> None:
+        self._ds.TimezoneOffsetFromUTC = datetime.datetime.now(
+            timezone).strftime("%z")
 
-    @property
+    @ property
     def acquisition_datetime(self):
         return self._ds.AcquisitionDateTime
 
-    @acquisition_datetime.setter
+    @ acquisition_datetime.setter
     def acquisition_datetime(self, _acquisition_datetime):
         """
         Set Acquisition DateTime using local Time Zone.
@@ -238,10 +267,12 @@ class DicomBase(object):
         dtz = _acquisition_datetime.astimezone().strftime(
             f"{defaults.DATE_FORMAT}{defaults.TIME_FORMAT}%z")
         self._ds.AcquisitionDateTime = dtz
-        self._ds.AcquisitionDate = _acquisition_datetime.strftime(defaults.DATE_FORMAT)
-        self._ds.AcquisitionTime = _acquisition_datetime.strftime(defaults.TIME_FORMAT)
+        self._ds.AcquisitionDate = _acquisition_datetime.strftime(
+            defaults.DATE_FORMAT)
+        self._ds.AcquisitionTime = _acquisition_datetime.strftime(
+            defaults.TIME_FORMAT)
 
-    @property
+    @ property
     def date_captured(self):
         ''' Date of image capture.
 
@@ -253,18 +284,18 @@ class DicomBase(object):
         '''
         return datetime.datetime.strptime(self._ds.ContentDate, defaults.DATE_FORMAT).date()
 
-    @date_captured.setter
+    @ date_captured.setter
     def date_captured(self, date_captured):
         # Date and time are required if images is part of a Series in which
         # the images are temporally related. This sounds like the case for orthodontic
         # intraoral and extraoral photograph sets.
         self._ds.ContentDate = date_captured.strftime(defaults.DATE_FORMAT)
 
-    @property
+    @ property
     def equipment_manufacturer(self):
         return self._ds.manufacturer
 
-    @equipment_manufacturer.setter
+    @ equipment_manufacturer.setter
     def equipment_manufacturer(self, manufacturer):
         self._ds.Manufacturer = manufacturer
 
@@ -279,7 +310,7 @@ class DicomBase(object):
         * Acquisition Time (0008,0032)
         * Content Time (0008,0033)
         """
-        self.acquisition_datetime = time_captured # This sets also AcquisitionDate and AcquisitionTime
+        self.acquisition_datetime = time_captured  # This sets also AcquisitionDate and AcquisitionTime
         self._ds.ContentTime = self._ds.AcquisitionTime
         self._ds.ContentDate = self._ds.AcquisitionDate
 
@@ -413,7 +444,7 @@ class PhotographBase(DicomBase):
         elif lossy == False:
             self._ds.LossyImageCompression('00')
 
-    def _set_image_data(self,filename=None):
+    def _set_image_data(self, filename=None):
         """ Sets general Image Module Data and Metadata
 
             Image Pixel M
@@ -449,7 +480,7 @@ class PhotographBase(DicomBase):
                 self._ds.PhotometricInterpretation = 'MONOCHROME2'
                 # @TODO: Not sure if this works
                 # Got this from https://stackoverflow.com/questions/5602155/numpy-boolean-array-with-1-bit-entries
-                npa = numpy.array(im.getdata(),dtype=numpy.bool)
+                npa = numpy.array(im.getdata(), dtype=numpy.bool)
                 self._ds.PixelData = numpy.packbits(npa, axis=None).tobytes()
             elif im.mode == 'L':  # (8-bit pixels, black and white)
                 self._ds.SamplesPerPixel = 1
@@ -461,7 +492,8 @@ class PhotographBase(DicomBase):
                 self._ds.BitsStored = 8
                 self._ds.HighBit = 7
                 self._ds.PhotometricInterpretation = 'MONOCHROME2'
-                self._ds.PixelData = numpy.array(im.getdata(),dtype=numpy.uint8).tobytes()
+                self._ds.PixelData = numpy.array(
+                    im.getdata(), dtype=numpy.uint8).tobytes()
             # (8-bit pixels, mapped to any other mode using a color palette)
             elif im.mode == 'P':
                 print(
@@ -481,7 +513,8 @@ class PhotographBase(DicomBase):
                 self._ds.BitsStored = 8
                 self._ds.HighBit = 7
                 self._ds.PhotometricInterpretation = 'RGB'
-                self._ds.PixelData = numpy.array(im.getdata(),dtype=numpy.uint8)[:,:3].tobytes()
+                self._ds.PixelData = numpy.array(im.getdata(), dtype=numpy.uint8)[
+                    :, :3].tobytes()
             # (4x8-bit pixels, true color with transparency mask)
             elif im.mode == 'RGBA':
                 print(

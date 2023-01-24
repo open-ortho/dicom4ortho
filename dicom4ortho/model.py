@@ -78,7 +78,7 @@ class DicomBase(object):
         """
         if tagname not in self._ds:
             self._ds[tagname] = DataElement(
-                tag_for_keyword(tagname), dictionary_VR(tag_for_keyword(tagname)), "^")
+                tag_for_keyword(tagname), 'PN', "^")
 
         newpart = name
         oldpart = str(self._ds[tagname].value).split('^')[position]
@@ -92,7 +92,7 @@ class DicomBase(object):
         value = f"{lastname}^{firstname}"
 
         self._ds[tagname] = DataElement(
-            tag_for_keyword(tagname), dictionary_VR, value)
+            tag_for_keyword(tagname), 'PN', value)
 
 
     @ property
@@ -169,7 +169,7 @@ class DicomBase(object):
 
     @ property
     def patient_firstname(self):
-        return self._ds.PatientName.split('^')[1]
+        return str(self._ds.PatientName).split('^')[1]
 
     @ patient_firstname.setter
     def patient_firstname(self, firstname):
@@ -177,7 +177,7 @@ class DicomBase(object):
 
     @ property
     def patient_lastname(self):
-        return self._ds.PatientName.split('^')[0]
+        return str(self._ds.PatientName).split('^')[0]
 
     @ patient_lastname.setter
     def patient_lastname(self, lastname):
@@ -210,7 +210,7 @@ class DicomBase(object):
 
     @ property
     def dental_provider_firstname(self):
-        return self._ds.ReferringPhysicianName.split('^')[1]
+        return str(self._ds.ReferringPhysicianName).split('^')[1]
 
     @ dental_provider_firstname.setter
     def dental_provider_firstname(self, firstname):
@@ -218,7 +218,7 @@ class DicomBase(object):
 
     @ property
     def dental_provider_lastname(self):
-        return self._ds.ReferringPhysicianName.split('^')[0]
+        return str(self._ds.ReferringPhysicianName).split('^')[0]
 
     @ dental_provider_lastname.setter
     def dental_provider_lastname(self, lastname):

@@ -5,6 +5,7 @@ Unittests for DICOM objects.
 '''
 import unittest
 import logging
+from io import BytesIO
 import dicom4ortho.m_orthodontic_photograph
 from dicom4ortho.m_orthodontic_photograph import OrthodonticPhotograph
 from datetime import datetime, timezone, timedelta
@@ -76,6 +77,8 @@ class Test(unittest.TestCase):
         self.assertEqual(o._ds.ReferringPhysicianName, "Magni^Toni")
         self.assertEqual(o.dental_provider_firstname, "Toni")
         self.assertEqual(o.dental_provider_lastname, "Magni")
+        myio = BytesIO()
+        o.save_implicit_little_endian(myio)
 
         o = OrthodonticPhotograph()
         o.patient_firstname = "Toni"

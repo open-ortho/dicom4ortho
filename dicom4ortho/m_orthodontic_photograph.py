@@ -613,8 +613,9 @@ class OrthodonticPhotograph(PhotographBase):
     def save(self, filename=None):
         self.set_image()
         self._set_dicom_attributes()
-        if self._ds.LossyImageCompressionMethod == 'ISO_10918_1':
-            self.save_encapsulated_jpg(filename)
+        if 'LossyImageCompressionMethod' in self._ds:
+            if self._ds.LossyImageCompressionMethod == 'ISO_10918_1':
+                self.save_encapsulated_jpg(filename)
         else:
             self.save_implicit_little_endian(filename)
 

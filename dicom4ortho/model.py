@@ -4,6 +4,7 @@ The model.
 import datetime
 import logging
 import io
+import imghdr
 
 from pydicom.sequence import Sequence
 from pydicom.dataset import Dataset, FileDataset, DataElement, FileMetaDataset
@@ -598,16 +599,32 @@ class PhotographBase(DicomBase):
         """ Set Image Data for JPG Images.
 
         If a lossy JPG image is obtained from the camera (non-ideal), then we should just store it as such. Storing it as raw is not reccommende because it would deceiving (unless one adds all the secondary capture tags), becuase the image would have been compressed in the first place, but then stored uncompressed, so data would be lost, without this being recorded anywhere. And takes up a lot more space.
+        
+        Some cameras, like the Nikon D5600 will actually save MPO images, which will not support the quality argument and throw a ValueError.
+
+        If the MPO image contains multiple frames, they are expanded in multiframe DICOM encapsulation, as described here: https://stackoverflow.com/questions/58518357/how-to-create-jpeg-compressed-dicom-dataset-using-pydicom Not sure there is a usecase for it. 
+        
+        Quality of 98
 
         """
         filename = filename or self.input_image_filename
+        img_byte_list = []
         with PIL.Image.open(filename) as im:
-            self._ds.Rows = im.height
-            self._ds.Columns = im.width
-            with io.BytesIO() as output:
-                im.save(output, format='jpeg', quality='keep')
-                self._ds.PixelData = encapsulate(
-                    [output.getvalue()])  # needs to be an array
+            num_frames = getattr(im, "n_frames",1)
+            logging.info(f"Found {num_frames} frames in {im.format} image")
+            for i in range(num_frames):
+                im.seek(i)
+                self._ds.Rows = im.height
+                self._ds.Columns = im.width
+                with io.BytesIO() as output:
+                    try:
+                        im.save(output, format='jpeg', quality='keep')
+                    except ValueError:
+                        logging.warning(f"Cannot keep same JPEG as original. Must re-encode with 98 quality. {im.width}x{im.height}")
+                        im.save(output, format='jpeg', quality=98)
+                    img_byte_list.append(output.getvalue())
+
+        self._ds.PixelData = encapsulate([x for x in img_byte_list])  # needs to be an array
         self._ds['PixelData'].is_undefined_length = True
         
         # Values as defined in Part 5 Sect 8.2.1
@@ -627,4 +644,9 @@ class PhotographBase(DicomBase):
         return filename
 
     def set_image(self, filename=None):
-        filename = self._set_image_jpg_data(filename=filename)
+        filename = filename or self.input_image_filename
+        if imghdr.what(file=filename) == 'jpeg':
+            self._set_image_jpg_data(filename=filename)
+        else:
+            # DICOM only supports encapsulation for JPEG. Everything else needs to be decoded and re-encoded as raw.
+            self._set_image_raw_data(filename=filename)

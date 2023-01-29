@@ -13,6 +13,7 @@ from dicom4ortho.defaults import generate_dicom_uid
 from datetime import datetime, timezone, timedelta
 from pathlib import Path
 
+import PIL
 from pydicom.dataset import Dataset
 # Just importing will do to execute the code in the module. Pylint will
 # complain though.
@@ -158,8 +159,34 @@ class PhotoTests(unittest.TestCase):
 
     def testJPG(self):
         metadata = make_photo_metadata()
+
+
+        metadata['input_image_filename'] = Path(
+            ".") / "test" / "resources" / "DSC_0001.JPG"
+        metadata['image_type'] = "IV07"
+        c = SimpleController()
+        c.convert_image_to_dicom4orthograph(metadata=metadata)
+        
+
+        metadata = make_photo_metadata()
         metadata['input_image_filename'] = Path(
             ".") / "test" / "resources" / "DSC_9846.JPG"
         metadata['image_type'] = "IV07"
         c = SimpleController()
         c.convert_image_to_dicom4orthograph(metadata=metadata)
+
+
+@unittest.skip ("Just a tool, not a test")
+class MPO(unittest.TestCase):
+    def testsplitMPO(self):
+        filename = Path(
+            ".") / "test" / "resources" / "DSC_0001.JPG"
+        with PIL.Image.open(filename) as img:
+            num_frames = getattr(img, "n_frames",1)
+            logging.info(f"Found {num_frames} frames in {img.format} image")
+            for i in range(num_frames):
+                outputfilename = Path(f"{filename.stem}_{i}{filename.suffix}")
+                img.seek(i)
+                img.save(outputfilename, format='jpeg')
+        
+        self.assertTrue(outputfilename.exists())

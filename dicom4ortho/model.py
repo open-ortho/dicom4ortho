@@ -600,7 +600,7 @@ class PhotographBase(DicomBase):
                 im.save(output, format='JPEG2000')
                 self._ds.PixelData = encapsulate([output.getvalue()])  # needs to be an array
 
-        self._ds['PixelData'].is_undefined_length = True
+        # self._ds['PixelData'].is_undefined_length = True
         
         # Values as defined in Part 5 Sect 8.2.1
         # https://dicom.nema.org/medical/dicom/current/output/chtml/part05/sect_8.2.html#sect_8.2.1
@@ -612,7 +612,6 @@ class PhotographBase(DicomBase):
         self._ds.BitsStored = 8
         self._ds.HighBit = 7
 
-        self._ds.LossyImageCompressionRatio = 10
         self._ds.LossyImageCompressionMethod = 'ISO_15444_1'  # The JPEG-2000 Standard
 
         self._ds.file_meta.TransferSyntaxUID = JPEGLossless
@@ -635,24 +634,20 @@ class PhotographBase(DicomBase):
 
         """
         filename = filename or self.input_image_filename
-        img_byte_list = []
         with PIL.Image.open(filename) as im:
-            num_frames = getattr(im, "n_frames",1)
-            logging.info(f"Found {num_frames} frames in {im.format} image")
-            for i in range(num_frames):
-                im.seek(i)
-                self._ds.Rows = im.height
-                self._ds.Columns = im.width
-                with io.BytesIO() as output:
-                    try:
-                        im.save(output, format='jpeg', quality='keep')
-                    except ValueError:
-                        logging.warning(f"Cannot keep same {im.format} as original. Must re-encode with 98 quality. {im.width}x{im.height}")
-                        im.save(output, format='jpeg', quality=98)
-                    img_byte_list.append(output.getvalue())
+            logging.info(f"Found format {im.format} for {filename} image")
+            self._ds.Rows = im.height
+            self._ds.Columns = im.width
+            with io.BytesIO() as output:
+                try:
+                    im.save(output, format='jpeg', quality='keep')
+                except ValueError:
+                    logging.warning(f"Cannot keep same {im.format} as original. Must re-encode with 98 quality. {im.width}x{im.height}")
+                    im.save(output, format='jpeg', quality=98)
 
-        self._ds.PixelData = encapsulate([x for x in img_byte_list])  # needs to be an array
-        self._ds['PixelData'].is_undefined_length = True
+                self._ds.PixelData = encapsulate([output.getvalue()])  # needs to be an array
+
+        # self._ds['PixelData'].is_undefined_length = True
         
         # Values as defined in Part 5 Sect 8.2.1
         # https://dicom.nema.org/medical/dicom/current/output/chtml/part05/sect_8.2.html#sect_8.2.1

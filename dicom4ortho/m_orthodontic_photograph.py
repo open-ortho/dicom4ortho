@@ -586,7 +586,8 @@ class OrthodonticPhotograph(PhotographBase):
             # NBSP character OxA0 is not allowed in Image Comments. Replace with a
             # Space (0x20)
             self._ds.ImageComments = ImageComments.replace('\xa0','\x20')
-            self._set_dicom_attributes()
+
+            self._set_dicom_attributes()# This should only got in the save()
 
 
     def _set_dicom_attributes(self):
@@ -609,6 +610,13 @@ class OrthodonticPhotograph(PhotographBase):
                     self._ds.PrimaryAnatomicStructureSequence.append(
                         _get_sct_code_dataset(*ToothCodes.SCT_TOOTH_CODES[tooth]))
 
+    def save(self, filename=None):
+        self.set_image()
+        self._set_dicom_attributes()
+        if self._ds.LossyImageCompressionMethod == 'ISO_10918_1':
+            self.save_encapsulated_jpg(filename)
+        else:
+            self.save_implicit_little_endian(filename)
 
 class OrthodonticSeries():
     

@@ -177,10 +177,10 @@ USAGE
             return 0
         else:
             c.convert_image_to_dicom4orthograph({
-                'image_type': 'args.image_type',
-                'input_image_filename': 'args.input_filename',
+                'image_type': args.image_type,
+                'input_image_filename': args.input_filename,
                 'teeth': teeth,
-                'output_image_filename': 'args.output_filename'})
+                'output_image_filename': args.output_filename})
             c.photo.print()
             return 0
 

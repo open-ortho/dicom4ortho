@@ -10,7 +10,7 @@ from pydicom.sequence import Sequence
 from pydicom.dataset import Dataset, FileDataset, DataElement, FileMetaDataset
 from pydicom.datadict import tag_for_keyword, dictionary_VR
 from pydicom.encaps import encapsulate
-from pydicom.uid import JPEGBaseline8Bit, JPEGExtended12Bit, ImplicitVRLittleEndian, ExplicitVRBigEndian, ExplicitVRLittleEndian, JPEGLossless
+from pydicom.uid import JPEGBaseline8Bit, JPEGExtended12Bit, ImplicitVRLittleEndian, ExplicitVRBigEndian, ExplicitVRLittleEndian, JPEGLosslessSV1, RLELossless, JPEGLosslessP14
 from pydicom import dcmread as pydicom_dcmread
 import numpy
 
@@ -577,22 +577,21 @@ class PhotographBase(DicomBase):
                 print(
                     "ERROR: mode [{}] is not yet implemented.".format(im.mode))
                 raise NotImplementedError
+        self._ds.file_meta.TransferSyntaxUID = ExplicitVRLittleEndian
+        self._ds.is_little_endian = True
+        self._ds.is_implicit_VR = False
 
         return filename
 
     def _set_image_jpeg2000_data(self, filename=None):
-        """ Set Image Data for JPG Images.
+        """ Set Image Data for JPEG2000 Images.
 
-        If a lossy JPG image is obtained from the camera (non-ideal), then we should just store it as such. Storing it as raw is not reccommende because it would deceiving (unless one adds all the secondary capture tags), becuase the image would have been compressed in the first place, but then stored uncompressed, so data would be lost, without this being recorded anywhere. And takes up a lot more space.
-        
-        Some cameras, like the Nikon D5600 will actually save MPO images, which will not support the quality argument and throw a ValueError.
+        NOT WORKING: no runtime errors, but pixeldata is incorrect. Viewers don't visualize or crash. Maybe try changing the various arguments to im.save(output, format='JPEG2000')? Look at Pillow documentation.
 
-        If the MPO image contains multiple frames, they are expanded in multiframe DICOM encapsulation, as described here: https://stackoverflow.com/questions/58518357/how-to-create-jpeg-compressed-dicom-dataset-using-pydicom Not sure there is a usecase for it. 
-        
-        Quality of 98
-
+        Currently unused function. After various attempts, i concluded that for the current usecases, it would be easiest to re-encode the JPEG2000 in JPG.
         """
         filename = filename or self.input_image_filename
+        # self._set_image_raw_data(filename=filename)
         with PIL.Image.open(filename) as im:
             self._ds.Rows = im.height
             self._ds.Columns = im.width
@@ -600,7 +599,7 @@ class PhotographBase(DicomBase):
                 im.save(output, format='JPEG2000')
                 self._ds.PixelData = encapsulate([output.getvalue()])  # needs to be an array
 
-        # self._ds['PixelData'].is_undefined_length = True
+        self._ds['PixelData'].is_undefined_length = True
         
         # Values as defined in Part 5 Sect 8.2.1
         # https://dicom.nema.org/medical/dicom/current/output/chtml/part05/sect_8.2.html#sect_8.2.1
@@ -614,11 +613,12 @@ class PhotographBase(DicomBase):
 
         self._ds.LossyImageCompressionMethod = 'ISO_15444_1'  # The JPEG-2000 Standard
 
-        self._ds.file_meta.TransferSyntaxUID = JPEGLossless
+        self._ds.file_meta.TransferSyntaxUID = JPEGLosslessSV1
         self._ds.is_little_endian = True
         self._ds.is_implicit_VR = False
 
         self.lossy_compression(False)
+        # self._ds.compress(RLELossless)
         return filename
 
     def _set_image_jpeg_data(self, filename=None):
@@ -673,10 +673,8 @@ class PhotographBase(DicomBase):
         filename = filename or self.input_image_filename
         with PIL.Image.open(filename) as img:
             file_type = img.format
-        if file_type in ('JPEG','MPO'):
+        if file_type in ('JPEG','MPO','JPEG2000'):
             self._set_image_jpeg_data(filename=filename)
-        elif file_type in ('JPEG2000'):
-            self._set_image_jpeg2000_data(filename=filename)
         else:
             # DICOM only supports encapsulation for JPEG. Everything else needs to be decoded and re-encoded as raw.
             logging.warning(f"Unsupported image type: {img.format}")

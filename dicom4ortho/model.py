@@ -10,7 +10,7 @@ from pydicom.sequence import Sequence
 from pydicom.dataset import Dataset, FileDataset, DataElement, FileMetaDataset
 from pydicom.datadict import tag_for_keyword, dictionary_VR
 from pydicom.encaps import encapsulate
-from pydicom.uid import JPEGBaseline8Bit, JPEGExtended12Bit, ImplicitVRLittleEndian, ExplicitVRBigEndian, ExplicitVRLittleEndian
+from pydicom.uid import JPEGBaseline8Bit, JPEGExtended12Bit, ImplicitVRLittleEndian, ExplicitVRBigEndian, ExplicitVRLittleEndian, JPEGLossless
 from pydicom import dcmread as pydicom_dcmread
 import numpy
 
@@ -354,21 +354,6 @@ class DicomBase(object):
         self._ds.is_implicit_VR = False
         self._ds.save_as(filename, write_like_original=False)
 
-    def save_encapsulated_jpg(self, filename=None):
-        """ Set Trasnfer Syntax and proper encoding for encapsulated JPGs.
-        """
-        if filename is None:
-            filename = self.output_image_filename
-        # Write as a different transfer syntax XXX shouldn't need this but pydicom
-        # 0.9.5 bug not recognizing transfer syntax
-        self._ds.file_meta.TransferSyntaxUID = JPEGExtended12Bit
-        self._ds.is_little_endian = True
-        self._ds.is_implicit_VR = False
-
-        logging.debug(
-            "Writing test file as Big Endian Explicit VR [{}]", filename)
-        self._ds.save_as(filename, write_like_original=False)
-        logging.info("File [{}] saved.", filename)
 
     def load(self, filename):
         self._ds = pydicom_dcmread(filename)
@@ -595,7 +580,49 @@ class PhotographBase(DicomBase):
 
         return filename
 
-    def _set_image_jpg_data(self, filename=None):
+    def _set_image_jpeg2000_data(self, filename=None):
+        """ Set Image Data for JPG Images.
+
+        If a lossy JPG image is obtained from the camera (non-ideal), then we should just store it as such. Storing it as raw is not reccommende because it would deceiving (unless one adds all the secondary capture tags), becuase the image would have been compressed in the first place, but then stored uncompressed, so data would be lost, without this being recorded anywhere. And takes up a lot more space.
+        
+        Some cameras, like the Nikon D5600 will actually save MPO images, which will not support the quality argument and throw a ValueError.
+
+        If the MPO image contains multiple frames, they are expanded in multiframe DICOM encapsulation, as described here: https://stackoverflow.com/questions/58518357/how-to-create-jpeg-compressed-dicom-dataset-using-pydicom Not sure there is a usecase for it. 
+        
+        Quality of 98
+
+        """
+        filename = filename or self.input_image_filename
+        with PIL.Image.open(filename) as im:
+            self._ds.Rows = im.height
+            self._ds.Columns = im.width
+            with io.BytesIO() as output:
+                im.save(output, format='JPEG2000')
+                self._ds.PixelData = encapsulate([output.getvalue()])  # needs to be an array
+
+        self._ds['PixelData'].is_undefined_length = True
+        
+        # Values as defined in Part 5 Sect 8.2.1
+        # https://dicom.nema.org/medical/dicom/current/output/chtml/part05/sect_8.2.html#sect_8.2.1
+        self._ds.PhotometricInterpretation = 'RGB'
+        self._ds.SamplesPerPixel = 3
+        self._ds.PlanarConfiguration = 0
+        self._ds.PixelRepresentation = 0
+        self._ds.BitsAllocated = 8
+        self._ds.BitsStored = 8
+        self._ds.HighBit = 7
+
+        self._ds.LossyImageCompressionRatio = 10
+        self._ds.LossyImageCompressionMethod = 'ISO_15444_1'  # The JPEG-2000 Standard
+
+        self._ds.file_meta.TransferSyntaxUID = JPEGLossless
+        self._ds.is_little_endian = True
+        self._ds.is_implicit_VR = False
+
+        self.lossy_compression(False)
+        return filename
+
+    def _set_image_jpeg_data(self, filename=None):
         """ Set Image Data for JPG Images.
 
         If a lossy JPG image is obtained from the camera (non-ideal), then we should just store it as such. Storing it as raw is not reccommende because it would deceiving (unless one adds all the secondary capture tags), becuase the image would have been compressed in the first place, but then stored uncompressed, so data would be lost, without this being recorded anywhere. And takes up a lot more space.
@@ -620,7 +647,7 @@ class PhotographBase(DicomBase):
                     try:
                         im.save(output, format='jpeg', quality='keep')
                     except ValueError:
-                        logging.warning(f"Cannot keep same JPEG as original. Must re-encode with 98 quality. {im.width}x{im.height}")
+                        logging.warning(f"Cannot keep same {im.format} as original. Must re-encode with 98 quality. {im.width}x{im.height}")
                         im.save(output, format='jpeg', quality=98)
                     img_byte_list.append(output.getvalue())
 
@@ -630,9 +657,9 @@ class PhotographBase(DicomBase):
         # Values as defined in Part 5 Sect 8.2.1
         # https://dicom.nema.org/medical/dicom/current/output/chtml/part05/sect_8.2.html#sect_8.2.1
         self._ds.PhotometricInterpretation = 'RGB'
-        self._ds.PixelRepresentation = 0x0
-        self._ds.PlanarConfiguration = 0
         self._ds.SamplesPerPixel = 3
+        self._ds.PlanarConfiguration = 0
+        self._ds.PixelRepresentation = 0
         self._ds.BitsAllocated = 8
         self._ds.BitsStored = 8
         self._ds.HighBit = 7
@@ -640,13 +667,22 @@ class PhotographBase(DicomBase):
         self._ds.LossyImageCompressionRatio = 10
         self._ds.LossyImageCompressionMethod = 'ISO_10918_1'  # The JPEG Standard
 
+        self._ds.file_meta.TransferSyntaxUID = JPEGExtended12Bit
+        self._ds.is_little_endian = True
+        self._ds.is_implicit_VR = False
+
         self.lossy_compression(True)
         return filename
 
     def set_image(self, filename=None):
         filename = filename or self.input_image_filename
-        if imghdr.what(file=filename) == 'jpeg':
-            self._set_image_jpg_data(filename=filename)
+        with PIL.Image.open(filename) as img:
+            file_type = img.format
+        if file_type in ('JPEG','MPO'):
+            self._set_image_jpeg_data(filename=filename)
+        elif file_type in ('JPEG2000'):
+            self._set_image_jpeg2000_data(filename=filename)
         else:
             # DICOM only supports encapsulation for JPEG. Everything else needs to be decoded and re-encoded as raw.
+            logging.warning(f"Unsupported image type: {img.format}")
             self._set_image_raw_data(filename=filename)

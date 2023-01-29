@@ -611,13 +611,12 @@ class OrthodonticPhotograph(PhotographBase):
                         _get_sct_code_dataset(*ToothCodes.SCT_TOOTH_CODES[tooth]))
 
     def save(self, filename=None):
+        filename=filename or self.output_image_filename
         self.set_image()
         self._set_dicom_attributes()
-        if 'LossyImageCompressionMethod' in self._ds:
-            if self._ds.LossyImageCompressionMethod == 'ISO_10918_1':
-                self.save_encapsulated_jpg(filename)
-        else:
-            self.save_implicit_little_endian(filename)
+        self._ds.save_as(filename=filename,write_like_original=False)
+        logging.warning(f"File [{filename}] saved.")
+
 
 class OrthodonticSeries():
     

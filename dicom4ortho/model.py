@@ -3,11 +3,15 @@ The model.
 """
 import datetime
 import logging
+import io
+import imghdr
 
-import pydicom
 from pydicom.sequence import Sequence
-from pydicom.dataset import Dataset, FileDataset, DataElement
+from pydicom.dataset import Dataset, FileDataset, DataElement, FileMetaDataset
 from pydicom.datadict import tag_for_keyword, dictionary_VR
+from pydicom.encaps import encapsulate
+from pydicom.uid import JPEGBaseline8Bit, JPEGExtended12Bit, ImplicitVRLittleEndian, ExplicitVRBigEndian, ExplicitVRLittleEndian, JPEGLosslessSV1, RLELossless, JPEGLosslessP14
+from pydicom import dcmread as pydicom_dcmread
 import numpy
 
 # pylint: disable=no-name-in-module
@@ -27,7 +31,7 @@ class DicomBase(object):
         self.date_string = datetime.datetime.now().strftime(defaults.DATE_FORMAT)
         self.input_image_filename = kwargs.get('input_image_filename')
         self.output_image_filename = kwargs.get('output_image_filename')
-        self.file_meta = Dataset()
+        self.file_meta = FileMetaDataset()
         self._ds = None
         self._set_dataset()
         self._set_general_series()
@@ -73,7 +77,7 @@ class DicomBase(object):
 
     def _set_name(self, tagname, name, position):
         """ Helper function for setting firstname of PN Datatype
-        
+
         :param position: set to 1 for firstname, 0 for lastname.
         """
         if tagname not in self._ds:
@@ -93,7 +97,6 @@ class DicomBase(object):
 
         self._ds[tagname] = DataElement(
             tag_for_keyword(tagname), 'PN', value)
-
 
     @ property
     def series_datetime(self):
@@ -173,7 +176,7 @@ class DicomBase(object):
 
     @ patient_firstname.setter
     def patient_firstname(self, firstname):
-        self._set_name("PatientName",firstname,0)
+        self._set_name("PatientName", firstname, 0)
 
     @ property
     def patient_lastname(self):
@@ -181,7 +184,8 @@ class DicomBase(object):
 
     @ patient_lastname.setter
     def patient_lastname(self, lastname):
-        self._set_name("PatientName",lastname,1)
+        self._set_name("PatientName", lastname, 1)
+
     @ property
     def patient_id(self):
         return self._ds.PatientID
@@ -319,7 +323,7 @@ class DicomBase(object):
             filename = self.output_image_filename
 
         # Set the transfer syntax
-        self._ds.file_meta.TransferSyntaxUID = pydicom.uid.ImplicitVRLittleEndian
+        self._ds.file_meta.TransferSyntaxUID = ImplicitVRLittleEndian
         self._ds.is_little_endian = True
         self._ds.is_implicit_VR = True
 
@@ -328,13 +332,11 @@ class DicomBase(object):
         self._ds.save_as(filename, write_like_original=False)
         logging.info("File [{}] saved.".format(filename))
 
-    def save_explicit_big_endian(self, filename=None):
+    def save_explicit_little_endian(self, filename=None):
         if filename is None:
             filename = self.output_image_filename
-        # Write as a different transfer syntax XXX shouldn't need this but pydicom
-        # 0.9.5 bug not recognizing transfer syntax
-        self._ds.file_meta.TransferSyntaxUID = pydicom.uid.ExplicitVRBigEndian
-        self._ds.is_little_endian = False
+        self._ds.file_meta.TransferSyntaxUID = ExplicitVRLittleEndian
+        self._ds.is_little_endian = True
         self._ds.is_implicit_VR = False
 
         logging.debug(
@@ -342,8 +344,19 @@ class DicomBase(object):
         self._ds.save_as(filename, write_like_original=False)
         logging.info("File [{}] saved.", filename)
 
+    def save_explicit_big_endian(self, filename=None):
+        if filename is None:
+            filename = self.output_image_filename
+        # Write as a different transfer syntax XXX shouldn't need this but pydicom
+        # 0.9.5 bug not recognizing transfer syntax
+        self._ds.file_meta.TransferSyntaxUID = ExplicitVRBigEndian
+        self._ds.is_little_endian = False
+        self._ds.is_implicit_VR = False
+        self._ds.save_as(filename, write_like_original=False)
+
+
     def load(self, filename):
-        self._ds = pydicom.dcmread(filename)
+        self._ds = pydicom_dcmread(filename)
 
     def print(self):
         print(self._ds)
@@ -440,11 +453,11 @@ class PhotographBase(DicomBase):
 
     def lossy_compression(self, lossy):
         if lossy == True:
-            self._ds.LossyImageCompression('01')
+            self._ds.LossyImageCompression = '01'
         elif lossy == False:
-            self._ds.LossyImageCompression('00')
+            self._ds.LossyImageCompression = '00'
 
-    def _set_image_data(self, filename=None):
+    def _set_image_raw_data(self, filename=None):
         """ Sets general Image Module Data and Metadata
 
             Image Pixel M
@@ -564,8 +577,105 @@ class PhotographBase(DicomBase):
                 print(
                     "ERROR: mode [{}] is not yet implemented.".format(im.mode))
                 raise NotImplementedError
+        self._ds.file_meta.TransferSyntaxUID = ExplicitVRLittleEndian
+        self._ds.is_little_endian = True
+        self._ds.is_implicit_VR = False
 
         return filename
 
+    def _set_image_jpeg2000_data(self, filename=None):
+        """ Set Image Data for JPEG2000 Images.
+
+        NOT WORKING: no runtime errors, but pixeldata is incorrect. Viewers don't visualize or crash. Maybe try changing the various arguments to im.save(output, format='JPEG2000')? Look at Pillow documentation.
+
+        Currently unused function. After various attempts, i concluded that for the current usecases, it would be easiest to re-encode the JPEG2000 in JPG.
+        """
+        filename = filename or self.input_image_filename
+        # self._set_image_raw_data(filename=filename)
+        with PIL.Image.open(filename) as im:
+            self._ds.Rows = im.height
+            self._ds.Columns = im.width
+            with io.BytesIO() as output:
+                im.save(output, format='JPEG2000')
+                self._ds.PixelData = encapsulate([output.getvalue()])  # needs to be an array
+
+        self._ds['PixelData'].is_undefined_length = True
+        
+        # Values as defined in Part 5 Sect 8.2.1
+        # https://dicom.nema.org/medical/dicom/current/output/chtml/part05/sect_8.2.html#sect_8.2.1
+        self._ds.PhotometricInterpretation = 'RGB'
+        self._ds.SamplesPerPixel = 3
+        self._ds.PlanarConfiguration = 0
+        self._ds.PixelRepresentation = 0
+        self._ds.BitsAllocated = 8
+        self._ds.BitsStored = 8
+        self._ds.HighBit = 7
+
+        self._ds.LossyImageCompressionMethod = 'ISO_15444_1'  # The JPEG-2000 Standard
+
+        self._ds.file_meta.TransferSyntaxUID = JPEGLosslessSV1
+        self._ds.is_little_endian = True
+        self._ds.is_implicit_VR = False
+
+        self.lossy_compression(False)
+        # self._ds.compress(RLELossless)
+        return filename
+
+    def _set_image_jpeg_data(self, filename=None):
+        """ Set Image Data for JPG Images.
+
+        If a lossy JPG image is obtained from the camera (non-ideal), then we should just store it as such. Storing it as raw is not reccommende because it would deceiving (unless one adds all the secondary capture tags), becuase the image would have been compressed in the first place, but then stored uncompressed, so data would be lost, without this being recorded anywhere. And takes up a lot more space.
+        
+        Some cameras, like the Nikon D5600 will actually save MPO images, which will not support the quality argument and throw a ValueError.
+
+        If the MPO image contains multiple frames, they are expanded in multiframe DICOM encapsulation, as described here: https://stackoverflow.com/questions/58518357/how-to-create-jpeg-compressed-dicom-dataset-using-pydicom Not sure there is a usecase for it. 
+        
+        Quality of 98
+
+        """
+        filename = filename or self.input_image_filename
+        with PIL.Image.open(filename) as im:
+            logging.info(f"Found format {im.format} for {filename} image")
+            self._ds.Rows = im.height
+            self._ds.Columns = im.width
+            with io.BytesIO() as output:
+                try:
+                    im.save(output, format='jpeg', quality='keep')
+                except ValueError:
+                    logging.warning(f"Cannot keep same {im.format} as original. Must re-encode with 98 quality. {im.width}x{im.height}")
+                    im.save(output, format='jpeg', quality=98)
+
+                self._ds.PixelData = encapsulate([output.getvalue()])  # needs to be an array
+
+        # self._ds['PixelData'].is_undefined_length = True
+        
+        # Values as defined in Part 5 Sect 8.2.1
+        # https://dicom.nema.org/medical/dicom/current/output/chtml/part05/sect_8.2.html#sect_8.2.1
+        self._ds.PhotometricInterpretation = 'RGB'
+        self._ds.SamplesPerPixel = 3
+        self._ds.PlanarConfiguration = 0
+        self._ds.PixelRepresentation = 0
+        self._ds.BitsAllocated = 8
+        self._ds.BitsStored = 8
+        self._ds.HighBit = 7
+
+        self._ds.LossyImageCompressionRatio = 10
+        self._ds.LossyImageCompressionMethod = 'ISO_10918_1'  # The JPEG Standard
+
+        self._ds.file_meta.TransferSyntaxUID = JPEGExtended12Bit
+        self._ds.is_little_endian = True
+        self._ds.is_implicit_VR = False
+
+        self.lossy_compression(True)
+        return filename
+
     def set_image(self, filename=None):
-        filename = self._set_image_data(filename=filename)
+        filename = filename or self.input_image_filename
+        with PIL.Image.open(filename) as img:
+            file_type = img.format
+        if file_type in ('JPEG','MPO','JPEG2000'):
+            self._set_image_jpeg_data(filename=filename)
+        else:
+            # DICOM only supports encapsulation for JPEG. Everything else needs to be decoded and re-encoded as raw.
+            logging.warning(f"Unsupported image type: {img.format}")
+            self._set_image_raw_data(filename=filename)

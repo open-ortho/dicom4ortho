@@ -562,6 +562,7 @@ class OrthodonticPhotograph(PhotographBase):
 
         output_image_filename: name of output image file
     """
+    _type = "" # Orthodontic View String, e.g. "IV03"
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -585,10 +586,9 @@ class OrthodonticPhotograph(PhotographBase):
                 "^".join(defaults.image_types[self.image_type]))
             # NBSP character OxA0 is not allowed in Image Comments. Replace with a
             # Space (0x20)
-            self._ds.ImageComments = ImageComments.replace('\xa0','\x20')
+            self._ds.ImageComments = ImageComments.replace('\xa0', '\x20')
 
-            self._set_dicom_attributes()# This should only got in the save()
-
+            self._set_dicom_attributes()  # This should only got in the save()
 
     def _set_dicom_attributes(self):
         for set_attr in self._type:
@@ -610,27 +610,83 @@ class OrthodonticPhotograph(PhotographBase):
                     self._ds.PrimaryAnatomicStructureSequence.append(
                         _get_sct_code_dataset(*ToothCodes.SCT_TOOTH_CODES[tooth]))
 
+    def is_extraoral(self) -> bool:
+        if self._type.startswith("EV"):
+            return True
+        else:
+            return False
+
+    def is_intraoral(self) -> bool:
+        if self._type.startswith("IV"):
+            return True
+        else:
+            return False
+
     def save(self, filename=None):
-        filename=filename or self.output_image_filename
+        filename = filename or self.output_image_filename
         self.set_image()
         self._set_dicom_attributes()
-        self._ds.save_as(filename=filename,write_like_original=False)
+        self._ds.save_as(filename=filename, write_like_original=False)
         logging.warning(f"File [{filename}] saved.")
 
 
 class OrthodonticSeries():
-    
+    """ Class representing an Orthodontic Photo session.
+
+    Examples of orthodontic series:
+
+    * A set of intra-oral photographs take on the same day for the same appointment.
+    * A set of extra-oral photographs take on the same day for the same appointment.
+
+    """
+    # SeriesInstanceUID
+    UID = None
+    StudyUID = None
+
+    Photos = []
+
+    def __init__(self, **kwargs) -> None:
+        """ New Orthodontic Series
+        
+        :uid: The Series DICOM UID. Defaults to generating a new one.
+        :description: The Series Description to add to all photos.
+        """
+        self.description = kwargs.get("description")
+        self.UID = kwargs.get("uid") or defaults.generate_dicom_uid()
+
+    def add(self, photo: OrthodonticPhotograph) -> None:
+        self.Photos.append(photo)
+
+    def save(self) -> None:
+        for photo in self.Photos:
+            if photo.series_description is None:
+                photo.series_description = self.description
+            photo.series_instance_uid(self.UID)
+            photo.study_instance_uid(self.StudyUID)
+            photo.save()
+
+
+class OrthodonticStudy():
+    """ Class representing an Orthodontic Photo visit.
+
+    Examples of orthodontic study:
+
+    * As part of the same appointment/visit/encounter, the staff takes intraoral and extraoral photographs of the patient. While the intraoral and the extra oral are in separate series, they are both part of the same study.
+    * During the same day an X-Ray is taken, that would go in a separate Study.
+
+    """
     # SeriesInstanceUID
     UID = None
 
-    Photos = []
+    Series = []
 
     def __init__(self, uid=defaults.generate_dicom_uid()) -> None:
         self.UID = uid
 
-    def add(self, photo:OrthodonticPhotograph) -> None:
-        photo.series_instance_uid(self.UID)
-        self.Photos.add(photo)
+    def add(self, serie: OrthodonticSeries) -> None:
+        serie.UID = self.UID
+        self.Series.append(serie)
 
     def save(self) -> None:
-        pass
+        for serie in self.Series:
+            serie.save()

@@ -41,11 +41,15 @@ ADD_MAX_ALLOWED_TEETH = 'ALL'
 # This is populated by controller.SimpleController._load_image_types()
 image_types = {}
 
-def generate_dicom_uid():
+def generate_dicom_uid(hash=None):
     """
     A function to generate DICOM UIDs for new objects.
+
+    If hash is not None, it will use that string to translate it to a DICOM UID. Useful if you want to produce the same UID for the same input file.
+
+    hash has to be a 16 byte long bytes object.
     """
-    new_uuid = uuid.uuid4().bytes
+    new_uuid = hash or uuid.uuid4().bytes
     dicom_uid = '2.25'
     for i in range(len(new_uuid)-2):
         dicom_uid += '.' + str(new_uuid[i])

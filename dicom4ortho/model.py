@@ -26,7 +26,7 @@ class DicomBase(object):
     """
 
     def __init__(self, **kwargs):
-        self.sop_instance_uid = defaults.generate_dicom_uid()
+        self.sop_instance_uid = kwargs.get("sop_instance_uid") or defaults.generate_dicom_uid()
         self.time_string = datetime.datetime.now().strftime(defaults.TIME_FORMAT)
         self.date_string = datetime.datetime.now().strftime(defaults.DATE_FORMAT)
         self.input_image_filename = kwargs.get('input_image_filename')

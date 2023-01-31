@@ -672,6 +672,9 @@ class OrthodonticSeries():
         self.UID = kwargs.get("uid") or defaults.generate_dicom_uid()
         self.Photos = []
 
+    def __len__(self):
+        return len(self.Photos)
+
     def add(self, photo: OrthodonticPhotograph) -> None:
         self.Photos.append(photo)
 
@@ -700,6 +703,9 @@ class OrthodonticStudy():
     def __init__(self, uid=defaults.generate_dicom_uid()) -> None:
         self.UID = uid
         self.Series = []
+
+    def __len__(self):
+        return len(self.Series)
 
     def add(self, serie: OrthodonticSeries) -> None:
         serie.StudyUID = self.UID

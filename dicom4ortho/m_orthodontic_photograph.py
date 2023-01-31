@@ -591,9 +591,12 @@ class OrthodonticPhotograph(PhotographBase):
                 self.add_teeth(kwargs.get('teeth'))
             
             # Make a nice comment from keyword and description
-            ImageComments = "{}^{}".format(
-                self.type_keyword,
-                "^".join(defaults.image_types.get(self.type_keyword)))
+            type_description = defaults.image_types.get(self.type_keyword)
+            if type_description is not None:
+                type_description = "^".join(type_description)
+            else:
+                type_description = ""
+            ImageComments = f"{self.type_keyword}^{type_description}"
 
             # NBSP character OxA0 is not allowed in Image Comments. Replace with a
             # Space (0x20)

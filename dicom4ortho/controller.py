@@ -7,7 +7,6 @@ import csv
 import datetime
 import logging
 import pathlib
-import pkg_resources
 import dicom4ortho.model as model
 
 # Just importing will do to execute the code in the module. Pylint will

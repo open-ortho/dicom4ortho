@@ -6,12 +6,28 @@ Adds SNOMED CT codes in DICOM object for Orthodontic Views.
 '''
 
 import logging
+import csv
+import pkg_resources
 from pydicom.sequence import Sequence
 from pydicom.dataset import Dataset
 
 from dicom4ortho.model import PhotographBase
 import dicom4ortho.m_tooth_codes as ToothCodes
 from dicom4ortho import defaults
+
+def _load_image_types():
+    ''' Loads image_types.csv into a dictionary in defaults.image_types
+
+    This is needed to save the full text of the image type in the Image Comments DICOM tag.
+    '''
+    image_types_filename = pkg_resources.resource_filename(
+        'dicom4ortho.resources', 'image_types.csv')
+    logging.debug("Image type filenames is: {}".format(image_types_filename))
+    with open(image_types_filename) as image_types_csvfile:
+        defaults.image_types = {}
+        reader = csv.reader(image_types_csvfile)
+        for row in reader:
+            defaults.image_types[row[0]] = row[1:]
 
 
 def _EO(dataset):
@@ -562,44 +578,42 @@ class OrthodonticPhotograph(PhotographBase):
 
         output_image_filename: name of output image file
     """
-    _type = "" # Orthodontic View String, e.g. "IV03"
+    type_keyword = "" # Orthodontic View String, e.g. "IV03"
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+        _load_image_types()
         if kwargs.get('image_type') is not None:
-            if callable(kwargs.get('image_type')):
-                # If a custom function was passed, then use it.
-                self._type = kwargs('image_type')
-            else:
-                # Otherwise we shall look up the tags to add based on the function
-                # defined in OrthodontiPhotographTypes
-                # Allow for both dash separated and not separated naming
-                self.image_type = kwargs.get('image_type').replace('-', '')
-
-                # Get the array of functions to set this required type.
-                self._type = (IMAGE_TYPES[self.image_type])
+            # Allow for both dash separated and not separated naming
+            self.type_keyword = kwargs.get('image_type').replace('-', '')
 
             if "teeth" in kwargs:
                 self.add_teeth(kwargs.get('teeth'))
+            
+            # Make a nice comment from keyword and description
             ImageComments = "{}^{}".format(
-                self.image_type,
-                "^".join(defaults.image_types[self.image_type]))
+                self.type_keyword,
+                "^".join(defaults.image_types.get(self.type_keyword)))
+
             # NBSP character OxA0 is not allowed in Image Comments. Replace with a
             # Space (0x20)
             self._ds.ImageComments = ImageComments.replace('\xa0', '\x20')
 
-            self._set_dicom_attributes()  # This should only got in the save()
+            # self._set_dicom_attributes()  # This should only got in the save()
 
     def _set_dicom_attributes(self):
-        for set_attr in self._type:
-            logging.debug('Setting DICOM attributes for {}', self._type)
-            set_attr(self._ds)
+        # Get the array of functions to set this required type.
+        logging.debug(f'Setting DICOM attributes for {self.type_keyword}')
+        attributes = (IMAGE_TYPES.get(self.type_keyword))
+        if attributes is not None:
+            for set_attr in (IMAGE_TYPES.get(self.type_keyword)):
+                set_attr(self._ds)
 
     def add_teeth(self, teeth):
         logging.debug("Adding teeth")
         if teeth == defaults.ADD_MAX_ALLOWED_TEETH:
             logging.debug("Setting all possibly allowed teeth.")
-            teeth = ALLOWED_TEETH[self.image_type]
+            teeth = ALLOWED_TEETH[self.type_keyword]
 
         if len(teeth) > 0:
             if not hasattr(self._ds, 'PrimaryAnatomicStructureSequence'):
@@ -611,13 +625,13 @@ class OrthodonticPhotograph(PhotographBase):
                         _get_sct_code_dataset(*ToothCodes.SCT_TOOTH_CODES[tooth]))
 
     def is_extraoral(self) -> bool:
-        if self._type.startswith("EV"):
+        if self.type_keyword.startswith("EV"):
             return True
         else:
             return False
 
     def is_intraoral(self) -> bool:
-        if self._type.startswith("IV"):
+        if self.type_keyword.startswith("IV"):
             return True
         else:
             return False
@@ -659,10 +673,9 @@ class OrthodonticSeries():
 
     def save(self) -> None:
         for photo in self.Photos:
-            if photo.series_description is None:
-                photo.series_description = self.description
-            photo.series_instance_uid(self.UID)
-            photo.study_instance_uid(self.StudyUID)
+            photo.series_description = self.description
+            photo.series_instance_uid = self.UID
+            photo.study_instance_uid = self.StudyUID
             photo.save()
 
 
@@ -684,7 +697,7 @@ class OrthodonticStudy():
         self.UID = uid
 
     def add(self, serie: OrthodonticSeries) -> None:
-        serie.UID = self.UID
+        serie.StudyUID = self.UID
         self.Series.append(serie)
 
     def save(self) -> None:

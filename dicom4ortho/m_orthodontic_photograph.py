@@ -700,8 +700,13 @@ class OrthodonticStudy():
     UID = None
     Series = None
 
-    def __init__(self, uid=defaults.generate_dicom_uid()) -> None:
-        self.UID = uid
+    def __init__(self, **kwargs) -> None:
+        """ New Orthodontic Study
+        
+        :uid: The Series DICOM UID. Defaults to generating a new one.
+        :description: The Study Description to add to all photos.
+        """
+        self.UID = kwargs.get("uid") or defaults.generate_dicom_uid()
         self.Series = []
 
     def __len__(self):

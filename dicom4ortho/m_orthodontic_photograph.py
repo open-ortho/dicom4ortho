@@ -660,7 +660,7 @@ class OrthodonticSeries():
     UID = None
     StudyUID = None
 
-    Photos = []
+    Photos = None
 
     def __init__(self, **kwargs) -> None:
         """ New Orthodontic Series
@@ -670,11 +670,13 @@ class OrthodonticSeries():
         """
         self.description = kwargs.get("description")
         self.UID = kwargs.get("uid") or defaults.generate_dicom_uid()
+        self.Photos = []
 
     def add(self, photo: OrthodonticPhotograph) -> None:
         self.Photos.append(photo)
 
     def save(self) -> None:
+        logging.info(f"Requested to save {len(self.Photos)} Photos within Series {self.UID}")
         for photo in self.Photos:
             photo.series_description = self.description
             photo.series_instance_uid = self.UID
@@ -693,16 +695,17 @@ class OrthodonticStudy():
     """
     # SeriesInstanceUID
     UID = None
-
-    Series = []
+    Series = None
 
     def __init__(self, uid=defaults.generate_dicom_uid()) -> None:
         self.UID = uid
+        self.Series = []
 
     def add(self, serie: OrthodonticSeries) -> None:
         serie.StudyUID = self.UID
         self.Series.append(serie)
 
     def save(self) -> None:
+        logging.info(f"Requested to save {len(self.Series)} Series within Study {self.UID}")
         for serie in self.Series:
             serie.save()

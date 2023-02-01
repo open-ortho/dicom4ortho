@@ -4,13 +4,12 @@ The model.
 import datetime
 import logging
 import io
-import imghdr
 
 from pydicom.sequence import Sequence
-from pydicom.dataset import Dataset, FileDataset, DataElement, FileMetaDataset
-from pydicom.datadict import tag_for_keyword, dictionary_VR
+from pydicom.dataset import FileDataset, DataElement, FileMetaDataset
+from pydicom.datadict import tag_for_keyword 
 from pydicom.encaps import encapsulate
-from pydicom.uid import JPEGBaseline8Bit, JPEGExtended12Bit, ImplicitVRLittleEndian, ExplicitVRBigEndian, ExplicitVRLittleEndian, JPEGLosslessSV1, RLELossless, JPEGLosslessP14
+from pydicom.uid import JPEGBaseline8Bit, JPEGExtended12Bit, ImplicitVRLittleEndian, ExplicitVRBigEndian, ExplicitVRLittleEndian, JPEGLosslessSV1, RLELossless, JPEGLosslessP14, JPEG2000
 from pydicom import dcmread as pydicom_dcmread
 import numpy
 
@@ -586,18 +585,15 @@ class PhotographBase(DicomBase):
     def _set_image_jpeg2000_data(self, filename=None):
         """ Set Image Data for JPEG2000 Images.
 
-        NOT WORKING: no runtime errors, but pixeldata is incorrect. Viewers don't visualize or crash. Maybe try changing the various arguments to im.save(output, format='JPEG2000')? Look at Pillow documentation.
-
-        Currently unused function. After various attempts, i concluded that for the current usecases, it would be easiest to re-encode the JPEG2000 in JPG.
+        Encapsulates a JPEG2000 as it is, without touching anything.
         """
         filename = filename or self.input_image_filename
         # self._set_image_raw_data(filename=filename)
         with PIL.Image.open(filename) as im:
             self._ds.Rows = im.height
             self._ds.Columns = im.width
-            with io.BytesIO() as output:
-                im.save(output, format='JPEG2000')
-                self._ds.PixelData = encapsulate([output.getvalue()])  # needs to be an array
+            with open(file=filename,mode="rb") as image_file:
+                self._ds.PixelData = encapsulate([image_file.read()])  # needs to be an array
 
         self._ds['PixelData'].is_undefined_length = True
         
@@ -613,7 +609,7 @@ class PhotographBase(DicomBase):
 
         self._ds.LossyImageCompressionMethod = 'ISO_15444_1'  # The JPEG-2000 Standard
 
-        self._ds.file_meta.TransferSyntaxUID = JPEGLosslessSV1
+        self._ds.file_meta.TransferSyntaxUID = JPEG2000
         self._ds.is_little_endian = True
         self._ds.is_implicit_VR = False
 
@@ -621,7 +617,7 @@ class PhotographBase(DicomBase):
         # self._ds.compress(RLELossless)
         return filename
 
-    def _set_image_jpeg_data(self, filename=None):
+    def _set_image_jpeg_data(self, filename=None, recompress_quality=None):
         """ Set Image Data for JPG Images.
 
         If a lossy JPG image is obtained from the camera (non-ideal), then we should just store it as such. Storing it as raw is not reccommende because it would deceiving (unless one adds all the secondary capture tags), becuase the image would have been compressed in the first place, but then stored uncompressed, so data would be lost, without this being recorded anywhere. And takes up a lot more space.
@@ -638,14 +634,14 @@ class PhotographBase(DicomBase):
             logging.info(f"Found format {im.format} for {filename} image")
             self._ds.Rows = im.height
             self._ds.Columns = im.width
-            with io.BytesIO() as output:
-                try:
-                    im.save(output, format='jpeg', quality='keep')
-                except ValueError:
-                    logging.warning(f"Cannot keep same {im.format} as original. Must re-encode with 98 quality. {im.width}x{im.height}")
-                    im.save(output, format='jpeg', quality=98)
 
-                self._ds.PixelData = encapsulate([output.getvalue()])  # needs to be an array
+            if recompress_quality is None:
+                with open(file=filename,mode="rb") as image_file:
+                    self._ds.PixelData = encapsulate([image_file.read()])  # needs to be an array
+            else:
+                with io.BytesIO() as output:
+                    im.save(output, format='jpeg', quality=recompress_quality)
+                    self._ds.PixelData = encapsulate([output.getvalue()])  # needs to be an array
 
         # self._ds['PixelData'].is_undefined_length = True
         
@@ -673,8 +669,10 @@ class PhotographBase(DicomBase):
         filename = filename or self.input_image_filename
         with PIL.Image.open(filename) as img:
             file_type = img.format
-        if file_type in ('JPEG','MPO','JPEG2000'):
+        if file_type in ('JPEG','MPO'):
             self._set_image_jpeg_data(filename=filename)
+        elif file_type in ('JPEG2000'):
+            self._set_image_jpeg2000_data(filename=filename)
         else:
             # DICOM only supports encapsulation for JPEG. Everything else needs to be decoded and re-encoded as raw.
             logging.warning(f"Unsupported image type: {img.format}")

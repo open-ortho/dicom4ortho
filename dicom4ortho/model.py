@@ -154,6 +154,22 @@ class DicomBase(object):
         self._set_name("OperatorsName", lastname, 1)
 
     @ property
+    def institution_address(self):
+        return self._ds.InstitutionAddress
+
+    @ institution_address.setter
+    def institution_address(self, address):
+        self._ds.InstitutionAddress = address
+
+    @ property
+    def institution_name(self):
+        return self._ds.InstitutionName
+
+    @ institution_name.setter
+    def institution_name(self, name):
+        self._ds.InstitutionName = name
+
+    @ property
     def study_description(self):
         return self._ds.StudyDescription
 
@@ -195,6 +211,14 @@ class DicomBase(object):
         self._ds.PatientID = str(patient_id)
 
     @ property
+    def reason_for_visit(self):
+        return self._ds.ReasonForVisit
+
+    @ reason_for_visit.setter
+    def reason_for_visit(self, reason):
+        self._ds.ReasonForVisit = reason
+
+    @ property
     def patient_sex(self):
         return self._ds.PatientSex
 
@@ -211,6 +235,24 @@ class DicomBase(object):
         self._ds.PatientBirthDate = patient_birthdate.strftime(
             defaults.DATE_FORMAT)
 
+
+    @ property
+    def performing_physician_firstname(self):
+        return str(self._ds.PerformingPhysicianName).split('^')[1]
+
+    @ performing_physician_firstname.setter
+    def performing_physician_firstname(self, firstname):
+        self._set_name("PerformingPhysicianName", firstname, 0)
+
+    @ property
+    def performing_physician_lastname(self):
+        return str(self._ds.PerformingPhysicianName).split('^')[0]
+
+    @ performing_physician_lastname.setter
+    def performing_physician_lastname(self, lastname):
+        self._set_name("PerformingPhysicianName", lastname, 1)
+
+ 
     @ property
     def dental_provider_firstname(self):
         return str(self._ds.ReferringPhysicianName).split('^')[1]
@@ -226,6 +268,7 @@ class DicomBase(object):
     @ dental_provider_lastname.setter
     def dental_provider_lastname(self, lastname):
         self._set_name("ReferringPhysicianName", lastname, 1)
+
 
     @ property
     def timezone(self) -> datetime.timezone:
@@ -597,8 +640,8 @@ class PhotographBase(DicomBase):
 
         self._ds['PixelData'].is_undefined_length = True
         
-        # Values as defined in Part 5 Sect 8.2.1
-        # https://dicom.nema.org/medical/dicom/current/output/chtml/part05/sect_8.2.html#sect_8.2.1
+        # Values as defined in Part 5 Sect 8.2.4
+        # https://dicom.nema.org/medical/dicom/current/output/chtml/part05/sect_8.2.4.html
         self._ds.PhotometricInterpretation = 'RGB'
         self._ds.SamplesPerPixel = 3
         self._ds.PlanarConfiguration = 0

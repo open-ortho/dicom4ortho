@@ -14,6 +14,7 @@ from pydicom.dataset import Dataset
 from dicom4ortho.model import PhotographBase
 import dicom4ortho.m_tooth_codes as ToothCodes
 from dicom4ortho import defaults
+from dicom4ortho.m_ada1107 import ADA1107
 
 def _load_image_types():
     ''' Loads image_types.csv into a dictionary in defaults.image_types
@@ -579,38 +580,36 @@ class OrthodonticPhotograph(PhotographBase):
         output_image_filename: name of output image file
     """
     type_keyword = "" # Orthodontic View String, e.g. "IV03"
+    ada1107_view = None # Row in ADA-1107 views.csv for this particular view
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        _load_image_types()
+        self.ada1107 = ADA1107()
         if kwargs.get('image_type') is not None:
             # Allow for both dash separated and not separated naming
             self.type_keyword = kwargs.get('image_type').replace('-', '')
+            self.ada1107_view = self.ada1107.VIEWS.get(self.type_keyword)
 
             if "teeth" in kwargs:
                 self.add_teeth(kwargs.get('teeth'))
             
-            # Make a nice comment from keyword and description
-            type_description = defaults.image_types.get(self.type_keyword)
-            if type_description is not None:
-                type_description = "^".join(type_description)
-            else:
-                type_description = ""
-            ImageComments = f"{self.type_keyword}^{type_description}"
 
-            # NBSP character OxA0 is not allowed in Image Comments. Replace with a
-            # Space (0x20)
-            self._ds.ImageComments = ImageComments.replace('\xa0', '\x20')
-
-            # self._set_dicom_attributes()  # This should only got in the save()
+            # self._set_dicom_attributes()  # This should go in save()
 
     def _set_dicom_attributes(self):
         # Get the array of functions to set this required type.
         logging.debug(f'Setting DICOM attributes for {self.type_keyword}')
-        attributes = (IMAGE_TYPES.get(self.type_keyword))
-        if attributes is not None:
-            for set_attr in (IMAGE_TYPES.get(self.type_keyword)):
-                set_attr(self._ds)
+
+        # Make a nice comment from keyword and description
+        ImageComments = f"{self.type_keyword}^{self.ada1107_view.get('ImageComments')}"
+
+        # NBSP character OxA0 is not allowed in Image Comments. Replace with a
+        # Space (0x20)
+        self._ds.ImageComments = ImageComments.replace('\xa0', '\x20')
+        self._ds.SeriesDescription = self.ada1107_view.get('SeriesDescription')
+
+        self._ds.PatientOrientation = self.ada1107.CODES.get(self.ada1107_view.get('PatientOrientation')).get('code')
+        self._ds.ImageLaterality = self.ada1107.CODES.get(self.ada1107_view.get('ImageLaterality')).get('code')
 
     def add_teeth(self, teeth):
         logging.debug("Adding teeth")

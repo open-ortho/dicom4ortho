@@ -15,8 +15,6 @@ class Test(unittest.TestCase):
 
     def test_load_views(self):
         v = ADA1107()
-        v.load_views()
-        v.load_codes()
         self.assertEquals(len(v.VIEWS), 78)
         self.assertGreater(len(v.VIEWS["VERSION"]),0)
         self.assertGreater(len(v.CODES["VERSION"]),0)

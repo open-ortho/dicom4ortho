@@ -12,9 +12,10 @@ class ADA1107(object):
     CODES = {}
     VIEWS = {}
     def __init__(self) -> None:
-        pass
+        self._load_views()
+        self._load_codes()
 
-    def load_views(self):
+    def _load_views(self):
         # Override official location, if not yet published, for dev purposes
         URL_ADA1107_VIEWS = "file:///Users/afm/git/open-ortho/ada-1107/source/tables/views.csv"
         with urllib.request.urlopen(URL_ADA1107_VIEWS) as response:
@@ -27,7 +28,7 @@ class ADA1107(object):
                 else:
                     self.VIEWS[key] = row
 
-    def load_codes(self):
+    def _load_codes(self):
         # Override official location, if not yet published, for dev purposes
         URL_ADA1107_CODES = "file:///Users/afm/git/open-ortho/ada-1107/source/tables/codes.csv"
         with urllib.request.urlopen(URL_ADA1107_CODES) as response:
@@ -39,5 +40,3 @@ class ADA1107(object):
                     self.CODES["VERSION"] = row["code"]
                 else:
                     self.CODES[key] = row
-
-            # print(self.VIEWS)

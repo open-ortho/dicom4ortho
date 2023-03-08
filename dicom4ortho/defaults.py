@@ -26,6 +26,10 @@ DATE_FORMAT = '%Y%m%d'
 TIME_FORMAT = '%H%M%S.%f'
 DICOM_PREAMBLE = b'\0' * 128
 
+URL_ADA1107_BASE = 'https://raw.githubusercontent.com/open-ortho/ada-1107/feature/PANIO-250_ACM_redo'
+URL_ADA1107_VIEWS = f'{URL_ADA1107_BASE}/source/tables/views.csv?token=GHSAT0AAAAAAB7YDQU54EKX4FZGGGL6TVIYZAIWGFQ'
+URL_ADA1107_CODES = f'{URL_ADA1107_BASE}/source/tables/codes.csv'
+
 # This is a unique ID generated for this specific software only.
 #  * Random generation using generate_dicom_uid() below
 #  * Append Version of software to distinguish between different releases

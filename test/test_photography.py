@@ -30,9 +30,9 @@ def make_photo_metadata():
         "patient_sex": "M",
         "dental_provider_firstname": "Conrad",
         "dental_provider_lastname": "Murray",
-        "study_instance_uid" : generate_dicom_uid(),
-        "series_instance_uid" : generate_dicom_uid(),
-        "series_description" : "UnitTest make_photo_metadata"
+        "study_instance_uid": generate_dicom_uid(),
+        "series_instance_uid": generate_dicom_uid(),
+        "series_description": "UnitTest make_photo_metadata"
     }
     return metadata
 
@@ -44,7 +44,7 @@ def photo_generator(image_type: str, filename) -> OrthodonticPhotograph:
     o.patient_firstname = "Michael"
     o.patient_lastname = "Jackson"
     o.patient_id = "X1"
-    o.patient_birthdate = datetime(1958,8,29).date()
+    o.patient_birthdate = datetime(1958, 8, 29).date()
     o.patient_sex = "M"
     o.dental_provider_firstname = "Conrad"
     o.dental_provider_lastname = "Murray"
@@ -148,7 +148,7 @@ class PhotoTests(unittest.TestCase):
         self.assertEqual(o.operator_firstname, "Toni")
         self.assertEqual(o.operator_lastname, "Magni")
 
-    @unittest.skip ("I don't think NEF is read properly by Pillow")
+    @unittest.skip("I don't think NEF is read properly by Pillow")
     def testNEF(self):
         metadata = make_photo_metadata()
         metadata['input_image_filename'] = Path(
@@ -164,7 +164,6 @@ class PhotoTests(unittest.TestCase):
         metadata['image_type'] = "IV07"
         c = SimpleController()
         c.convert_image_to_dicom4orthograph(metadata=metadata)
-        
 
         metadata = make_photo_metadata()
         metadata['input_image_filename'] = Path(
@@ -172,7 +171,6 @@ class PhotoTests(unittest.TestCase):
         metadata['image_type'] = "IV07"
         c = SimpleController()
         c.convert_image_to_dicom4orthograph(metadata=metadata)
-        
 
         metadata = make_photo_metadata()
         metadata['input_image_filename'] = Path(
@@ -181,18 +179,36 @@ class PhotoTests(unittest.TestCase):
         c = SimpleController()
         c.convert_image_to_dicom4orthograph(metadata=metadata)
 
+    @unittest.skip("Just a tool, not a test")
+    def testEXIF(self):
+        filename = Path(
+            # ".") / "test" / "resources" / "sample_topsOrtho.jp2"
+            ".") / "test" / "resources" / "sample_NikonD90.JPG"
+        with PIL.Image.open(filename) as img:
+            exif_ifd = img.getexif().getifd
+            exif_raw = img.getexif().items()
+            for tag in exif_raw:
+                print(f"{tag}")
+            exif = {
+                PIL.ExifTags.TAGS[k]: v
+                for k, v in exif_raw
+                if k in PIL.ExifTags.TAGS
+            }
+        for tag in exif.items():
+            print(f"{tag}")
 
-@unittest.skip ("Just a tool, not a test")
+
+@unittest.skip("Just a tool, not a test")
 class MPO(unittest.TestCase):
     def testsplitMPO(self):
         filename = Path(
             ".") / "test" / "resources" / "DSC_0001.JPG"
         with PIL.Image.open(filename) as img:
-            num_frames = getattr(img, "n_frames",1)
+            num_frames = getattr(img, "n_frames", 1)
             logging.info(f"Found {num_frames} frames in {img.format} image")
             for i in range(num_frames):
                 outputfilename = Path(f"{filename.stem}_{i}{filename.suffix}")
                 img.seek(i)
                 img.save(outputfilename, format='jpeg')
-        
+
         self.assertTrue(outputfilename.exists())

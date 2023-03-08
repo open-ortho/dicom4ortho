@@ -5,7 +5,6 @@ import os
 import os.path
 import csv
 import datetime
-import logging
 import pathlib
 import dicom4ortho.model as model
 

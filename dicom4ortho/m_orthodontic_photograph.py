@@ -592,7 +592,7 @@ class OrthodonticPhotograph(PhotographBase):
         """
         ada1107_code = self.ada1107.CODES.get(ada1107_code_keyword)
         code_dataset = Dataset()
-        code_dataset.CodeMeaning = ada1107_code.get('meaning')
+        code_dataset.CodeMeaning = ada1107_code.get('meaning')[:64] # LO only allows 64 characters
         code_dataset.CodeValue = ada1107_code.get('code')
         code_dataset.CodingSchemeDesignator = ada1107_code.get('codeset')
         return code_dataset
@@ -613,14 +613,14 @@ class OrthodonticPhotograph(PhotographBase):
         self._ds.ImageComments = ImageComments.replace('\xa0', '\x20')
         self._ds.SeriesDescription = self.ada1107_view.get('SeriesDescription')
 
-        self._ds.PatientOrientation = self.ada1107.CODES.get(self.ada1107_view.get('PatientOrientation')).get('code')
+        self._ds.PatientOrientation = self.ada1107.CODES.get(self.ada1107_view.get('PatientOrientation')).get('code').split('^')
         self._ds.ImageLaterality = self.ada1107.CODES.get(self.ada1107_view.get('ImageLaterality')).get('code')
 
         self.add_device()
         self.add_anatomic_region()
         self.add_primary_anatomic_structure()
         self.add_acquisition_context()
-        self.add_teeth()
+        # self.add_teeth()
 
     def add_acquisition_context(self):
         AcquisitionContextSequence = Sequence([])
@@ -628,6 +628,7 @@ class OrthodonticPhotograph(PhotographBase):
         for index, key in enumerate(self.ada1107_view):
             if key.startswith("AcquisitionContextSequence"):
                 acs_ds = Dataset() 
+                acs_ds.ValueType = 'CODE'
                 concept_name = key.split("^")[1]
                 concept_name_code_sequence = self._get_code_sequence(concept_name)
                 acs_ds.ConceptNameCodeSequence = concept_name_code_sequence

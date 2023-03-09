@@ -161,21 +161,21 @@ class PhotoTests(unittest.TestCase):
         metadata = make_photo_metadata()
         metadata['input_image_filename'] = Path(
             ".") / "test" / "resources" / "sample_NikonD90.JPG"
-        metadata['image_type'] = "IV07"
+        metadata['image_type'] = "IV06"
         c = SimpleController()
         c.convert_image_to_dicom4orthograph(metadata=metadata)
 
         metadata = make_photo_metadata()
         metadata['input_image_filename'] = Path(
             ".") / "test" / "resources" / "sample_NikonD5600.JPG"
-        metadata['image_type'] = "IV07"
+        metadata['image_type'] = "IV06"
         c = SimpleController()
         c.convert_image_to_dicom4orthograph(metadata=metadata)
 
         metadata = make_photo_metadata()
         metadata['input_image_filename'] = Path(
             ".") / "test" / "resources" / "sample_topsOrtho.jp2"
-        metadata['image_type'] = "IV07"
+        metadata['image_type'] = "IV06"
         c = SimpleController()
         c.convert_image_to_dicom4orthograph(metadata=metadata)
 

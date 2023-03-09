@@ -637,7 +637,34 @@ class OrthodonticPhotograph(PhotographBase):
         for arm in self.ada1107_view.get('AnatomicRegionModifierSequence').split("^"):
             arm_code = self.ada1107.CODES.get(arm)
             AnatomicRegionModifierSequence.append(_get_code_dataset(arm_code))
-        self._ds.AnatomicRegionSequence[0].AnatomicRegionModifierSequence = AnatomicRegionModifierSequence
+        # The AnatomicRegionModifierSequence must be part of AnatomicRegionSequence
+        if (len(AnatomicRegionModifierSequence) > 0): 
+            self._ds.AnatomicRegionSequence[0].AnatomicRegionModifierSequence = AnatomicRegionModifierSequence
+
+        # PrimaryAnatomicStructureSequence allows for multiple values, but currently only one is supported by this code.
+        pas = self.ada1107_view.get('PrimaryAnatomicStructureSequence')
+        if pas != "na" and len(pas) > 0:
+            self._ds.PrimaryAnatomicStructureSequence = _get_code_sequence(self.ada1107.CODES.get(pas))
+        
+            # More than one AnatomicRegionModifierSequence are allowed
+            PrimaryAnatomicStructureModifierSequence = Sequence([])
+            for pasm in self.ada1107_view.get('PrimaryAnatomicStructureModifierSequence').split("^"):
+                if pasm != "na" and len(pasm) > 0:
+                    pasm_code = self.ada1107.CODES.get(pasm)
+                    PrimaryAnatomicStructureModifierSequence.append(_get_code_dataset(pasm_code))
+            # The AnatomicRegionModifierSequence must be part of AnatomicRegionSequence
+            if (len(PrimaryAnatomicStructureModifierSequence) > 0):
+                self._ds.PrimaryAnatomicStructureSequence[0].PrimaryAnatomicStructureModifierSequence = PrimaryAnatomicStructureModifierSequence
+
+        DeviceSequence = Sequence([])
+        for device in self.ada1107_view.get('DeviceSequence').split("^"):
+            if device != "na" and len(device) > 0:
+                device_code = self.ada1107.CODES.get(device)
+                DeviceSequence.append(_get_code_dataset(device_code))
+        # The AnatomicRegionModifierSequence must be part of AnatomicRegionSequence
+        if (len(DeviceSequence) > 0):
+            self._ds.DeviceSequence = DeviceSequence
+
 
     def add_teeth(self, teeth):
         logging.debug("Adding teeth")

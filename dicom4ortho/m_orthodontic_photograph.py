@@ -31,469 +31,440 @@ def _load_image_types():
             defaults.image_types[row[0]] = row[1:]
 
 
-def _EO(dataset):
-    # Here we assume all extraoral images to be unpaired. Pairing should be
-    # set at a higher level: only the operator knows if they will be
-    # collecting a pair or not.
-    dataset.ImageLaterality = 'U'
+# def _EO(dataset):
+#     # Here we assume all extraoral images to be unpaired. Pairing should be
+#     # set at a higher level: only the operator knows if they will be
+#     # collecting a pair or not.
+#     dataset.ImageLaterality = 'U'
 
 
-def _IO(dataset):
-    # Here we assume all extraoral images to be unpaired. Pairing should be
-    # set at a higher level: only the operator knows if they will be
-    # collecting a pair or not.
-    dataset.ImageLaterality = 'U'
+# def _IO(dataset):
+#     # Here we assume all extraoral images to be unpaired. Pairing should be
+#     # set at a higher level: only the operator knows if they will be
+#     # collecting a pair or not.
+#     dataset.ImageLaterality = 'U'
 
 
-def _RP(dataset):
-    """ Right Profile
-    """
-    _face(dataset)
-    dataset.AcquisitionView = _get_sct_code_sequence(
-        '30730003', 'Sagittal (qualifier value)')
-    dataset.PatientOrientation = ['A', 'F']  # Anterior, Foot
+# def _RP(dataset):
+#     """ Right Profile
+#     """
+#     _face(dataset)
+#     dataset.AcquisitionView = _get_sct_code_sequence(
+#         '30730003', 'Sagittal (qualifier value)')
+#     dataset.PatientOrientation = ['A', 'F']  # Anterior, Foot
 
 
-def _LP(dataset):
-    """ Left Profile
-    """
-    _face(dataset)
-    dataset.AcquisitionView = _get_sct_code_sequence(
-        '30730003', 'Sagittal (qualifier value)')
-    dataset.PatientOrientation = ['P', 'F']  # Anterior, Foot
+# def _LP(dataset):
+#     """ Left Profile
+#     """
+#     _face(dataset)
+#     dataset.AcquisitionView = _get_sct_code_sequence(
+#         '30730003', 'Sagittal (qualifier value)')
+#     dataset.PatientOrientation = ['P', 'F']  # Anterior, Foot
 
 
-def _FF(dataset):
-    """" Full Face
-    """
-    _face(dataset)
-    dataset.PatientOrientation = ['R', 'F']  # Right, Foot
+# def _FF(dataset):
+#     """" Full Face
+#     """
+#     _face(dataset)
+#     dataset.PatientOrientation = ['R', 'F']  # Right, Foot
 
 
-def _FS(dataset):
-    """ Full Smile
-    """
-    _face(dataset)
-    dataset.FunctionalCondition = _get_sct_code_sequence(
-        '225583004', 'Smiles (finding)')
-    dataset.PatientOrientation = ['R', 'F']  # Right, Foot
+# def _FS(dataset):
+#     """ Full Smile
+#     """
+#     _face(dataset)
+#     dataset.FunctionalCondition = _get_sct_code_sequence(
+#         '225583004', 'Smiles (finding)')
+#     dataset.PatientOrientation = ['R', 'F']  # Right, Foot
 
 
-def _LC(dataset):
-    """ Lips Closed
-    """
-    dataset.FunctionalCondition = _get_sct_code_sequence(
-        '787607005', 'Lips closed')
+# def _LC(dataset):
+#     """ Lips Closed
+#     """
+#     dataset.FunctionalCondition = _get_sct_code_sequence(
+#         '787607005', 'Lips closed')
 
 
-def _LR(dataset):
-    """ Lips Relaxed
-    """
-    dataset.FunctionalCondition = _get_sct_code_sequence(
-        '745165', 'Lips relaxed')
+# def _LR(dataset):
+#     """ Lips Relaxed
+#     """
+#     dataset.FunctionalCondition = _get_sct_code_sequence(
+#         '745165', 'Lips relaxed')
 
 
-def _CO(dataset):
-    dataset.OcclusalRelationship = _get_sct_code_sequence('110320000',
-                                                          'Centric occlusion (observable entity)')
+# def _CO(dataset):
+#     dataset.OcclusalRelationship = _get_sct_code_sequence('110320000',
+#                                                           'Centric occlusion (observable entity)')
 
 
-def _CR(dataset):
-    dataset.OcclusalRelationship = _get_sct_code_sequence('736783005',
-                                                          'Centric relation (observable entity)')
+# def _CR(dataset):
+#     dataset.OcclusalRelationship = _get_sct_code_sequence('736783005',
+#                                                           'Centric relation (observable entity)')
 
 
-def _or_none(dataset):
-    """ Null Occlusal Relationship
-    """
-    dataset.OcclusalRelationship = _null()
+# def _or_none(dataset):
+#     """ Null Occlusal Relationship
+#     """
+#     dataset.OcclusalRelationship = _null()
 
 
-def _MD(dataset):
-    """ Mandibular
-    """
-    a_r_s = _get_sct_code_sequence(
-        '181812008', 'Entire mandible (body structure)')
-    a_r_s[0].AnatomicRegionModifierSequence = _null()
-    dataset.AnatomicRegionSequence = a_r_s
+# def _MD(dataset):
+#     """ Mandibular
+#     """
+#     a_r_s = _get_sct_code_sequence(
+#         '181812008', 'Entire mandible (body structure)')
+#     a_r_s[0].AnatomicRegionModifierSequence = _null()
+#     dataset.AnatomicRegionSequence = a_r_s
 
 
-def _MX(dataset):
-    """ Maxillary
-    """
-    a_r_s = _get_sct_code_sequence(
-        '181813003', 'Entire maxilla (body structure)')
-    a_r_s[0].AnatomicRegionModifierSequence = _null()
-    dataset.AnatomicRegionSequence = a_r_s
+# def _MX(dataset):
+#     """ Maxillary
+#     """
+#     a_r_s = _get_sct_code_sequence(
+#         '181813003', 'Entire maxilla (body structure)')
+#     a_r_s[0].AnatomicRegionModifierSequence = _null()
+#     dataset.AnatomicRegionSequence = a_r_s
 
 
-def _MO(dataset):
-    """ Mouth Open
-    """
-    dataset.FunctionalCondition = _get_sct_code_sequence(
-        '262016004', 'Open mouth (finding)')
+# def _MO(dataset):
+#     """ Mouth Open
+#     """
+#     dataset.FunctionalCondition = _get_sct_code_sequence(
+#         '262016004', 'Open mouth (finding)')
 
 
-def _TA(dataset):
-    """ Teeth Apart
-    """
-    dataset.FunctionalCondition = _get_sct_code_sequence(
-        '789130005',
-        'Photographic image with mouth partially opened position and teeth apart (record artifact)')
+# def _TA(dataset):
+#     """ Teeth Apart
+#     """
+#     dataset.FunctionalCondition = _get_sct_code_sequence(
+#         '789130005',
+#         'Photographic image with mouth partially opened position and teeth apart (record artifact)')
 
 
-def _OJ(dataset):
-    """ Showing Overjet
-    """
-    pass
+# def _OJ(dataset):
+#     """ Showing Overjet
+#     """
+#     pass
 
 
-def _PF(dataset):
-    """ Mandible Postured Forward
-    """
-    dataset.FunctionalCondition = _get_sct_code_sequence(
-        '787611004',
-        'Photographic image extraoral with mandible postured forward (record artifact)')
+# def _PF(dataset):
+#     """ Mandible Postured Forward
+#     """
+#     dataset.FunctionalCondition = _get_sct_code_sequence(
+#         '787611004',
+#         'Photographic image extraoral with mandible postured forward (record artifact)')
 
 
-def _OF(dataset):
-    """ Other Face
+# def _OF(dataset):
+#     """ Other Face
 
-    some other view of the face; e.g., with the face tipped back, or from
-    above
-    """
-    pass
+#     some other view of the face; e.g., with the face tipped back, or from
+#     above
+#     """
+#     pass
 
 
-def _WM(dataset):
-    """ With Mirror
+# def _WM(dataset):
+#     """ With Mirror
 
-    used for intraoral photographs only. Does not apply to extraoral
-    photographs
-    """
-    dataset.ImageView = _get_sct_code_sequence(
-        '789135000', 'Mirrored view uncorrected')
+#     used for intraoral photographs only. Does not apply to extraoral
+#     photographs
+#     """
+#     dataset.ImageView = _get_sct_code_sequence(
+#         '789135000', 'Mirrored view uncorrected')
 
 
-def _WM_BC(dataset):
-    """ With Mirror But Corrected
+# def _WM_BC(dataset):
+#     """ With Mirror But Corrected
 
-    flipped and/or rotated to appear as if it has been taken directly
-    without a mirror used for intraoral photographs only. Does not apply
-    to extraoral photographs
-    """
-    dataset.ImageView = _get_sct_code_sequence(
-        '787610003', 'Mirror corrected')
+#     flipped and/or rotated to appear as if it has been taken directly
+#     without a mirror used for intraoral photographs only. Does not apply
+#     to extraoral photographs
+#     """
+#     dataset.ImageView = _get_sct_code_sequence(
+#         '787610003', 'Mirror corrected')
 
 
-def _NM(dataset):
-    """ No Mirror
-    """
-    dataset.ImageView = _get_sct_code_sequence(
-        '255589003', 'Direct')
+# def _NM(dataset):
+#     """ No Mirror
+#     """
+#     dataset.ImageView = _get_sct_code_sequence(
+#         '255589003', 'Direct')
 
 
-def _RB(dataset):
-    """ Right Buccal
+# def _RB(dataset):
+#     """ Right Buccal
 
-    used to document posterior occlusion
-    """
-    _jaw_region(dataset)
-    dataset.AcquisitionView = _get_sct_code_sequence(
-        '30730003', 'Sagittal (qualifier value)')
-    dataset.FunctionalCondition = _get_sct_code_sequence(
-        '286866000', 'Mouth Closed')
-    dataset.PatientOrientation = ['A', 'F']  # Anterior, Foot
+#     used to document posterior occlusion
+#     """
+#     _jaw_region(dataset)
+#     dataset.AcquisitionView = _get_sct_code_sequence(
+#         '30730003', 'Sagittal (qualifier value)')
+#     dataset.FunctionalCondition = _get_sct_code_sequence(
+#         '286866000', 'Mouth Closed')
+#     dataset.PatientOrientation = ['A', 'F']  # Anterior, Foot
 
 
-def _LB(dataset):
-    """ Left Buccal
+# def _LB(dataset):
+#     """ Left Buccal
 
-    used to document posterior occlusion
-    """
-    _jaw_region(dataset)
-    dataset.AcquisitionView = _get_sct_code_sequence(
-        '30730003', 'Sagittal (qualifier value)')
-    dataset.FunctionalCondition = _get_sct_code_sequence(
-        '286866000', 'Mouth Closed')
-    dataset.PatientOrientation = ['P', 'F']  # Anterior, Foot
+#     used to document posterior occlusion
+#     """
+#     _jaw_region(dataset)
+#     dataset.AcquisitionView = _get_sct_code_sequence(
+#         '30730003', 'Sagittal (qualifier value)')
+#     dataset.FunctionalCondition = _get_sct_code_sequence(
+#         '286866000', 'Mouth Closed')
+#     dataset.PatientOrientation = ['P', 'F']  # Anterior, Foot
 
 
-def _RL(dataset):
-    """ Right Lateral
+# def _RL(dataset):
+#     """ Right Lateral
 
-    used to document the dental occlusion from the subject's right side
-    """
-    dataset.PatientOrientation = ['A', 'F']  # Anterior, Foot
+#     used to document the dental occlusion from the subject's right side
+#     """
+#     dataset.PatientOrientation = ['A', 'F']  # Anterior, Foot
 
 
-def _LL(dataset):
-    """ Left Lateral
+# def _LL(dataset):
+#     """ Left Lateral
 
-    used to document the dental occlusion from the subject's left side
-    """
-    dataset.PatientOrientation = ['P', 'F']  # Posterior, Foot
+#     used to document the dental occlusion from the subject's left side
+#     """
+#     dataset.PatientOrientation = ['P', 'F']  # Posterior, Foot
 
 
-def _FV(dataset):
-    """ Frontal View
-    """
-    dataset.PatientOrientation = ['L', 'F']  # Left, Foot
+# def _FV(dataset):
+#     """ Frontal View
+#     """
+#     dataset.PatientOrientation = ['L', 'F']  # Left, Foot
 
 
-def _IV(dataset):
-    """ Inferior View
+# def _IV(dataset):
+#     """ Inferior View
 
-    use IO.IV to show depth of bite and overjet from below
-    """
-    dataset.AcquisitionView = _get_sct_code_sequence(
-        '261089000',
-        'Inferior (qualifier value)')
+#     use IO.IV to show depth of bite and overjet from below
+#     """
+#     dataset.AcquisitionView = _get_sct_code_sequence(
+#         '261089000',
+#         'Inferior (qualifier value)')
 
 
-def _SV(dataset):
-    """ Superior View
-    """
-    dataset.AcquisitionView = _get_sct_code_sequence(
-        '264217000',
-        'Superior (qualifier value)')
+# def _SV(dataset):
+#     """ Superior View
+#     """
+#     dataset.AcquisitionView = _get_sct_code_sequence(
+#         '264217000',
+#         'Superior (qualifier value)')
 
 
-def _45(dataset):
-    """ 45º View
-    """
-    dataset.AcquisitionView = _get_sct_code_sequence(
-        '30730003',
-        'Photographic image extraoral with 45 degree view (record artifact)')
+# def _45(dataset):
+#     """ 45º View
+#     """
+#     dataset.AcquisitionView = _get_sct_code_sequence(
+#         '30730003',
+#         'Photographic image extraoral with 45 degree view (record artifact)')
 
 
-def _OV(dataset):
-    """ Occlusal View
-    """
-    pass
+# def _OV(dataset):
+#     """ Occlusal View
+#     """
+#     pass
 
 
-def _CS(dataset):
-    """ Close-up Smile
-    """
-    pass
+# def _CS(dataset):
+#     """ Close-up Smile
+#     """
+#     pass
 
 
-def _OC(dataset):
-    """ Occlusal Cant
-    """
-    pass
+# def _OC(dataset):
+#     """ Occlusal Cant
+#     """
+#     pass
 
 
-def _FI(dataset):
-    """ Forensic Interest
-    """
-    pass
+# def _FI(dataset):
+#     """ Forensic Interest
+#     """
+#     pass
 
 
-def _NW(dataset):
-    """ Nerve Weakness
-    """
-    pass
+# def _NW(dataset):
+#     """ Nerve Weakness
+#     """
+#     pass
 
 
-def _AN(dataset):
-    """ Anomalies
-    """
-    pass
+# def _AN(dataset):
+#     """ Anomalies
+#     """
+#     pass
 
 
-def _FR(dataset):
-    """ Frenum
-    """
-    pass
+# def _FR(dataset):
+#     """ Frenum
+#     """
+#     pass
 
 
-def _PA(dataset):
-    """ Using Photo Accessory
+# def _PA(dataset):
+#     """ Using Photo Accessory
 
-    such as a photo contraster providing a solid background or black
-    mirror. Can be appended to any intraoral (IO) view code as needed
-    """
-    pass
+#     such as a photo contraster providing a solid background or black
+#     mirror. Can be appended to any intraoral (IO) view code as needed
+#     """
+#     pass
 
 
-def _TT(dataset):
-    """ Tongue Thrust
-    """
-    pass
+# def _TT(dataset):
+#     """ Tongue Thrust
+#     """
+#     pass
 
 
-def _IN(dataset):
-    """ Initial
+# def _IN(dataset):
+#     """ Initial
 
-    refers to Initial time point, generally observation or pre-treatment
-    """
-    pass
+#     refers to Initial time point, generally observation or pre-treatment
+#     """
+#     pass
 
 
-def _P(dataset):
-    """ Progress
+# def _P(dataset):
+#     """ Progress
 
-    refers to Progress time point, i.e. progress photos
-    """
-    pass
+#     refers to Progress time point, i.e. progress photos
+#     """
+#     pass
 
 
-def _F(dataset):
-    """ Final
+# def _F(dataset):
+#     """ Final
 
-    refers to Final time point, generally when treatment is finished
-    """
-    pass
+#     refers to Final time point, generally when treatment is finished
+#     """
+#     pass
 
 
-def _FU(dataset):
-    """ Follow-Up
+# def _FU(dataset):
+#     """ Follow-Up
 
-    refers to Follow-Up time point, generally taken to show
-    post-treatment changes
-    """
-    pass
+#     refers to Follow-Up time point, generally taken to show
+#     post-treatment changes
+#     """
+#     pass
 
 
-def _GR(dataset):
-    """ Gengival Recession
-    """
-    pass
+# def _GR(dataset):
+#     """ Gengival Recession
+#     """
+#     pass
 
 
-def _null():
-    return _get_sct_code_sequence('276727009', 'Null (qualifier value)')
-
-
-def _mandible(dataset):
-    a_r_s = _get_sct_code_sequence(
-        '181812008', 'Entire mandible (body structure)')
-    a_r_s[0].AnatomicRegionModifierSequence = _null()
-    dataset.AnatomicRegionSequence = a_r_s
-
-
-def _face(dataset):
-    a_r_s = _get_sct_code_sequence(
-        '302549007', 'Entire face (body structure)')
-    a_r_s[0].AnatomicRegionModifierSequence = _null()
-    dataset.AnatomicRegionSequence = a_r_s
-
-
-def _jaw_region(dataset):
-    a_r_s = _get_sct_code_sequence(
-        '181811001', 'Jaw Region')
-    a_r_s[0].AnatomicRegionModifierSequence = _null()
-    dataset.AnatomicRegionSequence = a_r_s
-
-
-def _get_code_dataset(ada1107_code) -> Dataset:
-    """ Construct a DICOM Dataset from a row in the codes.csv of ADA1107 
-
-    ada1107_code must be a dictionary with the following keys:
-    code
-    codeset
-    meaning
-    """
-    code_dataset = Dataset()
-    code_dataset.CodeMeaning = ada1107_code.get('meaning')
-    code_dataset.CodeValue = ada1107_code.get('code')
-    code_dataset.CodingSchemeDesignator = ada1107_code.get('codeset')
-    return code_dataset
-
-def _get_code_sequence(ada1107_code) -> Sequence:
-    return Sequence([_get_code_dataset(ada1107_code=ada1107_code)])
-
-def _get_sct_code_dataset(value, meaning):
-    code_dataset = _get_code_dataset({
-        'meaning':meaning,
-        'code':value,
-        'codeset':'SCT',
-        })
-    return code_dataset
-
-
-def _get_sct_code_sequence(value, meaning):
-    return Sequence([_get_sct_code_dataset(value, meaning)])
-
-
-IMAGE_TYPES = {
-    "EV01": [_EO, _RP, _LR, _CO],
-    "EV02": [_EO, _RP, _LR, _CR],
-    "EV03": [_EO, _RP, _LC, _CO],
-    "EV04": [_EO, _RP, _LC, _CR],
-    "EV05": [_EO, _RP, _FS, _CO],
-    "EV06": [_EO, _RP, _FS, _CR],
-    "EV07": [_EO, _RP, _PF, _or_none],
-    "EV08": [_EO, _RP, _LR, _CO, _45],
-    "EV09": [_EO, _RP, _LR, _CR, _45],
-    "EV10": [_EO, _LP, _LC, _CO, _45],
-    "EV11": [_EO, _RP, _LC, _CR, _45],
-    "EV12": [_EO, _RP, _FS, _CO, _45],
-    "EV13": [_EO, _RP, _FS, _CR, _45],
-    "EV14": [_EO, _RP, _PF, _45],
-    "EV15": [_EO, _FF, _LR, _CO],
-    "EV16": [_EO, _FF, _LR, _CR],
-    "EV17": [_EO, _FF, _LC, _CO],
-    "EV18": [_EO, _FF, _LC, _CR],
-    "EV19": [_EO, _FF, _FS, _CO],
-    "EV20": [_EO, _FF, _FS, _CR],
-    "EV21": [_EO, _FF, _PF],
-    "EV22": [_EO, _LP, _LR, _CO],
-    "EV23": [_EO, _LP, _LR, _CR],
-    "EV24": [_EO, _LP, _LC, _CO],
-    "EV25": [_EO, _LC, _LC, _CR],
-    "EV26": [_EO, _LP, _FS, _CO],
-    "EV27": [_EO, _LP, _FS, _CR],
-    "EV28": [_EO, _LP, _FS],
-    "EV29": [_EO, _LP, _LR, _CO, _45],
-    "EV30": [_EO, _LP, _LC, _CR, _45],
-    "EV31": [_EO, _LP, _LC, _CO, _45],
-    "EV32": [_EO, _LP, _LC, _CR, _45],
-    "EV33": [_EO, _LP, _FS, _CO, _45],
-    "EV34": [_EO, _LP, _FS, _CR, _45],
-    "EV35": [_EO, _LP, _PF, _45],
-    "EV36": [_EO, _OF, _IV],
-    "EV37": [_EO, _OF, _SV],
-    "EV38": [_EO, _OF, _CS],
-    "EV39": [_EO, _OF, _OC],
-    "EV40": [_EO, _OF, _FI],
-    "EV41": [_EO, _OF, _AN],
-    "EV42": [_EO, _FF, _MO],
-    "EV43": [_EO, _FF, _NW],
-
-    "IV01": [_IO, _RB, _CO, _NM],
-    "IV02": [_IO, _RB, _CO, _WM],
-    "IV03": [_IO, _RB, _CO, _WM_BC],
-    "IV04": [_IO, _RB, _CR, _NM],
-    "IV05": [_IO, _RB, _CR, _WM],
-    "IV06": [_IO, _RB, _CR, _WM_BC],
-    "IV07": [_IO, _FV, _CO, _NM],
-    "IV08": [_IO, _FV, _CR, _NM],
-    "IV09": [_IO, _FV, _TA, _NM],
-    "IV10": [_IO, _FV, _MO, _NM],
-    "IV11": [_IO, _FV, _IV, _CO, _NM],
-    "IV12": [_IO, _FV, _IV, _CR, _NM],
-    "IV13": [_IO, _FV, _TT, _NM],
-    "IV14": [_IO, _RL, _CR, _OJ, _NM],
-    "IV15": [_IO, _RL, _CO, _OJ, _NM],
-    "IV16": [_IO, _LL, _CO, _OJ, _NM],
-    "IV17": [_IO, _LL, _CR, _OJ, _NM],
-    "IV18": [_IO, _LB, _CO, _NM],
-    "IV19": [_IO, _LB, _CO, _WM],
-    "IV20": [_IO, _LB, _CO, _WM_BC],
-    "IV21": [_IO, _LB, _CR, _NM],
-    "IV22": [_IO, _LB, _CR, _WM],
-    "IV23": [_IO, _LB, _CR, _WM_BC],
-    "IV24": [_IO, _MX, _MO, _OV, _WM],
-    "IV25": [_IO, _MX, _MO, _OV, _WM_BC],
-    "IV26": [_IO, _MD, _MO, _OV, _WM],
-    "IV27": [_IO, _MD, _MO, _OV, _WM_BC],
-    "IV28": [_IO, _GR],
-    "IV29": [_IO, _FR],
-    "IV30": [_IO, _PA],
-}
+# def _null():
+#     return _get_sct_code_sequence('276727009', 'Null (qualifier value)')
+
+
+# def _mandible(dataset):
+#     a_r_s = _get_sct_code_sequence(
+#         '181812008', 'Entire mandible (body structure)')
+#     a_r_s[0].AnatomicRegionModifierSequence = _null()
+#     dataset.AnatomicRegionSequence = a_r_s
+
+
+# def _face(dataset):
+#     a_r_s = _get_sct_code_sequence(
+#         '302549007', 'Entire face (body structure)')
+#     a_r_s[0].AnatomicRegionModifierSequence = _null()
+#     dataset.AnatomicRegionSequence = a_r_s
+
+
+# def _jaw_region(dataset):
+#     a_r_s = _get_sct_code_sequence(
+#         '181811001', 'Jaw Region')
+#     a_r_s[0].AnatomicRegionModifierSequence = _null()
+#     dataset.AnatomicRegionSequence = a_r_s
+
+
+
+# IMAGE_TYPES = {
+#     "EV01": [_EO, _RP, _LR, _CO],
+#     "EV02": [_EO, _RP, _LR, _CR],
+#     "EV03": [_EO, _RP, _LC, _CO],
+#     "EV04": [_EO, _RP, _LC, _CR],
+#     "EV05": [_EO, _RP, _FS, _CO],
+#     "EV06": [_EO, _RP, _FS, _CR],
+#     "EV07": [_EO, _RP, _PF, _or_none],
+#     "EV08": [_EO, _RP, _LR, _CO, _45],
+#     "EV09": [_EO, _RP, _LR, _CR, _45],
+#     "EV10": [_EO, _LP, _LC, _CO, _45],
+#     "EV11": [_EO, _RP, _LC, _CR, _45],
+#     "EV12": [_EO, _RP, _FS, _CO, _45],
+#     "EV13": [_EO, _RP, _FS, _CR, _45],
+#     "EV14": [_EO, _RP, _PF, _45],
+#     "EV15": [_EO, _FF, _LR, _CO],
+#     "EV16": [_EO, _FF, _LR, _CR],
+#     "EV17": [_EO, _FF, _LC, _CO],
+#     "EV18": [_EO, _FF, _LC, _CR],
+#     "EV19": [_EO, _FF, _FS, _CO],
+#     "EV20": [_EO, _FF, _FS, _CR],
+#     "EV21": [_EO, _FF, _PF],
+#     "EV22": [_EO, _LP, _LR, _CO],
+#     "EV23": [_EO, _LP, _LR, _CR],
+#     "EV24": [_EO, _LP, _LC, _CO],
+#     "EV25": [_EO, _LC, _LC, _CR],
+#     "EV26": [_EO, _LP, _FS, _CO],
+#     "EV27": [_EO, _LP, _FS, _CR],
+#     "EV28": [_EO, _LP, _FS],
+#     "EV29": [_EO, _LP, _LR, _CO, _45],
+#     "EV30": [_EO, _LP, _LC, _CR, _45],
+#     "EV31": [_EO, _LP, _LC, _CO, _45],
+#     "EV32": [_EO, _LP, _LC, _CR, _45],
+#     "EV33": [_EO, _LP, _FS, _CO, _45],
+#     "EV34": [_EO, _LP, _FS, _CR, _45],
+#     "EV35": [_EO, _LP, _PF, _45],
+#     "EV36": [_EO, _OF, _IV],
+#     "EV37": [_EO, _OF, _SV],
+#     "EV38": [_EO, _OF, _CS],
+#     "EV39": [_EO, _OF, _OC],
+#     "EV40": [_EO, _OF, _FI],
+#     "EV41": [_EO, _OF, _AN],
+#     "EV42": [_EO, _FF, _MO],
+#     "EV43": [_EO, _FF, _NW],
+
+#     "IV01": [_IO, _RB, _CO, _NM],
+#     "IV02": [_IO, _RB, _CO, _WM],
+#     "IV03": [_IO, _RB, _CO, _WM_BC],
+#     "IV04": [_IO, _RB, _CR, _NM],
+#     "IV05": [_IO, _RB, _CR, _WM],
+#     "IV06": [_IO, _RB, _CR, _WM_BC],
+#     "IV07": [_IO, _FV, _CO, _NM],
+#     "IV08": [_IO, _FV, _CR, _NM],
+#     "IV09": [_IO, _FV, _TA, _NM],
+#     "IV10": [_IO, _FV, _MO, _NM],
+#     "IV11": [_IO, _FV, _IV, _CO, _NM],
+#     "IV12": [_IO, _FV, _IV, _CR, _NM],
+#     "IV13": [_IO, _FV, _TT, _NM],
+#     "IV14": [_IO, _RL, _CR, _OJ, _NM],
+#     "IV15": [_IO, _RL, _CO, _OJ, _NM],
+#     "IV16": [_IO, _LL, _CO, _OJ, _NM],
+#     "IV17": [_IO, _LL, _CR, _OJ, _NM],
+#     "IV18": [_IO, _LB, _CO, _NM],
+#     "IV19": [_IO, _LB, _CO, _WM],
+#     "IV20": [_IO, _LB, _CO, _WM_BC],
+#     "IV21": [_IO, _LB, _CR, _NM],
+#     "IV22": [_IO, _LB, _CR, _WM],
+#     "IV23": [_IO, _LB, _CR, _WM_BC],
+#     "IV24": [_IO, _MX, _MO, _OV, _WM],
+#     "IV25": [_IO, _MX, _MO, _OV, _WM_BC],
+#     "IV26": [_IO, _MD, _MO, _OV, _WM],
+#     "IV27": [_IO, _MD, _MO, _OV, _WM_BC],
+#     "IV28": [_IO, _GR],
+#     "IV29": [_IO, _FR],
+#     "IV30": [_IO, _PA],
+# }
 
 ALLOWED_TEETH = {
     "EV01": [],
@@ -599,20 +570,36 @@ class OrthodonticPhotograph(PhotographBase):
     """
     type_keyword = "" # Orthodontic View String, e.g. "IV03"
     ada1107_view = None # Row in ADA-1107 views.csv for this particular view
+    teeth = None
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.ada1107 = ADA1107()
+        self.teeth = kwargs.get('teeth')
         if kwargs.get('image_type') is not None:
             # Allow for both dash separated and not separated naming
             self.type_keyword = kwargs.get('image_type').replace('-', '')
             self.ada1107_view = self.ada1107.VIEWS.get(self.type_keyword)
+        
 
-            if "teeth" in kwargs:
-                self.add_teeth(kwargs.get('teeth'))
-            
+    def _get_code_dataset(self,ada1107_code_keyword) -> Dataset:
+        """ Construct a DICOM Dataset from a row in the codes.csv of ADA1107 
 
-            # self._set_dicom_attributes()  # This should go in save()
+        ada1107_code must be a dictionary with the following keys:
+        code
+        codeset
+        meaning
+        """
+        ada1107_code = self.ada1107.CODES.get(ada1107_code_keyword)
+        code_dataset = Dataset()
+        code_dataset.CodeMeaning = ada1107_code.get('meaning')
+        code_dataset.CodeValue = ada1107_code.get('code')
+        code_dataset.CodingSchemeDesignator = ada1107_code.get('codeset')
+        return code_dataset
+
+    def _get_code_sequence(self, ada1107_code_keyword) -> Sequence:
+        return Sequence([self._get_code_dataset(ada1107_code_keyword)])
+
 
     def _set_dicom_attributes(self):
         # Get the array of functions to set this required type.
@@ -629,44 +616,64 @@ class OrthodonticPhotograph(PhotographBase):
         self._ds.PatientOrientation = self.ada1107.CODES.get(self.ada1107_view.get('PatientOrientation')).get('code')
         self._ds.ImageLaterality = self.ada1107.CODES.get(self.ada1107_view.get('ImageLaterality')).get('code')
 
+        self.add_device()
+        self.add_anatomic_region()
+        self.add_primary_anatomic_structure()
+        self.add_acquisition_context()
+        self.add_teeth()
+
+    def add_acquisition_context(self):
+        AcquisitionContextSequence = Sequence([])
+        # Find all columns which start with AcquisitionContextSequence in ada1107_view
+        for index, key in enumerate(self.ada1107_view):
+            if key.startswith("AcquisitionContextSequence"):
+                acs_ds = Dataset() 
+                concept_name = key.split("^")[1]
+                concept_name_code_sequence = self._get_code_sequence(concept_name)
+                acs_ds.ConceptNameCodeSequence = concept_name_code_sequence
+                concept_code_sequence = self._get_code_sequence(self.ada1107_view.get(key))
+                acs_ds.ConceptCodeSequence = concept_code_sequence
+                AcquisitionContextSequence.append(acs_ds)
+        self._ds.AcquisitionContextSequence = AcquisitionContextSequence
+
+    def add_device(self):
+        DeviceSequence = Sequence([])
+        for device in self.ada1107_view.get('DeviceSequence').split("^"):
+            if device != "na" and len(device) > 0:
+                DeviceSequence.append(self._get_code_dataset(device))
+        # The AnatomicRegionModifierSequence must be part of AnatomicRegionSequence
+        if (len(DeviceSequence) > 0):
+            self._ds.DeviceSequence = DeviceSequence
+
+    def add_anatomic_region(self):
         # AnatomicRegionSequence allows for a single value
-        self._ds.AnatomicRegionSequence = _get_code_sequence(self.ada1107.CODES.get(self.ada1107_view.get('AnatomicRegionSequence'))) 
+        self._ds.AnatomicRegionSequence = self._get_code_sequence(self.ada1107_view.get('AnatomicRegionSequence'))
         
         # More than one AnatomicRegionModifierSequence are allowed
         AnatomicRegionModifierSequence = Sequence([])
         for arm in self.ada1107_view.get('AnatomicRegionModifierSequence').split("^"):
-            arm_code = self.ada1107.CODES.get(arm)
-            AnatomicRegionModifierSequence.append(_get_code_dataset(arm_code))
+            AnatomicRegionModifierSequence.append(self._get_code_dataset(arm))
         # The AnatomicRegionModifierSequence must be part of AnatomicRegionSequence
         if (len(AnatomicRegionModifierSequence) > 0): 
             self._ds.AnatomicRegionSequence[0].AnatomicRegionModifierSequence = AnatomicRegionModifierSequence
 
+    def add_primary_anatomic_structure(self):
         # PrimaryAnatomicStructureSequence allows for multiple values, but currently only one is supported by this code.
         pas = self.ada1107_view.get('PrimaryAnatomicStructureSequence')
         if pas != "na" and len(pas) > 0:
-            self._ds.PrimaryAnatomicStructureSequence = _get_code_sequence(self.ada1107.CODES.get(pas))
+            self._ds.PrimaryAnatomicStructureSequence = self._get_code_sequence(pas)
         
             # More than one AnatomicRegionModifierSequence are allowed
             PrimaryAnatomicStructureModifierSequence = Sequence([])
             for pasm in self.ada1107_view.get('PrimaryAnatomicStructureModifierSequence').split("^"):
                 if pasm != "na" and len(pasm) > 0:
-                    pasm_code = self.ada1107.CODES.get(pasm)
-                    PrimaryAnatomicStructureModifierSequence.append(_get_code_dataset(pasm_code))
+                    PrimaryAnatomicStructureModifierSequence.append(self._get_code_dataset(pasm))
             # The AnatomicRegionModifierSequence must be part of AnatomicRegionSequence
             if (len(PrimaryAnatomicStructureModifierSequence) > 0):
                 self._ds.PrimaryAnatomicStructureSequence[0].PrimaryAnatomicStructureModifierSequence = PrimaryAnatomicStructureModifierSequence
-
-        DeviceSequence = Sequence([])
-        for device in self.ada1107_view.get('DeviceSequence').split("^"):
-            if device != "na" and len(device) > 0:
-                device_code = self.ada1107.CODES.get(device)
-                DeviceSequence.append(_get_code_dataset(device_code))
-        # The AnatomicRegionModifierSequence must be part of AnatomicRegionSequence
-        if (len(DeviceSequence) > 0):
-            self._ds.DeviceSequence = DeviceSequence
-
-
-    def add_teeth(self, teeth):
+    
+    def add_teeth(self):
+        teeth = self.teeth
         logging.debug("Adding teeth")
         if teeth == defaults.ADD_MAX_ALLOWED_TEETH:
             logging.debug("Setting all possibly allowed teeth.")
@@ -679,7 +686,7 @@ class OrthodonticPhotograph(PhotographBase):
             for tooth in teeth:
                 if ToothCodes.is_valid_tooth_number(tooth):
                     self._ds.PrimaryAnatomicStructureSequence.append(
-                        _get_sct_code_dataset(*ToothCodes.SCT_TOOTH_CODES[tooth]))
+                        self._get_code_dataset(*ToothCodes.SCT_TOOTH_CODES[tooth]))
 
     def is_extraoral(self) -> bool:
         if self.type_keyword.startswith("EV"):

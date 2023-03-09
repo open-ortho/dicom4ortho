@@ -388,11 +388,29 @@ def _jaw_region(dataset):
     dataset.AnatomicRegionSequence = a_r_s
 
 
-def _get_sct_code_dataset(value, meaning):
+def _get_code_dataset(ada1107_code) -> Dataset:
+    """ Construct a DICOM Dataset from a row in the codes.csv of ADA1107 
+
+    ada1107_code must be a dictionary with the following keys:
+    code
+    codeset
+    meaning
+    """
     code_dataset = Dataset()
-    code_dataset.CodeMeaning = meaning
-    code_dataset.CodeValue = value
-    code_dataset.CodingSchemeDesignator = 'SCT'
+    code_dataset.CodeMeaning = ada1107_code.get('meaning')
+    code_dataset.CodeValue = ada1107_code.get('code')
+    code_dataset.CodingSchemeDesignator = ada1107_code.get('codeset')
+    return code_dataset
+
+def _get_code_sequence(ada1107_code) -> Sequence:
+    return Sequence([_get_code_dataset(ada1107_code=ada1107_code)])
+
+def _get_sct_code_dataset(value, meaning):
+    code_dataset = _get_code_dataset({
+        'meaning':meaning,
+        'code':value,
+        'codeset':'SCT',
+        })
     return code_dataset
 
 
@@ -610,6 +628,16 @@ class OrthodonticPhotograph(PhotographBase):
 
         self._ds.PatientOrientation = self.ada1107.CODES.get(self.ada1107_view.get('PatientOrientation')).get('code')
         self._ds.ImageLaterality = self.ada1107.CODES.get(self.ada1107_view.get('ImageLaterality')).get('code')
+
+        # AnatomicRegionSequence allows for a single value
+        self._ds.AnatomicRegionSequence = _get_code_sequence(self.ada1107.CODES.get(self.ada1107_view.get('AnatomicRegionSequence'))) 
+        
+        # More than one AnatomicRegionModifierSequence are allowed
+        AnatomicRegionModifierSequence = Sequence([])
+        for arm in self.ada1107_view.get('AnatomicRegionModifierSequence').split("^"):
+            arm_code = self.ada1107.CODES.get(arm)
+            AnatomicRegionModifierSequence.append(_get_code_dataset(arm_code))
+        self._ds.AnatomicRegionSequence[0].AnatomicRegionModifierSequence = AnatomicRegionModifierSequence
 
     def add_teeth(self, teeth):
         logging.debug("Adding teeth")

@@ -1,6 +1,6 @@
 """ Codes and data defined from ADA-1107
 
-Provides methods to download the data, and import it in Python objects.
+Provides methods to download the ADA-1107 specifications in CSV and import it in a Python dictionary.
 
 """
 
@@ -8,9 +8,11 @@ import urllib.request
 import csv
 from dicom4ortho.defaults import URL_ADA1107_CODES, URL_ADA1107_VIEWS
 
+
 class ADA1107(object):
     CODES = {}
     VIEWS = {}
+
     def __init__(self) -> None:
         self._load_views()
         self._load_codes()

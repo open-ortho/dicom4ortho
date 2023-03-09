@@ -116,8 +116,8 @@ class OrthodonticPhotograph(PhotographBase):
 
         output_image_filename: name of output image file
     """
-    type_keyword = "" # Orthodontic View String, e.g. "IV03"
-    ada1107_view = None # Row in ADA-1107 views.csv for this particular view
+    type_keyword = ""  # Orthodontic View String, e.g. "IV03"
+    ada1107_view = None  # Row in ADA-1107 views.csv for this particular view
     teeth = None
 
     def __init__(self, **kwargs):
@@ -128,9 +128,8 @@ class OrthodonticPhotograph(PhotographBase):
             # Allow for both dash separated and not separated naming
             self.type_keyword = kwargs.get('image_type').replace('-', '')
             self.ada1107_view = self.ada1107.VIEWS.get(self.type_keyword)
-        
 
-    def _get_code_dataset(self,ada1107_code_keyword) -> Dataset:
+    def _get_code_dataset(self, ada1107_code_keyword) -> Dataset:
         """ Construct a DICOM Dataset from a row in the codes.csv of ADA1107 
 
         ada1107_code must be a dictionary with the following keys:
@@ -140,14 +139,14 @@ class OrthodonticPhotograph(PhotographBase):
         """
         ada1107_code = self.ada1107.CODES.get(ada1107_code_keyword)
         code_dataset = Dataset()
-        code_dataset.CodeMeaning = ada1107_code.get('meaning')[:64] # LO only allows 64 characters
+        code_dataset.CodeMeaning = ada1107_code.get(
+            'meaning')[:64]  # LO only allows 64 characters
         code_dataset.CodeValue = ada1107_code.get('code')
         code_dataset.CodingSchemeDesignator = ada1107_code.get('codeset')
         return code_dataset
 
     def _get_code_sequence(self, ada1107_code_keyword) -> Sequence:
         return Sequence([self._get_code_dataset(ada1107_code_keyword)])
-
 
     def _set_dicom_attributes(self):
         # Get the array of functions to set this required type.
@@ -161,8 +160,10 @@ class OrthodonticPhotograph(PhotographBase):
         self._ds.ImageComments = ImageComments.replace('\xa0', '\x20')
         self._ds.SeriesDescription = self.ada1107_view.get('SeriesDescription')
 
-        self._ds.PatientOrientation = self.ada1107.CODES.get(self.ada1107_view.get('PatientOrientation')).get('code').split('^')
-        self._ds.ImageLaterality = self.ada1107.CODES.get(self.ada1107_view.get('ImageLaterality')).get('code')
+        self._ds.PatientOrientation = self.ada1107.CODES.get(
+            self.ada1107_view.get('PatientOrientation')).get('code').split('^')
+        self._ds.ImageLaterality = self.ada1107.CODES.get(
+            self.ada1107_view.get('ImageLaterality')).get('code')
 
         self.add_device()
         self.add_anatomic_region()
@@ -175,12 +176,14 @@ class OrthodonticPhotograph(PhotographBase):
         # Find all columns which start with AcquisitionContextSequence in ada1107_view
         for index, key in enumerate(self.ada1107_view):
             if key.startswith("AcquisitionContextSequence"):
-                acs_ds = Dataset() 
+                acs_ds = Dataset()
                 acs_ds.ValueType = 'CODE'
                 concept_name = key.split("^")[1]
-                concept_name_code_sequence = self._get_code_sequence(concept_name)
+                concept_name_code_sequence = self._get_code_sequence(
+                    concept_name)
                 acs_ds.ConceptNameCodeSequence = concept_name_code_sequence
-                concept_code_sequence = self._get_code_sequence(self.ada1107_view.get(key))
+                concept_code_sequence = self._get_code_sequence(
+                    self.ada1107_view.get(key))
                 acs_ds.ConceptCodeSequence = concept_code_sequence
                 AcquisitionContextSequence.append(acs_ds)
         self._ds.AcquisitionContextSequence = AcquisitionContextSequence
@@ -196,31 +199,35 @@ class OrthodonticPhotograph(PhotographBase):
 
     def add_anatomic_region(self):
         # AnatomicRegionSequence allows for a single value
-        self._ds.AnatomicRegionSequence = self._get_code_sequence(self.ada1107_view.get('AnatomicRegionSequence'))
-        
+        self._ds.AnatomicRegionSequence = self._get_code_sequence(
+            self.ada1107_view.get('AnatomicRegionSequence'))
+
         # More than one AnatomicRegionModifierSequence are allowed
         AnatomicRegionModifierSequence = Sequence([])
         for arm in self.ada1107_view.get('AnatomicRegionModifierSequence').split("^"):
             AnatomicRegionModifierSequence.append(self._get_code_dataset(arm))
         # The AnatomicRegionModifierSequence must be part of AnatomicRegionSequence
-        if (len(AnatomicRegionModifierSequence) > 0): 
+        if (len(AnatomicRegionModifierSequence) > 0):
             self._ds.AnatomicRegionSequence[0].AnatomicRegionModifierSequence = AnatomicRegionModifierSequence
 
     def add_primary_anatomic_structure(self):
         # PrimaryAnatomicStructureSequence allows for multiple values, but currently only one is supported by this code.
         pas = self.ada1107_view.get('PrimaryAnatomicStructureSequence')
         if pas != "na" and len(pas) > 0:
-            self._ds.PrimaryAnatomicStructureSequence = self._get_code_sequence(pas)
-        
+            self._ds.PrimaryAnatomicStructureSequence = self._get_code_sequence(
+                pas)
+
             # More than one AnatomicRegionModifierSequence are allowed
             PrimaryAnatomicStructureModifierSequence = Sequence([])
             for pasm in self.ada1107_view.get('PrimaryAnatomicStructureModifierSequence').split("^"):
                 if pasm != "na" and len(pasm) > 0:
-                    PrimaryAnatomicStructureModifierSequence.append(self._get_code_dataset(pasm))
+                    PrimaryAnatomicStructureModifierSequence.append(
+                        self._get_code_dataset(pasm))
             # The AnatomicRegionModifierSequence must be part of AnatomicRegionSequence
             if (len(PrimaryAnatomicStructureModifierSequence) > 0):
-                self._ds.PrimaryAnatomicStructureSequence[0].PrimaryAnatomicStructureModifierSequence = PrimaryAnatomicStructureModifierSequence
-    
+                self._ds.PrimaryAnatomicStructureSequence[
+                    0].PrimaryAnatomicStructureModifierSequence = PrimaryAnatomicStructureModifierSequence
+
     def add_teeth(self):
         teeth = self.teeth
         logging.debug("Adding teeth")
@@ -274,7 +281,7 @@ class OrthodonticSeries():
 
     def __init__(self, **kwargs) -> None:
         """ New Orthodontic Series
-        
+
         :uid: The Series DICOM UID. Defaults to generating a new one.
         :description: The Series Description to add to all photos.
         """
@@ -289,7 +296,8 @@ class OrthodonticSeries():
         self.Photos.append(photo)
 
     def save(self) -> None:
-        logging.info(f"Requested to save {len(self.Photos)} Photos within Series {self.UID}")
+        logging.info(
+            f"Requested to save {len(self.Photos)} Photos within Series {self.UID}")
         for photo in self.Photos:
             photo.series_description = self.description
             photo.series_instance_uid = self.UID
@@ -312,7 +320,7 @@ class OrthodonticStudy():
 
     def __init__(self, **kwargs) -> None:
         """ New Orthodontic Study
-        
+
         :uid: The Series DICOM UID. Defaults to generating a new one.
         :description: The Study Description to add to all photos.
         """
@@ -327,6 +335,7 @@ class OrthodonticStudy():
         self.Series.append(serie)
 
     def save(self) -> None:
-        logging.info(f"Requested to save {len(self.Series)} Series within Study {self.UID}")
+        logging.info(
+            f"Requested to save {len(self.Series)} Series within Study {self.UID}")
         for serie in self.Series:
             serie.save()

@@ -15,11 +15,6 @@ from pathlib import Path
 
 import PIL
 from pydicom.dataset import Dataset
-# Just importing will do to execute the code in the module. Pylint will
-# complain though.
-# pylint: disable=unused-import
-import dicom4ortho.m_dental_acquisition_context_module
-
 
 def make_photo_metadata():
     metadata = {

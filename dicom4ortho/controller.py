@@ -8,13 +8,7 @@ import datetime
 import pathlib
 import dicom4ortho.model as model
 
-# Just importing will do to execute the code in the module. Pylint will
-# complain though.
-# pylint: disable=unused-import
-import dicom4ortho.m_dental_acquisition_context_module
-
 import dicom4ortho.defaults as defaults
-from dicom4ortho.m_orthodontic_photograph import _load_image_types
 from dicom4ortho.m_orthodontic_photograph import OrthodonticPhotograph
 
 class SimpleController(object):
@@ -25,7 +19,6 @@ class SimpleController(object):
     def __init__(self, args=None):
         self._cli_args = args
         self.photo = None
-        _load_image_types()
 
     def bulk_convert_from_csv(self, csv_input, teeth=None):
         with open(csv_input, mode='r') as csv_file:

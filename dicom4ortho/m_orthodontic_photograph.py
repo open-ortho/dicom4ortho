@@ -138,6 +138,9 @@ class OrthodonticPhotograph(PhotographBase):
         meaning
         """
         ada1107_code = self.ada1107.CODES.get(ada1107_code_keyword)
+        if ada1107_code == None:
+            logging.warning(f"Keyword [{ada1107_code_keyword}] did not match any code. Skipping.")
+            return None
         code_dataset = Dataset()
         code_dataset.CodeMeaning = ada1107_code.get(
             'meaning')[:64]  # LO only allows 64 characters
@@ -146,7 +149,10 @@ class OrthodonticPhotograph(PhotographBase):
         return code_dataset
 
     def _get_code_sequence(self, ada1107_code_keyword) -> Sequence:
-        return Sequence([self._get_code_dataset(ada1107_code_keyword)])
+        code_dataset = self._get_code_dataset(ada1107_code_keyword)
+        if code_dataset is None:
+            return None
+        return Sequence([code_dataset])
 
     def _set_dicom_attributes(self):
         # Get the array of functions to set this required type.
@@ -176,16 +182,15 @@ class OrthodonticPhotograph(PhotographBase):
         # Find all columns which start with AcquisitionContextSequence in ada1107_view
         for index, key in enumerate(self.ada1107_view):
             if key.startswith("AcquisitionContextSequence"):
-                acs_ds = Dataset()
-                acs_ds.ValueType = 'CODE'
                 concept_name = key.split("^")[1]
                 concept_name_code_sequence = self._get_code_sequence(
                     concept_name)
-                acs_ds.ConceptNameCodeSequence = concept_name_code_sequence
-                concept_code_sequence = self._get_code_sequence(
-                    self.ada1107_view.get(key))
-                acs_ds.ConceptCodeSequence = concept_code_sequence
-                AcquisitionContextSequence.append(acs_ds)
+                for concept_code in self.ada1107_view.get(key).split("^"):
+                    acs_ds = Dataset()
+                    acs_ds.ValueType = 'CODE'
+                    acs_ds.ConceptNameCodeSequence = concept_name_code_sequence
+                    acs_ds.ConceptCodeSequence = self._get_code_sequence(concept_code)
+                    AcquisitionContextSequence.append(acs_ds)
         self._ds.AcquisitionContextSequence = AcquisitionContextSequence
 
     def add_device(self):

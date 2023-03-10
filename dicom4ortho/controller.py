@@ -2,10 +2,9 @@
 Controller
 """
 import os
-import os.path
 import csv
 import datetime
-import pathlib
+from pathlib import Path
 import dicom4ortho.model as model
 
 import dicom4ortho.defaults as defaults
@@ -16,6 +15,8 @@ class SimpleController(object):
     Simple Controller
     """
 
+    photo = OrthodonticPhotograph()
+
     def __init__(self, args=None):
         self._cli_args = args
         self.photo = None
@@ -24,9 +25,7 @@ class SimpleController(object):
         with open(csv_input, mode='r') as csv_file:
             csv_reader = csv.DictReader(csv_file, delimiter=',')
             for row in csv_reader:
-                row['input_image_filename'] =\
-                    os.path.join(os.path.dirname(csv_input),
-                                 row['input_image_filename'])
+                row['input_image_filename'] = (Path(csv_input).parent / row['input_image_filename'])
                 row['teeth'] = teeth
                 self.convert_image_to_dicom4orthograph(metadata=row)
 
@@ -58,7 +57,7 @@ class SimpleController(object):
         '''
 
         if ('output_image_filename' not in metadata) or (metadata['output_image_filename'] is None):
-            p = pathlib.Path(metadata['input_image_filename'])
+            p = Path(metadata['input_image_filename'])
             metadata['output_image_filename'] = str(p.with_suffix('.dcm'))
 
         self.photo = OrthodonticPhotograph(**metadata)
@@ -88,26 +87,19 @@ class SimpleController(object):
 
         self.photo.save()
 
-    # def convert_image_to_dicom4orthograph(
-    #     self,
-    #     image_type,
-    #     input_image_filename,
-    #     output_image_filename):
-
-    #     self.photo.set_image(filename=input_image_filename)
-    #     self.photo.save_implicit_little_endian(output_image_filename)
-
-    def validate_dicom_file(self, input_image_filename):
+    def validate_dicom_file(self, input_image_filename=None):
         ''' Validate DICOM File.
 
         Requires installation of dicom3tools.
         '''
 
+        if input_image_filename is None:
+            input_image_filename = self.photo.output_image_filename
+
         self.print_dicom_file(input_image_filename)
         print('\nValidating file {}'.format(input_image_filename))
-        dicom3tools_path = '/usr/local/opt/dicom3tools'
         os.system('{} {}'.format(
-            os.path.join(dicom3tools_path, 'dciodvfy'),
+            Path(defaults.DICOM3TOOLS_PATH, 'dciodvfy'),
             input_image_filename))
 
     def print_dicom_file(self, input_image_filename):

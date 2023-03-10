@@ -5,6 +5,7 @@ Unittests for DICOM objects.
 '''
 import unittest
 import logging
+import importlib
 from io import BytesIO
 import dicom4ortho.m_orthodontic_photograph
 from dicom4ortho.controller import SimpleController
@@ -21,8 +22,8 @@ def make_photo_metadata():
         "patient_firstname": "Michael",
         "patient_lastname": "Jackson",
         "patient_id": "X1",
-        "patient_birthdate": "1958-08-29",
         "patient_sex": "M",
+        "patient_birthdate": "1958-08-29",
         "dental_provider_firstname": "Conrad",
         "dental_provider_lastname": "Murray",
         "study_instance_uid": generate_dicom_uid(),
@@ -153,26 +154,37 @@ class PhotoTests(unittest.TestCase):
         c.convert_image_to_dicom4orthograph(metadata=metadata)
 
     def testJPG(self):
-        metadata = make_photo_metadata()
-        metadata['input_image_filename'] = Path(
-            ".") / "test" / "resources" / "sample_NikonD90.JPG"
-        metadata['image_type'] = "IV06"
-        c = SimpleController()
-        c.convert_image_to_dicom4orthograph(metadata=metadata)
+        resource_path = None
+        with importlib.resources.path("test.resources","input_from.csv") as input_csv:
+            resource_path = Path(input_csv).parent.absolute()
 
         metadata = make_photo_metadata()
-        metadata['input_image_filename'] = Path(
-            ".") / "test" / "resources" / "sample_NikonD5600.JPG"
+        metadata['input_image_filename'] = resource_path / "sample_NikonD90.JPG"
         metadata['image_type'] = "IV06"
         c = SimpleController()
         c.convert_image_to_dicom4orthograph(metadata=metadata)
+        output_file = (resource_path / "sample_NikonD90.dcm")
+        assert output_file.exists()
+        output_file.unlink()
 
         metadata = make_photo_metadata()
-        metadata['input_image_filename'] = Path(
-            ".") / "test" / "resources" / "sample_topsOrtho.jp2"
+        metadata['input_image_filename'] = resource_path / "sample_NikonD5600.JPG"
         metadata['image_type'] = "IV06"
         c = SimpleController()
         c.convert_image_to_dicom4orthograph(metadata=metadata)
+        output_file = resource_path / "sample_NikonD5600.dcm"
+        assert output_file.exists()
+        output_file.unlink()
+
+        metadata = make_photo_metadata()
+        metadata['input_image_filename'] = resource_path / "sample_topsOrtho.jp2"
+        metadata['image_type'] = "IV06"
+        c = SimpleController()
+        c.convert_image_to_dicom4orthograph(metadata=metadata)
+        output_file = (resource_path / "sample_topsOrtho.dcm")
+        assert output_file.exists()
+        c.validate_dicom_file()
+        output_file.unlink()
 
     @unittest.skip("Just a tool, not a test")
     def testEXIF(self):

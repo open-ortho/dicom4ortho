@@ -15,7 +15,7 @@ __short_description__ = 'A package to convert photographs stored in conventional
 __creation_date__ = '2020-05-01'
 
 
-DICOM3TOOLS_PATH = Path('modules' / 'dicom3tools')
+DICOM3TOOLS_PATH = Path('modules','dicom3tools')
 
 # Date format used when importing date from CSV file.
 # The date in the CSV file should be in this format.

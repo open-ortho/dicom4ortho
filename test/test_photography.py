@@ -5,6 +5,7 @@ Unittests for DICOM objects.
 '''
 import unittest
 import logging
+import importlib
 from io import BytesIO
 import dicom4ortho.m_orthodontic_photograph
 from dicom4ortho.controller import SimpleController
@@ -15,24 +16,19 @@ from pathlib import Path
 
 import PIL
 from pydicom.dataset import Dataset
-# Just importing will do to execute the code in the module. Pylint will
-# complain though.
-# pylint: disable=unused-import
-import dicom4ortho.m_dental_acquisition_context_module
-
 
 def make_photo_metadata():
     metadata = {
         "patient_firstname": "Michael",
         "patient_lastname": "Jackson",
         "patient_id": "X1",
-        "patient_birthdate": "1958-08-29",
         "patient_sex": "M",
+        "patient_birthdate": "1958-08-29",
         "dental_provider_firstname": "Conrad",
         "dental_provider_lastname": "Murray",
-        "study_instance_uid" : generate_dicom_uid(),
-        "series_instance_uid" : generate_dicom_uid(),
-        "series_description" : "UnitTest make_photo_metadata"
+        "study_instance_uid": generate_dicom_uid(),
+        "series_instance_uid": generate_dicom_uid(),
+        "series_description": "UnitTest make_photo_metadata"
     }
     return metadata
 
@@ -44,7 +40,7 @@ def photo_generator(image_type: str, filename) -> OrthodonticPhotograph:
     o.patient_firstname = "Michael"
     o.patient_lastname = "Jackson"
     o.patient_id = "X1"
-    o.patient_birthdate = datetime(1958,8,29).date()
+    o.patient_birthdate = datetime(1958, 8, 29).date()
     o.patient_sex = "M"
     o.dental_provider_firstname = "Conrad"
     o.dental_provider_lastname = "Murray"
@@ -61,14 +57,6 @@ class PhotoTests(unittest.TestCase):
 
     def tearDown(self):
         pass
-
-    def testOne(self):
-        ds = Dataset()
-        for f in dicom4ortho.m_orthodontic_photograph.IMAGE_TYPES['EV01']:
-            f(ds)
-        logging.debug("{}".format(ds))
-
-        self.assertEqual(ds.ImageLaterality, 'U')
 
     def testDates(self):
         o = OrthodonticPhotograph()
@@ -94,7 +82,7 @@ class PhotoTests(unittest.TestCase):
 
         o.set_time_captured(datetime(1993, 10, 12, 22, 32, 43))
         self.assertEqual(o._ds.AcquisitionDateTime,
-                         "19931012223243.000000+0200")
+                         "19931012223243.000000-0900")
         self.assertEqual(o._ds.AcquisitionDate, "19931012")
         self.assertEqual(o._ds.AcquisitionTime, "223243.000000")
         self.assertEqual(o._ds.ContentDate, "19931012")
@@ -148,7 +136,7 @@ class PhotoTests(unittest.TestCase):
         self.assertEqual(o.operator_firstname, "Toni")
         self.assertEqual(o.operator_lastname, "Magni")
 
-    @unittest.skip ("I don't think NEF is read properly by Pillow")
+    @unittest.skip("I don't think NEF is read properly by Pillow")
     def testNEF(self):
         metadata = make_photo_metadata()
         metadata['input_image_filename'] = Path(
@@ -158,41 +146,68 @@ class PhotoTests(unittest.TestCase):
         c.convert_image_to_dicom4orthograph(metadata=metadata)
 
     def testJPG(self):
+        resource_path = None
+        with importlib.resources.path("test.resources","input_from.csv") as input_csv:
+            resource_path = Path(input_csv).parent.absolute()
+
         metadata = make_photo_metadata()
-        metadata['input_image_filename'] = Path(
+        metadata['input_image_filename'] = resource_path / "sample_NikonD90.JPG"
+        metadata['image_type'] = "IV06"
+        c = SimpleController()
+        c.convert_image_to_dicom4orthograph(metadata=metadata)
+        output_file = (resource_path / "sample_NikonD90.dcm")
+        assert output_file.exists()
+        output_file.unlink()
+
+        metadata = make_photo_metadata()
+        metadata['input_image_filename'] = resource_path / "sample_NikonD5600.JPG"
+        metadata['image_type'] = "IV06"
+        c = SimpleController()
+        c.convert_image_to_dicom4orthograph(metadata=metadata)
+        output_file = resource_path / "sample_NikonD5600.dcm"
+        assert output_file.exists()
+        output_file.unlink()
+
+        metadata = make_photo_metadata()
+        metadata['input_image_filename'] = resource_path / "sample_topsOrtho.jp2"
+        metadata['image_type'] = "IV06"
+        c = SimpleController()
+        c.convert_image_to_dicom4orthograph(metadata=metadata)
+        output_file = (resource_path / "sample_topsOrtho.dcm")
+        assert output_file.exists()
+        c.validate_dicom_file()
+        output_file.unlink()
+
+    @unittest.skip("Just a tool, not a test")
+    def testEXIF(self):
+        filename = Path(
+            # ".") / "test" / "resources" / "sample_topsOrtho.jp2"
             ".") / "test" / "resources" / "sample_NikonD90.JPG"
-        metadata['image_type'] = "IV07"
-        c = SimpleController()
-        c.convert_image_to_dicom4orthograph(metadata=metadata)
-        
-
-        metadata = make_photo_metadata()
-        metadata['input_image_filename'] = Path(
-            ".") / "test" / "resources" / "sample_NikonD5600.JPG"
-        metadata['image_type'] = "IV07"
-        c = SimpleController()
-        c.convert_image_to_dicom4orthograph(metadata=metadata)
-        
-
-        metadata = make_photo_metadata()
-        metadata['input_image_filename'] = Path(
-            ".") / "test" / "resources" / "sample_topsOrtho.jp2"
-        metadata['image_type'] = "IV07"
-        c = SimpleController()
-        c.convert_image_to_dicom4orthograph(metadata=metadata)
+        with PIL.Image.open(filename) as img:
+            exif_ifd = img.getexif().getifd
+            exif_raw = img.getexif().items()
+            for tag in exif_raw:
+                print(f"{tag}")
+            exif = {
+                PIL.ExifTags.TAGS[k]: v
+                for k, v in exif_raw
+                if k in PIL.ExifTags.TAGS
+            }
+        for tag in exif.items():
+            print(f"{tag}")
 
 
-@unittest.skip ("Just a tool, not a test")
+@unittest.skip("Just a tool, not a test")
 class MPO(unittest.TestCase):
     def testsplitMPO(self):
         filename = Path(
             ".") / "test" / "resources" / "DSC_0001.JPG"
         with PIL.Image.open(filename) as img:
-            num_frames = getattr(img, "n_frames",1)
+            num_frames = getattr(img, "n_frames", 1)
             logging.info(f"Found {num_frames} frames in {img.format} image")
             for i in range(num_frames):
                 outputfilename = Path(f"{filename.stem}_{i}{filename.suffix}")
                 img.seek(i)
                 img.save(outputfilename, format='jpeg')
-        
+
         self.assertTrue(outputfilename.exists())

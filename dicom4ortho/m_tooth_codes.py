@@ -3,6 +3,8 @@
 The code meaning is an LO (Long String) VR (Value Representiation, aka data
 type) in DICOM which has a limit of 64 character.
 
+This should come directly from CID-4018 and CID-4019. How to pull? Do i need to scrape the HTML?
+
 '''
 
 SCT_TOOTH_CODES = {

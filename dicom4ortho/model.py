@@ -7,7 +7,7 @@ import io
 
 from pydicom.sequence import Sequence
 from pydicom.dataset import FileDataset, DataElement, FileMetaDataset
-from pydicom.datadict import tag_for_keyword 
+from pydicom.datadict import tag_for_keyword
 from pydicom.encaps import encapsulate
 from pydicom.uid import JPEGBaseline8Bit, JPEGExtended12Bit, ImplicitVRLittleEndian, ExplicitVRBigEndian, ExplicitVRLittleEndian, JPEGLosslessSV1, RLELossless, JPEGLosslessP14, JPEG2000
 from pydicom import dcmread as pydicom_dcmread
@@ -25,7 +25,8 @@ class DicomBase(object):
     """
 
     def __init__(self, **kwargs):
-        self.sop_instance_uid = kwargs.get("sop_instance_uid") or defaults.generate_dicom_uid()
+        self.sop_instance_uid = kwargs.get(
+            "sop_instance_uid") or defaults.generate_dicom_uid()
         self.time_string = datetime.datetime.now().strftime(defaults.TIME_FORMAT)
         self.date_string = datetime.datetime.now().strftime(defaults.DATE_FORMAT)
         self.input_image_filename = kwargs.get('input_image_filename')
@@ -154,6 +155,22 @@ class DicomBase(object):
         self._set_name("OperatorsName", lastname, 1)
 
     @ property
+    def institution_address(self):
+        return self._ds.InstitutionAddress
+
+    @ institution_address.setter
+    def institution_address(self, address):
+        self._ds.InstitutionAddress = address
+
+    @ property
+    def institution_name(self):
+        return self._ds.InstitutionName
+
+    @ institution_name.setter
+    def institution_name(self, name):
+        self._ds.InstitutionName = name
+
+    @ property
     def study_description(self):
         return self._ds.StudyDescription
 
@@ -195,6 +212,14 @@ class DicomBase(object):
         self._ds.PatientID = str(patient_id)
 
     @ property
+    def reason_for_visit(self):
+        return self._ds.ReasonForVisit
+
+    @ reason_for_visit.setter
+    def reason_for_visit(self, reason):
+        self._ds.ReasonForVisit = reason
+
+    @ property
     def patient_sex(self):
         return self._ds.PatientSex
 
@@ -210,6 +235,22 @@ class DicomBase(object):
     def patient_birthdate(self, patient_birthdate):
         self._ds.PatientBirthDate = patient_birthdate.strftime(
             defaults.DATE_FORMAT)
+
+    @ property
+    def performing_physician_firstname(self):
+        return str(self._ds.PerformingPhysicianName).split('^')[1]
+
+    @ performing_physician_firstname.setter
+    def performing_physician_firstname(self, firstname):
+        self._set_name("PerformingPhysicianName", firstname, 0)
+
+    @ property
+    def performing_physician_lastname(self):
+        return str(self._ds.PerformingPhysicianName).split('^')[0]
+
+    @ performing_physician_lastname.setter
+    def performing_physician_lastname(self, lastname):
+        self._set_name("PerformingPhysicianName", lastname, 1)
 
     @ property
     def dental_provider_firstname(self):
@@ -261,15 +302,21 @@ class DicomBase(object):
         return self._ds.AcquisitionDateTime
 
     @ acquisition_datetime.setter
-    def acquisition_datetime(self, _acquisition_datetime):
+    def acquisition_datetime(self, _acquisition_datetime: datetime.datetime):
         """
         Set Acquisition DateTime using local Time Zone.
 
         Also set Acquisition Date and Acquisition Time
         """
-        dtz = _acquisition_datetime.astimezone().strftime(
+        if _acquisition_datetime.tzinfo is None:
+            if self.timezone is not None:
+                dtz = _acquisition_datetime.replace(tzinfo=self.timezone)
+            else:
+                dtz = _acquisition_datetime.astimezone()
+
+        dtzs = dtz.strftime(
             f"{defaults.DATE_FORMAT}{defaults.TIME_FORMAT}%z")
-        self._ds.AcquisitionDateTime = dtz
+        self._ds.AcquisitionDateTime = dtzs
         self._ds.AcquisitionDate = _acquisition_datetime.strftime(
             defaults.DATE_FORMAT)
         self._ds.AcquisitionTime = _acquisition_datetime.strftime(
@@ -352,7 +399,6 @@ class DicomBase(object):
         self._ds.is_little_endian = False
         self._ds.is_implicit_VR = False
         self._ds.save_as(filename, write_like_original=False)
-
 
     def load(self, filename):
         self._ds = pydicom_dcmread(filename)
@@ -592,13 +638,14 @@ class PhotographBase(DicomBase):
         with PIL.Image.open(filename) as im:
             self._ds.Rows = im.height
             self._ds.Columns = im.width
-            with open(file=filename,mode="rb") as image_file:
-                self._ds.PixelData = encapsulate([image_file.read()])  # needs to be an array
+            with open(file=filename, mode="rb") as image_file:
+                self._ds.PixelData = encapsulate(
+                    [image_file.read()])  # needs to be an array
 
         self._ds['PixelData'].is_undefined_length = True
-        
-        # Values as defined in Part 5 Sect 8.2.1
-        # https://dicom.nema.org/medical/dicom/current/output/chtml/part05/sect_8.2.html#sect_8.2.1
+
+        # Values as defined in Part 5 Sect 8.2.4
+        # https://dicom.nema.org/medical/dicom/current/output/chtml/part05/sect_8.2.4.html
         self._ds.PhotometricInterpretation = 'RGB'
         self._ds.SamplesPerPixel = 3
         self._ds.PlanarConfiguration = 0
@@ -621,11 +668,11 @@ class PhotographBase(DicomBase):
         """ Set Image Data for JPG Images.
 
         If a lossy JPG image is obtained from the camera (non-ideal), then we should just store it as such. Storing it as raw is not reccommende because it would deceiving (unless one adds all the secondary capture tags), becuase the image would have been compressed in the first place, but then stored uncompressed, so data would be lost, without this being recorded anywhere. And takes up a lot more space.
-        
+
         Some cameras, like the Nikon D5600 will actually save MPO images, which will not support the quality argument and throw a ValueError.
 
         If the MPO image contains multiple frames, they are expanded in multiframe DICOM encapsulation, as described here: https://stackoverflow.com/questions/58518357/how-to-create-jpeg-compressed-dicom-dataset-using-pydicom Not sure there is a usecase for it. 
-        
+
         Quality of 98
 
         """
@@ -636,15 +683,17 @@ class PhotographBase(DicomBase):
             self._ds.Columns = im.width
 
             if recompress_quality is None:
-                with open(file=filename,mode="rb") as image_file:
-                    self._ds.PixelData = encapsulate([image_file.read()])  # needs to be an array
+                with open(file=filename, mode="rb") as image_file:
+                    self._ds.PixelData = encapsulate(
+                        [image_file.read()])  # needs to be an array
             else:
                 with io.BytesIO() as output:
                     im.save(output, format='jpeg', quality=recompress_quality)
-                    self._ds.PixelData = encapsulate([output.getvalue()])  # needs to be an array
+                    self._ds.PixelData = encapsulate(
+                        [output.getvalue()])  # needs to be an array
 
         # self._ds['PixelData'].is_undefined_length = True
-        
+
         # Values as defined in Part 5 Sect 8.2.1
         # https://dicom.nema.org/medical/dicom/current/output/chtml/part05/sect_8.2.html#sect_8.2.1
         self._ds.PhotometricInterpretation = 'RGB'
@@ -669,7 +718,7 @@ class PhotographBase(DicomBase):
         filename = filename or self.input_image_filename
         with PIL.Image.open(filename) as img:
             file_type = img.format
-        if file_type in ('JPEG','MPO'):
+        if file_type in ('JPEG', 'MPO'):
             self._set_image_jpeg_data(filename=filename)
         elif file_type in ('JPEG2000'):
             self._set_image_jpeg2000_data(filename=filename)

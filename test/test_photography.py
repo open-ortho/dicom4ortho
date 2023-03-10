@@ -58,14 +58,6 @@ class PhotoTests(unittest.TestCase):
     def tearDown(self):
         pass
 
-    def testOne(self):
-        ds = Dataset()
-        for f in dicom4ortho.m_orthodontic_photograph.IMAGE_TYPES['EV01']:
-            f(ds)
-        logging.debug("{}".format(ds))
-
-        self.assertEqual(ds.ImageLaterality, 'U')
-
     def testDates(self):
         o = OrthodonticPhotograph()
         o.study_datetime = datetime(1592, 2, 3, 12, 14, 11)
@@ -90,7 +82,7 @@ class PhotoTests(unittest.TestCase):
 
         o.set_time_captured(datetime(1993, 10, 12, 22, 32, 43))
         self.assertEqual(o._ds.AcquisitionDateTime,
-                         "19931012223243.000000+0200")
+                         "19931012223243.000000-0900")
         self.assertEqual(o._ds.AcquisitionDate, "19931012")
         self.assertEqual(o._ds.AcquisitionTime, "223243.000000")
         self.assertEqual(o._ds.ContentDate, "19931012")

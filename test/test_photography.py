@@ -70,6 +70,7 @@ class PhotoTests(unittest.TestCase):
         self.assertEqual(o._ds.SeriesTime, "131400.000000")
         self.assertEqual(o.series_datetime, datetime(1492, 2, 3, 13, 14))
 
+        o.timezone = timezone(timedelta(hours=+1))
         o.acquisition_datetime = datetime(1992, 2, 3, 12, 14, 11)
         self.assertEqual(o._ds.AcquisitionDateTime,
                          "19920203121411.000000+0100")

@@ -170,8 +170,12 @@ class OrthodonticPhotograph(PhotographBase):
         self._ds.ImageComments = ImageComments.replace('\xa0', '\x20')
         self._ds.SeriesDescription = self.ada1107_view.get('SeriesDescription')
 
-        self._ds.PatientOrientation = self.ada1107.CODES.get(
-            self.ada1107_view.get('PatientOrientation')).get('code').split('^')
+
+        patient_orientation_code = self.ada1107.CODES.get(self.ada1107_view.get('PatientOrientation'))
+        if patient_orientation_code is None: 
+            patient_orientation_code = self.ada1107.CODES.get('OrientationFront')
+            logging.warning(f"PatientOrientation not found for {self.output_image_filename}. Defaulting to {patient_orientation_code}")
+        self._ds.PatientOrientation = patient_orientation_code.get('code').split('^')
         self._ds.ImageLaterality = self.ada1107.CODES.get(
             self.ada1107_view.get('ImageLaterality')).get('code')
 

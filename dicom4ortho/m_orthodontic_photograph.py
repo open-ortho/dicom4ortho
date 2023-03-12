@@ -130,6 +130,9 @@ class OrthodonticPhotograph(PhotographBase):
             self.ada1107_view = self.ada1107.VIEWS.get(self.type_keyword)
 
         self._ds.BurnedInAnnotation = kwargs.get('burned_in_annotation','NO')
+        # TODO: this hardcoding might not be ideal here. But for all orthodontic photography purposes that i am aware of, this is always DSC. These could come from EXIF. See https://dicom.nema.org/medical/dicom/current/output/chtml/part17/chapter_NNNN.html but they might not.
+        self._ds.SourceType = 1 # Digital Still Camera (DSC): direct image capture
+        self._ds.FileSource = 3 # Digital Still Camera (DSC)
     def _get_code_dataset(self, ada1107_code_keyword) -> Dataset:
         """ Construct a DICOM Dataset from a row in the codes.csv of ADA1107 
 

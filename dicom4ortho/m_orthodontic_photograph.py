@@ -273,6 +273,13 @@ class OrthodonticPhotograph(PhotographBase):
         filename = filename or self.output_image_filename
         self.set_image()
         self._set_dicom_attributes()
+        
+        # We cannot save without UIDs. If the user hasn't added them, we must do so now.
+        if self._ds.StudyInstanceUID is None:
+            self._ds.StudyInstanceUID = defaults.generate_dicom_uid()
+        if self._ds.SeriesInstanceUID is None:
+            self._ds.SeriesInstanceUID = defaults.generate_dicom_uid()
+        
         self._ds.save_as(filename=filename, write_like_original=False)
         logging.warning(f"File [{filename}] saved.")
 

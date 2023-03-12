@@ -129,6 +129,7 @@ class OrthodonticPhotograph(PhotographBase):
             self.type_keyword = kwargs.get('image_type').replace('-', '')
             self.ada1107_view = self.ada1107.VIEWS.get(self.type_keyword)
 
+        self._ds.BurnedInAnnotation = kwargs.get('burned_in_annotation','NO')
     def _get_code_dataset(self, ada1107_code_keyword) -> Dataset:
         """ Construct a DICOM Dataset from a row in the codes.csv of ADA1107 
 

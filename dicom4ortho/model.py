@@ -724,5 +724,4 @@ class PhotographBase(DicomBase):
             self._set_image_jpeg2000_data(filename=filename)
         else:
             # DICOM only supports encapsulation for JPEG. Everything else needs to be decoded and re-encoded as raw.
-            logging.warning(f"Unsupported image type: {img.format}")
             self._set_image_raw_data(filename=filename)

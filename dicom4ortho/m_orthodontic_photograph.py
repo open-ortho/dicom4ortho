@@ -133,6 +133,7 @@ class OrthodonticPhotograph(PhotographBase):
         # TODO: this hardcoding might not be ideal here. But for all orthodontic photography purposes that i am aware of, this is always DSC. These could come from EXIF. See https://dicom.nema.org/medical/dicom/current/output/chtml/part17/chapter_NNNN.html but they might not.
         self._ds.SourceType = 1 # Digital Still Camera (DSC): direct image capture
         self._ds.FileSource = 3 # Digital Still Camera (DSC)
+
     def _get_code_dataset(self, ada1107_code_keyword) -> Dataset:
         """ Construct a DICOM Dataset from a row in the codes.csv of ADA1107 
 
@@ -281,7 +282,7 @@ class OrthodonticPhotograph(PhotographBase):
             self._ds.SeriesInstanceUID = defaults.generate_dicom_uid()
         
         self._ds.save_as(filename=filename, write_like_original=False)
-        logging.warning(f"File [{filename}] saved.")
+        logging.info(f"File [{filename}] saved.")
 
 
 class OrthodonticSeries():

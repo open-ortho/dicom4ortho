@@ -34,13 +34,9 @@ class SimpleController(object):
 
         All image metadata are passed as a dict in metadata with the following keys:
 
-        input_image_filename: Input image file name
-
-        output_image_filename: the filename of the output .DCM image. You must
-        provide your extension here.
-
         metadata:
 
+            input_image_filename        : Input image file name
             patient_firstname           :
             patient_lastname            :
             patient_id                  :
@@ -48,6 +44,7 @@ class SimpleController(object):
             patient_birthdate           :
             dental_provider_firstname   :
             dental_provider_lastname    :
+            burned_in_annotation        : 'YES' or 'NO'. Default = 'NO'.
             teeth                       : array of teeth visible in the photograph.
                                           Use ISO notation in string. Example:
                                           teeth=['24','25','26','27','28','34','35','36','37','38']

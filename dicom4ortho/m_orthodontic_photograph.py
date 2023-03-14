@@ -204,11 +204,12 @@ class OrthodonticPhotograph(PhotographBase):
                 concept_name_code_sequence = self._get_code_sequence(
                     concept_name)
                 for concept_code in self.ada1107_view.get(key).split("^"):
-                    acs_ds = Dataset()
-                    acs_ds.ValueType = 'CODE'
-                    acs_ds.ConceptNameCodeSequence = concept_name_code_sequence
-                    acs_ds.ConceptCodeSequence = self._get_code_sequence(concept_code)
-                    AcquisitionContextSequence.append(acs_ds)
+                    if concept_code != "na" and len(concept_code) > 0:
+                        acs_ds = Dataset()
+                        acs_ds.ValueType = 'CODE'
+                        acs_ds.ConceptNameCodeSequence = concept_name_code_sequence
+                        acs_ds.ConceptCodeSequence = self._get_code_sequence(concept_code)
+                        AcquisitionContextSequence.append(acs_ds)
         self._ds.AcquisitionContextSequence = AcquisitionContextSequence
 
     def add_device(self):
@@ -228,7 +229,8 @@ class OrthodonticPhotograph(PhotographBase):
         # More than one AnatomicRegionModifierSequence are allowed
         AnatomicRegionModifierSequence = Sequence([])
         for arm in self.ada1107_view.get('AnatomicRegionModifierSequence').split("^"):
-            AnatomicRegionModifierSequence.append(self._get_code_dataset(arm))
+            if arm != "na" and len(arm) > 0:
+                AnatomicRegionModifierSequence.append(self._get_code_dataset(arm))
         # The AnatomicRegionModifierSequence must be part of AnatomicRegionSequence
         if (len(AnatomicRegionModifierSequence) > 0):
             self._ds.AnatomicRegionSequence[0].AnatomicRegionModifierSequence = AnatomicRegionModifierSequence

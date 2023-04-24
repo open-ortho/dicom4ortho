@@ -19,7 +19,6 @@ class ADA1107(object):
 
     def _load_views(self):
         # Override official location, if not yet published, for dev purposes
-        URL_ADA1107_VIEWS = "file:///Users/afm/git/open-ortho/ada-1107/source/tables/views.csv"
         with urllib.request.urlopen(URL_ADA1107_VIEWS) as response:
             lines = [l.decode('utf-8').strip() for l in response.readlines()]
             reader = csv.DictReader(lines)
@@ -32,7 +31,6 @@ class ADA1107(object):
 
     def _load_codes(self):
         # Override official location, if not yet published, for dev purposes
-        URL_ADA1107_CODES = "file:///Users/afm/git/open-ortho/ada-1107/source/tables/codes.csv"
         with urllib.request.urlopen(URL_ADA1107_CODES) as response:
             lines = [l.decode('utf-8').strip() for l in response.readlines()]
             reader = csv.DictReader(lines)

@@ -191,6 +191,7 @@ class OrthodonticPhotograph(PhotographBase):
 
         self.add_device()
         self.add_anatomic_region()
+        self.add_view_code()
         self.add_primary_anatomic_structure()
         self.add_acquisition_context()
         # self.add_teeth()
@@ -234,6 +235,22 @@ class OrthodonticPhotograph(PhotographBase):
         # The AnatomicRegionModifierSequence must be part of AnatomicRegionSequence
         if (len(AnatomicRegionModifierSequence) > 0):
             self._ds.AnatomicRegionSequence[0].AnatomicRegionModifierSequence = AnatomicRegionModifierSequence
+
+    def add_view_code(self):
+        """ Identical function as add_anatomic_region()
+        """
+        # ViewCodeSequence allows for a single value
+        self._ds.ViewCodeSequence = self._get_code_sequence(
+            self.ada1107_view.get('ViewCodeSequence'))
+
+        # More than one AnatomicRegionModifierSequence are allowed
+        ViewModifierCodeSequence = Sequence([])
+        for vmcs in self.ada1107_view.get('ViewModifierCodeSequence').split("^"):
+            if vmcs != "na" and len(vmcs) > 0:
+                ViewModifierCodeSequence.append(self._get_code_dataset(vmcs))
+        # The AnatomicRegionModifierSequence must be part of AnatomicRegionSequence
+        if (len(ViewModifierCodeSequence) > 0):
+            self._ds.ViewCodeSequence[0].ViewModifierCodeSequence = ViewModifierCodeSequence
 
     def add_primary_anatomic_structure(self):
         # PrimaryAnatomicStructureSequence allows for multiple values, but currently only one is supported by this code.

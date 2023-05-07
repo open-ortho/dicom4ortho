@@ -15,14 +15,21 @@ birthmark,51089004,SCT,Birthmark (disorder),AcquisitionContextSequence^Functiona
 tattoo,341000119102,SCT,Tattoo of skin (finding),AcquisitionContextSequence^FunctionalConditionPresentDuringAcquisition,
 gingival_recession,4356008,SCT,Gingival recession (disorder),AcquisitionContextSequence^FunctionalConditionPresentDuringAcquisition,
 mpf,787611004,SCT,Photographic image extraoral with mandible postured forward (record artifact),AcquisitionContextSequence^FunctionalConditionPresentDuringAcquisition,"I'm not happy with this code, because it should be an observable entity like co and cr, since it goes into FCPDA."
-right_projection,399198007,SCT,Right lateral projection (qualifier value),AcquisitionContextSequence^ImageView,
-left_projection,399173006,SCT,Left lateral projection (qualifier value),AcquisitionContextSequence^ImageView,
-frontal,399033003,SCT,Frontal projection (qualifier value),AcquisitionContextSequence^ImageView,
-occlusal,260499007,SCT,Occlusal projection (qualifier value),AcquisitionContextSequence^ImageView,
-45deg,260454004,SCT,45 degree projection (qualifier value),AcquisitionContextSequence^ImageView,
-closeup,789131009,SCT,Close up photographic view of teeth with no set magnification or distance (record artifact),AcquisitionContextSequence^ImageViewModifier,"I'm not happy with this code, because it should be an qualifier value, like direct since it goes into ImageViewModifier."
-mirror_corrected,787610003,SCT,Photographic image corrected intraoral mirrored visible record (record artifact),AcquisitionContextSequence^ImageViewModifier,
-mirror_uncorrected,789135000,SCT,Mirrored visible image uncorrected (record artifact),AcquisitionContextSequence^ImageViewModifier,
+TimePointType,126072,DCM,Time Point Type,AcquisitionContextSequence^TimePointType,A pre-defined type of a specific time point in a continuum.
+UnderObservation,C1442488,UMLS,Under Observation,AcquisitionContextSequence^TimePointType,
+Pretreatment,C3539076,UMLS,Pretreatment,AcquisitionContextSequence^TimePointType,
+Progress,N/A,,Progress,AcquisitionContextSequence^TimePointType,
+Posttreatment,126074,DCM,Posttreatment,AcquisitionContextSequence^TimePointType,
+Final,N/A,,Final,AcquisitionContextSequence^TimePointType,
+TimePointOrder,126073,DCM,Time Point Order,AcquisitionContextSequence^TimePointOrder,A number indicating the order of a time point relative to other time points in the same continuum.
+right_projection,399198007,SCT,Right lateral projection (qualifier value),ViewCodeSequence,
+left_projection,399173006,SCT,Left lateral projection (qualifier value),ViewCodeSequence,
+frontal,399033003,SCT,Frontal projection (qualifier value),ViewCodeSequence,
+occlusal,260499007,SCT,Occlusal projection (qualifier value),ViewCodeSequence,
+45deg,260454004,SCT,45 degree projection (qualifier value),ViewCodeSequence,
+closeup,789131009,SCT,Close up photographic view of teeth with no set magnification or distance (record artifact),ViewModifierCodeSequence,"I'm not happy with this code, because it should be an qualifier value, like direct since it goes into ImageViewModifier."
+mirror_corrected,787610003,SCT,Photographic image corrected intraoral mirrored visible record (record artifact),ViewModifierCodeSequence,
+mirror_uncorrected,789135000,SCT,Mirrored visible image uncorrected (record artifact),ViewModifierCodeSequence,
 face_structure,89545001,SCT,Face structure (body structure),AnatomicRegionModifierSequence,
 face_right,424431000,SCT,Structure of right half of face (body structure),AnatomicRegionModifierSequence,
 face_left,423781004,SCT,Structure of left half of face (body structure),AnatomicRegionModifierSequence,

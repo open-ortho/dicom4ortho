@@ -28,8 +28,8 @@ DATE_FORMAT = '%Y%m%d'
 TIME_FORMAT = '%H%M%S.%f'
 DICOM_PREAMBLE = b'\0' * 128
 
-URL_ADA1107_VIEWS = f"file://{pkg_resources.resource_filename('dicom4ortho.resources','views.csv')}"
-URL_ADA1107_CODES = f"file://{pkg_resources.resource_filename('dicom4ortho.resources','codes.csv')}"
+URL_ADA1107_VIEWS = Path(pkg_resources.resource_filename('dicom4ortho.resources','views.csv')).as_uri()
+URL_ADA1107_CODES = Path(pkg_resources.resource_filename('dicom4ortho.resources','codes.csv')).as_uri()
 
 # This is a unique ID generated for this specific software only.
 #  * Random generation using generate_dicom_uid() below

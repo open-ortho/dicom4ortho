@@ -40,7 +40,7 @@ clean:
 	echo "Removed all .egg-info files."
 	rm -f test/resources/*.dcm
 	echo "Removed *.dcm files in test/resources."
-	find . -path '*/__pycache*' -delete
+	find . -path "*/__pycache*" -delete
 	echo "Deleted all __pycache files."
 
 $(DIST):

@@ -72,6 +72,7 @@ class DicomBase(object):
         self._ds.AcquisitionContextSequence = Sequence([])
 
     def _set_sop_common(self):
+        self._ds.SpecificCharacterSet = "ISO_IR 192" # UTF-8
         self._ds.SOPInstanceUID = self.sop_instance_uid
         self._ds.TimezoneOffsetFromUTC = datetime.datetime.now().astimezone().strftime("%z")
 

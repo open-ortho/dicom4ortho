@@ -44,6 +44,11 @@ class SimpleController(object):
             patient_birthdate           :
             dental_provider_firstname   :
             dental_provider_lastname    :
+            treatment_event_type        : Allowed values:
+                                            - "PatientRegistration"
+                                            - "OrthodonticTreatment"
+                                            - "Posttreatment"
+            days_after_event            : number of days from treatment_event_type
             burned_in_annotation        : 'YES' or 'NO'. Default = 'NO'.
             teeth                       : array of teeth visible in the photograph.
                                           Use ISO notation in string. Example:
@@ -59,19 +64,21 @@ class SimpleController(object):
 
         self.photo = OrthodonticPhotograph(**metadata)
 
-        self.photo.study_instance_uid = metadata.get('study_instance_uid')
-        self.photo.study_description =  metadata.get('study_description')
-        self.photo.series_instance_uid =  metadata.get('series_instance_uid')
-        self.photo.series_description =  metadata.get('series_description')
-        self.photo.patient_firstname =  metadata.get('patient_firstname')
-        self.photo.patient_lastname =  metadata.get('patient_lastname')
-        self.photo.patient_id =  metadata.get('patient_id')
-        self.photo.patient_sex =  metadata.get('patient_sex')
-        self.photo.patient_birthdate = datetime.datetime.strptime(
-             metadata.get('patient_birthdate'), defaults.IMPORT_DATE_FORMAT).date()
-        self.photo.dental_provider_firstname =  metadata.get('dental_provider_firstname')
-        self.photo.dental_provider_lastname =  metadata.get('dental_provider_lastname')
-        self.photo.equipment_manufacturer =  metadata.get('manufacturer')
+        # self.photo.study_instance_uid = metadata.get('study_instance_uid')
+        # self.photo.study_description =  metadata.get('study_description')
+        # self.photo.series_instance_uid =  metadata.get('series_instance_uid')
+        # self.photo.series_description =  metadata.get('series_description')
+        # self.photo.patient_firstname =  metadata.get('patient_firstname')
+        # self.photo.patient_lastname =  metadata.get('patient_lastname')
+        # self.photo.patient_id =  metadata.get('patient_id')
+        # self.photo.patient_sex =  metadata.get('patient_sex')
+        # self.photo.patient_birthdate = datetime.datetime.strptime(
+        #      metadata.get('patient_birthdate'), defaults.IMPORT_DATE_FORMAT).date()
+        # self.photo.dental_provider_firstname =  metadata.get('dental_provider_firstname')
+        # self.photo.dental_provider_lastname =  metadata.get('dental_provider_lastname')
+        # self.photo.equipment_manufacturer =  metadata.get('manufacturer')
+        # self.photo.treatment_event_type = metadata.get('treatment_event_type')
+        # self.photo.days_after_event = metadata.get('days_after_event')
 
         # TODO: check if metadata['teeth'] contains teeth and add
         # What teeth are shown in the images is something we cannot guess from

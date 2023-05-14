@@ -6,6 +6,7 @@ Adds SNOMED CT codes in DICOM object for Orthodontic Views.
 '''
 
 import logging
+from datetime import datetime
 from pydicom.sequence import Sequence
 from pydicom.dataset import Dataset
 
@@ -119,19 +120,41 @@ class OrthodonticPhotograph(PhotographBase):
     type_keyword = ""  # Orthodontic View String, e.g. "IV03"
     ada1107_view = None  # Row in ADA-1107 views.csv for this particular view
     teeth = None
+    treatment_event_type = None
+    days_after_event = None
 
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
+    def __init__(self, **metadata):
+        super().__init__(**metadata)
         self.ada1107 = ADA1107()
-        self.teeth = kwargs.get('teeth')
-        if kwargs.get('image_type') is not None:
+        self.teeth = metadata.get('teeth')
+        if metadata.get('image_type') is not None:
             # Allow for both dash separated and not separated naming
-            self.type_keyword = kwargs.get('image_type').replace('-', '')
+            self.type_keyword = metadata.get('image_type').replace('-', '')
             self.ada1107_view = self.ada1107.VIEWS.get(self.type_keyword)
+
+        patient_birthdate = metadata.get('patient_birthdate')
+        try:
+            self.patient_birthdate = datetime.strptime(patient_birthdate, defaults.IMPORT_DATE_FORMAT).date()
+        except (ValueError, TypeError):
+            logging.warn(f"Invalid Patient Birthdate {patient_birthdate}")
+                
+        self.study_instance_uid = metadata.get('study_instance_uid')
+        self.study_description =  metadata.get('study_description')
+        self.series_instance_uid =  metadata.get('series_instance_uid')
+        self.series_description =  metadata.get('series_description')
+        self.patient_firstname =  metadata.get('patient_firstname','')
+        self.patient_lastname =  metadata.get('patient_lastname','')
+        self.patient_id =  metadata.get('patient_id','')
+        self.patient_sex =  metadata.get('patient_sex','')
+        self.dental_provider_firstname =  metadata.get('dental_provider_firstname','')
+        self.dental_provider_lastname =  metadata.get('dental_provider_lastname','')
+        self.equipment_manufacturer =  metadata.get('manufacturer')
+        self.treatment_event_type = metadata.get('treatment_event_type')
+        self.days_after_event = metadata.get('days_after_event')
 
         # TODO: extract this to a higher level to give the user the ability to set it when needed.
         # See https://github.com/open-ortho/dicom4ortho/issues/16
-        self._ds.BurnedInAnnotation = kwargs.get('burned_in_annotation','NO')
+        self._ds.BurnedInAnnotation = metadata.get('burned_in_annotation','NO')
         
         # this hardcoding might not be ideal here. But for all orthodontic photography purposes that i am aware of, this is always DSC. These could come from EXIF. See https://dicom.nema.org/medical/dicom/current/output/chtml/part17/chapter_NNNN.html but they might not. The code here should 
         self._ds.SceneType = 1 # Digital Still Camera (DSC): direct image capture
@@ -197,6 +220,20 @@ class OrthodonticPhotograph(PhotographBase):
         # self.add_teeth()
 
     def add_acquisition_context(self):
+        def add_progress():
+            if self.treatment_event_type and self.days_after_event:
+                acs_ds = Dataset()
+                acs_ds.ValueType = 'CODE'
+                acs_ds.ConceptNameCodeSequence = self._get_code_sequence("TemporalEventType")  
+                acs_ds.ConceptCodeSequence = self._get_code_sequence(self.treatment_event_type)
+                AcquisitionContextSequence.append(acs_ds)
+
+                acs_ds = Dataset()
+                acs_ds.ValueType = 'NUMERIC'
+                acs_ds.ConceptNameCodeSequence = self._get_code_sequence("OffsetFromEvent")  
+                acs_ds.NumericValue = self.days_after_event
+                AcquisitionContextSequence.append(acs_ds)
+
         AcquisitionContextSequence = Sequence([])
         # Find all columns which start with AcquisitionContextSequence in ada1107_view
         for index, key in enumerate(self.ada1107_view):
@@ -211,6 +248,7 @@ class OrthodonticPhotograph(PhotographBase):
                         acs_ds.ConceptNameCodeSequence = concept_name_code_sequence
                         acs_ds.ConceptCodeSequence = self._get_code_sequence(concept_code)
                         AcquisitionContextSequence.append(acs_ds)
+        add_progress()
         self._ds.AcquisitionContextSequence = AcquisitionContextSequence
 
     def add_device(self):

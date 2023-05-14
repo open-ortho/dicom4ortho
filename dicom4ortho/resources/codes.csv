@@ -15,13 +15,13 @@ birthmark,51089004,SCT,Birthmark (disorder),AcquisitionContextSequence^Functiona
 tattoo,341000119102,SCT,Tattoo of skin (finding),AcquisitionContextSequence^FunctionalConditionPresentDuringAcquisition,
 gingival_recession,4356008,SCT,Gingival recession (disorder),AcquisitionContextSequence^FunctionalConditionPresentDuringAcquisition,
 mpf,787611004,SCT,Photographic image extraoral with mandible postured forward (record artifact),AcquisitionContextSequence^FunctionalConditionPresentDuringAcquisition,"I'm not happy with this code, because it should be an observable entity like co and cr, since it goes into FCPDA."
-TimePointType,126072,DCM,Time Point Type,AcquisitionContextSequence^TimePointType,A pre-defined type of a specific time point in a continuum.
-UnderObservation,C1442488,UMLS,Under Observation,AcquisitionContextSequence^TimePointType,
-Pretreatment,C3539076,UMLS,Pretreatment,AcquisitionContextSequence^TimePointType,
-Progress,N/A,,Progress,AcquisitionContextSequence^TimePointType,
-Posttreatment,126074,DCM,Posttreatment,AcquisitionContextSequence^TimePointType,
-Final,N/A,,Final,AcquisitionContextSequence^TimePointType,
-TimePointOrder,126073,DCM,Time Point Order,AcquisitionContextSequence^TimePointOrder,A number indicating the order of a time point relative to other time points in the same continuum.
+TemporalEventType,128741,DCM,Longitudinal Temporal Event Type,AcquisitionContextSequence^LongitudinalTemporalEventType,A pre-defined type of a specific time point in a continuum.
+PatientRegistration,121079,DCM,Baseline,AcquisitionContextSequence^LongitudinalTemporalEventType,
+PatientRegistration,184047000,SCT,Patient registration (procedure),AcquisitionContextSequence^LongitudinalTemporalEventType,
+OrthodonticTreatment,C37948,NCIt,Enrollment,AcquisitionContextSequence^LongitudinalTemporalEventType,
+OrthodonticTreatment,122452007,SCT,Comprehensive orthodontic treatment (procedure),AcquisitionContextSequence^LongitudinalTemporalEventType,
+Posttreatment,126074,DCM,Posttreatment,AcquisitionContextSequence^LongitudinalTemporalEventType,
+OffsetFromEvent,128740,DCM,Longitudinal Temporal Offset from Event,AcquisitionContextSequence^LongitudinalTemporalOffsetFromEvent,A number indicating the order of a time point relative to other time points in the same continuum.
 right_projection,399198007,SCT,Right lateral projection (qualifier value),ViewCodeSequence,
 left_projection,399173006,SCT,Left lateral projection (qualifier value),ViewCodeSequence,
 frontal,399033003,SCT,Frontal projection (qualifier value),ViewCodeSequence,

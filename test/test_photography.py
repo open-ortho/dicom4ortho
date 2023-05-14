@@ -28,12 +28,14 @@ def make_photo_metadata():
         "dental_provider_lastname": "Murray",
         "study_instance_uid": generate_dicom_uid(),
         "series_instance_uid": generate_dicom_uid(),
-        "series_description": "UnitTest make_photo_metadata"
+        "series_description": "UnitTest make_photo_metadata",
+        "days_after_event": 212,
+        "treatment_event_type": "OrthodonticTreatment"
     }
     return metadata
 
 
-def photo_generator(image_type: str, filename) -> OrthodonticPhotograph:
+def photo_generator(image_type: str, filename: Path) -> OrthodonticPhotograph:
     o = OrthodonticPhotograph(
         image_type=image_type,
     )
@@ -88,6 +90,17 @@ class PhotoTests(unittest.TestCase):
         self.assertEqual(o._ds.AcquisitionTime, "223243.000000")
         self.assertEqual(o._ds.ContentDate, "19931012")
         self.assertEqual(o._ds.ContentTime, "223243.000000")
+
+    def testProgress(self):
+        md = make_photo_metadata()
+        md["days_after_event"] = 212
+        md["treatment_event_type"] = "OrthodonticTreatment"
+        md["image_type"] = "EV08"
+        o = OrthodonticPhotograph(**md)
+        o._set_dicom_attributes()
+
+        self.assertEqual(o._ds.AcquisitionContextSequence[3].NumericValue,212)
+
 
     def testNames(self):
         o = OrthodonticPhotograph()

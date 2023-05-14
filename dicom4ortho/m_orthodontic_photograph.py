@@ -231,6 +231,7 @@ class OrthodonticPhotograph(PhotographBase):
                 acs_ds = Dataset()
                 acs_ds.ValueType = 'NUMERIC'
                 acs_ds.ConceptNameCodeSequence = self._get_code_sequence("OffsetFromEvent")  
+                acs_ds.MeasurementUnitsCodeSequence = self._get_code_sequence("day")
                 acs_ds.NumericValue = self.days_after_event
                 AcquisitionContextSequence.append(acs_ds)
 

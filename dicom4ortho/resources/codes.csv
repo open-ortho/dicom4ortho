@@ -1,9 +1,9 @@
 keyword,code,codeset,meaning,used for,notes
 FunctionalConditionPresentDuringAcquisition,130324,DCM,Functional condition present during acquisition,AcquisitionContextSequence^FunctionalConditionPresentDuringAcquisition,
 mouth_open,262016004,SCT,Open mouth (finding),AcquisitionContextSequence^FunctionalConditionPresentDuringAcquisition,
-teeth_apart,789130005,SCT,Photographic image with mouth partially opened position and teeth apart (record artifact),AcquisitionContextSequence^FunctionalConditionPresentDuringAcquisition,"I'm not happy with this code, because it should be an observable entity like co and cr, since it goes into FCPDA."
-lips_relaxed,789314008,SCT,Photographic image of face with lips in relaxed position (record artifact),AcquisitionContextSequence^FunctionalConditionPresentDuringAcquisition,"I'm not happy with this code, because it should be an observable entity like co and cr, since it goes into FCPDA."
-lips_closed,787607005,SCT,Photographic image with lips closed (record artifact),AcquisitionContextSequence^FunctionalConditionPresentDuringAcquisition,
+teeth_apart,10,TMP,Mouth in partially open position and teeth apart (observable entity),AcquisitionContextSequence^FunctionalConditionPresentDuringAcquisition,Still waiting for SNOMED-CT code. Should be an observable entity or finding.
+lips_relaxed,20,TMP,Face with lips in relaxed position (observable entity),AcquisitionContextSequence^FunctionalConditionPresentDuringAcquisition,Still waiting for SNOMED-CT code. Should be an observable entity or finding.
+lips_closed,30,TMP,Face with lips in closed position (observable entity),AcquisitionContextSequence^FunctionalConditionPresentDuringAcquisition,Still waiting for SNOMED-CT code. Should be an observable entity or finding.
 smile,225583004,SCT,Smiles (finding),AcquisitionContextSequence^FunctionalConditionPresentDuringAcquisition,
 cant,710793000,SCT,Cant of occlusal plane (observable entity),AcquisitionContextSequence^FunctionalConditionPresentDuringAcquisition,
 palsy,193093009,SCT,Bell's palsy (disorder),AcquisitionContextSequence^FunctionalConditionPresentDuringAcquisition,
@@ -14,7 +14,7 @@ slap_mark,281689009,SCT,Slap mark (disorder),AcquisitionContextSequence^Function
 birthmark,51089004,SCT,Birthmark (disorder),AcquisitionContextSequence^FunctionalConditionPresentDuringAcquisition,
 tattoo,341000119102,SCT,Tattoo of skin (finding),AcquisitionContextSequence^FunctionalConditionPresentDuringAcquisition,
 gingival_recession,4356008,SCT,Gingival recession (disorder),AcquisitionContextSequence^FunctionalConditionPresentDuringAcquisition,
-mpf,787611004,SCT,Photographic image extraoral with mandible postured forward (record artifact),AcquisitionContextSequence^FunctionalConditionPresentDuringAcquisition,"I'm not happy with this code, because it should be an observable entity like co and cr, since it goes into FCPDA."
+mpf,40,TMP,Mandible postured forward (record artifact),AcquisitionContextSequence^FunctionalConditionPresentDuringAcquisition,Still waiting for SNOMED-CT code. Should be an observable entity or finding.
 TemporalEventType,128741,DCM,Longitudinal Temporal Event Type,AcquisitionContextSequence^LongitudinalTemporalEventType,A pre-defined type of a specific time point in a continuum.
 PatientRegistration,121079,DCM,Baseline,AcquisitionContextSequence^LongitudinalTemporalEventType,
 PatientRegistration,184047000,SCT,Patient registration (procedure),AcquisitionContextSequence^LongitudinalTemporalEventType,
@@ -27,7 +27,7 @@ left_projection,399173006,SCT,Left lateral projection (qualifier value),ViewCode
 frontal,399033003,SCT,Frontal projection (qualifier value),ViewCodeSequence,
 occlusal,260499007,SCT,Occlusal projection (qualifier value),ViewCodeSequence,
 45deg,260454004,SCT,45 degree projection (qualifier value),ViewCodeSequence,
-closeup,789131009,SCT,Close up photographic view of teeth with no set magnification or distance (record artifact),ViewModifierCodeSequence,"I'm not happy with this code, because it should be an qualifier value, like direct since it goes into ImageViewModifier."
+closeup,50,TMP,Close up,ViewModifierCodeSequence,Still waiting for SNOMED-CT code. Should be an observable entity or finding.
 mirror_corrected,787610003,SCT,Photographic image corrected intraoral mirrored visible record (record artifact),ViewModifierCodeSequence,
 mirror_uncorrected,789135000,SCT,Mirrored visible image uncorrected (record artifact),ViewModifierCodeSequence,
 FaceStructure,89545001,SCT,Face structure (body structure),PrimaryAnatomicStructureSequence,

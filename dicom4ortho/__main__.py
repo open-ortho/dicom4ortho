@@ -9,7 +9,7 @@ import csv
 import os
 from argparse import ArgumentParser
 from argparse import RawDescriptionHelpFormatter
-import pkg_resources
+import importlib.resources as importlib_resources
 from prettytable import PrettyTable
 
 import dicom4ortho.defaults as defaults
@@ -33,13 +33,12 @@ class CLIError(Exception):
 
 
 def print_image_types():
-    image_types_filename = pkg_resources.resource_filename(
-        'dicom4ortho.resources', 'image_types.csv')
+    image_types_filename = importlib_resources.files('dicom4ortho.resources') / 'image_types.csv'
     logging.debug("Image type filenames is: {}".format(image_types_filename))
     header1 = 'Type'
     header2 = 'Abbreviated'
     header3 = 'Full Meaning'
-    with open(image_types_filename) as image_types_csvfile:
+    with importlib_resources.as_file(image_types_filename) as image_types_csvfile:
         reader = csv.reader(image_types_csvfile)
         image_types_table = PrettyTable([header1, header2, header3])
         for row in reader:

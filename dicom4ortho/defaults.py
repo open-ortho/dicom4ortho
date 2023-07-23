@@ -5,7 +5,7 @@ Defaults and Constants.
 import uuid
 import logging
 from pathlib import Path
-import pkg_resources
+import importlib.resources as importlib_resources
 
 VERSION = '0.1.5-dev'
 __url__ = 'https://github.com/open-ortho/dicom4ortho'
@@ -28,8 +28,10 @@ DATE_FORMAT = '%Y%m%d'
 TIME_FORMAT = '%H%M%S.%f'
 DICOM_PREAMBLE = b'\0' * 128
 
-URL_ADA1107_VIEWS = Path(pkg_resources.resource_filename('dicom4ortho.resources','views.csv')).as_uri()
-URL_ADA1107_CODES = Path(pkg_resources.resource_filename('dicom4ortho.resources','codes.csv')).as_uri()
+URL_ADA1107_VIEWS = importlib_resources.files('dicom4ortho.resources') /'views.csv'
+URL_ADA1107_VIEWS = URL_ADA1107_VIEWS.as_uri()
+URL_ADA1107_CODES = importlib_resources.files('dicom4ortho.resources') /'codes.csv'
+URL_ADA1107_CODES = URL_ADA1107_CODES.as_uri()
 
 # This is a unique ID generated for this specific software only.
 #  * Random generation using generate_dicom_uid() below

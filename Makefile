@@ -30,7 +30,7 @@ lint:
 
 .PHONY: test
 test:
-	python -m unittest
+	python3 -m unittest
 
 .PHONY: clean
 clean:
@@ -48,12 +48,12 @@ $(DIST):
 
 .PHONY: build
 build: lint test $(DIST)
-	python -m setup sdist
+	python3 -m setup sdist
 
 .PHONY: deploy
 deploy:
 	echo "Deplyoing to PyPi."
-	python -m twine upload --repository pypi dist/*
+	python3 -m twine upload --repository pypi dist/*
 
 .PHONY: all
 all: clean build

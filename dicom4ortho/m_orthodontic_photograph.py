@@ -133,10 +133,11 @@ class OrthodonticPhotograph(PhotographBase):
             self.ada1107_view = self.ada1107.VIEWS.get(self.type_keyword)
 
         patient_birthdate = metadata.get('patient_birthdate')
-        try:
-            self.patient_birthdate = datetime.strptime(patient_birthdate, defaults.IMPORT_DATE_FORMAT).date()
-        except (ValueError, TypeError):
-            logging.warn(f"Invalid Patient Birthdate {patient_birthdate}")
+        if patient_birthdate is not None:
+            try:
+                self.patient_birthdate = datetime.strptime(patient_birthdate, defaults.IMPORT_DATE_FORMAT).date()
+            except (ValueError, TypeError):
+                logging.warn(f"Invalid Patient Birthdate {patient_birthdate}")
                 
         self.study_instance_uid = metadata.get('study_instance_uid')
         self.study_description =  metadata.get('study_description')

@@ -51,6 +51,7 @@ build: lint test $(DIST)
 .PHONY: deploy
 deploy:
 	echo "Deplyoing to PyPi."
+	echo "To deploy, make sure you have a token saved in ~/.pypirc . See https://pypi.org/manage/account/token/?selected_project=dicom4ortho"
 	python3 -m twine upload --repository pypi dist/*
 
 .PHONY: all

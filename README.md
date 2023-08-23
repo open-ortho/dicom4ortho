@@ -12,7 +12,7 @@
     <img src="https://raw.githubusercontent.com/open-ortho/dicom4ortho/master/images/open-ortho.png" alt="Logo" width="80" height="80">
   </a>
 
-  <h3 align="center">dicom4ortho 0.1.5</h3>
+  <h3 align="center">dicom4ortho 0.2.1</h3>
 
   <p align="center">
     A Python library to create fully defined orthodontic photographs in DICOM.
@@ -37,20 +37,20 @@
   - [Validation with dicom3tools](#validation-with-dicom3tools)
 - [Usage](#usage)
   - [CSV Image file format](#csv-image-file-format)
-    - [patient_firstname](#patient_firstname)
-    - [patient_lastname](#patient_lastname)
-    - [patient_id](#patient_id)
-    - [patient_sex](#patient_sex)
-    - [patient_birthdate](#patient_birthdate)
-    - [dental_provider_firstname](#dental_provider_firstname)
-    - [dental_provider_lastname](#dental_provider_lastname)
-    - [image_type](#image_type)
+    - [patient\_firstname](#patient_firstname)
+    - [patient\_lastname](#patient_lastname)
+    - [patient\_id](#patient_id)
+    - [patient\_sex](#patient_sex)
+    - [patient\_birthdate](#patient_birthdate)
+    - [dental\_provider\_firstname](#dental_provider_firstname)
+    - [dental\_provider\_lastname](#dental_provider_lastname)
+    - [image\_type](#image_type)
     - [manufacturer](#manufacturer)
-    - [input_image_filename](#input_image_filename)
-    - [study_instance_uid](#study_instance_uid)
-    - [study_description](#study_description)
-    - [series_instance_uid](#series_instance_uid)
-    - [series_description](#series_description)
+    - [input\_image\_filename](#input_image_filename)
+    - [study\_instance\_uid](#study_instance_uid)
+    - [study\_description](#study_description)
+    - [series\_instance\_uid](#series_instance_uid)
+    - [series\_description](#series_description)
 - [Known Issues](#known-issues)
 - [Roadmap](#roadmap)
 - [Contributing](#contributing)

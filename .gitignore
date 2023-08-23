@@ -5,3 +5,4 @@ build
 *.pyc
 *.egg-info
 *.dcm
+modules/dicom3tools

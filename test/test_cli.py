@@ -25,9 +25,15 @@ class Test(unittest.TestCase):
             resource_path = os.path.dirname(input_csv)
         return_status = dicom4ortho.__main__.main(testargs)
         self.assertEqual(return_status, 0)
-        assert os.path.exists(os.path.join(resource_path,'EV-01_EO.RP.LR.CO.dcm'))
-        assert os.path.exists(os.path.join(resource_path,'EV-17_EO.FF.LC.CO.dcm'))
-        assert os.path.exists(os.path.join(resource_path,'IV-25_IO.MX.MO.OV.WM.BC.dcm'))
+        output_file1 = os.path.join(resource_path,'EV-01_EO.RP.LR.CO.dcm') 
+        output_file2 = (os.path.join(resource_path,'EV-17_EO.FF.LC.CO.dcm'))
+        output_file3 = (os.path.join(resource_path,'IV-25_IO.MX.MO.OV.WM.BC.dcm'))
+        assert os.path.exists(output_file1)
+        os.remove(output_file1)
+        assert os.path.exists(output_file2)
+        os.remove(output_file2)
+        assert os.path.exists(output_file3)
+        os.remove(output_file3)
 
     def testHelp(self):
         testargs = ['','-h']

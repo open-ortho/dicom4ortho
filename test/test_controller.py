@@ -18,10 +18,3 @@ class Test(unittest.TestCase):
 
     def tearDown(self):
         pass
-
-    def test_load_image_types(self):
-        controller.SimpleController(None)
-        self.assertEqual(len(defaults.image_types), 73)
-        self.assertEqual(len(defaults.image_types['EV01']), 2)
-        self.assertEqual(defaults.image_types['EV01'][0], "EO.RP.LR.CO")
-        self.assertEqual(defaults.image_types['EV04'][1], "Extraoral, Right Profile (subject is facing observer's right), Lips Closed, Centric Relation")

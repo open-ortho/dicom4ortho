@@ -3,10 +3,15 @@ The model.
 """
 import datetime
 import logging
+import io
 
-import pydicom
 from pydicom.sequence import Sequence
-from pydicom.dataset import Dataset, FileDataset
+from pydicom.dataset import FileDataset, DataElement, FileMetaDataset
+from pydicom.datadict import tag_for_keyword
+from pydicom.encaps import encapsulate
+from pydicom.uid import JPEGBaseline8Bit, JPEGExtended12Bit, ImplicitVRLittleEndian, ExplicitVRBigEndian, ExplicitVRLittleEndian, JPEGLosslessSV1, RLELossless, JPEGLosslessP14, JPEG2000
+from pydicom import dcmread as pydicom_dcmread
+import numpy
 
 # pylint: disable=no-name-in-module
 from pynetdicom.sop_class import VLPhotographicImageStorage
@@ -14,17 +19,19 @@ import PIL
 
 import dicom4ortho.defaults as defaults
 
+
 class DicomBase(object):
     """ Functions and fields common to most DICOM images.
     """
 
     def __init__(self, **kwargs):
-        self.sop_instance_uid = defaults.generate_dicom_uid()
+        self.sop_instance_uid = kwargs.get(
+            "sop_instance_uid") or defaults.generate_dicom_uid()
         self.time_string = datetime.datetime.now().strftime(defaults.TIME_FORMAT)
         self.date_string = datetime.datetime.now().strftime(defaults.DATE_FORMAT)
-        self.input_image_filename = kwargs['input_image_filename']
-        self.output_image_filename = kwargs['output_image_filename']
-        self.file_meta = Dataset()
+        self.input_image_filename = kwargs.get('input_image_filename')
+        self.output_image_filename = kwargs.get('output_image_filename')
+        self.file_meta = FileMetaDataset()
         self._ds = None
         self._set_dataset()
         self._set_general_series()
@@ -65,112 +72,258 @@ class DicomBase(object):
         self._ds.AcquisitionContextSequence = Sequence([])
 
     def _set_sop_common(self):
+        self._ds.SpecificCharacterSet = "ISO_IR 192" # UTF-8
         self._ds.SOPInstanceUID = self.sop_instance_uid
+        self._ds.TimezoneOffsetFromUTC = datetime.datetime.now().astimezone().strftime("%z")
 
-    @property
+    def _set_name(self, tagname, name, position):
+        """ Helper function for setting firstname of PN Datatype
+
+        :param position: set to 1 for firstname, 0 for lastname.
+        """
+        if tagname not in self._ds:
+            self._ds[tagname] = DataElement(
+                tag_for_keyword(tagname), 'PN', "^")
+
+        newpart = name
+        oldpart = str(self._ds[tagname].value).split('^')[position]
+        if position == 0:
+            firstname = newpart
+            lastname = oldpart
+        elif position == 1:
+            firstname = oldpart
+            lastname = newpart
+
+        value = f"{lastname}^{firstname}"
+
+        self._ds[tagname] = DataElement(
+            tag_for_keyword(tagname), 'PN', value)
+
+    @ property
+    def series_datetime(self):
+        return datetime.datetime.strptime(
+            f"{self._ds.SeriesDate}{self._ds.SeriesTime}",
+            f"{defaults.DATE_FORMAT}{defaults.TIME_FORMAT}"
+        )
+
+    @ series_datetime.setter
+    def series_datetime(self, _seriesdatetime):
+        self._ds.SeriesTime = _seriesdatetime.strftime(defaults.TIME_FORMAT)
+        self._ds.SeriesDate = _seriesdatetime.strftime(defaults.DATE_FORMAT)
+
+    @ property
+    def study_datetime(self):
+        return datetime.datetime.strptime(
+            f"{self._ds.StudyDate}{self._ds.StudyTime}",
+            f"{defaults.DATE_FORMAT}{defaults.TIME_FORMAT}"
+        )
+
+    @ study_datetime.setter
+    def study_datetime(self, _studydatetime):
+        self._ds.StudyTime = _studydatetime.strftime(defaults.TIME_FORMAT)
+        self._ds.StudyDate = _studydatetime.strftime(defaults.DATE_FORMAT)
+
+    @ property
     def study_instance_uid(self):
         return self._ds.StudyInstanceUID
 
-    @study_instance_uid.setter
+    @ study_instance_uid.setter
     def study_instance_uid(self, uuid):
         self._ds.StudyInstanceUID = uuid
 
-    @property
+    @ property
     def series_instance_uid(self):
         return self._ds.SeriesInstanceUID
 
-    @series_instance_uid.setter
+    @ series_instance_uid.setter
     def series_instance_uid(self, uuid):
         self._ds.SeriesInstanceUID = uuid
 
-    @property
+    @ property
+    def operator_firstname(self):
+        return str(self._ds.OperatorsName).split('^')[1]
+
+    @ operator_firstname.setter
+    def operator_firstname(self, firstname):
+        self._set_name("OperatorsName", firstname, 0)
+
+    @ property
+    def operator_lastname(self):
+        return str(self._ds.OperatorsName).split('^')[0]
+
+    @ operator_lastname.setter
+    def operator_lastname(self, lastname):
+        self._set_name("OperatorsName", lastname, 1)
+
+    @ property
+    def institution_address(self):
+        return self._ds.InstitutionAddress
+
+    @ institution_address.setter
+    def institution_address(self, address):
+        self._ds.InstitutionAddress = address
+
+    @ property
+    def institution_name(self):
+        return self._ds.InstitutionName
+
+    @ institution_name.setter
+    def institution_name(self, name):
+        self._ds.InstitutionName = name
+
+    @ property
     def study_description(self):
         return self._ds.StudyDescription
 
-    @study_description.setter
+    @ study_description.setter
     def study_description(self, description):
         self._ds.StudyDescription = description
 
-    @property
+    @ property
     def series_description(self):
         return self._ds.SeriesDescription
 
-    @series_description.setter
+    @ series_description.setter
     def series_description(self, description):
         self._ds.SeriesDescription = description
 
-    @property
+    @ property
     def patient_firstname(self):
-        return self._ds.PatientName.split('^')[0]
+        return str(self._ds.PatientName).split('^')[1]
 
-    @patient_firstname.setter
+    @ patient_firstname.setter
     def patient_firstname(self, firstname):
-        self._ds.PatientName = "{}^{}".format(
-            firstname,
-            str(self._ds.PatientName).split('^')[1])
+        self._set_name("PatientName", firstname, 0)
 
-    @property
+    @ property
     def patient_lastname(self):
-        return self._ds.PatientName.split('^')[1]
+        return str(self._ds.PatientName).split('^')[0]
 
-    @patient_lastname.setter
+    @ patient_lastname.setter
     def patient_lastname(self, lastname):
-        self._ds.PatientName = "{}^{}".format(
-            lastname,
-            str(self._ds.PatientName).split('^')[0])
+        self._set_name("PatientName", lastname, 1)
 
-    @property
+    @ property
     def patient_id(self):
         return self._ds.PatientID
 
-    @patient_id.setter
+    @ patient_id.setter
     def patient_id(self, patient_id):
-        self._ds.PatientID = patient_id
+        # Patient ID in DICOM must be a String.
+        self._ds.PatientID = str(patient_id)
 
-    @property
+    @ property
+    def reason_for_visit(self):
+        return self._ds.ReasonForVisit
+
+    @ reason_for_visit.setter
+    def reason_for_visit(self, reason):
+        self._ds.ReasonForVisit = reason
+
+    @ property
     def patient_sex(self):
         return self._ds.PatientSex
 
-    @patient_sex.setter
+    @ patient_sex.setter
     def patient_sex(self, patient_sex):
         self._ds.PatientSex = patient_sex
 
-    @property
+    @ property
     def patient_birthdate(self):
         return datetime.datetime.strptime(self._ds.PatientBirthDate, defaults.DATE_FORMAT).date()
 
-    @patient_birthdate.setter
+    @ patient_birthdate.setter
     def patient_birthdate(self, patient_birthdate):
         self._ds.PatientBirthDate = patient_birthdate.strftime(
             defaults.DATE_FORMAT)
 
-    @property
+    @ property
+    def performing_physician_firstname(self):
+        return str(self._ds.PerformingPhysicianName).split('^')[1]
+
+    @ performing_physician_firstname.setter
+    def performing_physician_firstname(self, firstname):
+        self._set_name("PerformingPhysicianName", firstname, 0)
+
+    @ property
+    def performing_physician_lastname(self):
+        return str(self._ds.PerformingPhysicianName).split('^')[0]
+
+    @ performing_physician_lastname.setter
+    def performing_physician_lastname(self, lastname):
+        self._set_name("PerformingPhysicianName", lastname, 1)
+
+    @ property
     def dental_provider_firstname(self):
-        return self._ds.ReferringPhysicianName.split('^')[0]
+        return str(self._ds.ReferringPhysicianName).split('^')[1]
 
-    @dental_provider_firstname.setter
+    @ dental_provider_firstname.setter
     def dental_provider_firstname(self, firstname):
-        if not hasattr(self._ds, 'ReferringPhysicianName'):
-            self._ds.ReferringPhysicianName = "^"
+        self._set_name("ReferringPhysicianName", firstname, 0)
 
-        self._ds.ReferringPhysicianName = "{}^{}".format(
-            firstname,
-            str(self._ds.ReferringPhysicianName).split('^')[1])
-
-    @property
+    @ property
     def dental_provider_lastname(self):
-        return self._ds.ReferringPhysicianName.split('^')[1]
+        return str(self._ds.ReferringPhysicianName).split('^')[0]
 
-    @dental_provider_lastname.setter
-    def dental_provider_lastname(self, firstname):
-        if self._ds.ReferringPhysicianName is None:
-            self._ds.ReferringPhysicianName = "^"
+    @ dental_provider_lastname.setter
+    def dental_provider_lastname(self, lastname):
+        self._set_name("ReferringPhysicianName", lastname, 1)
 
-        self._ds.ReferringPhysicianName = "{}^{}".format(
-            firstname,
-            str(self._ds.ReferringPhysicianName).split('^')[0])
+    @ property
+    def timezone(self) -> datetime.timezone:
+        ''' Set timezone of TimezoneOffsetFromUTC from a Python datetime.timezone object.
 
-    @property
+        If you know the timezone in string format, like "-0900", then you might be better off to set the `_ds` object directly.
+
+        Example:
+
+            from datetime import timezone, timedelta
+
+            o = OrthodonticPhotograph()
+
+            o.timezone = timezone(timedelta(hours=-9))
+
+        Args:
+            timezone: datetime.timezone
+        Returns:
+            datetime.timezone: Python timezone object
+        '''
+        """
+        :return: timezone from TimezoneOffsetFromUTC as a Python datetime.timezone object.
+        """
+        return datetime.timezone(datetime.timedelta(hours=int(self._ds.TimezoneOffsetFromUTC)/100))
+
+    @ timezone.setter
+    def timezone(self, timezone: datetime.timezone) -> None:
+        self._ds.TimezoneOffsetFromUTC = datetime.datetime.now(
+            timezone).strftime("%z")
+
+    @ property
+    def acquisition_datetime(self):
+        return self._ds.AcquisitionDateTime
+
+    @ acquisition_datetime.setter
+    def acquisition_datetime(self, _acquisition_datetime: datetime.datetime):
+        """
+        Set Acquisition DateTime using local Time Zone.
+
+        Also set Acquisition Date and Acquisition Time
+        """
+        if _acquisition_datetime.tzinfo is None:
+            if self.timezone is not None:
+                dtz = _acquisition_datetime.replace(tzinfo=self.timezone)
+            else:
+                dtz = _acquisition_datetime.astimezone()
+
+        dtzs = dtz.strftime(
+            f"{defaults.DATE_FORMAT}{defaults.TIME_FORMAT}%z")
+        self._ds.AcquisitionDateTime = dtzs
+        self._ds.AcquisitionDate = _acquisition_datetime.strftime(
+            defaults.DATE_FORMAT)
+        self._ds.AcquisitionTime = _acquisition_datetime.strftime(
+            defaults.TIME_FORMAT)
+
+    @ property
     def date_captured(self):
         ''' Date of image capture.
 
@@ -182,33 +335,42 @@ class DicomBase(object):
         '''
         return datetime.datetime.strptime(self._ds.ContentDate, defaults.DATE_FORMAT).date()
 
-    @date_captured.setter
+    @ date_captured.setter
     def date_captured(self, date_captured):
         # Date and time are required if images is part of a Series in which
         # the images are temporally related. This sounds like the case for orthodontic
         # intraoral and extraoral photograph sets.
         self._ds.ContentDate = date_captured.strftime(defaults.DATE_FORMAT)
 
-    @property
+    @ property
     def equipment_manufacturer(self):
         return self._ds.manufacturer
 
-    @equipment_manufacturer.setter
+    @ equipment_manufacturer.setter
     def equipment_manufacturer(self, manufacturer):
         self._ds.Manufacturer = manufacturer
 
     def set_time_captured(self, time_captured):
+        """ Set both AcquisitionDate/Time and ContentDate/Time to the same values.
+
+        Sets in General Image Module:
+
+        * Acquisition Date (0008,0022)
+        * Content Date (0008,0023)
+        * Acquisition DateTime (0008,002A)
+        * Acquisition Time (0008,0032)
+        * Content Time (0008,0033)
         """
-        """
-        self._ds.ContentTime = time_captured.strftime(
-            defaults.TIME_FORMAT)  # long format with micro seconds
+        self.acquisition_datetime = time_captured  # This sets also AcquisitionDate and AcquisitionTime
+        self._ds.ContentTime = self._ds.AcquisitionTime
+        self._ds.ContentDate = self._ds.AcquisitionDate
 
     def save_implicit_little_endian(self, filename=None):
         if filename is None:
             filename = self.output_image_filename
 
         # Set the transfer syntax
-        self._ds.file_meta.TransferSyntaxUID = pydicom.uid.ImplicitVRLittleEndian
+        self._ds.file_meta.TransferSyntaxUID = ImplicitVRLittleEndian
         self._ds.is_little_endian = True
         self._ds.is_implicit_VR = True
 
@@ -217,13 +379,11 @@ class DicomBase(object):
         self._ds.save_as(filename, write_like_original=False)
         logging.info("File [{}] saved.".format(filename))
 
-    def save_explicit_big_endian(self, filename=None):
+    def save_explicit_little_endian(self, filename=None):
         if filename is None:
             filename = self.output_image_filename
-        # Write as a different transfer syntax XXX shouldn't need this but pydicom
-        # 0.9.5 bug not recognizing transfer syntax
-        self._ds.file_meta.TransferSyntaxUID = pydicom.uid.ExplicitVRBigEndian
-        self._ds.is_little_endian = False
+        self._ds.file_meta.TransferSyntaxUID = ExplicitVRLittleEndian
+        self._ds.is_little_endian = True
         self._ds.is_implicit_VR = False
 
         logging.debug(
@@ -231,8 +391,18 @@ class DicomBase(object):
         self._ds.save_as(filename, write_like_original=False)
         logging.info("File [{}] saved.", filename)
 
+    def save_explicit_big_endian(self, filename=None):
+        if filename is None:
+            filename = self.output_image_filename
+        # Write as a different transfer syntax XXX shouldn't need this but pydicom
+        # 0.9.5 bug not recognizing transfer syntax
+        self._ds.file_meta.TransferSyntaxUID = ExplicitVRBigEndian
+        self._ds.is_little_endian = False
+        self._ds.is_implicit_VR = False
+        self._ds.save_as(filename, write_like_original=False)
+
     def load(self, filename):
-        self._ds = pydicom.dcmread(filename)
+        self._ds = pydicom_dcmread(filename)
 
     def print(self):
         print(self._ds)
@@ -329,21 +499,34 @@ class PhotographBase(DicomBase):
 
     def lossy_compression(self, lossy):
         if lossy == True:
-            self._ds.LossyImageCompression('01')
+            self._ds.LossyImageCompression = '01'
         elif lossy == False:
-            self._ds.LossyImageCompression('00')
+            self._ds.LossyImageCompression = '00'
 
-    def set_image(self, filename=None):
-        if filename is not None and not hasattr(self._ds, 'input_image_filename'):
-            self._ds.input_image_filename = filename
+    def _set_image_raw_data(self, filename=None):
+        """ Sets general Image Module Data and Metadata
 
-        with PIL.Image.open(self.input_image_filename) as im:
+            Image Pixel M
+            Pixel Data (7FE0,0010) for this image. The order of pixels encoded for each image plane is left to right, top to bottom, i.e., the upper left pixel (labeled 1,1) is encoded first followed by the remainder of row 1, followed by the first pixel of row 2 (labeled 2,1) then the remainder of row 2 and so on.
+            It's Planar Configuration which defines how the values are stored in the PixelData, which is defined to be 0, in this case.
+            C.7.6.3.1.3 Planar Configuration
+            Planar Configuration (0028,0006) indicates whether the color pixel data are encoded color-by-plane or color-by-pixel. This Attribute shall be present if Samples per Pixel (0028,0002) has a value greater than 1. It shall not be present otherwise.
+
+            Enumerated Values:
+
+            0
+            The sample values for the first pixel are followed by the sample values for the second pixel, etc. For RGB images, this means the order of the pixel values encoded shall be R1, G1, B1, R2, G2, B2, …, etc.
+        """
+        filename = filename or self.input_image_filename
+        with PIL.Image.open(filename) as im:
 
             # Note
 
-            self._ds.Rows = im.size[1]
-            self._ds.Columns = im.size[0]
-
+            # self._ds.Rows = im.size[1]
+            # self._ds.Columns = im.size[0]
+            self._ds.Rows = im.height
+            self._ds.Columns = im.width
+            self._ds.PixelRepresentation = 0x0
             # (1-bit pixels, black and white, stored with one pixel per byte)
             if im.mode == '1':
                 self._ds.SamplesPerPixel = 1
@@ -354,6 +537,10 @@ class PhotographBase(DicomBase):
                 self._ds.BitsStored = 1
                 self._ds.HighBit = 0
                 self._ds.PhotometricInterpretation = 'MONOCHROME2'
+                # @TODO: Not sure if this works
+                # Got this from https://stackoverflow.com/questions/5602155/numpy-boolean-array-with-1-bit-entries
+                npa = numpy.array(im.getdata(), dtype=numpy.bool)
+                self._ds.PixelData = numpy.packbits(npa, axis=None).tobytes()
             elif im.mode == 'L':  # (8-bit pixels, black and white)
                 self._ds.SamplesPerPixel = 1
                 try:
@@ -364,6 +551,8 @@ class PhotographBase(DicomBase):
                 self._ds.BitsStored = 8
                 self._ds.HighBit = 7
                 self._ds.PhotometricInterpretation = 'MONOCHROME2'
+                self._ds.PixelData = numpy.array(
+                    im.getdata(), dtype=numpy.uint8).tobytes()
             # (8-bit pixels, mapped to any other mode using a color palette)
             elif im.mode == 'P':
                 print(
@@ -383,6 +572,8 @@ class PhotographBase(DicomBase):
                 self._ds.BitsStored = 8
                 self._ds.HighBit = 7
                 self._ds.PhotometricInterpretation = 'RGB'
+                self._ds.PixelData = numpy.array(im.getdata(), dtype=numpy.uint8)[
+                    :, :3].tobytes()
             # (4x8-bit pixels, true color with transparency mask)
             elif im.mode == 'RGBA':
                 print(
@@ -432,34 +623,106 @@ class PhotographBase(DicomBase):
                 print(
                     "ERROR: mode [{}] is not yet implemented.".format(im.mode))
                 raise NotImplementedError
+        self._ds.file_meta.TransferSyntaxUID = ExplicitVRLittleEndian
+        self._ds.is_little_endian = True
+        self._ds.is_implicit_VR = False
 
-            px = im.load()
-            self._ds.PixelRepresentation = 0x0
-            # Image Pixel M
-            # Pixel Data (7FE0,0010) for this image. The order of pixels encoded for each image plane is left to right, top to bottom, i.e., the upper left pixel (labeled 1,1) is encoded first followed by the remainder of row 1, followed by the first pixel of row 2 (labeled 2,1) then the remainder of row 2 and so on.
-            # It's Planar Configuration which defines how the values are stored in the PixelData, which is defined to be 0, in this case.
-            # C.7.6.3.1.3 Planar Configuration
-            # Planar Configuration (0028,0006) indicates whether the color pixel data are encoded color-by-plane or color-by-pixel. This Attribute shall be present if Samples per Pixel (0028,0002) has a value greater than 1. It shall not be present otherwise.
+        return filename
 
-            # Enumerated Values:
+    def _set_image_jpeg2000_data(self, filename=None):
+        """ Set Image Data for JPEG2000 Images.
 
-            # 0
-            # The sample values for the first pixel are followed by the sample values for the second pixel, etc. For RGB images, this means the order of the pixel values encoded shall be R1, G1, B1, R2, G2, B2, …, etc.
-            self._ds.PixelData = b''
-            if self._ds.SamplesPerPixel == 1:
-                for row in range(self._ds.Rows):
-                    for column in range(self._ds.Columns):
-                        self._ds.PixelData += bytes([px[column, row]])
-            elif self._ds.SamplesPerPixel > 1:
-                for row in range(self._ds.Rows):
-                    for column in range(self._ds.Columns):
-                        for sample in range(self._ds.SamplesPerPixel):
-                            self._ds.PixelData += bytes(
-                                [px[column, row][sample]])
+        Encapsulates a JPEG2000 as it is, without touching anything.
+        """
+        filename = filename or self.input_image_filename
+        # self._set_image_raw_data(filename=filename)
+        with PIL.Image.open(filename) as im:
+            self._ds.Rows = im.height
+            self._ds.Columns = im.width
+            with open(file=filename, mode="rb") as image_file:
+                self._ds.PixelData = encapsulate(
+                    [image_file.read()])  # needs to be an array
+
+        self._ds['PixelData'].is_undefined_length = True
+
+        # Values as defined in Part 5 Sect 8.2.4
+        # https://dicom.nema.org/medical/dicom/current/output/chtml/part05/sect_8.2.4.html
+        self._ds.PhotometricInterpretation = 'RGB'
+        self._ds.SamplesPerPixel = 3
+        self._ds.PlanarConfiguration = 0
+        self._ds.PixelRepresentation = 0
+        self._ds.BitsAllocated = 8
+        self._ds.BitsStored = 8
+        self._ds.HighBit = 7
+
+        self._ds.LossyImageCompressionMethod = 'ISO_15444_1'  # The JPEG-2000 Standard
+
+        self._ds.file_meta.TransferSyntaxUID = JPEG2000
+        self._ds.is_little_endian = True
+        self._ds.is_implicit_VR = False
+
+        self.lossy_compression(False)
+        # self._ds.compress(RLELossless)
+        return filename
+
+    def _set_image_jpeg_data(self, filename=None, recompress_quality=None):
+        """ Set Image Data for JPG Images.
+
+        If a lossy JPG image is obtained from the camera (non-ideal), then we should just store it as such. Storing it as raw is not reccommende because it would deceiving (unless one adds all the secondary capture tags), becuase the image would have been compressed in the first place, but then stored uncompressed, so data would be lost, without this being recorded anywhere. And takes up a lot more space.
+
+        Some cameras, like the Nikon D5600 will actually save MPO images, which will not support the quality argument and throw a ValueError.
+
+        If the MPO image contains multiple frames, they are expanded in multiframe DICOM encapsulation, as described here: https://stackoverflow.com/questions/58518357/how-to-create-jpeg-compressed-dicom-dataset-using-pydicom Not sure there is a usecase for it. 
+
+        Quality of 98
+
+        """
+        filename = filename or self.input_image_filename
+        with PIL.Image.open(filename) as im:
+            logging.info(f"Found format {im.format} for {filename} image")
+            self._ds.Rows = im.height
+            self._ds.Columns = im.width
+
+            if recompress_quality is None:
+                with open(file=filename, mode="rb") as image_file:
+                    self._ds.PixelData = encapsulate(
+                        [image_file.read()])  # needs to be an array
             else:
-                print("Error: Incorrect value for SamplesPerPixel {}".format(
-                    self._ds.SamplesPerPixel))
+                with io.BytesIO() as output:
+                    im.save(output, format='jpeg', quality=recompress_quality)
+                    self._ds.PixelData = encapsulate(
+                        [output.getvalue()])  # needs to be an array
 
-            # PixelData has to always be divisible by 2. Add an extra byte if it's not.
-            if len(self._ds.PixelData) % 2 == 1:
-                self._ds.PixelData += b'0'
+        # self._ds['PixelData'].is_undefined_length = True
+
+        # Values as defined in Part 5 Sect 8.2.1
+        # https://dicom.nema.org/medical/dicom/current/output/chtml/part05/sect_8.2.html#sect_8.2.1
+        self._ds.PhotometricInterpretation = 'RGB'
+        self._ds.SamplesPerPixel = 3
+        self._ds.PlanarConfiguration = 0
+        self._ds.PixelRepresentation = 0
+        self._ds.BitsAllocated = 8
+        self._ds.BitsStored = 8
+        self._ds.HighBit = 7
+
+        self._ds.LossyImageCompressionRatio = 10
+        self._ds.LossyImageCompressionMethod = 'ISO_10918_1'  # The JPEG Standard
+
+        self._ds.file_meta.TransferSyntaxUID = JPEGExtended12Bit
+        self._ds.is_little_endian = True
+        self._ds.is_implicit_VR = False
+
+        self.lossy_compression(True)
+        return filename
+
+    def set_image(self, filename=None):
+        filename = filename or self.input_image_filename
+        with PIL.Image.open(filename) as img:
+            file_type = img.format
+        if file_type in ('JPEG', 'MPO'):
+            self._set_image_jpeg_data(filename=filename)
+        elif file_type in ('JPEG2000'):
+            self._set_image_jpeg2000_data(filename=filename)
+        else:
+            # DICOM only supports encapsulation for JPEG. Everything else needs to be decoded and re-encoded as raw.
+            self._set_image_raw_data(filename=filename)

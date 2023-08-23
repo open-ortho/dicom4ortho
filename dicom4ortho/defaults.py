@@ -4,8 +4,10 @@ Defaults and Constants.
 
 import uuid
 import logging
+from pathlib import Path
+import importlib.resources as importlib_resources
 
-VERSION = '0.1.5'
+VERSION = '0.2.1'
 __url__ = 'https://github.com/open-ortho/dicom4ortho'
 __author__ = 'Toni Magni'
 __email__ = 'open-ortho@panio.info'
@@ -14,7 +16,7 @@ __short_description__ = 'A package to convert photographs stored in conventional
 __creation_date__ = '2020-05-01'
 
 
-DICOM3TOOLS_PATH = '/opt/dicom3tools/'
+DICOM3TOOLS_PATH = Path('modules','dicom3tools')
 
 # Date format used when importing date from CSV file.
 # The date in the CSV file should be in this format.
@@ -25,6 +27,11 @@ IMPORT_TIME_FORMAT = '%H%M%S.%f'
 DATE_FORMAT = '%Y%m%d'
 TIME_FORMAT = '%H%M%S.%f'
 DICOM_PREAMBLE = b'\0' * 128
+
+URL_ADA1107_VIEWS = importlib_resources.files('dicom4ortho.resources') /'views.csv'
+URL_ADA1107_VIEWS = URL_ADA1107_VIEWS.as_uri()
+URL_ADA1107_CODES = importlib_resources.files('dicom4ortho.resources') /'codes.csv'
+URL_ADA1107_CODES = URL_ADA1107_CODES.as_uri()
 
 # This is a unique ID generated for this specific software only.
 #  * Random generation using generate_dicom_uid() below
@@ -41,11 +48,15 @@ ADD_MAX_ALLOWED_TEETH = 'ALL'
 # This is populated by controller.SimpleController._load_image_types()
 image_types = {}
 
-def generate_dicom_uid():
+def generate_dicom_uid(hash=None):
     """
     A function to generate DICOM UIDs for new objects.
+
+    If hash is not None, it will use that string to translate it to a DICOM UID. Useful if you want to produce the same UID for the same input file.
+
+    hash has to be a 16 byte long bytes object.
     """
-    new_uuid = uuid.uuid4().bytes
+    new_uuid = hash or uuid.uuid4().bytes
     dicom_uid = '2.25'
     for i in range(len(new_uuid)-2):
         dicom_uid += '.' + str(new_uuid[i])

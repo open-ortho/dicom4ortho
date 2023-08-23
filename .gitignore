@@ -2,3 +2,7 @@ build/
 docs/doctrees/
 .buildinfo
 Pipfile.lock
+*.pyc
+*.egg-info
+dist/
+modules/

@@ -1,25 +1,23 @@
-
 <!DOCTYPE html>
 
-<html>
+<html lang="en" data-content_root="./">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>CSV Image file format &#8212; dicom4ortho docs 0.1 documentation</title>
-    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="_static/classic.css" />
+    <title>CSV Image file format &#8212; dicom4ortho docs 0.2 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="_static/classic.css?v=514cf933" />
     
-    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
-    <script src="_static/jquery.js"></script>
-    <script src="_static/underscore.js"></script>
-    <script src="_static/doctools.js"></script>
+    <script src="_static/documentation_options.js?v=10f1778b"></script>
+    <script src="_static/doctools.js?v=888ff710"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     
     <link rel="author" title="About these documents" href="about.html" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Status of Implementation" href="implementation_status.html" />
-    <link rel="prev" title="Getting Started" href="usage.html" /> 
+    <link rel="next" title="Validation with dicom3tools" href="validation.html" />
+    <link rel="prev" title="Usage" href="usage.html" /> 
   </head><body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
@@ -28,12 +26,12 @@
           <a href="genindex.html" title="General Index"
              accesskey="I">index</a></li>
         <li class="right" >
-          <a href="implementation_status.html" title="Status of Implementation"
+          <a href="validation.html" title="Validation with dicom3tools"
              accesskey="N">next</a> |</li>
         <li class="right" >
-          <a href="usage.html" title="Getting Started"
+          <a href="usage.html" title="Usage"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">dicom4ortho docs 0.1 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">dicom4ortho docs 0.2 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">CSV Image file format</a></li> 
       </ul>
     </div>  
@@ -44,7 +42,7 @@
           <div class="body" role="main">
             
   <section id="csv-image-file-format">
-<h1>CSV Image file format<a class="headerlink" href="#csv-image-file-format" title="Permalink to this headline">¶</a></h1>
+<h1>CSV Image file format<a class="headerlink" href="#csv-image-file-format" title="Link to this heading">¶</a></h1>
 <p>The CSV file should be:</p>
 <ul class="simple">
 <li><p>with <code class="docutils literal notranslate"><span class="pre">,</span></code> as separator</p></li>
@@ -52,40 +50,40 @@
 </ul>
 <p>Each CSV file should containt the following columns (header)</p>
 <section id="patient-firstname">
-<h2>patient_firstname<a class="headerlink" href="#patient-firstname" title="Permalink to this headline">¶</a></h2>
+<h2>patient_firstname<a class="headerlink" href="#patient-firstname" title="Link to this heading">¶</a></h2>
 <p>Patient first name. First part of DICOM tag
 <code class="docutils literal notranslate"><span class="pre">(0010,</span> <span class="pre">0010)</span> <span class="pre">Patient's</span> <span class="pre">Name</span></code>.</p>
 </section>
 <section id="patient-lastname">
-<h2>patient_lastname<a class="headerlink" href="#patient-lastname" title="Permalink to this headline">¶</a></h2>
+<h2>patient_lastname<a class="headerlink" href="#patient-lastname" title="Link to this heading">¶</a></h2>
 <p>Patient last name. Second part of DICOM tag
 <code class="docutils literal notranslate"><span class="pre">(0010,</span> <span class="pre">0010)</span> <span class="pre">Patient's</span> <span class="pre">Name</span></code>.</p>
 </section>
 <section id="patient-id">
-<h2>patient_id<a class="headerlink" href="#patient-id" title="Permalink to this headline">¶</a></h2>
+<h2>patient_id<a class="headerlink" href="#patient-id" title="Link to this heading">¶</a></h2>
 <p>Patient ID. DICOM <code class="docutils literal notranslate"><span class="pre">(0010,</span> <span class="pre">0020)</span> <span class="pre">Patient</span> <span class="pre">ID</span></code> tag.</p>
 </section>
 <section id="patient-sex">
-<h2>patient_sex<a class="headerlink" href="#patient-sex" title="Permalink to this headline">¶</a></h2>
+<h2>patient_sex<a class="headerlink" href="#patient-sex" title="Link to this heading">¶</a></h2>
 <p>Patient’s gender. DICOM <code class="docutils literal notranslate"><span class="pre">(0010,</span> <span class="pre">0040)</span> <span class="pre">Patient's</span> <span class="pre">Sex</span></code> tag.</p>
 </section>
 <section id="patient-birthdate">
-<h2>patient_birthdate<a class="headerlink" href="#patient-birthdate" title="Permalink to this headline">¶</a></h2>
+<h2>patient_birthdate<a class="headerlink" href="#patient-birthdate" title="Link to this heading">¶</a></h2>
 <p>Patient’s date of birth in YYYY-MM-DD format. DICOM
 <code class="docutils literal notranslate"><span class="pre">(0010,</span> <span class="pre">0030)</span> <span class="pre">Patient's</span> <span class="pre">Birth</span> <span class="pre">Date</span></code> tag.</p>
 </section>
 <section id="dental-provider-firstname">
-<h2>dental_provider_firstname<a class="headerlink" href="#dental-provider-firstname" title="Permalink to this headline">¶</a></h2>
+<h2>dental_provider_firstname<a class="headerlink" href="#dental-provider-firstname" title="Link to this heading">¶</a></h2>
 <p>First name of orthodontic (or dental) provider. First part of DICOM
 <code class="docutils literal notranslate"><span class="pre">(0008,</span> <span class="pre">0090)</span> <span class="pre">Referring</span> <span class="pre">Physician's</span> <span class="pre">Name</span></code> tag.</p>
 </section>
 <section id="dental-provider-lastname">
-<h2>dental_provider_lastname<a class="headerlink" href="#dental-provider-lastname" title="Permalink to this headline">¶</a></h2>
+<h2>dental_provider_lastname<a class="headerlink" href="#dental-provider-lastname" title="Link to this heading">¶</a></h2>
 <p>Last name of orthodontic (or dental) provider. Second part of DICOM
 <code class="docutils literal notranslate"><span class="pre">(0008,</span> <span class="pre">0090)</span> <span class="pre">Referring</span> <span class="pre">Physician's</span> <span class="pre">Name</span></code> tag.</p>
 </section>
 <section id="image-type">
-<h2>image_type<a class="headerlink" href="#image-type" title="Permalink to this headline">¶</a></h2>
+<h2>image_type<a class="headerlink" href="#image-type" title="Link to this heading">¶</a></h2>
 <p>Image type as defined by ADA SCDI WP-1100. Type</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">dicom4ortho</span> <span class="nb">list</span><span class="o">-</span><span class="n">image</span><span class="o">-</span><span class="n">types</span>
 </pre></div>
@@ -93,16 +91,16 @@
 <p>for a list of allowed image types.</p>
 </section>
 <section id="manufacturer">
-<h2>manufacturer<a class="headerlink" href="#manufacturer" title="Permalink to this headline">¶</a></h2>
+<h2>manufacturer<a class="headerlink" href="#manufacturer" title="Link to this heading">¶</a></h2>
 <p>Manufacturer of Camera. For example, when using an iPhone, use <code class="docutils literal notranslate"><span class="pre">Apple</span></code>
 here. Overrides input file’s EXIF metadata.</p>
 </section>
 <section id="input-image-filename">
-<h2>input_image_filename<a class="headerlink" href="#input-image-filename" title="Permalink to this headline">¶</a></h2>
+<h2>input_image_filename<a class="headerlink" href="#input-image-filename" title="Link to this heading">¶</a></h2>
 <p>Full path of flat JPG/PNG/TIFF image file to use as input.</p>
 </section>
 <section id="study-instance-uid">
-<h2>study_instance_uid<a class="headerlink" href="#study-instance-uid" title="Permalink to this headline">¶</a></h2>
+<h2>study_instance_uid<a class="headerlink" href="#study-instance-uid" title="Link to this heading">¶</a></h2>
 <p>The unique identifier that distinguishes this study from any other
 study. For orthodontic purposes, all images taken during the same
 patient visit, should go under the same study, thus have the same study
@@ -113,7 +111,7 @@ UID.</p>
 Representation</a></p>
 </section>
 <section id="study-description">
-<h2>study_description<a class="headerlink" href="#study-description" title="Permalink to this headline">¶</a></h2>
+<h2>study_description<a class="headerlink" href="#study-description" title="Link to this heading">¶</a></h2>
 <p>A description for this specific study. For orthodontic purposes, this
 value could be something like ‘Initial Visit’.</p>
 <p>This is a DICOM UID object and goes into the DICOM
@@ -122,7 +120,7 @@ as defined the <a class="reference external" href="http://dicom.nema.org/medical
 VR</a></p>
 </section>
 <section id="series-instance-uid">
-<h2>series_instance_uid<a class="headerlink" href="#series-instance-uid" title="Permalink to this headline">¶</a></h2>
+<h2>series_instance_uid<a class="headerlink" href="#series-instance-uid" title="Link to this heading">¶</a></h2>
 <p>The unique identifier that distinguishes this series from any other
 series. For orthodontic purposes, all images taken with the same imaging
 device (for photographs, this would be the camera) and during the same
@@ -134,7 +132,7 @@ have the same series UID.</p>
 Representation</a></p>
 </section>
 <section id="series-description">
-<h2>series_description<a class="headerlink" href="#series-description" title="Permalink to this headline">¶</a></h2>
+<h2>series_description<a class="headerlink" href="#series-description" title="Link to this heading">¶</a></h2>
 <p>A description for this specific series. For orthodontic purposes, this
 value could be something like ‘Orthodontic Intraoral Series’.</p>
 <p>This is a DICOM UID object and goes into the DICOM
@@ -151,8 +149,9 @@ VR</a></p>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
-  <h3><a href="index.html">Table of Contents</a></h3>
-  <ul>
+  <div>
+    <h3><a href="index.html">Table of Contents</a></h3>
+    <ul>
 <li><a class="reference internal" href="#">CSV Image file format</a><ul>
 <li><a class="reference internal" href="#patient-firstname">patient_firstname</a></li>
 <li><a class="reference internal" href="#patient-lastname">patient_lastname</a></li>
@@ -172,12 +171,17 @@ VR</a></p>
 </li>
 </ul>
 
-  <h4>Previous topic</h4>
-  <p class="topless"><a href="usage.html"
-                        title="previous chapter">Getting Started</a></p>
-  <h4>Next topic</h4>
-  <p class="topless"><a href="implementation_status.html"
-                        title="next chapter">Status of Implementation</a></p>
+  </div>
+  <div>
+    <h4>Previous topic</h4>
+    <p class="topless"><a href="usage.html"
+                          title="previous chapter">Usage</a></p>
+  </div>
+  <div>
+    <h4>Next topic</h4>
+    <p class="topless"><a href="validation.html"
+                          title="next chapter">Validation with dicom3tools</a></p>
+  </div>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
@@ -194,7 +198,7 @@ VR</a></p>
     </form>
     </div>
 </div>
-<script>$('#searchbox').show(0);</script>
+<script>document.getElementById('searchbox').style.display = "block"</script>
         </div>
       </div>
       <div class="clearer"></div>
@@ -206,18 +210,18 @@ VR</a></p>
           <a href="genindex.html" title="General Index"
              >index</a></li>
         <li class="right" >
-          <a href="implementation_status.html" title="Status of Implementation"
+          <a href="validation.html" title="Validation with dicom3tools"
              >next</a> |</li>
         <li class="right" >
-          <a href="usage.html" title="Getting Started"
+          <a href="usage.html" title="Usage"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">dicom4ortho docs 0.1 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">dicom4ortho docs 0.2 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">CSV Image file format</a></li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
-        &#169; Copyright 2021, open-ortho.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.1.2.
+    &#169; Copyright 2021, open-ortho.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.2.2.
     </div>
   </body>
 </html>

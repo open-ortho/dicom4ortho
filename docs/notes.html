@@ -1,24 +1,22 @@
-
 <!DOCTYPE html>
 
-<html>
+<html lang="en" data-content_root="./">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>DICOM UIDs &#8212; dicom4ortho docs 0.1 documentation</title>
-    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="_static/classic.css" />
+    <title>DICOM UIDs &#8212; dicom4ortho docs 0.2 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="_static/classic.css?v=514cf933" />
     
-    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
-    <script src="_static/jquery.js"></script>
-    <script src="_static/underscore.js"></script>
-    <script src="_static/doctools.js"></script>
+    <script src="_static/documentation_options.js?v=10f1778b"></script>
+    <script src="_static/doctools.js?v=888ff710"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     
     <link rel="author" title="About these documents" href="about.html" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="About The Project" href="about.html" />
+    <link rel="next" title="Release notes" href="release_notes.html" />
     <link rel="prev" title="Status of Implementation" href="implementation_status.html" /> 
   </head><body>
     <div class="related" role="navigation" aria-label="related navigation">
@@ -28,12 +26,12 @@
           <a href="genindex.html" title="General Index"
              accesskey="I">index</a></li>
         <li class="right" >
-          <a href="about.html" title="About The Project"
+          <a href="release_notes.html" title="Release notes"
              accesskey="N">next</a> |</li>
         <li class="right" >
           <a href="implementation_status.html" title="Status of Implementation"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">dicom4ortho docs 0.1 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">dicom4ortho docs 0.2 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">DICOM UIDs</a></li> 
       </ul>
     </div>  
@@ -44,11 +42,11 @@
           <div class="body" role="main">
             
   <section id="dicom-uids">
-<h1>DICOM UIDs<a class="headerlink" href="#dicom-uids" title="Permalink to this headline">¶</a></h1>
+<h1>DICOM UIDs<a class="headerlink" href="#dicom-uids" title="Link to this heading">¶</a></h1>
 <p>Dicom requires unique identifiers for in various locations. This section
 summarizes the ones used here.</p>
 <section id="sop-class-uids">
-<h2>SOP Class UIDs<a class="headerlink" href="#sop-class-uids" title="Permalink to this headline">¶</a></h2>
+<h2>SOP Class UIDs<a class="headerlink" href="#sop-class-uids" title="Link to this heading">¶</a></h2>
 <p>This identifies the IOD, which in our case is static, and should
 be the UID of the VL Image IOD.</p>
 <ul class="simple">
@@ -56,14 +54,14 @@ be the UID of the VL Image IOD.</p>
 </ul>
 </section>
 <section id="instance-uid">
-<h2>Instance UID<a class="headerlink" href="#instance-uid" title="Permalink to this headline">¶</a></h2>
+<h2>Instance UID<a class="headerlink" href="#instance-uid" title="Link to this heading">¶</a></h2>
 <p>A different unique ID for each image. Needs to be freshly generated.</p>
 <ul class="simple">
 <li><p>Part 5 B.2 specifies how to generate</p></li>
 </ul>
 </section>
 <section id="implementation-class-uid">
-<h2>Implementation Class UID<a class="headerlink" href="#implementation-class-uid" title="Permalink to this headline">¶</a></h2>
+<h2>Implementation Class UID<a class="headerlink" href="#implementation-class-uid" title="Link to this heading">¶</a></h2>
 <p>A unique ID for the software. DICOM probably requires a different one for each
 version of the software.</p>
 <p>_Different equipment of the same type or product line (but having
@@ -74,11 +72,11 @@ they share the same implementation environment (i.e., software)._</p>
 </ul>
 </section>
 <section id="studyinstanceuid">
-<h2>StudyInstanceUID<a class="headerlink" href="#studyinstanceuid" title="Permalink to this headline">¶</a></h2>
+<h2>StudyInstanceUID<a class="headerlink" href="#studyinstanceuid" title="Link to this heading">¶</a></h2>
 <p>TODO</p>
 </section>
 <section id="seriesinstanceuid">
-<h2>SeriesInstanceUID<a class="headerlink" href="#seriesinstanceuid" title="Permalink to this headline">¶</a></h2>
+<h2>SeriesInstanceUID<a class="headerlink" href="#seriesinstanceuid" title="Link to this heading">¶</a></h2>
 <p>TODO</p>
 </section>
 </section>
@@ -90,8 +88,9 @@ they share the same implementation environment (i.e., software)._</p>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
-  <h3><a href="index.html">Table of Contents</a></h3>
-  <ul>
+  <div>
+    <h3><a href="index.html">Table of Contents</a></h3>
+    <ul>
 <li><a class="reference internal" href="#">DICOM UIDs</a><ul>
 <li><a class="reference internal" href="#sop-class-uids">SOP Class UIDs</a></li>
 <li><a class="reference internal" href="#instance-uid">Instance UID</a></li>
@@ -102,12 +101,17 @@ they share the same implementation environment (i.e., software)._</p>
 </li>
 </ul>
 
-  <h4>Previous topic</h4>
-  <p class="topless"><a href="implementation_status.html"
-                        title="previous chapter">Status of Implementation</a></p>
-  <h4>Next topic</h4>
-  <p class="topless"><a href="about.html"
-                        title="next chapter">About The Project</a></p>
+  </div>
+  <div>
+    <h4>Previous topic</h4>
+    <p class="topless"><a href="implementation_status.html"
+                          title="previous chapter">Status of Implementation</a></p>
+  </div>
+  <div>
+    <h4>Next topic</h4>
+    <p class="topless"><a href="release_notes.html"
+                          title="next chapter">Release notes</a></p>
+  </div>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
@@ -124,7 +128,7 @@ they share the same implementation environment (i.e., software)._</p>
     </form>
     </div>
 </div>
-<script>$('#searchbox').show(0);</script>
+<script>document.getElementById('searchbox').style.display = "block"</script>
         </div>
       </div>
       <div class="clearer"></div>
@@ -136,18 +140,18 @@ they share the same implementation environment (i.e., software)._</p>
           <a href="genindex.html" title="General Index"
              >index</a></li>
         <li class="right" >
-          <a href="about.html" title="About The Project"
+          <a href="release_notes.html" title="Release notes"
              >next</a> |</li>
         <li class="right" >
           <a href="implementation_status.html" title="Status of Implementation"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">dicom4ortho docs 0.1 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">dicom4ortho docs 0.2 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">DICOM UIDs</a></li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
-        &#169; Copyright 2021, open-ortho.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.1.2.
+    &#169; Copyright 2021, open-ortho.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.2.2.
     </div>
   </body>
 </html>

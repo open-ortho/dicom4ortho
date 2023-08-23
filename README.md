@@ -14,7 +14,7 @@ TODO
 
 ## How to publish new modifications
 
-* Run `pipenv run make html`
+* Run `pipenv run make github`
 * Commit and push.
 * The live web site is in the `gh-pages` branch, in the folder `docs/`.
 * This is a setting that can be changed on the github.io website, under

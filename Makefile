@@ -9,9 +9,6 @@ ifeq ($(OS),Windows_NT)
 	D3TOOLS_URL = $(D3TOOLS_BASE_URL)winexe_$(D3TOOLS_VERSION).zip
 else
     UNAME_S := $(shell uname -s)
-    ifeq ($(UNAME_S),Linux)
-		D3TOOLS_URL = $(D3TOOLS_BASE_URL)macexe_$(D3TOOLS_VERSION).zip
-    endif
     ifeq ($(UNAME_S),Darwin)
 		D3TOOLS_URL = $(D3TOOLS_BASE_URL)macexe_$(D3TOOLS_VERSION).zip
     endif
@@ -42,6 +39,7 @@ clean:
 	echo "Removed *.dcm files in test/resources."
 	find . -path "*/__pycache*" -delete
 	echo "Deleted all __pycache files."
+	rm -rf $(D3TOOLS_DIR)
 
 $(DIST):
 	mkdir $@
@@ -59,8 +57,15 @@ deploy:
 all: clean build
 
 .PHONY: install-dev
-install-dev: $(D3TOOLS)
+install-dev: $(D3TOOLS_DIR)
+ifeq ($(UNAME_S),Linux)
+install-dev:
+	sudo apt-get -y install dicom3tools
+	ln -s /usr/bin/dciodvfy $(D3TOOLS_DIR)
+else
+install-dev:
+	cd $(D3TOOLS_DIR) && curl $(D3TOOLS_URL) -o $(D3TOOLS_FILE) && unzip $(D3TOOLS_FILE) && rm $(D3TOOLS_FILE)
+endif
 
 $(D3TOOLS_DIR):
 	mkdir -p $@
-	cd $@ && curl $(D3TOOLS_URL) -o $(D3TOOLS_FILE) && unzip $(D3TOOLS_FILE) && rm $(D3TOOLS_FILE)

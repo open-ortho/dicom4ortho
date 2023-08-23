@@ -26,7 +26,7 @@ lint:
 	$(LINTER) $(MAIN)
 
 .PHONY: test
-test:
+test: install-dev
 	python3 -m unittest
 
 .PHONY: clean
@@ -62,6 +62,7 @@ install-dev: $(D3TOOLS_DIR)
 ifeq ($(UNAME_S),Linux)
 install-dev:
 	sudo apt-get -y install dicom3tools
+	rm -f $(D3TOOLS_DIR)/dciodvfy
 	ln -s /usr/bin/dciodvfy $(D3TOOLS_DIR)
 else
 install-dev:

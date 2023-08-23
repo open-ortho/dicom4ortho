@@ -5,7 +5,7 @@
 3. Bump the version with major, minor or patch and then `bumpversion release` as required.
 4. `make clean`
 4. `git merge master`: merge master into here, and fix merge errors.
-5. Update README with major changes of this release. You might want to compare this release branch agains master to see logs.
+5. Update release notes in `gh-pages` with major changes of this release. You might want to compare this release branch agains master to see logs.
 6. Check that README.md is still current.
 5. Delete pipenv environment and Pipfile.lock and rebuild, to make sure there are no `Pipfile` errors or lock errors.
 6. `make install-dev`: make sure `dicom3tools` target works as expected.

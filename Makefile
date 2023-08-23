@@ -9,9 +9,6 @@ ifeq ($(OS),Windows_NT)
 	D3TOOLS_URL = $(D3TOOLS_BASE_URL)winexe_$(D3TOOLS_VERSION).zip
 else
     UNAME_S := $(shell uname -s)
-    ifeq ($(UNAME_S),Linux)
-		D3TOOLS_URL = $(D3TOOLS_BASE_URL)macexe_$(D3TOOLS_VERSION).zip
-    endif
     ifeq ($(UNAME_S),Darwin)
 		D3TOOLS_URL = $(D3TOOLS_BASE_URL)macexe_$(D3TOOLS_VERSION).zip
     endif
@@ -29,7 +26,7 @@ lint:
 	$(LINTER) $(MAIN)
 
 .PHONY: test
-test:
+test: install-dev
 	python3 -m unittest
 
 .PHONY: clean
@@ -42,6 +39,7 @@ clean:
 	echo "Removed *.dcm files in test/resources."
 	find . -path "*/__pycache*" -delete
 	echo "Deleted all __pycache files."
+	rm -rf $(D3TOOLS_DIR)
 
 $(DIST):
 	mkdir $@
@@ -53,14 +51,23 @@ build: lint test $(DIST)
 .PHONY: deploy
 deploy:
 	echo "Deplyoing to PyPi."
+	echo "To deploy, make sure you have a token saved in ~/.pypirc . See https://pypi.org/manage/account/token/?selected_project=dicom4ortho"
 	python3 -m twine upload --repository pypi dist/*
 
 .PHONY: all
 all: clean build
 
 .PHONY: install-dev
-install-dev: $(D3TOOLS)
+install-dev: $(D3TOOLS_DIR)
+ifeq ($(UNAME_S),Linux)
+install-dev:
+	sudo apt-get -y install dicom3tools
+	rm -f $(D3TOOLS_DIR)/dciodvfy
+	ln -s /usr/bin/dciodvfy $(D3TOOLS_DIR)
+else
+install-dev:
+	cd $(D3TOOLS_DIR) && curl $(D3TOOLS_URL) -o $(D3TOOLS_FILE) && unzip $(D3TOOLS_FILE) && rm $(D3TOOLS_FILE)
+endif
 
 $(D3TOOLS_DIR):
 	mkdir -p $@
-	cd $@ && curl $(D3TOOLS_URL) -o $(D3TOOLS_FILE) && unzip $(D3TOOLS_FILE) && rm $(D3TOOLS_FILE)

@@ -6,3 +6,4 @@ build
 *.egg-info
 *.dcm
 modules/dicom3tools
+docs/.buildinfo

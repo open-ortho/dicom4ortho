@@ -74,7 +74,9 @@ setup(
     package_data={
         '': [
             'LICENSE',
-            'resources/image_types.csv'
+            'resources/image_types.csv',
+            'resources/codes.csv',
+            'resources/views.csv',
         ]
     },
 )

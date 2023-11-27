@@ -7,3 +7,4 @@ build
 *.dcm
 modules/dicom3tools
 docs/.buildinfo
+.test*

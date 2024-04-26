@@ -309,13 +309,14 @@ class DicomBase(object):
 
         Also set Acquisition Date and Acquisition Time
         """
-        if _acquisition_datetime.tzinfo is None:
-            if self.timezone is not None:
-                dtz = _acquisition_datetime.replace(tzinfo=self.timezone)
-            else:
-                dtz = _acquisition_datetime.astimezone()
+        if _acquisition_datetime.tzinfo is None and self.timezone:
+            # If no timezone is present and a timezone is specified in the class, add it.
+            _acquisition_datetime = _acquisition_datetime.replace(tzinfo=self.timezone)
+        elif _acquisition_datetime.tzinfo is None:
+            # If no timezone is present and no class timezone, use the current local timezone.
+            _acquisition_datetime = _acquisition_datetime.astimezone()
 
-        dtzs = dtz.strftime(
+        dtzs = _acquisition_datetime.strftime(
             f"{defaults.DATE_FORMAT}{defaults.TIME_FORMAT}%z")
         self._ds.AcquisitionDateTime = dtzs
         self._ds.AcquisitionDate = _acquisition_datetime.strftime(

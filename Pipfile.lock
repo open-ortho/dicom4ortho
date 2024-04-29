@@ -414,6 +414,9 @@
             "markers": "python_version >= '3.7'",
             "version": "==2.31.0"
         },
+        "sanitized-package": {
+            "version": "==0.0.1"
+        },
         "snowballstemmer": {
             "hashes": [
                 "sha256:09b16deb8547d3412ad7b590689584cd0fe25ec8db3be37788be3810cbf19cb1",

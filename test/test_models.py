@@ -55,3 +55,47 @@ class TestDicomBaseAcquisitionDateTimeSetter(TestCase):
         self.assertEqual(self.dicombase._ds.AcquisitionDateTime[-5:], expected_tz)
 
 
+
+class TestTimezoneSetterGetter(TestCase):
+
+    def setUp(self):
+        self.obj = DicomBase()  # Create an instance of your class
+
+    def test_set_timezone(self):
+        # Test setting a timezone
+        tz = datetime.timezone(datetime.timedelta(hours=-5, minutes=-30))
+        self.obj.timezone = tz
+
+        # Check if TimezoneOffsetFromUTC is set correctly
+        self.assertEqual(self.obj._ds.TimezoneOffsetFromUTC, "-0530")
+
+    def test_set_timezone2(self):
+        # Test setting a timezone
+        tz = datetime.timezone(datetime.timedelta(hours=-5, minutes=-30))
+        self.obj.timezone = tz
+
+        # Check the set value directly
+        set_tz = self.obj.timezone
+        expected_tz = tz
+
+        self.assertEqual(set_tz.utcoffset(None), expected_tz.utcoffset(None))
+
+    def test_get_timezone(self):
+        # Test getting a timezone
+        self.obj._ds.TimezoneOffsetFromUTC = "-0700"
+
+        tz = self.obj.timezone
+        expected_tz = datetime.timezone(datetime.timedelta(hours=-7))
+
+        # Check if the getter retrieves the correct timezone
+        self.assertEqual(tz.utcoffset(None), expected_tz.utcoffset(None))
+
+    def test_set_and_get_timezone(self):
+        # Test setting and then getting a timezone
+        tz = datetime.timezone(datetime.timedelta(hours=3, minutes=15))
+        self.obj.timezone = tz
+
+        retrieved_tz = self.obj.timezone
+
+        # Check if the setter and getter are consistent
+        self.assertEqual(retrieved_tz.utcoffset(None), tz.utcoffset(None))

@@ -271,6 +271,17 @@ class DicomBase(object):
 
     @ property
     def timezone(self) -> datetime.timezone:
+        """ Convert the TimezoneOffsetFromUTC to a Python datetime.timezone.
+
+        :return: timezone from TimezoneOffsetFromUTC as a Python datetime.timezone object, or None if TimezoneOffsetFromUTC is not something that can be converted to an integer.
+        """
+        try:
+            return datetime.timezone(datetime.timedelta(hours=int(self._ds.TimezoneOffsetFromUTC)/100))
+        except ValueError:
+            return None
+
+    @ timezone.setter
+    def timezone(self, timezone: datetime.timezone) -> None:
         ''' Set timezone of TimezoneOffsetFromUTC from a Python datetime.timezone object.
 
         If you know the timezone in string format, like "-0900", then you might be better off to set the `_ds` object directly.
@@ -286,15 +297,8 @@ class DicomBase(object):
         Args:
             timezone: datetime.timezone
         Returns:
-            datetime.timezone: Python timezone object
+            None
         '''
-        """
-        :return: timezone from TimezoneOffsetFromUTC as a Python datetime.timezone object.
-        """
-        return datetime.timezone(datetime.timedelta(hours=int(self._ds.TimezoneOffsetFromUTC)/100))
-
-    @ timezone.setter
-    def timezone(self, timezone: datetime.timezone) -> None:
         self._ds.TimezoneOffsetFromUTC = datetime.datetime.now(
             timezone).strftime("%z")
 

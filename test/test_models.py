@@ -5,6 +5,7 @@ Unit tests for model classes.
 '''
 from unittest import TestCase
 import logging
+import datetime
 from dicom4ortho.m_ada1107 import ADA1107
 from dicom4ortho.model import DicomBase
 
@@ -23,10 +24,34 @@ class Test(TestCase):
             f'Views ver: [{v.VIEWS["VERSION"]}] Codes ver: [{v.CODES["VERSION"]}]')
 
 
-class DicomBaseTest(TestCase):
-    def setUp(self) -> None:
-        return super().setUp()
 
-    def test_acquisition_datetime(self):
-        db = DicomBase()
+class TestDicomBaseAcquisitionDateTimeSetter(TestCase):
+    def setUp(self):
+        # Assuming the class that contains the setter is named ImagingStudy
+        self.dicombase = DicomBase()
+
+    def test_with_timezone(self):
+        # Test datetime with timezone
+        dt_with_tz = datetime.datetime(2023, 1, 1, 12, 0, tzinfo=datetime.timezone.utc)
+        self.dicombase.timezone = datetime.timezone(datetime.timedelta(hours=-5))  # New York Time
+        self.dicombase.acquisition_datetime = dt_with_tz
+        self.assertEqual(self.dicombase._ds.AcquisitionDateTime[-5:], '+0000')  # UTC timezone
+
+    def test_without_timezone(self):
+        # Test datetime without timezone, class timezone is set
+        dt_without_tz = datetime.datetime(2023, 1, 1, 12, 0)
+        self.dicombase.timezone = datetime.timezone(datetime.timedelta(hours=-5))  # New York Time
+        self.dicombase.acquisition_datetime = dt_without_tz
+        self.assertEqual(self.dicombase._ds.AcquisitionDateTime[-5:], '-0500')  # New York timezone
+
+    def test_no_class_timezone(self):
+        # Test datetime without timezone and no class timezone set
+        dt_without_tz = datetime.datetime(2023, 1, 1, 12, 0)
+        self.dicombase.timezone = None
+        self.dicombase.acquisition_datetime = dt_without_tz
+        # This checks if the timezone has been set to local timezone, may need to adjust based on local timezone
+        # For example, if running in UTC environment, it should end with '+0000'
+        expected_tz = datetime.datetime.now().astimezone().strftime('%z')
+        self.assertEqual(self.dicombase._ds.AcquisitionDateTime[-5:], expected_tz)
+
 

@@ -277,11 +277,11 @@ class DicomBase(object):
         """
         try:
             return datetime.timezone(datetime.timedelta(hours=int(self._ds.TimezoneOffsetFromUTC)/100))
-        except ValueError:
+        except (ValueError, TypeError):
             return None
 
     @ timezone.setter
-    def timezone(self, timezone: datetime.timezone) -> None:
+    def timezone(self, tz: datetime.timezone) -> None:
         ''' Set timezone of TimezoneOffsetFromUTC from a Python datetime.timezone object.
 
         If you know the timezone in string format, like "-0900", then you might be better off to set the `_ds` object directly.
@@ -299,8 +299,15 @@ class DicomBase(object):
         Returns:
             None
         '''
-        self._ds.TimezoneOffsetFromUTC = datetime.datetime.now(
-            timezone).strftime("%z")
+        if tz:
+            offset_seconds = tz.utcoffset(None).total_seconds()
+            offset_hours = int(offset_seconds // 3600)
+            offset_minutes = int((offset_seconds % 3600) // 60)
+            self._ds.TimezoneOffsetFromUTC = f"{offset_hours:+03.0f}{offset_minutes:02d}"
+        else:
+            self._ds.TimezoneOffsetFromUTC = None
+
+
 
     @ property
     def acquisition_datetime(self):

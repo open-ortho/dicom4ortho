@@ -3,6 +3,7 @@ Unit tests for model classes.
 
 @author: Toni Magni
 '''
+from math import copysign
 from unittest import TestCase
 import logging
 import datetime
@@ -61,13 +62,28 @@ class TestTimezoneSetterGetter(TestCase):
     def setUp(self):
         self.obj = DicomBase()  # Create an instance of your class
 
-    def test_set_timezone(self):
-        # Test setting a timezone
-        tz = datetime.timezone(datetime.timedelta(hours=-5, minutes=-30))
-        self.obj.timezone = tz
+    def test_set_timezone_bruteforce(self):
+        """ Tests for all possible timezones.
+        """
+        for hours in range(-12, 13):  # from -12 to +12 inclusive
+            for minutes in [0, copysign(30,hours)]:  # checking on the hour and half-hour
+                if abs(hours) == 12 and minutes != 0:
+                    continue  # Skip the +12:30 and -12:30 cases
 
-        # Check if TimezoneOffsetFromUTC is set correctly
-        self.assertEqual(self.obj._ds.TimezoneOffsetFromUTC, "-0530")
+                logging.info(f"Testing {hours}:{minutes}")
+                # Create timezone with current offset
+                tz = datetime.timezone(datetime.timedelta(hours=hours, minutes=minutes))
+                self.obj.timezone = tz
+
+                # Expected format: +HHMM or -HHMM
+                # Manual reconstruction is necessary to account for negative hours, and proper + sign addition.
+                expected_sign = '+' if hours >= 0 else '-'
+                expected_hours = abs(hours)
+                expected_minutes = abs(int(minutes))
+                expected_timezone = f"{expected_sign}{expected_hours:02d}{expected_minutes:02d}"
+
+                # Check if TimezoneOffsetFromUTC is set correctly
+                self.assertEqual(self.obj._ds.TimezoneOffsetFromUTC, expected_timezone)
 
     def test_set_timezone2(self):
         # Test setting a timezone

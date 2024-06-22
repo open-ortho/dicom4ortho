@@ -4,6 +4,7 @@ The model.
 import datetime
 import logging
 import io
+from math import copysign
 
 from pydicom.sequence import Sequence
 from pydicom.dataset import FileDataset, DataElement, FileMetaDataset
@@ -301,7 +302,8 @@ class DicomBase(object):
         '''
         if tz:
             offset_seconds = tz.utcoffset(None).total_seconds()
-            offset_hours = int(offset_seconds // 3600)
+            offset_hours = int(abs(offset_seconds) // 3600)
+            offset_hours = copysign(offset_hours, offset_seconds)
             offset_minutes = int((offset_seconds % 3600) // 60)
             self._ds.TimezoneOffsetFromUTC = f"{offset_hours:+03.0f}{offset_minutes:02d}"
         else:

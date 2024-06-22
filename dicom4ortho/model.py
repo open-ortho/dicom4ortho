@@ -276,9 +276,20 @@ class DicomBase(object):
 
         :return: timezone from TimezoneOffsetFromUTC as a Python datetime.timezone object, or None if TimezoneOffsetFromUTC is not something that can be converted to an integer.
         """
+        tz_str = self._ds.TimezoneOffsetFromUTC
+        if tz_str is None or len(tz_str) < 5:
+            return None
+        
         try:
-            return datetime.timezone(datetime.timedelta(hours=int(self._ds.TimezoneOffsetFromUTC)/100))
-        except (ValueError, TypeError):
+            # Extract hours and minutes from the string
+            sign = -1 if tz_str[0] == '-' else 1
+            hours = int(tz_str[1:3])
+            minutes = int(tz_str[3:5])
+
+            # Create a timedelta object
+            td = datetime.timedelta(hours=sign * hours, minutes=sign * minutes)
+            return datetime.timezone(td)
+        except ValueError:
             return None
 
     @ timezone.setter

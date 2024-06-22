@@ -62,11 +62,13 @@ class TestTimezoneSetterGetter(TestCase):
     def setUp(self):
         self.obj = DicomBase()  # Create an instance of your class
 
-    def test_set_timezone_bruteforce(self):
-        """ Tests for all possible timezones.
+    def test_set_TimezoneOffsetFromUTC(self):
+        """ Test if the DICOM TimezoneOffsetFromUTC is set properly.
+
+        Tests for all possible timezones.
         """
         for hours in range(-12, 13):  # from -12 to +12 inclusive
-            for minutes in [0, copysign(30,hours)]:  # checking on the hour and half-hour
+            for minutes in [0, int(copysign(30,hours))]:  # checking on the hour and half-hour
                 if abs(hours) == 12 and minutes != 0:
                     continue  # Skip the +12:30 and -12:30 cases
 
@@ -85,33 +87,23 @@ class TestTimezoneSetterGetter(TestCase):
                 # Check if TimezoneOffsetFromUTC is set correctly
                 self.assertEqual(self.obj._ds.TimezoneOffsetFromUTC, expected_timezone)
 
-    def test_set_timezone2(self):
-        # Test setting a timezone
-        tz = datetime.timezone(datetime.timedelta(hours=-5, minutes=-30))
-        self.obj.timezone = tz
-
-        # Check the set value directly
-        set_tz = self.obj.timezone
-        expected_tz = tz
-
-        self.assertEqual(set_tz.utcoffset(None), expected_tz.utcoffset(None))
-
-    def test_get_timezone(self):
-        # Test getting a timezone
-        self.obj._ds.TimezoneOffsetFromUTC = "-0700"
-
-        tz = self.obj.timezone
-        expected_tz = datetime.timezone(datetime.timedelta(hours=-7))
-
-        # Check if the getter retrieves the correct timezone
-        self.assertEqual(tz.utcoffset(None), expected_tz.utcoffset(None))
-
     def test_set_and_get_timezone(self):
-        # Test setting and then getting a timezone
-        tz = datetime.timezone(datetime.timedelta(hours=3, minutes=15))
-        self.obj.timezone = tz
+        """ Test if the timezone attribute properly returns the set timezone.
 
-        retrieved_tz = self.obj.timezone
+        There is a different logic between the internal timezone setting and the DICOM TimezoneOffsetFromUTC.
+        """
+        for hours in range(-12, 13):  # from -12 to +12 inclusive
+            for minutes in [0, int(copysign(30,hours))]:  # checking on the hour and half-hour
+                if abs(hours) == 12 and minutes != 0:
+                    continue  # Skip the +12:30 and -12:30 cases
 
-        # Check if the setter and getter are consistent
-        self.assertEqual(retrieved_tz.utcoffset(None), tz.utcoffset(None))
+                logging.info(f"Testing {hours}:{minutes}")
+                # Test setting a timezone
+                tz = datetime.timezone(datetime.timedelta(hours=hours, minutes=minutes))
+                self.obj.timezone = tz
+
+                # Check the set value directly
+                set_tz = self.obj.timezone
+                expected_tz = tz
+
+                self.assertEqual(set_tz.utcoffset(None), expected_tz.utcoffset(None),msg=f"Error while testing {hours}h {minutes}m")

@@ -7,7 +7,7 @@ import logging
 from pathlib import Path
 import importlib.resources as importlib_resources
 
-VERSION = '0.2.2'
+VERSION = '0.2.3'
 __url__ = 'https://github.com/open-ortho/dicom4ortho'
 __author__ = 'Toni Magni'
 __email__ = 'open-ortho@panio.info'

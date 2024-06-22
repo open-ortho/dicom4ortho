@@ -27,11 +27,20 @@ class Test(TestCase):
 
 
 class TestDicomBaseAcquisitionDateTimeSetter(TestCase):
+    """ Test AcquisitionDateTime in various circumstances.
+
+    - What if the acquisitionDateTime comes in with a timezone which is different from TimezoneOffsetFromUTC? No problem, they are just both TZ aware.
+    - 
+    """
     def setUp(self):
         # Assuming the class that contains the setter is named ImagingStudy
         self.dicombase = DicomBase()
 
     def test_with_timezone(self):
+        """ Scenario where both AcquisitionDate and TZOffset are both present.
+
+        AcquisitionDateTime should always have priority.
+        """
         # Test datetime with timezone
         dt_with_tz = datetime.datetime(2023, 1, 1, 12, 0, tzinfo=datetime.timezone.utc)
         self.dicombase.timezone = datetime.timezone(datetime.timedelta(hours=-5))  # New York Time
@@ -39,6 +48,10 @@ class TestDicomBaseAcquisitionDateTimeSetter(TestCase):
         self.assertEqual(self.dicombase._ds.AcquisitionDateTime[-5:], '+0000')  # UTC timezone
 
     def test_without_timezone(self):
+        """ Scenario where AcquisitionDate is w/o TZ, and TZOffset is present.
+
+        AcquisitionDateTime should use TZ from TZOffset.
+        """
         # Test datetime without timezone, class timezone is set
         dt_without_tz = datetime.datetime(2023, 1, 1, 12, 0)
         self.dicombase.timezone = datetime.timezone(datetime.timedelta(hours=-5))  # New York Time
@@ -46,13 +59,21 @@ class TestDicomBaseAcquisitionDateTimeSetter(TestCase):
         self.assertEqual(self.dicombase._ds.AcquisitionDateTime[-5:], '-0500')  # New York timezone
 
     def test_no_class_timezone(self):
+        """ Scenario where AcquisitionDateTime is without timezone and TZOffset also doesn't exist.
+
+        Should return a time with the TZ of the running server, which is ourselves.
+        """
         # Test datetime without timezone and no class timezone set
         dt_without_tz = datetime.datetime(2023, 1, 1, 12, 0)
         self.dicombase.timezone = None
         self.dicombase.acquisition_datetime = dt_without_tz
-        # This checks if the timezone has been set to local timezone, may need to adjust based on local timezone
-        # For example, if running in UTC environment, it should end with '+0000'
-        expected_tz = datetime.datetime.now().astimezone().strftime('%z')
+
+        # This check verifies if the timezone has been set to the local timezone.
+        # Adjustments might be necessary based on the local environment's timezone settings.
+        # For instance, in a UTC environment, the expected result should be '+0000'.
+        # Using astimezone() considers daylight saving time based on the provided date,
+        # hence it's inappropriate to rely on datetime.datetime.now() solely for timezone testing.
+        expected_tz = dt_without_tz.astimezone().strftime('%z')
         self.assertEqual(self.dicombase._ds.AcquisitionDateTime[-5:], expected_tz)
 
 

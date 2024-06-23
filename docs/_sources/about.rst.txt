@@ -31,26 +31,6 @@ this project!
 A list of commonly used resources that we find helpful are listed in the
 acknowledgements.
 
-Feature Roadmap
----------------
-
-See the `open
-issues <https://github.com/open-ortho/dicom4ortho/issues>`__ for a list
-of proposed features (and known issues).
-
-v0
-~~
-
--  Load single PNG/JPG file
--  Manually set metadata from filename, or hard code
-
-v1
-~~
-
--  Load entire directory, for batch conversion
--  Load metadata from filename, like the files of the linedrawings,
-   using our abbreviations.
-
 Built With
 ----------
 

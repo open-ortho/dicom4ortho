@@ -1,7 +1,14 @@
 Status of Implementation
 ========================
 
-Here is a list of the status of implementation for each view.
+Here is a list of the status of implementation for each specification as defined in :ref:`specifications`.
+
+CO-02
+-----
+
+**Specification**: ``dicom4ortho`` SHALL support each view covered in ADA-1107.
+
+**Status**: 
 
 *encode* is considered the action of taking a gif, jpeg, tiff or
 otherwise non-DICOM file, and encoding it into DICOM.
@@ -85,3 +92,17 @@ IV28        no
 IV29        no
 IV30        no
 ==== ====== ====== =====
+
+CO-03
+--------
+
+**Specification**: ``dicom4ortho`` SHALL support each viewset covered in ADA-1107.
+
+**Status**: Not Implemented
+
+IF-01 
+-----
+
+**Specification**: ``dicom4ortho`` SHALL support importing images in the JPEG format
+
+**Status**: Supported.

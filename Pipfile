@@ -9,6 +9,7 @@ pylint = "*"
 twine = "*"
 autopep8 = "*"
 bumpversion = "*"
+pytest = "*"
 
 [packages]
 pydicom = "*"

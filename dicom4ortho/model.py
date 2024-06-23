@@ -4,6 +4,7 @@ The model.
 import datetime
 import logging
 import io
+from math import copysign
 
 from pydicom.sequence import Sequence
 from pydicom.dataset import FileDataset, DataElement, FileMetaDataset
@@ -271,6 +272,28 @@ class DicomBase(object):
 
     @ property
     def timezone(self) -> datetime.timezone:
+        """ Convert the TimezoneOffsetFromUTC to a Python datetime.timezone.
+
+        :return: timezone from TimezoneOffsetFromUTC as a Python datetime.timezone object, or None if TimezoneOffsetFromUTC is not something that can be converted to an integer.
+        """
+        tz_str = self._ds.TimezoneOffsetFromUTC
+        if tz_str is None or len(tz_str) < 5:
+            return None
+        
+        try:
+            # Extract hours and minutes from the string
+            sign = -1 if tz_str[0] == '-' else 1
+            hours = int(tz_str[1:3])
+            minutes = int(tz_str[3:5])
+
+            # Create a timedelta object
+            td = datetime.timedelta(hours=sign * hours, minutes=sign * minutes)
+            return datetime.timezone(td)
+        except ValueError:
+            return None
+
+    @ timezone.setter
+    def timezone(self, tz: datetime.timezone) -> None:
         ''' Set timezone of TimezoneOffsetFromUTC from a Python datetime.timezone object.
 
         If you know the timezone in string format, like "-0900", then you might be better off to set the `_ds` object directly.
@@ -286,17 +309,18 @@ class DicomBase(object):
         Args:
             timezone: datetime.timezone
         Returns:
-            datetime.timezone: Python timezone object
+            None
         '''
-        """
-        :return: timezone from TimezoneOffsetFromUTC as a Python datetime.timezone object.
-        """
-        return datetime.timezone(datetime.timedelta(hours=int(self._ds.TimezoneOffsetFromUTC)/100))
+        if tz:
+            offset_seconds = tz.utcoffset(None).total_seconds()
+            offset_hours = int(abs(offset_seconds) // 3600)
+            offset_hours = copysign(offset_hours, offset_seconds)
+            offset_minutes = int((offset_seconds % 3600) // 60)
+            self._ds.TimezoneOffsetFromUTC = f"{offset_hours:+03.0f}{offset_minutes:02d}"
+        else:
+            self._ds.TimezoneOffsetFromUTC = None
 
-    @ timezone.setter
-    def timezone(self, timezone: datetime.timezone) -> None:
-        self._ds.TimezoneOffsetFromUTC = datetime.datetime.now(
-            timezone).strftime("%z")
+
 
     @ property
     def acquisition_datetime(self):
@@ -309,13 +333,14 @@ class DicomBase(object):
 
         Also set Acquisition Date and Acquisition Time
         """
-        if _acquisition_datetime.tzinfo is None:
-            if self.timezone is not None:
-                dtz = _acquisition_datetime.replace(tzinfo=self.timezone)
-            else:
-                dtz = _acquisition_datetime.astimezone()
+        if _acquisition_datetime.tzinfo is None and self.timezone:
+            # If no timezone is present and a timezone is specified in the class, add it.
+            _acquisition_datetime = _acquisition_datetime.replace(tzinfo=self.timezone)
+        elif _acquisition_datetime.tzinfo is None:
+            # If no timezone is present and no class timezone, use the current local timezone.
+            _acquisition_datetime = _acquisition_datetime.astimezone()
 
-        dtzs = dtz.strftime(
+        dtzs = _acquisition_datetime.strftime(
             f"{defaults.DATE_FORMAT}{defaults.TIME_FORMAT}%z")
         self._ds.AcquisitionDateTime = dtzs
         self._ds.AcquisitionDate = _acquisition_datetime.strftime(

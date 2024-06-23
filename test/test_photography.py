@@ -168,27 +168,27 @@ class PhotoTests(unittest.TestCase):
         metadata['input_image_filename'] = resource_path / "sample_NikonD90.JPG"
         metadata['image_type'] = "IV06"
         c = SimpleController()
-        c.convert_image_to_dicom4orthograph(metadata=metadata)
+        c.convert_image_to_dicom4orthograph_and_save(metadata=metadata)
         output_file = (resource_path / "sample_NikonD90.dcm")
-        assert output_file.exists()
+        self.assertTrue(output_file.exists())
         output_file.unlink()
 
         metadata = make_photo_metadata()
         metadata['input_image_filename'] = resource_path / "sample_NikonD5600.JPG"
         metadata['image_type'] = "IV06"
         c = SimpleController()
-        c.convert_image_to_dicom4orthograph(metadata=metadata)
+        c.convert_image_to_dicom4orthograph_and_save(metadata=metadata)
         output_file = resource_path / "sample_NikonD5600.dcm"
-        assert output_file.exists()
+        self.assertTrue(output_file.exists())
         output_file.unlink()
 
         metadata = make_photo_metadata()
         metadata['input_image_filename'] = resource_path / "sample_topsOrtho.jp2"
         metadata['image_type'] = "IV06"
         c = SimpleController()
-        c.convert_image_to_dicom4orthograph(metadata=metadata)
+        c.convert_image_to_dicom4orthograph_and_save(metadata=metadata)
         output_file = (resource_path / "sample_topsOrtho.dcm")
-        assert output_file.exists()
+        self.assertTrue(output_file.exists())
         c.validate_dicom_file()
         output_file.unlink()
 

@@ -28,7 +28,7 @@ class SimpleController(object):
             for row in csv_reader:
                 row['input_image_filename'] = (Path(csv_input).parent / row['input_image_filename'])
                 row['teeth'] = teeth
-                self.convert_image_to_dicom4orthograph(metadata=row)
+                self.convert_image_to_dicom4orthograph_and_save(metadata=row)
 
     def convert_image_to_dicom4orthograph(self, metadata) -> OrthodonticPhotograph:
         ''' Converts a plain image into a DICOM object.

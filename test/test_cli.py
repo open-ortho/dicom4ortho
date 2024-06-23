@@ -28,11 +28,11 @@ class Test(unittest.TestCase):
         output_file1 = os.path.join(resource_path,'EV-01_EO.RP.LR.CO.dcm') 
         output_file2 = (os.path.join(resource_path,'EV-17_EO.FF.LC.CO.dcm'))
         output_file3 = (os.path.join(resource_path,'IV-25_IO.MX.MO.OV.WM.BC.dcm'))
-        assert os.path.exists(output_file1)
+        self.assertTrue(os.path.exists(output_file1))
         os.remove(output_file1)
-        assert os.path.exists(output_file2)
+        self.assertTrue(os.path.exists(output_file2))
         os.remove(output_file2)
-        assert os.path.exists(output_file3)
+        self.assertTrue(os.path.exists(output_file3))
         os.remove(output_file3)
 
     def testHelp(self):

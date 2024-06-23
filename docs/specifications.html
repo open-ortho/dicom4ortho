@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="./">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>dicom4ortho Specifications &#8212; dicom4ortho docs 0.2 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="_static/classic.css?v=def86cc0" />
+    
+    <script src="_static/documentation_options.js?v=10f1778b"></script>
+    <script src="_static/doctools.js?v=9a2dae69"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    
+    <link rel="author" title="About these documents" href="about.html" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Release notes" href="release_notes.html" />
+    <link rel="prev" title="DICOM UIDs" href="notes.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="release_notes.html" title="Release notes"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="notes.html" title="DICOM UIDs"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">dicom4ortho docs 0.2 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">dicom4ortho Specifications</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section id="dicom4ortho-specifications">
+<h1>dicom4ortho Specifications<a class="headerlink" href="#dicom4ortho-specifications" title="Link to this heading">¶</a></h1>
+<p>Specifications of how the software should behave and expectations of what it should do. Goals for development.</p>
+<p>In general, the main goal of <code class="docutils literal notranslate"><span class="pre">dicom4ortho</span></code> is to provide an example for the acquisition and exchange of orthodontic photographs making use of DICOM and other open standards, such as HL7 and SNOMED.</p>
+<section id="if-image-formats">
+<h2>IF Image Formats<a class="headerlink" href="#if-image-formats" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p><strong>IF-01:</strong> <code class="docutils literal notranslate"><span class="pre">dicom4ortho</span></code> SHALL support importing images in the JPEG format. This is because most camera used by orthodontists save the images in this format.</p></li>
+<li><p><strong>IF-02:</strong> <code class="docutils literal notranslate"><span class="pre">dicom4ortho</span></code> SHALL support importing images in the JPEG-2000 format. This is because this would be the preferred image format, and can be encapsulated in DICOM.</p></li>
+<li><p><strong>IF-03:</strong> <code class="docutils literal notranslate"><span class="pre">dicom4ortho</span></code> SHALL support exporting images in DICOM format as JPEGLossless.</p></li>
+<li><p><strong>IF-04:</strong> <code class="docutils literal notranslate"><span class="pre">dicom4ortho</span></code> SHALL support exporting images in DICOM format as JPEG-2000.</p></li>
+</ul>
+</section>
+<section id="ii-image-importing">
+<h2>II Image Importing<a class="headerlink" href="#ii-image-importing" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p><strong>II-01:</strong> <code class="docutils literal notranslate"><span class="pre">dicom4ortho</span></code> SHALL read images via FHIR</p></li>
+</ul>
+</section>
+<section id="ie-image-exporting">
+<h2>IE Image Exporting<a class="headerlink" href="#ie-image-exporting" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p><strong>IE-01:</strong> <code class="docutils literal notranslate"><span class="pre">dicom4ortho</span></code> SHALL export images exclusively and only utilizing a well established medical enterprise imaging format such as DICOM.</p></li>
+<li><p><strong>IE-02:</strong> <code class="docutils literal notranslate"><span class="pre">dicom4ortho</span></code> SHALL support exporting images to file.</p></li>
+<li><p><strong>IE-03:</strong> <code class="docutils literal notranslate"><span class="pre">dicom4ortho</span></code> SHALL support sending images to a DICOM node (as SCU or SCP, DICOMweb, WADO, or whatever).</p></li>
+</ul>
+</section>
+<section id="mr-metadata-retrieval">
+<h2>MR Metadata Retrieval<a class="headerlink" href="#mr-metadata-retrieval" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p><strong>MR-01:</strong> <code class="docutils literal notranslate"><span class="pre">dicom4ortho</span></code> SHALL be able to automatically retrieve clinical metadata in order to create complete DICOM images in accordance to well established standards, such as ADA 1107.</p></li>
+<li><p><strong>MR-02:</strong> <code class="docutils literal notranslate"><span class="pre">dicom4ortho</span></code> SHALL support retrieving metadata via FHIR Resources.</p></li>
+<li><p><strong>MR-03:</strong> <code class="docutils literal notranslate"><span class="pre">dicom4ortho</span></code> COULD support retrieving metadata via DICOM Modality Worklists (MWL).</p></li>
+</ul>
+</section>
+<section id="se-security">
+<h2>SE Security<a class="headerlink" href="#se-security" title="Link to this heading">¶</a></h2>
+<p>It is outside of the scope of <code class="docutils literal notranslate"><span class="pre">dicom4ortho</span></code> to deal with security issues. These should be dealt with other tools.</p>
+<ul class="simple">
+<li><p><strong>SE-01:</strong> <code class="docutils literal notranslate"><span class="pre">dicom4ortho</span></code> SHOULD not provide any type of security or log in mechanism.</p></li>
+</ul>
+</section>
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <div>
+    <h3><a href="index.html">Table of Contents</a></h3>
+    <ul>
+<li><a class="reference internal" href="#">dicom4ortho Specifications</a><ul>
+<li><a class="reference internal" href="#if-image-formats">IF Image Formats</a></li>
+<li><a class="reference internal" href="#ii-image-importing">II Image Importing</a></li>
+<li><a class="reference internal" href="#ie-image-exporting">IE Image Exporting</a></li>
+<li><a class="reference internal" href="#mr-metadata-retrieval">MR Metadata Retrieval</a></li>
+<li><a class="reference internal" href="#se-security">SE Security</a></li>
+</ul>
+</li>
+</ul>
+
+  </div>
+  <div>
+    <h4>Previous topic</h4>
+    <p class="topless"><a href="notes.html"
+                          title="previous chapter">DICOM UIDs</a></p>
+  </div>
+  <div>
+    <h4>Next topic</h4>
+    <p class="topless"><a href="release_notes.html"
+                          title="next chapter">Release notes</a></p>
+  </div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/specifications.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<search id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="release_notes.html" title="Release notes"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="notes.html" title="DICOM UIDs"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">dicom4ortho docs 0.2 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">dicom4ortho Specifications</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+    &#169; Copyright 2021, open-ortho.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.3.7.
+    </div>
+  </body>
+</html>

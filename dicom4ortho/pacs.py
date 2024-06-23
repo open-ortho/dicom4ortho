@@ -53,4 +53,4 @@ def send_to_pacs_wado(dicom_file_path, dicomweb_url, username=None, password=Non
         logger.info('DICOM instance successfully stored.')
     else:
         logger.error(f'Failed to store DICOM instance. Status code: {response.status_code}')
-        logger.error('Response:', response.text)
+        logger.error(f'Response: {response.text}')

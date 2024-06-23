@@ -19,6 +19,8 @@ DIST = ./dist
 
 LINTER = $$(which pylint) --errors-only
 
+.PHONY: default
+default: clean build
 
 .PHONY: lint
 lint:
@@ -35,8 +37,6 @@ clean:
 	echo "Cleaned up $(DIST) folder."
 	rm -rf *.egg-info
 	echo "Removed all .egg-info files."
-	rm -f test/resources/*.dcm
-	echo "Removed *.dcm files in test/resources."
 	find . -path "*/__pycache*" -delete
 	echo "Deleted all __pycache files."
 	rm -rf $(D3TOOLS_DIR)

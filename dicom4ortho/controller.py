@@ -5,10 +5,11 @@ import os
 import csv
 import datetime
 from pathlib import Path
-import dicom4ortho.model as model
 
 import dicom4ortho.defaults as defaults
+import dicom4ortho.model as model
 from dicom4ortho.m_orthodontic_photograph import OrthodonticPhotograph
+from dicom4ortho.pacs import send_to_pacs_dimse, send_to_pacs_wado
 
 class SimpleController(object):
     """
@@ -29,7 +30,7 @@ class SimpleController(object):
                 row['teeth'] = teeth
                 self.convert_image_to_dicom4orthograph(metadata=row)
 
-    def convert_image_to_dicom4orthograph(self, metadata):
+    def convert_image_to_dicom4orthograph(self, metadata) -> OrthodonticPhotograph:
         ''' Converts a plain image into a DICOM object.
 
         All image metadata are passed as a dict in metadata with the following keys:
@@ -73,7 +74,11 @@ class SimpleController(object):
         # file.
         # if metadata['teeth']
 
-        self.photo.save()
+        return self.photo
+
+    def convert_image_to_dicom4orthograph_and_save(self, metadata):
+        _photo = self.convert_image_to_dicom4orthograph(metadata=metadata)
+        _photo.save()
 
     def validate_dicom_file(self, input_image_filename=None):
         ''' Validate DICOM File.
@@ -98,3 +103,57 @@ class SimpleController(object):
             output_image_filename=None)
         _photo.load(input_image_filename)
         _photo.print()
+
+
+    def process_and_send(self, send_method, **kwargs):
+        """
+        Convert an image to DICOM format and send it to a PACS.
+
+        Parameters:
+        image_path (str): Path to the input image.
+        dicom_file_path (str): Path to the output DICOM file.
+        send_method (str): Method to send DICOM. Must be 'dimse' or 'wado'.
+        **kwargs: Additional keyword arguments depending on the send method:
+    
+            For send_method 'dimse':
+                pacs_ip (str): IP address of the PACS server.
+                pacs_port (int): Port of the PACS server.
+                pacs_aet (str): AE Title of the PACS server.
+
+            For send_method 'wado':
+                dicomweb_url (str): URL of the DICOMweb server.
+                username (str, optional): Username for DICOMweb authentication.
+                password (str, optional): Password for DICOMweb authentication.
+    
+        Raises:
+        ValueError: If an invalid send method is specified or required kwargs are missing.
+    
+        Example:
+        process_and_send(
+            image_path='path/to/image.jpg',
+            dicom_file_path='path/to/output.dcm',
+            send_method='dimse',
+            pacs_ip='127.0.0.1',
+            pacs_port=104,
+            pacs_aet='PACS_AET'
+        )
+
+        process_and_send(
+            image_path='path/to/image.jpg',
+            dicom_file_path='path/to/output.dcm',
+            send_method='wado',
+            dicomweb_url='http://dicomweb-server.com/dicomweb/studies',
+            username='user',
+            password='pass'
+        )
+        """
+
+        # Convert image to DICOM (assuming you have a function for this)
+
+        # Send the DICOM file based on the specified method
+        if send_method == 'dimse':
+            send_to_pacs_dimse(dicom_file_path, kwargs['pacs_ip'], kwargs['pacs_port'], kwargs['pacs_aet'])
+        elif send_method == 'wado':
+            send_to_pacs_wado(dicom_file_path, kwargs['dicomweb_url'], kwargs.get('username'), kwargs.get('password'))
+        else:
+            print('Invalid send method specified.')

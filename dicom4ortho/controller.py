@@ -109,7 +109,7 @@ class SimpleController(object):
 
     def send(self, dicom_files, send_method, **kwargs):
         """
-        Convert an image to DICOM format and send it to a PACS.
+        Send DICOM files to a PACS.
 
         Parameters:
         dicom_files (str): Array of paths to the DICOM files to send.

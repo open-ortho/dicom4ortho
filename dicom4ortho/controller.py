@@ -151,8 +151,8 @@ class SimpleController(object):
 
         # Send the DICOM file based on the specified method
         if send_method == 'dimse':
-            send_to_pacs_dimse(dicom_files, kwargs['pacs_ip'], kwargs['pacs_port'], kwargs['pacs_aet'])
+            return send_to_pacs_dimse(dicom_files, kwargs['pacs_ip'], kwargs['pacs_port'], kwargs['pacs_aet'])
         elif send_method == 'wado':
-            send_to_pacs_wado(dicom_files, kwargs['dicomweb_url'], kwargs.get('username'), kwargs.get('password'))
+            return send_to_pacs_wado(dicom_files, kwargs['dicomweb_url'], kwargs.get('username'), kwargs.get('password'))
         else:
             logger.error('Invalid send method specified.')

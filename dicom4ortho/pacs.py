@@ -1,7 +1,8 @@
 # dicom4ortho/pacs.py
 
+import io
 import pydicom
-from pynetdicom import AE, StoragePresentationContexts
+from pynetdicom import AE, StoragePresentationContexts, sop_class
 import requests
 from requests.auth import HTTPBasicAuth
 import logging
@@ -16,7 +17,10 @@ def send_to_pacs_dimse(dicom_files, pacs_ip, pacs_port, pacs_aet):
 
     # Create application entity and specify the requested presentation contexts
     ae = AE()
-    ae.requested_contexts = StoragePresentationContexts
+    # ae.requested_contexts = StoragePresentationContexts
+    # Add requested presentation context
+    ae.add_requested_context(sop_class.VLPhotographicImageStorage)
+
 
     # Establish association with PACS
     assoc = ae.associate(pacs_ip, pacs_port, ae_title=pacs_aet)
@@ -42,7 +46,19 @@ def send_to_pacs_dimse(dicom_files, pacs_ip, pacs_port, pacs_aet):
 def send_to_pacs_wado(dicom_file_path, dicomweb_url, username=None, password=None):
     """Send DICOM file to PACS using WADO/DICOMweb."""
     dataset = pydicom.dcmread(dicom_file_path)
-    dicom_bytes = dataset.to_bytes()
+    
+    # Create a byte buffer
+    byte_buffer = io.BytesIO()
+    
+    # Write DICOM dataset to byte buffer
+    pydicom.dcmwrite(byte_buffer, dataset)
+    
+    # Go to the start of the byte buffer
+    byte_buffer.seek(0)
+    
+    # Read bytes from buffer
+    dicom_bytes = byte_buffer.read()
+
 
     headers = {'Content-Type': 'application/dicom'}
     auth = HTTPBasicAuth(username, password) if username and password else None
@@ -54,3 +70,5 @@ def send_to_pacs_wado(dicom_file_path, dicomweb_url, username=None, password=Non
     else:
         logger.error(f'Failed to store DICOM instance. Status code: {response.status_code}')
         logger.error(f'Response: {response.text}')
+    
+    return response

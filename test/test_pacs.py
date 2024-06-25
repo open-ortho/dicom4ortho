@@ -51,9 +51,11 @@ class TestPacsModule(unittest.TestCase):
 
         # Act
         response = pacs.send_to_pacs_wado(
-            self.dicom_file_path, dicomweb_url, username, password)
+            [self.dicom_file_path], dicomweb_url, username, password)
 
+        print(f"\nResponse: {response.text}")
         self.assertEqual(response.status_code,200)
+        self.assertNotEqual(response.text,'',msg="Response text should not be empty.")
         # pprint(response.json())
 
     @patch('pydicom.dcmread')

@@ -44,32 +44,36 @@ def send_to_pacs_dimse(dicom_files, pacs_ip, pacs_port, pacs_aet):
     ae.shutdown()
     return status
 
-def send_to_pacs_wado(dicom_file_path, dicomweb_url, username=None, password=None):
-    """Send DICOM file to PACS using WADO/DICOMweb."""
-    # Load and prepare DICOM file
-    dataset = pydicom.dcmread(dicom_file_path)
-    byte_buffer = io.BytesIO()
-    pydicom.dcmwrite(byte_buffer, dataset)
-    byte_buffer.seek(0)
-    dicom_bytes = byte_buffer.read()
+def send_to_pacs_wado(dicom_files, dicomweb_url, username=None, password=None):
+    """Send multiple DICOM files to PACS using WADO/DICOMweb."""
+    
+    # Prepare the files payload for multipart/related
+    files = []
+    for dicom_file_path in dicom_files:
+        # Load and prepare DICOM file
+        dataset = pydicom.dcmread(dicom_file_path)
+        byte_buffer = io.BytesIO()
+        pydicom.dcmwrite(byte_buffer, dataset)
+        byte_buffer.seek(0)
+        dicom_bytes = byte_buffer.read()
 
-    files = {
-        'file': (Path(dicom_file_path).name, dicom_bytes, 'application/dicom')
-    }
+        # Append each file to the files list
+        files.append((
+            'file', 
+            (Path(dicom_file_path).name, dicom_bytes, 'application/dicom')
+        ))
 
     # Prepare authentication
     auth = HTTPBasicAuth(username, password) if username and password else None
 
-    # Send the request
-    # response = requests.post(dicomweb_url, headers=headers, files=files, auth=auth)
+    # Send the request with all files
     response = requests.post(dicomweb_url, files=files, auth=auth)
 
     # Check and log the response
     if response.status_code in [200, 204]:
-        print('DICOM instance successfully stored.')
-        logger.info('DICOM instance successfully stored.')
+        logger.info('DICOM instances successfully stored.')
     else:
-        logger.error(f'Failed to store DICOM instance. Status code: {response.status_code}')
+        logger.error(f'Failed to store DICOM instances. Status code: {response.status_code}')
         logger.error(f'Response: {response.text}')
 
     return response

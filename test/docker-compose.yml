@@ -1,7 +1,17 @@
 services:
   orthanc-mock:
-    image: cr.gingosrl.it/open-ortho/orthanc-mock:latest
-    ports: ["8201:8042", "50104:104"]
+    # image: cr.gingosrl.it/open-ortho/orthanc-mock:latest
+    image: jodogne/orthanc-plugins
     hostname: orthanc-mock
+    ports: ["8201:8042", "4242:4242"]
+    volumes:
+      - ./orthanc.json:/etc/orthanc/orthanc.json
     environment:
       VERBOSE_STARTUP: "true"
+      VERBOSE_ENABLED: "false"
+      OSIMIS_WEB_VIEWER1_PLUGIN_ENABLED: "true"
+      STONE_WEB_VIEWER_PLUGIN_ENABLED: "true"
+      DICOM_WEB_PLUGIN_ENABLED: "true"
+      ORTHANC__STONE_WEB_VIEWER__DATE_FORMAT: "YYYY-MM-DD"
+
+

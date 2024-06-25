@@ -3,6 +3,7 @@ Unittests for DICOM objects.
 
 @author: Toni Magni
 '''
+import io
 import unittest
 import logging
 import importlib
@@ -16,6 +17,9 @@ from pathlib import Path
 
 from PIL import Image, ExifTags
 from pydicom.dataset import Dataset
+
+logger = logging.getLogger()
+
 
 def make_photo_metadata():
     metadata = {
@@ -50,7 +54,30 @@ def photo_generator(image_type: str, filename: Path) -> OrthodonticPhotograph:
     o.output_image_filename = o.input_image_filename.with_suffix(".dcm")
     return o
 
-def compare_images(jpeg_image_file_path, dicom_image_file_path):
+
+def compare_jpeg2dicom(jpeg_image_file_path, dicom_image_file_path):
+    def extract_jpeg_from_dicom(dicom_path):
+        ds = pydicom.dcmread(dicom_path)
+        if 'PixelData' in ds:
+            # Ensure we're handling JPEG compressed data
+            transfer_syntax = ds.file_meta.TransferSyntaxUID
+            # JPEG Transfer Syntaxes
+            if transfer_syntax.startswith("1.2.840.10008.1.2.4"):
+                # Extract the JPEG bytes
+                pixel_data_element = ds.PixelData
+                start = pixel_data_element.find(
+                    b'\xff\xd8')  # Find start of JPEG data
+                # Find end of JPEG data starting from the back, to avoid finding FF D9 in Image data.
+                end = pixel_data_element.rfind(b'\xff\xd9', start) + 2
+
+                if start != -1 and end != -1:
+                    jpeg_bytes = pixel_data_element[start:end]
+                    return jpeg_bytes
+                else:
+                    raise ValueError(
+                        "JPEG data not found or incomplete in DICOM.")
+        raise ValueError("No appropriate JPEG data found in DICOM file.")
+
     def are_linearly_related(tuple1, tuple2, tolerance=0.01):
         """
         Checks if the components of two pixel tuples are linearly related within a tolerance.
@@ -78,9 +105,9 @@ def compare_images(jpeg_image_file_path, dicom_image_file_path):
         first_ratio = ratios[0]
         for ratio in ratios[1:]:
             if not (first_ratio - tolerance <= ratio <= first_ratio + tolerance):
-                return (False,ratios)
+                return (False, ratios)
 
-        return (True,ratios)
+        return (True, ratios)
 
         # Example usage:
         # tuple1 = (100, 200, 150)
@@ -96,39 +123,34 @@ def compare_images(jpeg_image_file_path, dicom_image_file_path):
     jpeg_img = Image.open(jpeg_image_file_path).convert('RGB')
     jpeg_pixels = jpeg_img.getdata()
 
-    # Load DICOM image
-    dicom_img = pydicom.dcmread(dicom_image_file_path)
-    try:
-        dicom_array = dicom_img.pixel_array
-    except Exception as e:
-        print("Error processing DICOM pixel data:", e)
-        print("DICOM Tags:", dicom_img.dir())  # This will print available DICOM tags
-        raise
-
-    if 'PhotometricInterpretation' in dicom_img and dicom_img.PhotometricInterpretation == 'YBR_FULL':
-        import cv2
-        dicom_array = cv2.cvtColor(dicom_array, cv2.COLOR_YCrCb2RGB)
-
-    # Convert DICOM pixel array to Image for comparison
-    dicom_image = Image.fromarray(dicom_array)
-    dicom_pixels = dicom_image.getdata()
+    # Extract and load JPEG data from DICOM
+    jpeg_bytes_from_dicom = extract_jpeg_from_dicom(dicom_image_file_path)
+    logger.info(
+        f"\nExtracted {len(jpeg_bytes_from_dicom)} bytes of JPEG data from DICOM.")
+    dicom_jpeg_img = Image.open(io.BytesIO(
+        jpeg_bytes_from_dicom)).convert('RGB')
+    dicom_pixels = dicom_jpeg_img.getdata()
 
     # Compare each pixel
     if len(jpeg_pixels) != len(dicom_pixels):
-        print(f"\nFAIL: JPEG size [{len(jpeg_pixels)}] != DICOM size [{len(dicom_pixels)}]")
+        logger.error(
+            f"\nFAIL: JPEG size [{len(jpeg_pixels)}] != DICOM size [{len(dicom_pixels)}]")
         return False
-    print(f"\nPASS size test: both JPEG and DICOM have same size of [{len(dicom_pixels)}].")
+    logger.info(
+        f"\nPASS size test: both JPEG and DICOM have same size of [{len(dicom_pixels)}].")
 
     pixel_index = 0
     differences = 0
     for jp, dp in zip(jpeg_pixels, dicom_pixels):
         if jp != dp:
-            related, ratios = are_linearly_related(jp,dp)
+            related, ratios = are_linearly_related(jp, dp)
             if not related:
-                print(f"FAIL: at [{pixel_index}] JPEG pixel is [{jp}], DICOM pixel is [{dp}], ratios: [{ratios}]")
+                logger.debug(
+                    f"FAIL: at [{pixel_index}] JPEG pixel is [{jp}], DICOM pixel is [{dp}], ratios: [{ratios}]")
                 differences += 1
         else:
-            print(f"PASS: at [{pixel_index}] JPEG pixel is [{jp}], DICOM pixel is [{dp}]")
+            logger.debug(
+                f"PASS: at [{pixel_index}] JPEG pixel is [{jp}], DICOM pixel is [{dp}]")
         pixel_index += 1
 
     if differences == 0:
@@ -144,11 +166,45 @@ class PhotoTests(unittest.TestCase):
         logging.basicConfig(format='%(asctime)s - %(levelname)s - %(funcName)s: %(message)s',
                             level=logging.INFO)
         self.resource_path = None
-        with importlib.resources.path("test.resources","input_from.csv") as input_csv:
+        with importlib.resources.path("test.resources", "input_from.csv") as input_csv:
             self.resource_path = Path(input_csv).parent.absolute()
 
     def tearDown(self):
         pass
+
+    def photo_file_conversion_test(self, inputfile, image_type='IV06'):
+        """ Test the various sample images.
+
+        - Load image from resources/ folder
+        - Add image type of image_type, defaults to IV06
+        - converts image to dicom, and saves it
+        - 
+        """
+
+        metadata = make_photo_metadata()
+        metadata['input_image_filename'] = self.resource_path / inputfile
+        output_file = (self.resource_path / inputfile).with_suffix('.dcm')
+        metadata['output_image_filename'] = output_file
+        metadata['image_type'] = image_type
+        c = SimpleController()
+        c.convert_image_to_dicom4orthograph_and_save(metadata=metadata)
+
+        # Test existance
+        self.assertTrue(output_file.exists())
+
+        input_file_extension = Path(inputfile).suffix.lower() 
+        if input_file_extension == '.jpg' or input_file_extension == '.jpeg':
+            self.assertTrue(compare_jpeg2dicom(
+                jpeg_image_file_path=metadata["input_image_filename"],
+                dicom_image_file_path=output_file))
+        else:
+            print(f"\nSKIPPING {inputfile} to DICOM comparison, no comparator found.")
+        
+        # Delete file
+        try:
+            output_file.unlink()
+        except FileNotFoundError:
+            pass
 
     def testDates(self):
         o = OrthodonticPhotograph()
@@ -189,8 +245,7 @@ class PhotoTests(unittest.TestCase):
         o = OrthodonticPhotograph(**md)
         o._set_dicom_attributes()
 
-        self.assertEqual(o._ds.AcquisitionContextSequence[3].NumericValue,212)
-
+        self.assertEqual(o._ds.AcquisitionContextSequence[3].NumericValue, 212)
 
     def testNames(self):
         o = OrthodonticPhotograph()
@@ -249,43 +304,15 @@ class PhotoTests(unittest.TestCase):
         c = SimpleController()
         c.convert_image_to_dicom4orthograph(metadata=metadata)
 
-    def test_NikonD90(self):
-        """ Test the various images produced by the Nikon D90 Camera.
+    def test_with_sample_files(self):
+        """ Test with all files in resources/sample_* 
+        
         """
+        for sample_file in self.resource_path.glob("sample_*"):
+            print(f"\nTesting with {sample_file}...")
+            self.photo_file_conversion_test(sample_file)
 
-        metadata = make_photo_metadata()
-        metadata['input_image_filename'] = self.resource_path / "sample_NikonD90.JPG"
-        metadata['image_type'] = "IV06"
-        c = SimpleController()
-        c.convert_image_to_dicom4orthograph_and_save(metadata=metadata)
-        output_file = (self.resource_path / "sample_NikonD90.dcm")
-        self.assertTrue(output_file.exists())
-        self.assertTrue(compare_images(
-            jpeg_image_file_path=metadata["input_image_filename"],
-            # dicom_image_file_path=(self.resource_path / "d90.dcm")))
-            dicom_image_file_path=output_file))
-        output_file.unlink()
-
-
-    def test_JPG(self):
-        metadata = make_photo_metadata()
-        metadata['input_image_filename'] = self.resource_path / "sample_NikonD5600.JPG"
-        metadata['image_type'] = "IV06"
-        c = SimpleController()
-        c.convert_image_to_dicom4orthograph_and_save(metadata=metadata)
-        output_file = self.resource_path / "sample_NikonD5600.dcm"
-        self.assertTrue(output_file.exists())
-        output_file.unlink()
-
-        metadata = make_photo_metadata()
-        metadata['input_image_filename'] = self.resource_path / "sample_topsOrtho.jp2"
-        metadata['image_type'] = "IV06"
-        c = SimpleController()
-        c.convert_image_to_dicom4orthograph_and_save(metadata=metadata)
-        output_file = (self.resource_path / "sample_topsOrtho.dcm")
-        self.assertTrue(output_file.exists())
-        c.validate_dicom_file()
-        output_file.unlink()
+        
 
     @unittest.skip("Just a tool, not a test")
     def testEXIF(self):

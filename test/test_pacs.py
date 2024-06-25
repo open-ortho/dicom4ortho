@@ -1,15 +1,17 @@
 # tests/test_pacs.py
 #
-# These tests are not real tests. They are mostly here to serve as examples for usage. Should probably go in examples.
+# 
 #
 
 import os
 import unittest
+from pprint import pprint
 from pathlib import Path
 from unittest.mock import patch, MagicMock
 from pynetdicom import AE
 from requests.auth import HTTPBasicAuth
 from dicom4ortho import pacs
+
 import logging
 logging.basicConfig(level=logging.INFO)
 
@@ -51,7 +53,8 @@ class TestPacsModule(unittest.TestCase):
         response = pacs.send_to_pacs_wado(
             self.dicom_file_path, dicomweb_url, username, password)
 
-        print(response.request.headers)
+        self.assertEqual(response.status_code,200)
+        # pprint(response.json())
 
     @patch('pydicom.dcmread')
     @patch('requests.post')

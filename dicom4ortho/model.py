@@ -44,6 +44,7 @@ class DicomBase(object):
     def set_file_meta(self):
         self.file_meta.MediaStorageSOPInstanceUID = self.sop_instance_uid
         self.file_meta.ImplementationClassUID = defaults.IMPLEMENTATION_CLASS_UID
+        self.file_meta.ImplementationVersionName = f"{defaults.PROJECT_NAME} {defaults.VERSION}"
 
     def _set_dataset(self):
         self._ds = FileDataset(

@@ -1,0 +1,7 @@
+services:
+  orthanc-mock:
+    image: cr.gingosrl.it/open-ortho/orthanc-mock:latest
+    ports: ["8201:8042", "50104:104"]
+    hostname: orthanc-mock
+    environment:
+      VERBOSE_STARTUP: "true"

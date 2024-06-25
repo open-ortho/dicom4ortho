@@ -71,3 +71,8 @@ endif
 
 $(D3TOOLS_DIR):
 	mkdir -p $@
+
+.PHONY: tests
+tests:
+	docker compose -f ./test/docker-compose.yml up -d
+	PIPENV_VERBOSITY=-1 pipenv run python -m unittest test.test_pacs

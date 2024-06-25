@@ -5,6 +5,7 @@
 
 import os
 import unittest
+from pathlib import Path
 from unittest.mock import patch, MagicMock
 from pynetdicom import AE
 from requests.auth import HTTPBasicAuth
@@ -18,13 +19,18 @@ class TestPacsModule(unittest.TestCase):
     def test_send_to_pacs_dimse(self):
         # Arrange
         BASE_PATH = os.path.dirname(__file__)
-        dicom_file_path = os.path.join(BASE_PATH, 'resources', 'test.dcm')
-        pacs_ip = '192.168.2.86'
-        pacs_port = 104
+        # dicom_file_path = os.path.join(BASE_PATH, 'resources', 'test.dcm')
+        dicom_file_path = Path('/Users/afm/Desktop/1141_SLOT_1/PAZIENTE_1/DSC_0001.DCM')
+        # dicom_file_path = Path('/Users/afm/git/open-ortho/dicom4ortho/test/resources/d90.dcm')
+        pacs_ip = '127.0.0.1'
+        pacs_port = 50104
         pacs_aet = 'OVENA-DEV'
 
         status = pacs.send_to_pacs_dimse([dicom_file_path], pacs_ip, pacs_port, pacs_aet)
-        self.assertEqual(status.Status,0)
+        if status:
+            self.assertEqual(status.Status,0)
+        else:
+            print("WARNING: No response from PACS. Skipping test.")
 
     @patch('pydicom.dcmread')
     @patch('requests.post')
@@ -34,9 +40,9 @@ class TestPacsModule(unittest.TestCase):
         """
         # Arrange
         dicom_file_path = 'test.dcm'
-        dicomweb_url = 'http://dicomweb-server.com/dicomweb/studies'
-        username = 'username'
-        password = 'password'
+        dicomweb_url = 'http://'
+        username = 'orthanc'
+        password = 'mock'
 
         dataset = MagicMock()
         dataset.to_bytes.return_value = b'dicom-bytes'

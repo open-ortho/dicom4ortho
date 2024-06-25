@@ -16,7 +16,7 @@ import numpy
 
 # pylint: disable=no-name-in-module
 from pynetdicom.sop_class import VLPhotographicImageStorage
-import PIL
+from PIL import Image
 
 import dicom4ortho.defaults as defaults
 
@@ -543,7 +543,7 @@ class PhotographBase(DicomBase):
             The sample values for the first pixel are followed by the sample values for the second pixel, etc. For RGB images, this means the order of the pixel values encoded shall be R1, G1, B1, R2, G2, B2, …, etc.
         """
         filename = filename or self.input_image_filename
-        with PIL.Image.open(filename) as im:
+        with Image.open(filename) as im:
 
             # Note
 
@@ -661,7 +661,7 @@ class PhotographBase(DicomBase):
         """
         filename = filename or self.input_image_filename
         # self._set_image_raw_data(filename=filename)
-        with PIL.Image.open(filename) as im:
+        with Image.open(filename) as im:
             self._ds.Rows = im.height
             self._ds.Columns = im.width
             with open(file=filename, mode="rb") as image_file:
@@ -703,7 +703,7 @@ class PhotographBase(DicomBase):
 
         """
         filename = filename or self.input_image_filename
-        with PIL.Image.open(filename) as im:
+        with Image.open(filename) as im:
             logging.info(f"Found format {im.format} for {filename} image")
             self._ds.Rows = im.height
             self._ds.Columns = im.width
@@ -722,7 +722,8 @@ class PhotographBase(DicomBase):
 
         # Values as defined in Part 5 Sect 8.2.1
         # https://dicom.nema.org/medical/dicom/current/output/chtml/part05/sect_8.2.html#sect_8.2.1
-        self._ds.PhotometricInterpretation = 'RGB'
+        # self._ds.PhotometricInterpretation = 'RGB'
+        self._ds.PhotometricInterpretation = 'YBR_FULL_422'
         self._ds.SamplesPerPixel = 3
         self._ds.PlanarConfiguration = 0
         self._ds.PixelRepresentation = 0
@@ -742,7 +743,7 @@ class PhotographBase(DicomBase):
 
     def set_image(self, filename=None):
         filename = filename or self.input_image_filename
-        with PIL.Image.open(filename) as img:
+        with Image.open(filename) as img:
             file_type = img.format
         if file_type in ('JPEG', 'MPO'):
             self._set_image_jpeg_data(filename=filename)

@@ -109,7 +109,7 @@ USAGE
             TR-1107. Use {} to get a list of allowed image \
             types. [default: %(default)s]".format(LIST_IMAGE_TYPES),
             default='EV01',
-            metavar='<filename>',
+            metavar='<image_type>',
         )
         parser.add_argument(
             "--teeth",
@@ -175,7 +175,7 @@ USAGE
             c.bulk_convert_from_csv(args.input_filename, teeth=teeth)
             return 0
         else:
-            c.convert_image_to_dicom4orthograph({
+            c.convert_image_to_dicom4orthograph_and_save({
                 'image_type': args.image_type,
                 'input_image_filename': args.input_filename,
                 'teeth': teeth,

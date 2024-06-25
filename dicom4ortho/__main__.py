@@ -34,7 +34,7 @@ class CLIError(Exception):
 
 def print_image_types():
     image_types_filename = importlib_resources.files('dicom4ortho.resources') / 'image_types.csv'
-    logging.debug("Image type filenames is: {}".format(image_types_filename))
+    logging.debug("Image type filenames is: %s",image_types_filename)
     header1 = 'Type'
     header2 = 'Abbreviated'
     header3 = 'Full Meaning'
@@ -148,16 +148,16 @@ USAGE
         logging.basicConfig(format='%(asctime)s - %(levelname)s - %(funcName)s: %(message)s',
                             level=args.log_level)
 
-        logging.debug("passed arguments: {}".format(argv))
+        logging.debug("passed arguments: %s",argv)
         for k,v in sorted(vars(args).items()):
-            logging.debug("{0}: {1}".format(k,v))
+            logging.debug("%s: %s",k,v)
 
         if args.input_filename == LIST_IMAGE_TYPES:
             print_image_types()
             return 0
 
         if not os.path.isfile(args.input_filename):
-            logging.error("Cannot locate file {}:".format(args.input_filename))
+            logging.error("Cannot locate file %s:",args.input_filename)
             return 1
 
         c = controller.SimpleController(args)

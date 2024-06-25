@@ -135,32 +135,37 @@ class OrthodonticPhotograph(PhotographBase):
         patient_birthdate = metadata.get('patient_birthdate')
         if patient_birthdate is not None:
             try:
-                self.patient_birthdate = datetime.strptime(patient_birthdate, defaults.IMPORT_DATE_FORMAT).date()
+                self.patient_birthdate = datetime.strptime(
+                    patient_birthdate, defaults.IMPORT_DATE_FORMAT).date()
             except (ValueError, TypeError):
-                logging.warn(f"Invalid Patient Birthdate {patient_birthdate}")
-                
+                logging.warn("Invalid Patient Birthdate %s", patient_birthdate)
+
         self.study_instance_uid = metadata.get('study_instance_uid')
-        self.study_description =  metadata.get('study_description')
-        self.series_instance_uid =  metadata.get('series_instance_uid')
-        self.series_description =  metadata.get('series_description')
-        self.patient_firstname =  metadata.get('patient_firstname','')
-        self.patient_lastname =  metadata.get('patient_lastname','')
-        self.patient_id =  metadata.get('patient_id','')
-        self.patient_sex =  metadata.get('patient_sex','')
-        self.dental_provider_firstname =  metadata.get('dental_provider_firstname','')
-        self.dental_provider_lastname =  metadata.get('dental_provider_lastname','')
-        self.equipment_manufacturer =  metadata.get('manufacturer')
+        self.study_description = metadata.get('study_description')
+        self.series_instance_uid = metadata.get('series_instance_uid')
+        self.series_description = metadata.get('series_description')
+        self.patient_firstname = metadata.get('patient_firstname', '')
+        self.patient_lastname = metadata.get('patient_lastname', '')
+        self.patient_id = metadata.get('patient_id', '')
+        self.patient_sex = metadata.get('patient_sex', '')
+        self.dental_provider_firstname = metadata.get(
+            'dental_provider_firstname', '')
+        self.dental_provider_lastname = metadata.get(
+            'dental_provider_lastname', '')
+        self.equipment_manufacturer = metadata.get('manufacturer')
         self.treatment_event_type = metadata.get('treatment_event_type')
         self.days_after_event = metadata.get('days_after_event')
 
         # TODO: extract this to a higher level to give the user the ability to set it when needed.
         # See https://github.com/open-ortho/dicom4ortho/issues/16
-        self._ds.BurnedInAnnotation = metadata.get('burned_in_annotation','NO')
-        
-        # this hardcoding might not be ideal here. But for all orthodontic photography purposes that i am aware of, this is always DSC. These could come from EXIF. See https://dicom.nema.org/medical/dicom/current/output/chtml/part17/chapter_NNNN.html but they might not. The code here should 
-        self._ds.SceneType = 1 # Digital Still Camera (DSC): direct image capture
-        self._ds.FileSource = 3 # Digital Still Camera (DSC)
-        
+        self._ds.BurnedInAnnotation = metadata.get(
+            'burned_in_annotation', 'NO')
+
+        # this hardcoding might not be ideal here. But for all orthodontic photography purposes that i am aware of, this is always DSC. These could come from EXIF. See https://dicom.nema.org/medical/dicom/current/output/chtml/part17/chapter_NNNN.html but they might not. The code here should
+        # Digital Still Camera (DSC): direct image capture
+        self._ds.SceneType = 1
+        self._ds.FileSource = 3  # Digital Still Camera (DSC)
+
         # TODO: extract this to a higher level to give the user the ability to set it when needed.
         # Use when the staff is taking test shots. Then it is not expected for the view in question to actually show the correct view for the patient.
         # See http://dicom.nema.org/medical/dicom/current/output/chtml/part03/sect_C.7.6.12.html#sect_C.7.6.12 . In these cases, the Phantom would have to go in the Device Sequence. For regular usage, we should safely be able to set this to 'NO'.
@@ -177,7 +182,8 @@ class OrthodonticPhotograph(PhotographBase):
         """
         ada1107_code = self.ada1107.CODES.get(ada1107_code_keyword)
         if ada1107_code == None:
-            logging.warning(f"Keyword [{ada1107_code_keyword}] did not match any code. Skipping.")
+            logging.warning(
+                "Keyword [%s] did not match any code. Skipping.", ada1107_code_keyword)
             return None
         code_dataset = Dataset()
         code_dataset.CodeMeaning = ada1107_code.get(
@@ -194,7 +200,7 @@ class OrthodonticPhotograph(PhotographBase):
 
     def _set_dicom_attributes(self):
         # Get the array of functions to set this required type.
-        logging.debug(f'Setting DICOM attributes for {self.type_keyword}')
+        logging.debug('Setting DICOM attributes for %s', self.type_keyword)
 
         # Make a nice comment from keyword and description
         ImageComments = f"{self.type_keyword}^{self.ada1107_view.get('ImageComments')}"
@@ -204,12 +210,15 @@ class OrthodonticPhotograph(PhotographBase):
         self._ds.ImageComments = ImageComments.replace('\xa0', '\x20')
         self._ds.SeriesDescription = self.ada1107_view.get('SeriesDescription')
 
-
-        patient_orientation_code = self.ada1107.CODES.get(self.ada1107_view.get('PatientOrientation'))
-        if patient_orientation_code is None: 
-            patient_orientation_code = self.ada1107.CODES.get('OrientationFront')
-            logging.warning(f"PatientOrientation not found for {self.output_image_filename}. Defaulting to {patient_orientation_code}")
-        self._ds.PatientOrientation = patient_orientation_code.get('code').split('^')
+        patient_orientation_code = self.ada1107.CODES.get(
+            self.ada1107_view.get('PatientOrientation'))
+        if patient_orientation_code is None:
+            patient_orientation_code = self.ada1107.CODES.get(
+                'OrientationFront')
+            logging.warning(f"PatientOrientation not found for %s. Defaulting to %s",
+                            self.output_image_filename, patient_orientation_code)
+        self._ds.PatientOrientation = patient_orientation_code.get(
+            'code').split('^')
         self._ds.ImageLaterality = self.ada1107.CODES.get(
             self.ada1107_view.get('ImageLaterality')).get('code')
 
@@ -225,14 +234,18 @@ class OrthodonticPhotograph(PhotographBase):
             if self.treatment_event_type and self.days_after_event:
                 acs_ds = Dataset()
                 acs_ds.ValueType = 'CODE'
-                acs_ds.ConceptNameCodeSequence = self._get_code_sequence("TemporalEventType")  
-                acs_ds.ConceptCodeSequence = self._get_code_sequence(self.treatment_event_type)
+                acs_ds.ConceptNameCodeSequence = self._get_code_sequence(
+                    "TemporalEventType")
+                acs_ds.ConceptCodeSequence = self._get_code_sequence(
+                    self.treatment_event_type)
                 AcquisitionContextSequence.append(acs_ds)
 
                 acs_ds = Dataset()
                 acs_ds.ValueType = 'NUMERIC'
-                acs_ds.ConceptNameCodeSequence = self._get_code_sequence("OffsetFromEvent")  
-                acs_ds.MeasurementUnitsCodeSequence = self._get_code_sequence("day")
+                acs_ds.ConceptNameCodeSequence = self._get_code_sequence(
+                    "OffsetFromEvent")
+                acs_ds.MeasurementUnitsCodeSequence = self._get_code_sequence(
+                    "day")
                 acs_ds.NumericValue = self.days_after_event
                 AcquisitionContextSequence.append(acs_ds)
 
@@ -248,7 +261,8 @@ class OrthodonticPhotograph(PhotographBase):
                         acs_ds = Dataset()
                         acs_ds.ValueType = 'CODE'
                         acs_ds.ConceptNameCodeSequence = concept_name_code_sequence
-                        acs_ds.ConceptCodeSequence = self._get_code_sequence(concept_code)
+                        acs_ds.ConceptCodeSequence = self._get_code_sequence(
+                            concept_code)
                         AcquisitionContextSequence.append(acs_ds)
         add_progress()
         self._ds.AcquisitionContextSequence = AcquisitionContextSequence
@@ -271,7 +285,8 @@ class OrthodonticPhotograph(PhotographBase):
         AnatomicRegionModifierSequence = Sequence([])
         for arm in self.ada1107_view.get('AnatomicRegionModifierSequence').split("^"):
             if arm != "na" and len(arm) > 0:
-                AnatomicRegionModifierSequence.append(self._get_code_dataset(arm))
+                AnatomicRegionModifierSequence.append(
+                    self._get_code_dataset(arm))
         # The AnatomicRegionModifierSequence must be part of AnatomicRegionSequence
         if (len(AnatomicRegionModifierSequence) > 0):
             self._ds.AnatomicRegionSequence[0].AnatomicRegionModifierSequence = AnatomicRegionModifierSequence
@@ -342,15 +357,15 @@ class OrthodonticPhotograph(PhotographBase):
         filename = filename or self.output_image_filename
         self.set_image()
         self._set_dicom_attributes()
-        
+
         # We cannot save without UIDs. If the user hasn't added them, we must do so now.
         if self._ds.StudyInstanceUID is None:
             self._ds.StudyInstanceUID = defaults.generate_dicom_uid()
         if self._ds.SeriesInstanceUID is None:
             self._ds.SeriesInstanceUID = defaults.generate_dicom_uid()
-        
+
         self._ds.save_as(filename=filename, write_like_original=False)
-        logging.info(f"File [{filename}] saved.")
+        logging.info("File [%s] saved.", filename)
 
 
 class OrthodonticSeries():
@@ -386,7 +401,7 @@ class OrthodonticSeries():
 
     def save(self) -> None:
         logging.info(
-            f"Requested to save {len(self.Photos)} Photos within Series {self.UID}")
+            "Requested to save %s Photos within Series %s", len(self.Photos), self.UID)
         for photo in self.Photos:
             photo.series_description = self.description
             photo.series_instance_uid = self.UID
@@ -425,6 +440,6 @@ class OrthodonticStudy():
 
     def save(self) -> None:
         logging.info(
-            f"Requested to save {len(self.Series)} Series within Study {self.UID}")
+            "Requested to save %s Series within Study %s", len(self.Series), self.UID)
         for serie in self.Series:
             serie.save()

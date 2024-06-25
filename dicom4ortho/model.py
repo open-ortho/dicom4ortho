@@ -73,7 +73,7 @@ class DicomBase(object):
         self._ds.AcquisitionContextSequence = Sequence([])
 
     def _set_sop_common(self):
-        self._ds.SpecificCharacterSet = "ISO_IR 192" # UTF-8
+        self._ds.SpecificCharacterSet = "ISO_IR 192"  # UTF-8
         self._ds.SOPInstanceUID = self.sop_instance_uid
         self._ds.TimezoneOffsetFromUTC = datetime.datetime.now().astimezone().strftime("%z")
 
@@ -279,7 +279,7 @@ class DicomBase(object):
         tz_str = self._ds.TimezoneOffsetFromUTC
         if tz_str is None or len(tz_str) < 5:
             return None
-        
+
         try:
             # Extract hours and minutes from the string
             sign = -1 if tz_str[0] == '-' else 1
@@ -320,8 +320,6 @@ class DicomBase(object):
         else:
             self._ds.TimezoneOffsetFromUTC = None
 
-
-
     @ property
     def acquisition_datetime(self):
         return self._ds.AcquisitionDateTime
@@ -335,7 +333,8 @@ class DicomBase(object):
         """
         if _acquisition_datetime.tzinfo is None and self.timezone:
             # If no timezone is present and a timezone is specified in the class, add it.
-            _acquisition_datetime = _acquisition_datetime.replace(tzinfo=self.timezone)
+            _acquisition_datetime = _acquisition_datetime.replace(
+                tzinfo=self.timezone)
         elif _acquisition_datetime.tzinfo is None:
             # If no timezone is present and no class timezone, use the current local timezone.
             _acquisition_datetime = _acquisition_datetime.astimezone()
@@ -400,9 +399,9 @@ class DicomBase(object):
         self._ds.is_implicit_VR = True
 
         logging.debug(
-            "Writing test file as Little Endian Implicit VR [{}]", filename)
+            "Writing test file as Little Endian Implicit VR [%s]", filename)
         self._ds.save_as(filename, write_like_original=False)
-        logging.info("File [{}] saved.".format(filename))
+        logging.info("File [%s] saved.", filename)
 
     def save_explicit_little_endian(self, filename=None):
         if filename is None:
@@ -412,9 +411,9 @@ class DicomBase(object):
         self._ds.is_implicit_VR = False
 
         logging.debug(
-            "Writing test file as Big Endian Explicit VR [{}]", filename)
+            "Writing test file as Big Endian Explicit VR [%s]", filename)
         self._ds.save_as(filename, write_like_original=False)
-        logging.info("File [{}] saved.", filename)
+        logging.info("File [%s] saved.", filename)
 
     def save_explicit_big_endian(self, filename=None):
         if filename is None:
@@ -704,7 +703,7 @@ class PhotographBase(DicomBase):
         """
         filename = filename or self.input_image_filename
         with Image.open(filename) as im:
-            logging.info(f"Found format {im.format} for {filename} image")
+            logging.info("Found format %s for %s image", im.format, filename)
             self._ds.Rows = im.height
             self._ds.Columns = im.width
 
@@ -722,7 +721,6 @@ class PhotographBase(DicomBase):
 
         # Values as defined in Part 5 Sect 8.2.1
         # https://dicom.nema.org/medical/dicom/current/output/chtml/part05/sect_8.2.html#sect_8.2.1
-        # self._ds.PhotometricInterpretation = 'RGB'
         self._ds.PhotometricInterpretation = 'YBR_FULL_422'
         self._ds.SamplesPerPixel = 3
         self._ds.PlanarConfiguration = 0
@@ -743,12 +741,14 @@ class PhotographBase(DicomBase):
 
     def set_image(self, filename=None):
         filename = filename or self.input_image_filename
+
         with Image.open(filename) as img:
             file_type = img.format
+
         if file_type in ('JPEG', 'MPO'):
-            self._set_image_jpeg_data(filename=filename)
+            return self._set_image_jpeg_data(filename=filename)
         elif file_type in ('JPEG2000'):
-            self._set_image_jpeg2000_data(filename=filename)
+            return self._set_image_jpeg2000_data(filename=filename)
         else:
             # DICOM only supports encapsulation for JPEG. Everything else needs to be decoded and re-encoded as raw.
-            self._set_image_raw_data(filename=filename)
+            return self._set_image_raw_data(filename=filename)

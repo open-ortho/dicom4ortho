@@ -92,7 +92,7 @@ class SimpleController(object):
             input_image_filename = self.photo.output_image_filename
 
         self.print_dicom_file(input_image_filename)
-        logging.info('\nValidating file {}'.format(input_image_filename))
+        logger.info('\nValidating file %s',input_image_filename)
         os.system('{} {}'.format(
             Path(defaults.DICOM3TOOLS_PATH, 'dciodvfy'),
             input_image_filename))

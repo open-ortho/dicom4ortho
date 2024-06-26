@@ -44,7 +44,7 @@ class TestPacsModule(unittest.TestCase):
         Test written by ChatGPT, but i have not actually tested it: It wrote both the test and the function, so they could both be wrong.
         """
         # Arrange
-        dicomweb_url = 'http://127.0.0.1:8201/dicom-web/studies'
+        dicomweb_url = 'http://127.0.0.1:8202/dicom-web/studies'
         username = 'orthanc'
         password = 'mock'
 

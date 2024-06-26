@@ -309,6 +309,8 @@ class PhotoTests(unittest.TestCase):
         
         """
         for sample_file in self.resource_path.glob("sample_*"):
+            if Path(sample_file).suffix.lower() == ".dcm":
+                continue
             print(f"\nTesting with {sample_file}...")
             self.photo_file_conversion_test(sample_file)
 

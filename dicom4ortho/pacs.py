@@ -20,9 +20,7 @@ def send_to_pacs_dimse(dicom_files, pacs_ip, pacs_port, pacs_aet):
 
     # Create application entity and specify the requested presentation contexts
     ae = AE(ae_title=PROJECT_NAME.upper())
-    # ae.requested_contexts = StoragePresentationContexts
-    # Add requested presentation context
-    ae.add_requested_context(sop_class.VLPhotographicImageStorage)
+    ae.requested_contexts = StoragePresentationContexts
 
     # Establish association with PACS
     assoc = ae.associate(pacs_ip, pacs_port, ae_title=pacs_aet)
@@ -30,6 +28,12 @@ def send_to_pacs_dimse(dicom_files, pacs_ip, pacs_port, pacs_aet):
     if assoc.is_established:
         for dicom_file_path in dicom_files:
             dataset = pydicom.dcmread(dicom_file_path)
+            
+            # Set TransferSyntax to something common. This is done at the dicom instance itself.
+            if not hasattr(dataset, 'file_meta') or dataset.file_meta is None:
+                dataset.file_meta = pydicom.dataset.FileMetaDataset()
+            dataset.file_meta.TransferSyntaxUID = pydicom.uid.ExplicitVRLittleEndian
+
             status = assoc.send_c_store(dataset)
             if status:
                 logger.info(f'C-STORE request status: 0x{status.Status:04x}')

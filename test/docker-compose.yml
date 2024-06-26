@@ -3,7 +3,7 @@ services:
     # image: cr.gingosrl.it/open-ortho/orthanc-mock:latest
     image: jodogne/orthanc-plugins
     hostname: orthanc
-    ports: ["8202:8042", "4242:4242"]
+    ports: ["127.0.0.1:8202:8042", "127.0.0.1:4242:4242"]
     volumes:
       - ./orthanc.json:/etc/orthanc/orthanc.json
     environment:

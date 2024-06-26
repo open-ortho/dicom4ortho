@@ -8,6 +8,8 @@ import requests
 from requests.auth import HTTPBasicAuth
 import logging
 
+from dicom4ortho.defaults import PROJECT_NAME
+
 logger = logging.getLogger()
 
 def send_to_pacs_dimse(dicom_files, pacs_ip, pacs_port, pacs_aet):
@@ -17,11 +19,10 @@ def send_to_pacs_dimse(dicom_files, pacs_ip, pacs_port, pacs_aet):
     logger = logging.getLogger()
 
     # Create application entity and specify the requested presentation contexts
-    ae = AE()
+    ae = AE(ae_title=PROJECT_NAME.upper())
     # ae.requested_contexts = StoragePresentationContexts
     # Add requested presentation context
     ae.add_requested_context(sop_class.VLPhotographicImageStorage)
-
 
     # Establish association with PACS
     assoc = ae.associate(pacs_ip, pacs_port, ae_title=pacs_aet)

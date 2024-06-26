@@ -5,7 +5,6 @@ Adds SNOMED CT codes in DICOM object for Orthodontic Views.
 
 '''
 
-import logging
 from datetime import datetime
 from pydicom.sequence import Sequence
 from pydicom.dataset import Dataset
@@ -14,6 +13,9 @@ from dicom4ortho.model import PhotographBase
 import dicom4ortho.m_tooth_codes as ToothCodes
 from dicom4ortho import defaults
 from dicom4ortho.m_ada1107 import ADA1107
+
+import logging
+logger = logging.getLogger(__name__)
 
 ALLOWED_TEETH = {
     "EV01": [],
@@ -138,7 +140,7 @@ class OrthodonticPhotograph(PhotographBase):
                 self.patient_birthdate = datetime.strptime(
                     patient_birthdate, defaults.IMPORT_DATE_FORMAT).date()
             except (ValueError, TypeError):
-                logging.warn("Invalid Patient Birthdate %s", patient_birthdate)
+                logger.warn("Invalid Patient Birthdate %s", patient_birthdate)
 
         self.study_instance_uid = metadata.get('study_instance_uid')
         self.study_description = metadata.get('study_description')
@@ -182,7 +184,7 @@ class OrthodonticPhotograph(PhotographBase):
         """
         ada1107_code = self.ada1107.CODES.get(ada1107_code_keyword)
         if ada1107_code == None:
-            logging.warning(
+            logger.warning(
                 "Keyword [%s] did not match any code. Skipping.", ada1107_code_keyword)
             return None
         code_dataset = Dataset()
@@ -200,7 +202,7 @@ class OrthodonticPhotograph(PhotographBase):
 
     def _set_dicom_attributes(self):
         # Get the array of functions to set this required type.
-        logging.debug('Setting DICOM attributes for %s', self.type_keyword)
+        logger.debug('Setting DICOM attributes for %s', self.type_keyword)
 
         # Make a nice comment from keyword and description
         ImageComments = f"{self.type_keyword}^{self.ada1107_view.get('ImageComments')}"
@@ -215,8 +217,8 @@ class OrthodonticPhotograph(PhotographBase):
         if patient_orientation_code is None:
             patient_orientation_code = self.ada1107.CODES.get(
                 'OrientationFront')
-            logging.warning(f"PatientOrientation not found for %s. Defaulting to %s",
-                            self.output_image_filename, patient_orientation_code)
+            logger.warning(f"PatientOrientation not found for %s. Defaulting to %s",
+                           self.output_image_filename, patient_orientation_code)
         self._ds.PatientOrientation = patient_orientation_code.get(
             'code').split('^')
         self._ds.ImageLaterality = self.ada1107.CODES.get(
@@ -327,9 +329,9 @@ class OrthodonticPhotograph(PhotographBase):
 
     def add_teeth(self):
         teeth = self.teeth
-        logging.debug("Adding teeth")
+        logger.debug("Adding teeth")
         if teeth == defaults.ADD_MAX_ALLOWED_TEETH:
-            logging.debug("Setting all possibly allowed teeth.")
+            logger.debug("Setting all possibly allowed teeth.")
             teeth = ALLOWED_TEETH[self.type_keyword]
 
         if len(teeth) > 0:
@@ -360,12 +362,14 @@ class OrthodonticPhotograph(PhotographBase):
 
         # We cannot save without UIDs. If the user hasn't added them, we must do so now.
         if self._ds.StudyInstanceUID is None:
-            self._ds.StudyInstanceUID = defaults.generate_dicom_uid(root=defaults.StudyInstanceUID_ROOT)
+            self._ds.StudyInstanceUID = defaults.generate_dicom_uid(
+                root=defaults.StudyInstanceUID_ROOT)
         if self._ds.SeriesInstanceUID is None:
-            self._ds.SeriesInstanceUID = defaults.generate_dicom_uid(root=defaults.SeriesInstanceUID_ROOT)
+            self._ds.SeriesInstanceUID = defaults.generate_dicom_uid(
+                root=defaults.SeriesInstanceUID_ROOT)
 
         self._ds.save_as(filename=filename, write_like_original=False)
-        logging.info("File [%s] saved.", filename)
+        logger.info("File [%s] saved.", filename)
 
 
 class OrthodonticSeries():
@@ -390,7 +394,8 @@ class OrthodonticSeries():
         :description: The Series Description to add to all photos.
         """
         self.description = kwargs.get("description")
-        self.UID = kwargs.get("uid") or defaults.generate_dicom_uid(root=defaults.SeriesInstanceUID_ROOT)
+        self.UID = kwargs.get("uid") or defaults.generate_dicom_uid(
+            root=defaults.SeriesInstanceUID_ROOT)
         self.Photos = []
 
     def __len__(self):
@@ -400,7 +405,7 @@ class OrthodonticSeries():
         self.Photos.append(photo)
 
     def save(self) -> None:
-        logging.info(
+        logger.info(
             "Requested to save %s Photos within Series %s", len(self.Photos), self.UID)
         for photo in self.Photos:
             photo.series_description = self.description
@@ -428,7 +433,8 @@ class OrthodonticStudy():
         :uid: The Series DICOM UID. Defaults to generating a new one.
         :description: The Study Description to add to all photos.
         """
-        self.UID = kwargs.get("uid") or defaults.generate_dicom_uid(root=defaults.StudyInstanceUID_ROOT)
+        self.UID = kwargs.get("uid") or defaults.generate_dicom_uid(
+            root=defaults.StudyInstanceUID_ROOT)
         self.Series = []
 
     def __len__(self):
@@ -439,7 +445,7 @@ class OrthodonticStudy():
         self.Series.append(serie)
 
     def save(self) -> None:
-        logging.info(
+        logger.info(
             "Requested to save %s Series within Study %s", len(self.Series), self.UID)
         for serie in self.Series:
             serie.save()

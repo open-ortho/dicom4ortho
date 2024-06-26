@@ -44,7 +44,7 @@ class DicomBase(object):
     def set_file_meta(self):
         self.file_meta.MediaStorageSOPInstanceUID = self.sop_instance_uid
         self.file_meta.ImplementationClassUID = defaults.IMPLEMENTATION_CLASS_UID
-        self.file_meta.ImplementationVersionName = f"{defaults.PROJECT_NAME} {defaults.VERSION}"
+        self.file_meta.ImplementationVersionName = f"{defaults.PROJECT_NAME}{defaults.VERSION}"[0:15] # Truncate to 16 characters allowed.
 
     def _set_dataset(self):
         self._ds = FileDataset(
@@ -733,7 +733,7 @@ class PhotographBase(DicomBase):
         self._ds.LossyImageCompressionRatio = 10
         self._ds.LossyImageCompressionMethod = 'ISO_10918_1'  # The JPEG Standard
 
-        self._ds.file_meta.TransferSyntaxUID = JPEGExtended12Bit
+        self._ds.file_meta.TransferSyntaxUID = JPEGBaseline8Bit
         self._ds.is_little_endian = True
         self._ds.is_implicit_VR = False
 

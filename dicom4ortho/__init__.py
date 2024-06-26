@@ -6,6 +6,6 @@ png, etc) into DICOM.
 import dicom4ortho.defaults
 
 __version__ = dicom4ortho.defaults.VERSION
-__url__ = 'https://github.com/orgs/open-ortho/'
+__url__ = 'https://github.com/open-ortho/dicom4ortho'
 __author__ = 'Toni Magni'
-__email__ = 'openortho@afm.co'
+__email__ = 'amagni@open-ortho.org'

@@ -3,13 +3,12 @@ Controller
 """
 import os
 import csv
-import datetime
 from pathlib import Path
 
 import dicom4ortho.defaults as defaults
 import dicom4ortho.model as model
 from dicom4ortho.m_orthodontic_photograph import OrthodonticPhotograph
-from dicom4ortho.pacs import send_to_pacs_dimse, send_to_pacs_wado
+from dicom4ortho.dicom import wado, dimse
 import logging
 logger = logging.getLogger()
 
@@ -151,8 +150,8 @@ class SimpleController(object):
 
         # Send the DICOM file based on the specified method
         if send_method == 'dimse':
-            return send_to_pacs_dimse(dicom_files, kwargs['pacs_ip'], kwargs['pacs_port'], kwargs['pacs_aet'])
+            return dimse.send(dicom_files, kwargs['pacs_ip'], kwargs['pacs_port'], kwargs['pacs_aet'])
         elif send_method == 'wado':
-            return send_to_pacs_wado(dicom_files, kwargs['dicomweb_url'], kwargs.get('username'), kwargs.get('password'))
+            return wado.send(dicom_files, kwargs['dicomweb_url'], kwargs.get('username'), kwargs.get('password'))
         else:
             logger.error('Invalid send method specified.')

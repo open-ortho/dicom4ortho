@@ -13,7 +13,7 @@ import json
 from pydicom import dcmread
 from pathlib import Path
 
-from dicom4ortho import pacs
+from dicom4ortho.dicom import wado, dimse
 from dicom4ortho.controller import SimpleController
 
 from test.test_photography import make_photo_metadata
@@ -173,10 +173,10 @@ class TestPacsModule(unittest.TestCase):
         self.send_to_pacs_wado([output_file])
 
         print(f"Delete {output_file}")
-        # try:
-        #     output_file.unlink()
-        # except FileNotFoundError:
-        #     pass
+        try:
+            output_file.unlink()
+        except FileNotFoundError:
+            pass
 
     def send_to_pacs_dimse(self, dicom_file_path):
         # Arrange
@@ -187,7 +187,7 @@ class TestPacsModule(unittest.TestCase):
         pacs_port = 4242
         pacs_aet = 'ORTHANC-MOCK'
 
-        status = pacs.send_to_pacs_dimse(
+        status = dimse.send(
             [dicom_file_path], pacs_ip, pacs_port, pacs_aet)
         self.assertTrue(hasattr(status,'Status'))
         if status:
@@ -202,7 +202,7 @@ class TestPacsModule(unittest.TestCase):
         password = 'mock'
 
         # Act
-        response = pacs.send_to_pacs_wado(
+        response = wado.send(
             dicom_files, dicomweb_url, username, password)
 
         self.assertTrue(hasattr(response, 'text'))

@@ -39,7 +39,9 @@ URL_ADA1107_CODES = URL_ADA1107_CODES.as_uri()
 #  * Append Version of software to distinguish between different releases
 #  * Should always be constant, just change with version numbers. splitting out -dev or other version postfix
 #  * Max length 64. Cannot contain characters.
-IMPLEMENTATION_CLASS_UID = '2.25.34.34.153.156.139.154.17.234.176.144.0.5.27.' + VERSION.split('-')[0]
+# IMPLEMENTATION_CLASS_UID = '2.25.34.34.153.156.139.154.17.234.176.144.0.5.27.' + VERSION.split('-')[0]
+DICOM4ORTHO_ROOT_UID = '1.3.6.1.4.1.61741.11.2'
+IMPLEMENTATION_CLASS_UID = f"{DICOM4ORTHO_ROOT_UID}.{VERSION}"
 
 # The default IDs used for SeriesNumber StudyID and InstanceNumber
 IDS_NUMBERS = '000'

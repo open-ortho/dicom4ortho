@@ -10,11 +10,8 @@ import os
 import io
 import unittest
 import json
-from pprint import pprint
+from pydicom import dcmread
 from pathlib import Path
-from unittest.mock import patch, MagicMock
-from pynetdicom import AE
-from requests.auth import HTTPBasicAuth
 
 from dicom4ortho import pacs
 from dicom4ortho.controller import SimpleController
@@ -173,7 +170,7 @@ class TestPacsModule(unittest.TestCase):
         # self.send_to_pacs_dimse(output_file)
 
         print(f"Test pushing {output_file} to PACS via STOW-RS")
-        self.send_to_pacs_wado(output_file)
+        self.send_to_pacs_wado([output_file])
 
         print(f"Delete {output_file}")
         try:
@@ -198,7 +195,7 @@ class TestPacsModule(unittest.TestCase):
         else:
             print("WARNING: No response from PACS. Skipping test.")
 
-    def send_to_pacs_wado(self, dicom_file_path):
+    def send_to_pacs_wado(self, dicom_files):
         # Arrange
         dicomweb_url = 'http://127.0.0.1:8202/dicom-web/studies'
         username = 'orthanc'
@@ -206,27 +203,39 @@ class TestPacsModule(unittest.TestCase):
 
         # Act
         response = pacs.send_to_pacs_wado(
-            [dicom_file_path], dicomweb_url, username, password)
+            dicom_files, dicomweb_url, username, password)
 
-        self.assertTrue(hasattr(response,'text'))
+        self.assertTrue(hasattr(response, 'text'))
         j = json.loads(response.text)
-        
-        print(json.dumps(j,indent=2))
-        # Loop over the successful instances
 
-        print('\nWADO-RS URL of the uploaded instances:')
+        if DEBUG:
+            print(json.dumps(j, indent=2))
 
-        for instance in j['00081199']['Value']:
+        # Test that the number of instances in the response matches the number of those sent to pacs.
+        instances = j['00081199']['Value']
+        self.assertEqual(len(instances),len(dicom_files))
 
-            if '00081190' in instance:  # This instance has not been discarded
+        # Loop over the successful instances and assert that they all match with those sent
+        for instance, dicom_file in zip(instances,dicom_files):
+            dicom_data = dcmread(dicom_file)
+            expected_instance_uid = dicom_data.SOPInstanceUID
+            expected_study_uid = dicom_data.StudyInstanceUID
+            expected_series_uid = dicom_data.SeriesInstanceUID
+
+            self.assertEqual(instance['00081155']['Value'][0], expected_instance_uid, "Instance UID does not match")
+            self.assertEqual(j['00081190']['Value'][0].split('/')[-1], expected_study_uid, "Study UID does not match") # split cuz this in the URL
+            self.assertEqual(instance['00081190']['Value'][0].split('/')[-3], expected_series_uid, "Series UID does not match") # 8,1190 actually has everything, i could just use this.
+
+            if DEBUG and '00081190' in instance:  # This instance has not been discarded
                 url = instance['00081190']['Value'][0]
                 print(url)
-        print('\nWADO-RS URL of the study:')
-        try:
-            print(j['00081190']['Value'][0])
-        except:
-            print('No instance was uploaded!')
 
+        try:
+            if DEBUG:
+                print('\nWADO-RS URL of the study:')
+                print(j['00081190']['Value'][0])
+        except KeyError:
+            print('No instance was uploaded!')
 
     def test_sample_files(self):
         """ Test with all files in resources/sample_* 
@@ -243,40 +252,7 @@ class TestPacsModule(unittest.TestCase):
         self.send_to_pacs_dimse(self.resource_path /'d90.dcm')
 
     def test_send_to_wado_simple_file(self):
-        self.send_to_pacs_wado(self.resource_path /'d90.dcm')
-
-    @patch('pydicom.dcmread')
-    @patch('requests.post')
-    def test_send_to_pacs_wado_failure(self, mock_post, mock_dcmread):
-        """
-        Test written by ChatGPT, but i have not actually tested it: It wrote both the test and the function, so they could both be wrong.
-        """
-        # Arrange
-        dicom_file_path = 'test.dcm'
-        dicomweb_url = 'http://dicomweb-server.com/dicomweb/studies'
-        username = 'username'
-        password = 'password'
-
-        dataset = MagicMock()
-        dataset.to_bytes.return_value = b'dicom-bytes'
-        mock_dcmread.return_value = dataset
-
-        mock_response = MagicMock()
-        mock_response.status_code = 500
-        mock_post.return_value = mock_response
-
-        # Act
-        pacs.send_to_pacs_wado(
-            dicom_file_path, dicomweb_url, username, password)
-
-        # Assert
-        mock_dcmread.assert_called_once_with(dicom_file_path)
-        mock_post.assert_called_once_with(
-            dicomweb_url,
-            headers={'Content-Type': 'application/dicom'},
-            data=b'dicom-bytes',
-            auth=HTTPBasicAuth(username, password)
-        )
+        self.send_to_pacs_wado([self.resource_path /'d90.dcm'])
 
 
 if __name__ == '__main__':

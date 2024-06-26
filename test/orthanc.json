@@ -32,6 +32,9 @@
         "SeriesMetadata": "Full",
         "EnableMetadataCache": true,
         "MetadataWorkerThreadsCount": 4,
-        "PublicRoot": "/dicom-web/"
+        "PublicRoot": "/dicom-web/",
+        "Servers" : {
+            "localhost" : [ "http://127.0.0.1:4242/dicom-web/"]
+        }
     }
 }

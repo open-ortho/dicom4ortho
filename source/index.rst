@@ -19,6 +19,7 @@ DICOM. Implementation of ANSI Standard ADA-1107.
    validation
    implementation_status
    notes
+   running_tests
    specifications
    release_notes
    about

@@ -173,10 +173,10 @@ class TestPacsModule(unittest.TestCase):
         self.send_to_pacs_wado([output_file])
 
         print(f"Delete {output_file}")
-        try:
-            output_file.unlink()
-        except FileNotFoundError:
-            pass
+        # try:
+        #     output_file.unlink()
+        # except FileNotFoundError:
+        #     pass
 
     def send_to_pacs_dimse(self, dicom_file_path):
         # Arrange

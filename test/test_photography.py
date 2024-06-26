@@ -11,7 +11,7 @@ from io import BytesIO
 import dicom4ortho.m_orthodontic_photograph
 from dicom4ortho.controller import SimpleController
 from dicom4ortho.m_orthodontic_photograph import OrthodonticPhotograph
-from dicom4ortho.defaults import generate_dicom_uid
+from dicom4ortho.defaults import generate_dicom_uid, StudyInstanceUID_ROOT, SeriesInstanceUID_ROOT
 from datetime import datetime, timezone, timedelta
 from pathlib import Path
 
@@ -32,8 +32,8 @@ def make_photo_metadata():
         "patient_birthdate": "1958-08-29",
         "dental_provider_firstname": "Conrad",
         "dental_provider_lastname": "Murray",
-        "study_instance_uid": generate_dicom_uid(),
-        "series_instance_uid": generate_dicom_uid(),
+        "study_instance_uid": generate_dicom_uid(root=StudyInstanceUID_ROOT),
+        "series_instance_uid": generate_dicom_uid(root=SeriesInstanceUID_ROOT),
         "series_description": "UnitTest make_photo_metadata",
         "days_after_event": 212,
         "treatment_event_type": "OrthodonticTreatment"

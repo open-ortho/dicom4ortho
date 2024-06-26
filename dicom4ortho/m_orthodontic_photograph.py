@@ -360,9 +360,9 @@ class OrthodonticPhotograph(PhotographBase):
 
         # We cannot save without UIDs. If the user hasn't added them, we must do so now.
         if self._ds.StudyInstanceUID is None:
-            self._ds.StudyInstanceUID = defaults.generate_dicom_uid()
+            self._ds.StudyInstanceUID = defaults.generate_dicom_uid(root=defaults.StudyInstanceUID_ROOT)
         if self._ds.SeriesInstanceUID is None:
-            self._ds.SeriesInstanceUID = defaults.generate_dicom_uid()
+            self._ds.SeriesInstanceUID = defaults.generate_dicom_uid(root=defaults.SeriesInstanceUID_ROOT)
 
         self._ds.save_as(filename=filename, write_like_original=False)
         logging.info("File [%s] saved.", filename)
@@ -390,7 +390,7 @@ class OrthodonticSeries():
         :description: The Series Description to add to all photos.
         """
         self.description = kwargs.get("description")
-        self.UID = kwargs.get("uid") or defaults.generate_dicom_uid()
+        self.UID = kwargs.get("uid") or defaults.generate_dicom_uid(root=defaults.SeriesInstanceUID_ROOT)
         self.Photos = []
 
     def __len__(self):
@@ -428,7 +428,7 @@ class OrthodonticStudy():
         :uid: The Series DICOM UID. Defaults to generating a new one.
         :description: The Study Description to add to all photos.
         """
-        self.UID = kwargs.get("uid") or defaults.generate_dicom_uid()
+        self.UID = kwargs.get("uid") or defaults.generate_dicom_uid(root=defaults.StudyInstanceUID_ROOT)
         self.Series = []
 
     def __len__(self):

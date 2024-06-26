@@ -27,7 +27,7 @@ class DicomBase(object):
 
     def __init__(self, **kwargs):
         self.sop_instance_uid = kwargs.get(
-            "sop_instance_uid") or defaults.generate_dicom_uid()
+            "sop_instance_uid") or defaults.generate_dicom_uid(root=defaults.SOPInstanceUID_ROOT)
         self.time_string = datetime.datetime.now().strftime(defaults.TIME_FORMAT)
         self.date_string = datetime.datetime.now().strftime(defaults.DATE_FORMAT)
         self.input_image_filename = kwargs.get('input_image_filename')
@@ -43,8 +43,8 @@ class DicomBase(object):
 
     def set_file_meta(self):
         self.file_meta.MediaStorageSOPInstanceUID = self.sop_instance_uid
-        self.file_meta.ImplementationClassUID = defaults.IMPLEMENTATION_CLASS_UID
-        self.file_meta.ImplementationVersionName = f"{defaults.PROJECT_NAME}{defaults.VERSION}"[0:15] # Truncate to 16 characters allowed.
+        self.file_meta.ImplementationClassUID = defaults.ImplementationClassUID
+        self.file_meta.ImplementationVersionName = defaults.ImplementationVersionName
 
     def _set_dataset(self):
         self._ds = FileDataset(
@@ -57,13 +57,13 @@ class DicomBase(object):
 
     def _set_general_study(self):
         self._ds.AccessionNumber = ''
-        self._ds.StudyInstanceUID = defaults.generate_dicom_uid()
+        self._ds.StudyInstanceUID = defaults.generate_dicom_uid(root=defaults.StudyInstanceUID_ROOT)
         self._ds.StudyID = defaults.IDS_NUMBERS
         self._ds.StudyDate = self.date_string
         self._ds.StudyTime = self.time_string
 
     def _set_general_series(self):
-        self._ds.SeriesInstanceUID = defaults.generate_dicom_uid()
+        self._ds.SeriesInstanceUID = defaults.generate_dicom_uid(root=defaults.SeriesInstanceUID_ROOT)
         self._ds.SeriesNumber = defaults.IDS_NUMBERS
 
     def _set_general_image(self):

@@ -39,9 +39,16 @@ URL_ADA1107_CODES = URL_ADA1107_CODES.as_uri()
 #  * Append Version of software to distinguish between different releases
 #  * Should always be constant, just change with version numbers. splitting out -dev or other version postfix
 #  * Max length 64. Cannot contain characters.
-# IMPLEMENTATION_CLASS_UID = '2.25.34.34.153.156.139.154.17.234.176.144.0.5.27.' + VERSION.split('-')[0]
 DICOM4ORTHO_ROOT_UID = '1.3.6.1.4.1.61741.11.2'
-IMPLEMENTATION_CLASS_UID = f"{DICOM4ORTHO_ROOT_UID}.{VERSION}"
+
+# Schema Copied from DCMTK assignment
+ImplementationVersionName = f"{PROJECT_NAME.upper()}_{VERSION.replace('.','')}"[0:15] # Truncate to 16 characters allowed.
+ImplementationClassUID = f"{DICOM4ORTHO_ROOT_UID}.0.{VERSION}"
+MediaStorageSOPInstanceUID_ROOT = f"{DICOM4ORTHO_ROOT_UID}.1"
+StudyInstanceUID_ROOT = f"{DICOM4ORTHO_ROOT_UID}.2"
+SeriesInstanceUID_ROOT = f"{DICOM4ORTHO_ROOT_UID}.3"
+SOPInstanceUID_ROOT = f"{DICOM4ORTHO_ROOT_UID}.4"
+ 
 
 # The default IDs used for SeriesNumber StudyID and InstanceNumber
 IDS_NUMBERS = '000'
@@ -51,7 +58,7 @@ ADD_MAX_ALLOWED_TEETH = 'ALL'
 # This is populated by controller.SimpleController._load_image_types()
 image_types = {}
 
-def generate_dicom_uid(hash=None):
+def generate_dicom_uid(root=None, hash=None):
     """
     A function to generate DICOM UIDs for new objects.
 
@@ -60,8 +67,8 @@ def generate_dicom_uid(hash=None):
     hash has to be a 16 byte long bytes object.
     """
     new_uuid = hash or uuid.uuid4().bytes
-    dicom_uid = '2.25'
-    for i in range(len(new_uuid)-2):
+    dicom_uid = root or '2.25'
+    for i in range(len(new_uuid)-len(dicom_uid.split('.'))):
         dicom_uid += '.' + str(new_uuid[i])
 
     logging.debug("Generated new Instance UID {}".format(dicom_uid))

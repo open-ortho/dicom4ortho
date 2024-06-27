@@ -4,12 +4,9 @@ This module is here to satisfy specificion  **IE-03:** ``dicom4ortho`` SHALL sup
 
 """
 
-from typing import cast
 import uuid
-import requests
-from requests.auth import HTTPBasicAuth
 import logging
-from dicom4ortho.m_orthodontic_photograph import OrthodonticSeries, OrthodonticPhotograph
+import requests
 
 logger = logging.getLogger(__name__)
 
@@ -19,6 +16,7 @@ def send(**kwargs):
 
     kwargs:
         dicomweb_url (str): URL of the DICOMweb server.
+        dicom_files (List[str]): List of DICOM files.
         orthodontic_series (OrthodonticSeries): a dicom4ortho.m_orthodontic_photograph.OrthodonticSeries
         username (str, optional): Username for DICOMweb authentication.
         password (str, optional): Password for DICOMweb authentication.
@@ -30,18 +28,19 @@ def send(**kwargs):
     as suggested by Orthanc Dicomweb Plugin book:
     https://orthanc.uclouvain.be/book/plugins/dicomweb.html#id19
 
-    
+
     """
     dicomweb_url = kwargs.get('dicomweb_url')
     if not dicomweb_url:
-        logger.error("No URL to send to. Specify a dicom-web URL using the dicomweb_url argument.")
+        logger.error(
+            "No URL to send to. Specify a dicom-web URL using the dicomweb_url argument.")
         return None
 
     boundary = str(uuid.uuid4())
     parts = []
 
     # Prepare content
-    add_content = lambda content: (
+    def add_content(content): return (
         f"--{boundary}\r\n"
         "Content-Type: application/dicom\r\n"
         f"Content-Length: {len(content)}\r\n\r\n"
@@ -56,12 +55,14 @@ def send(**kwargs):
                 with open(dicom_file, 'rb') as f:
                     parts.append(add_content(f.read()))
             except Exception as e:
-                logger.error('Error processing file %s: %s', dicom_file, str(e))
+                logger.error('Error processing file %s: %s',
+                             dicom_file, str(e))
     elif orthodontic_series:
         for photo in orthodontic_series:
             parts.append(add_content(photo.to_byte().getvalue()))
     else:
-        logger.error("No data to send. Specify either dicom_files or orthodontic_series.")
+        logger.error(
+            "No data to send. Specify either dicom_files or orthodontic_series.")
         return None
 
     # Finalize the multipart body
@@ -73,6 +74,8 @@ def send(**kwargs):
         'Content-Type': f'multipart/related; type="application/dicom"; boundary={boundary}',
         'Accept': 'application/dicom+json',
     }
-    auth = (kwargs.get('username'), kwargs.get('password')) if kwargs.get('username') and kwargs.get('password') else None
-    response = requests.post(dicomweb_url, data=body, headers=headers, auth=auth)
+    auth = (kwargs.get('username'), kwargs.get('password')) if kwargs.get(
+        'username') and kwargs.get('password') else None
+    response = requests.post(dicomweb_url, data=body,
+                             headers=headers, auth=auth)
     return response

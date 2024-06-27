@@ -3,24 +3,52 @@
 This module is here to satisfy specificion  **IE-03:** ``dicom4ortho`` SHALL support sending images to a DICOM node (as SCU or SCP, DICOMweb, WADO, or whatever).
 
 """
+import logging
 from pydicom.uid import ImplicitVRLittleEndian
 from pydicom import dcmread
 from pynetdicom import AE, StoragePresentationContexts
-import logging
 
 from dicom4ortho.defaults import PROJECT_NAME
 
 logger = logging.getLogger(__name__)
 
 
-def send(dicom_files, pacs_ip, pacs_port, pacs_aet):
-    """Send multiple DICOM files to PACS using DIMSE protocol.
-    
-    
+def send(**kwargs):
+    """ Send multiple DICOM files to PACS using DIMSE protocol.
+
+    kwargs:
+        dicom_files (List[str]): List of DICOM files.
+        orthodontic_series (OrthodonticSeries): a dicom4ortho.m_orthodontic_photograph.OrthodonticSeries
+        pacs_ip (str): IP address of the PACS server.
+        pacs_port (int): Port of the PACS server.
+        pacs_aet (str): AE Title of the PACS server.
+
     """
-    # Set up logging
-    logging.basicConfig(level=logging.INFO)
-    logger = logging.getLogger()
+    orthodontic_series = kwargs.get('orthodontic_series', None)
+    if orthodontic_series:
+        raise NotImplementedError(
+            "dimse.send() with OrthodonticSeries is not yet implemented. Use dicom_files")
+
+    dicom_files = kwargs.get('dicom_files', None)
+    if not dicom_files:
+        logger.error("No files to send to. Set the dicom_files argument.")
+        return None
+
+    pacs_ip = kwargs.get('pacs_ip', None)
+    if not pacs_ip:
+        logger.error("Nowhere to send to. Set the pacs_ip argument.")
+        return None
+
+    pacs_port = kwargs.get('pacs_port', None)
+    if not pacs_port:
+        logger.error("No PACS Port defined! Set the pacs_port argument.")
+        return None
+
+    pacs_aet = kwargs.get('pacs_aet', None)
+    if not pacs_aet:
+        logger.error(
+            "No PACS Application Entity Title defined! Set the pacs_aet argument.")
+        return None
 
     # Create application entity and specify the requested presentation contexts
     ae = AE(ae_title=PROJECT_NAME.upper())

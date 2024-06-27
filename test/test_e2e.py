@@ -7,6 +7,7 @@ from dicom4ortho.controller import SimpleController
 from dicom4ortho.dicom import wado, dimse
 from pathlib import Path
 from pydicom import dcmread
+import fnmatch
 import json
 import unittest
 import io
@@ -144,6 +145,7 @@ class TestPacsModule(unittest.TestCase):
         """
 
         images = self.resource_path.glob('sample_*')
+        images = [f for f in images if not fnmatch.fnmatch(f, '*.dcm')]
 
         c = SimpleController()
         o_s = c.convert_images_to_orthodontic_series(

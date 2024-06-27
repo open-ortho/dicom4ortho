@@ -122,7 +122,7 @@ class SimpleController(object):
         Send DICOM files to a PACS.
 
         Parameters:
-        photoseries (PhotoSeries): a dicom4ortho.m_orthodontic_photograph.OrthodonticSeries
+        orthodontic_series (OrthodonticSeries): a dicom4ortho.m_orthodontic_photograph.OrthodonticSeries
         dicom_files (str): Array of paths to the DICOM files to send.
         send_method (str): Method to send DICOM. Must be 'dimse' or 'wado'.
         **kwargs: Additional keyword arguments depending on the send method:
@@ -150,7 +150,7 @@ class SimpleController(object):
         )
 
         send(
-            photoseries=orthodontic_series,
+            orthodontic_series=orthodontic_series,
             send_method='wado',
             dicomweb_url='http://dicomweb-server.com/dicomweb/studies',
             username='user',
@@ -164,7 +164,7 @@ class SimpleController(object):
         if send_method == 'dimse':
             return dimse.send(
                 dicom_files=kwargs.get('dicom_files',None), 
-                photoseries=kwargs.get('photoseries',None),
+                orthodontic_series=kwargs.get('orthodontic_series',None),
                 pacs_ip=kwargs['pacs_ip'],
                 pacs_port=kwargs['pacs_port'],
                 pacs_aet=kwargs['pacs_aet'])
@@ -172,7 +172,7 @@ class SimpleController(object):
         elif send_method == 'wado':
             return wado.send(
                 dicom_files=kwargs.get('dicom_files',None), 
-                photoseries=kwargs.get('photoseries',None),
+                orthodontic_series=kwargs.get('orthodontic_series',None),
                 dicomweb_url=kwargs['dicomweb_url'],
                 username=kwargs.get('username'),
                 password=kwargs.get('password'))

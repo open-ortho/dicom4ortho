@@ -2,23 +2,25 @@
 #
 # End to End tests, complete processes. These are slow.
 #
+from test.test_photography import make_photo_metadata
+from dicom4ortho.controller import SimpleController
+from dicom4ortho.dicom import wado, dimse
+from pathlib import Path
+from pydicom import dcmread
+import json
+import unittest
+import io
+import os
 import warnings
 warnings.simplefilter('error', UserWarning)
 
 
-import os
-import io
-import unittest
-import json
-from pydicom import dcmread
-from pathlib import Path
-
-from dicom4ortho.dicom import wado, dimse
-from dicom4ortho.controller import SimpleController
-
-from test.test_photography import make_photo_metadata
-
 DEBUG = False
+
+dicomweb_url = 'http://127.0.0.1:8202/dicom-web/studies'
+username = 'orthanc'
+password = 'mock'
+
 
 def compare_jpeg2dicom(jpeg_image_file_path, dicom_image_file_path):
     def extract_jpeg_from_dicom(dicom_path):
@@ -133,7 +135,39 @@ class TestPacsModule(unittest.TestCase):
         self.resource_path = Path(self.BASE_PATH) / 'resources'
         return super().setUp()
 
-    def full_flow_test(self, inputfile, image_type='IV06'):
+    def test_full_flow_test_orthodontic_series(self, image_type='IV06'):
+        """ Full test, but don't write the DICOM to file.
+
+        Generate DICOM from IMG file into memory and send to PACS. No saved DICOM.
+
+        Uses all images in test/resources/sample_.* and considers them all part of the same series.
+        """
+
+        images = self.resource_path.glob('sample_*')
+
+        c = SimpleController()
+        o_s = c.convert_images_to_orthodontic_series(
+            images, make_photo_metadata())
+        response = wado.send(
+            orthodontic_series=o_s,
+            dicomweb_url=dicomweb_url,
+            username=username,
+            password=password)
+
+        self.assertTrue(hasattr(response, 'text'))
+        print("PASS: response has attribute text.")
+        j = json.loads(response.text)
+        # DEBUG = True
+        if DEBUG:
+            print(json.dumps(j, indent=2))
+
+        # Test that the number of instances in the response matches the number of those sent to pacs.
+        instances = j['00081199']['Value']
+        self.assertEqual(len(instances), len(o_s))
+        print(f"PASS: PACS returned 0008,1199 with {len(instances)}, which is the same amount we sent.")
+
+
+    def full_flow_test_via_dicom_file(self, inputfile, image_type='IV06'):
         """ Test for each passed file, the entire flow, from JPEG to PACS.
 
         - Load image from resources/ folder
@@ -155,7 +189,8 @@ class TestPacsModule(unittest.TestCase):
         # Test existance
         self.assertTrue(output_file.exists())
 
-        print(f"[2] Compare the {inputfile} with {output_file}, pixel by pixel, to make sure they are identical. This is slow")
+        print(
+            f"[2] Compare the {inputfile} with {output_file}, pixel by pixel, to make sure they are identical. This is slow")
         input_file_extension = Path(inputfile).suffix.lower()
         if input_file_extension == '.jpg' or input_file_extension == '.jpeg':
             self.assertTrue(compare_jpeg2dicom(
@@ -189,21 +224,21 @@ class TestPacsModule(unittest.TestCase):
 
         status = dimse.send(
             [dicom_file_path], pacs_ip, pacs_port, pacs_aet)
-        self.assertTrue(hasattr(status,'Status'))
+        self.assertTrue(hasattr(status, 'Status'))
         if status:
             self.assertEqual(status.Status, 0)
         else:
             print("WARNING: No response from PACS. Skipping test.")
 
-    def send_to_pacs_wado(self, dicom_files):
+    def send_to_pacs_wado(self, dicom_files=None, orthodontic_series=None):
         # Arrange
-        dicomweb_url = 'http://127.0.0.1:8202/dicom-web/studies'
-        username = 'orthanc'
-        password = 'mock'
-
         # Act
         response = wado.send(
-            dicom_files, dicomweb_url, username, password)
+            dicom_files=dicom_files,
+            orthodontic_series=orthodontic_series,
+            dicomweb_url=dicomweb_url,
+            username=username,
+            password=password)
 
         self.assertTrue(hasattr(response, 'text'))
         j = json.loads(response.text)
@@ -213,18 +248,22 @@ class TestPacsModule(unittest.TestCase):
 
         # Test that the number of instances in the response matches the number of those sent to pacs.
         instances = j['00081199']['Value']
-        self.assertEqual(len(instances),len(dicom_files))
+        self.assertEqual(len(instances), len(dicom_files))
 
         # Loop over the successful instances and assert that they all match with those sent
-        for instance, dicom_file in zip(instances,dicom_files):
+        for instance, dicom_file in zip(instances, dicom_files):
             dicom_data = dcmread(dicom_file)
             expected_instance_uid = dicom_data.SOPInstanceUID
             expected_study_uid = dicom_data.StudyInstanceUID
             expected_series_uid = dicom_data.SeriesInstanceUID
 
-            self.assertEqual(instance['00081155']['Value'][0], expected_instance_uid, "Instance UID does not match")
-            self.assertEqual(j['00081190']['Value'][0].split('/')[-1], expected_study_uid, "Study UID does not match") # split cuz this in the URL
-            self.assertEqual(instance['00081190']['Value'][0].split('/')[-3], expected_series_uid, "Series UID does not match") # 8,1190 actually has everything, i could just use this.
+            self.assertEqual(instance['00081155']['Value'][0],
+                             expected_instance_uid, "Instance UID does not match")
+            self.assertEqual(j['00081190']['Value'][0].split(
+                '/')[-1], expected_study_uid, "Study UID does not match")  # split cuz this in the URL
+            # 8,1190 actually has everything, i could just use this.
+            self.assertEqual(instance['00081190']['Value'][0].split(
+                '/')[-3], expected_series_uid, "Series UID does not match")
 
             if DEBUG and '00081190' in instance:  # This instance has not been discarded
                 url = instance['00081190']['Value'][0]
@@ -241,7 +280,12 @@ class TestPacsModule(unittest.TestCase):
         """ Test with all files in resources/sample_* 
 
         """
-        for sample_file in self.resource_path.glob("sample_*"):
+        sample_files = self.resource_path.glob("sample_*")
+
+        sc = SimpleController()
+        sc.convert_images_to_orthodontic_series(images=sample_files)
+
+        for sample_file in sample_files:
             if Path(sample_file).suffix.lower() == ".dcm":
                 continue
             print(f"\nTesting with {sample_file}...")
@@ -249,10 +293,10 @@ class TestPacsModule(unittest.TestCase):
 
     @unittest.skip("TODO: Connection aborted during transfer. Not working.")
     def test_send_to_dimse_simple_file(self):
-        self.send_to_pacs_dimse(self.resource_path /'d90.dcm')
+        self.send_to_pacs_dimse(self.resource_path / 'd90.dcm')
 
     def test_send_to_wado_simple_file(self):
-        self.send_to_pacs_wado([self.resource_path /'d90.dcm'])
+        self.send_to_pacs_wado([self.resource_path / 'd90.dcm'])
 
 
 if __name__ == '__main__':

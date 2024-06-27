@@ -12,7 +12,7 @@
     "DicomAlwaysAllowEcho": true,
     "DicomAlwaysAllowStore": true,
     "RemoteAccessAllowed": true,
-    "AuthenticationEnabled": false,
+    "AuthenticationEnabled": true,
     "StoreMD5ForAttachments": true,
     "RegisteredUsers": {
         "orthanc": "mock"

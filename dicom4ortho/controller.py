@@ -7,7 +7,7 @@ from pathlib import Path
 
 import dicom4ortho.defaults as defaults
 import dicom4ortho.model as model
-from dicom4ortho.m_orthodontic_photograph import OrthodonticPhotograph
+from dicom4ortho.m_orthodontic_photograph import OrthodonticPhotograph, OrthodonticSeries
 from dicom4ortho.dicom import wado, dimse
 import logging
 logger = logging.getLogger()
@@ -81,6 +81,17 @@ class SimpleController(object):
         _photo = self.convert_image_to_dicom4orthograph(metadata=metadata)
         _photo.save()
 
+    def convert_images_to_orthodontic_series(self, images, metadata) -> OrthodonticSeries:
+        """ Convert a list of Images and metadata into an OrthodonticSeries containing OrthodonticPhotographs.
+        """
+        orthodontic_series = OrthodonticSeries()
+        for image in images:
+            metadata['input_image_filename'] = image
+            orthodontic_photograph = OrthodonticPhotograph(**metadata)
+            orthodontic_series.add(orthodontic_photograph)
+        return orthodontic_series
+
+
     def validate_dicom_file(self, input_image_filename=None):
         ''' Validate DICOM File.
 
@@ -106,11 +117,12 @@ class SimpleController(object):
         _photo.print()
 
 
-    def send(self, dicom_files, send_method, **kwargs):
+    def send(self, send_method, **kwargs):
         """
         Send DICOM files to a PACS.
 
         Parameters:
+        photoseries (PhotoSeries): a dicom4ortho.m_orthodontic_photograph.OrthodonticSeries
         dicom_files (str): Array of paths to the DICOM files to send.
         send_method (str): Method to send DICOM. Must be 'dimse' or 'wado'.
         **kwargs: Additional keyword arguments depending on the send method:
@@ -128,8 +140,8 @@ class SimpleController(object):
         Raises:
         ValueError: If an invalid send method is specified or required kwargs are missing.
     
-        Example:
-        process_and_send(
+        Examples:
+        send(
             dicom_files=['path/to/output.dcm'],
             send_method='dimse',
             pacs_ip='127.0.0.1',
@@ -137,8 +149,8 @@ class SimpleController(object):
             pacs_aet='PACS_AET'
         )
 
-        process_and_send(
-            dicom_files=['path/to/output.dcm'],
+        send(
+            photoseries=orthodontic_series,
             send_method='wado',
             dicomweb_url='http://dicomweb-server.com/dicomweb/studies',
             username='user',
@@ -150,8 +162,19 @@ class SimpleController(object):
 
         # Send the DICOM file based on the specified method
         if send_method == 'dimse':
-            return dimse.send(dicom_files, kwargs['pacs_ip'], kwargs['pacs_port'], kwargs['pacs_aet'])
+            return dimse.send(
+                dicom_files=kwargs.get('dicom_files',None), 
+                photoseries=kwargs.get('photoseries',None),
+                pacs_ip=kwargs['pacs_ip'],
+                pacs_port=kwargs['pacs_port'],
+                pacs_aet=kwargs['pacs_aet'])
+
         elif send_method == 'wado':
-            return wado.send(dicom_files, kwargs['dicomweb_url'], kwargs.get('username'), kwargs.get('password'))
+            return wado.send(
+                dicom_files=kwargs.get('dicom_files',None), 
+                photoseries=kwargs.get('photoseries',None),
+                dicomweb_url=kwargs['dicomweb_url'],
+                username=kwargs.get('username'),
+                password=kwargs.get('password'))
         else:
             logger.error('Invalid send method specified.')

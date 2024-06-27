@@ -5,7 +5,9 @@ Adds SNOMED CT codes in DICOM object for Orthodontic Views.
 
 '''
 
+import io
 from datetime import datetime
+from pydicom import dcmwrite
 from pydicom.sequence import Sequence
 from pydicom.dataset import Dataset
 
@@ -354,22 +356,38 @@ class OrthodonticPhotograph(PhotographBase):
             return True
         else:
             return False
+    
+    def to_byte(self):
+        """Return a bytes-like object which can be accessed with read() and seek()."""
+        # Ensure necessary DICOM UIDs are set
+        if self._ds.StudyInstanceUID is None:
+            self._ds.StudyInstanceUID = defaults.generate_dicom_uid(root=defaults.StudyInstanceUID_ROOT)
+        if self._ds.SeriesInstanceUID is None:
+            self._ds.SeriesInstanceUID = defaults.generate_dicom_uid(root=defaults.SeriesInstanceUID_ROOT)
+
+        # Create an in-memory file-like object
+        file_like = io.BytesIO()
+
+        # Write the DICOM dataset to the in-memory file-like object
+        dcmwrite(file_like, self._ds)
+
+        # Seek to the beginning of the file-like object to read its contents
+        file_like.seek(0)
+
+        return file_like
 
     def save(self, filename=None):
+        """Save the byte stream to a file."""
         filename = filename or self.output_image_filename
-        self.set_image()
-        self._set_dicom_attributes()
+        
+        # Generate the byte stream from the dataset
+        byte_stream = self.to_byte()
+        
+        # Write the byte stream to a file
+        with open(filename, 'wb') as f:
+            f.write(byte_stream.read())
 
-        # We cannot save without UIDs. If the user hasn't added them, we must do so now.
-        if self._ds.StudyInstanceUID is None:
-            self._ds.StudyInstanceUID = defaults.generate_dicom_uid(
-                root=defaults.StudyInstanceUID_ROOT)
-        if self._ds.SeriesInstanceUID is None:
-            self._ds.SeriesInstanceUID = defaults.generate_dicom_uid(
-                root=defaults.SeriesInstanceUID_ROOT)
-
-        self._ds.save_as(filename=filename, write_like_original=False)
-        logger.info("File [%s] saved.", filename)
+        logging.info("File [%s] saved.", filename)
 
 
 class OrthodonticSeries():
@@ -400,6 +418,9 @@ class OrthodonticSeries():
 
     def __len__(self):
         return len(self.Photos)
+
+    def __iter__(self):
+        return iter(self.Photos)
 
     def add(self, photo: OrthodonticPhotograph) -> None:
         self.Photos.append(photo)
@@ -439,6 +460,9 @@ class OrthodonticStudy():
 
     def __len__(self):
         return len(self.Series)
+
+    def __iter__(self):
+        return iter(self.Series)
 
     def add(self, serie: OrthodonticSeries) -> None:
         serie.StudyUID = self.UID

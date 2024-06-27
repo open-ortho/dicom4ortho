@@ -445,6 +445,9 @@ class PhotographBase(DicomBase):
         self._set_sop_common()
         self._set_general_series()
         self._set_vl_image()
+        input_image_filename = kwargs.get('input_image_filename',None)
+        if input_image_filename:
+            self.set_image(filename=input_image_filename)
 
     def _set_sop_common(self):
         super()._set_sop_common()

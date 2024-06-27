@@ -280,16 +280,11 @@ class TestPacsModule(unittest.TestCase):
         """ Test with all files in resources/sample_* 
 
         """
-        sample_files = self.resource_path.glob("sample_*")
-
-        sc = SimpleController()
-        sc.convert_images_to_orthodontic_series(images=sample_files)
-
-        for sample_file in sample_files:
+        for sample_file in self.resource_path.glob("sample_*"):
             if Path(sample_file).suffix.lower() == ".dcm":
                 continue
             print(f"\nTesting with {sample_file}...")
-            self.full_flow_test(sample_file)
+            self.full_flow_test_via_dicom_file(sample_file)
 
     @unittest.skip("TODO: Connection aborted during transfer. Not working.")
     def test_send_to_dimse_simple_file(self):

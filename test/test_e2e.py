@@ -21,6 +21,7 @@ DEBUG = False
 dicomweb_url = 'http://127.0.0.1:8202/dicom-web/studies'
 username = 'orthanc'
 password = 'mock'
+ssl_certificate = None # String of SSL certificate to match. Self-signed certs OK but hostname MUST match, or it will fail.
 
 
 def compare_jpeg2dicom(jpeg_image_file_path, dicom_image_file_path):
@@ -240,7 +241,9 @@ class TestPacsModule(unittest.TestCase):
             orthodontic_series=orthodontic_series,
             dicomweb_url=dicomweb_url,
             username=username,
-            password=password)
+            password=password,
+            ssl_certificate=ssl_certificate,
+            ssl_verify=False)
 
         self.assertTrue(hasattr(response, 'text'))
         j = json.loads(response.text)

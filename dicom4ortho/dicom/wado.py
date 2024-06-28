@@ -26,6 +26,7 @@ def send(**kwargs):
         username (str, optional): Username for DICOMweb authentication.
         password (str, optional): Password for DICOMweb authentication.
         ssl_certificate (str, optional): SSL Certificate to use to validate SSL Connection in string format.
+        ssl_verify (bool, True): set to False to ignore SSL certificate errors.
 
     Inspired by:
     https://orthanc.uclouvain.be/hg/orthanc-dicomweb/file/default/Resources/Samples/Python/SendStow.py
@@ -54,6 +55,7 @@ def send(**kwargs):
     dicom_files = kwargs.get('dicom_files', [])
     orthodontic_series = kwargs.get('orthodontic_series')
     ssl_certificate = kwargs.get('ssl_certificate')
+    ssl_verify = kwargs.get('ssl_verify',True)
 
     if dicom_files:
         for dicom_file in dicom_files:
@@ -85,7 +87,7 @@ def send(**kwargs):
         'username') and kwargs.get('password') else None
 
     if ssl_certificate:
-        # post(verify=) take a filename as string. So we have to write to a tmpfile.
+        # post(verify=) takes a filename as string. So we have to write to a tmpfile.
         with tempfile.NamedTemporaryFile(suffix='.pem', mode='w+') as tmpfile:
             tmpfile.write(ssl_certificate)
             tmpfile.flush()  # Ensure data is written to the file before it's read by the requests library
@@ -95,6 +97,6 @@ def send(**kwargs):
                                      headers=headers, auth=auth, verify=tmpfile.name)
     else:
         response = requests.post(dicomweb_url, data=body,
-                                 headers=headers, auth=auth)
+                                 headers=headers, auth=auth, verify=ssl_verify)
 
     return response

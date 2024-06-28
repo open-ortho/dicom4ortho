@@ -175,6 +175,8 @@ class SimpleController(object):
                 orthodontic_series=kwargs.get('orthodontic_series',None),
                 dicomweb_url=kwargs['dicomweb_url'],
                 username=kwargs.get('username'),
-                password=kwargs.get('password'))
+                password=kwargs.get('password'),
+                ssl_certificate=kwargs.get('ssl_certificate')
+                )
         else:
             logger.error('Invalid send method specified.')

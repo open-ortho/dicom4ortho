@@ -4,6 +4,8 @@ This module is here to satisfy specificion  **IE-03:** ``dicom4ortho`` SHALL sup
 
 """
 
+from typing import cast
+import tempfile
 import uuid
 import logging
 import requests
@@ -14,13 +16,15 @@ logger = logging.getLogger(__name__)
 def send(**kwargs):
     """ send images or OrthodonticSeries to PACS using STOW-RS.
 
+    Has the ability to provide a PEM certificate to validate the connection, for self signed https connections. The PEM is fed via the ssl_certificate as a string, to facilitate storage in configurations.
+    
     kwargs:
         dicomweb_url (str): URL of the DICOMweb server.
         dicom_files (List[str]): List of DICOM files.
         orthodontic_series (OrthodonticSeries): a dicom4ortho.m_orthodontic_photograph.OrthodonticSeries
         username (str, optional): Username for DICOMweb authentication.
         password (str, optional): Password for DICOMweb authentication.
-
+        ssl_certificate (str, optional): SSL Certificate to use to validate SSL Connection in string format.
 
     Inspired by:
     https://orthanc.uclouvain.be/hg/orthanc-dicomweb/file/default/Resources/Samples/Python/SendStow.py
@@ -48,6 +52,7 @@ def send(**kwargs):
 
     dicom_files = kwargs.get('dicom_files', [])
     orthodontic_series = kwargs.get('orthodontic_series')
+    ssl_certificate = kwargs.get('ssl_certificate')
 
     if dicom_files:
         for dicom_file in dicom_files:
@@ -76,6 +81,18 @@ def send(**kwargs):
     }
     auth = (kwargs.get('username'), kwargs.get('password')) if kwargs.get(
         'username') and kwargs.get('password') else None
-    response = requests.post(dicomweb_url, data=body,
-                             headers=headers, auth=auth)
+
+    if ssl_certificate:
+        # post(verify=) take a filename as string. So we have to write to a tmpfile.
+        with tempfile.NamedTemporaryFile(suffix='.pem', mode='w+') as tmpfile:
+            tmpfile.write(ssl_certificate)
+            tmpfile.flush()  # Ensure data is written to the file before it's read by the requests library
+
+            # Now perform the POST request within the 'with' block
+            response = requests.post(dicomweb_url, data=body,
+                                     headers=headers, auth=auth, verify=tmpfile.name)
+    else:
+        response = requests.post(dicomweb_url, data=body,
+                                 headers=headers, auth=auth)
+
     return response

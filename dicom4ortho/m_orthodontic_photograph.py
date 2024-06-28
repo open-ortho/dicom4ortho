@@ -423,6 +423,8 @@ class OrthodonticSeries():
         return iter(self.Photos)
 
     def add(self, photo: OrthodonticPhotograph) -> None:
+        if not isinstance(photo, OrthodonticPhotograph):
+            raise TypeError(f"'photo' cannot be of type '{type(photo)}'. Can only add objects of type 'OrthodonticPhotograph'")
         self.Photos.append(photo)
 
     def save(self) -> None:

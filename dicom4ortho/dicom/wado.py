@@ -4,9 +4,11 @@ This module is here to satisfy specificion  **IE-03:** ``dicom4ortho`` SHALL sup
 
 """
 
+from typing import cast
 import uuid
 import logging
 import requests
+from dicom4ortho.m_orthodontic_photograph import OrthodonticPhotograph
 
 logger = logging.getLogger(__name__)
 
@@ -59,6 +61,7 @@ def send(**kwargs):
                              dicom_file, str(e))
     elif orthodontic_series:
         for photo in orthodontic_series:
+            photo = cast(OrthodonticPhotograph, photo)
             parts.append(add_content(photo.to_byte().getvalue()))
     else:
         logger.error(

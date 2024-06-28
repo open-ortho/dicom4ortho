@@ -2,6 +2,7 @@
 Defaults and Constants.
 """
 
+import re
 import uuid
 import logging
 from pathlib import Path
@@ -42,8 +43,10 @@ URL_ADA1107_CODES = URL_ADA1107_CODES.as_uri()
 DICOM4ORTHO_ROOT_UID = '1.3.6.1.4.1.61741.11.2'
 
 # Schema Copied from DCMTK assignment
-ImplementationVersionName = f"{PROJECT_NAME.upper()}_{VERSION.replace('.','')}"[0:15] # Truncate to 16 characters allowed.
-ImplementationClassUID = f"{DICOM4ORTHO_ROOT_UID}.0.{VERSION}"
+stripped_version = re.sub(r'[^0-9]', '', VERSION)
+version_2 = re.sub(r'[^0-9\.]', '', VERSION)
+ImplementationVersionName = f"{PROJECT_NAME.upper()}_{stripped_version}"[0:15] # Truncate to 16 characters allowed.
+ImplementationClassUID = f"{DICOM4ORTHO_ROOT_UID}.0.{version_2}"
 MediaStorageSOPInstanceUID_ROOT = f"{DICOM4ORTHO_ROOT_UID}.1"
 StudyInstanceUID_ROOT = f"{DICOM4ORTHO_ROOT_UID}.2"
 SeriesInstanceUID_ROOT = f"{DICOM4ORTHO_ROOT_UID}.3"

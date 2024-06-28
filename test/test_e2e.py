@@ -18,12 +18,12 @@ warnings.simplefilter('error', UserWarning)
 
 DEBUG = False
 
-# dicomweb_url = 'http://127.0.0.1:8202/dicom-web/studies'
-# username = 'orthanc'
-# password = 'mock'
-dicomweb_url = 'https://ovena-dev.lan.marcorosa.it/dicom-web/studies'
-username = 'user1'
-password = '3V2VC4iBMG3UVHz6'
+dicomweb_url = 'http://127.0.0.1:8202/dicom-web/studies'
+username = 'orthanc'
+password = 'mock'
+# dicomweb_url = 'https://ovena-dev.lan.marcorosa.it/dicom-web/studies'
+# username = 'user1'
+# password = '3V2VC4iBMG3UVHz6'
 ssl_certificate = None # String of SSL certificate to match. Self-signed certs OK but hostname MUST match, or it will fail.
 ssl_verify = False
 

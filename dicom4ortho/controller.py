@@ -176,7 +176,8 @@ class SimpleController(object):
                 dicomweb_url=kwargs['dicomweb_url'],
                 username=kwargs.get('username'),
                 password=kwargs.get('password'),
-                ssl_certificate=kwargs.get('ssl_certificate')
+                ssl_certificate=kwargs.get('ssl_certificate'),
+                ssl_verify=kwargs.get('ssl_verify'),
                 )
         else:
             logger.error('Invalid send method specified.')

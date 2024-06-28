@@ -151,7 +151,8 @@ class TestPacsModule(unittest.TestCase):
         c = SimpleController()
         o_s = c.convert_images_to_orthodontic_series(
             images, make_photo_metadata())
-        response = wado.send(
+        response = c.send(
+            send_method='wado',
             orthodontic_series=o_s,
             dicomweb_url=dicomweb_url,
             username=username,
@@ -225,8 +226,13 @@ class TestPacsModule(unittest.TestCase):
         pacs_port = 4242
         pacs_aet = 'ORTHANC-MOCK'
 
-        status = dimse.send(
-            [dicom_file_path], pacs_ip, pacs_port, pacs_aet)
+        c = SimpleController()
+        status = c.send(
+            send_method='dimse',
+            dicom_files=[dicom_file_path],
+            pasc_ip=pacs_ip,
+            pacs_port=pacs_port,
+            pacs_aet=pacs_aet)
         self.assertTrue(hasattr(status, 'Status'))
         if status:
             self.assertEqual(status.Status, 0)
@@ -236,7 +242,9 @@ class TestPacsModule(unittest.TestCase):
     def send_to_pacs_wado(self, dicom_files=None, orthodontic_series=None):
         # Arrange
         # Act
-        response = wado.send(
+        c = SimpleController()
+        response = c.send(
+            send_method='wado',
             dicom_files=dicom_files,
             orthodontic_series=orthodontic_series,
             dicomweb_url=dicomweb_url,

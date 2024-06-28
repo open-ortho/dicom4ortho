@@ -210,11 +210,15 @@ class TestPacsModule(unittest.TestCase):
             print(
                 f"\nSKIPPING {inputfile} to DICOM comparison, no comparator found.")
 
-        print(f"[3] Test pushing {output_file} to PACS via DIMSE")
+        print(f"[3] Verify DICOM File")
+        c.validate_dicom_file(output_file)
+        
+        
+        print(f"[4] Test pushing {output_file} to PACS via DIMSE")
         print("WARNING: DIMSE tests are currently NOT WORKING, thus skipping.")
         # self.send_to_pacs_dimse(output_file)
 
-        print(f"Test pushing {output_file} to PACS via STOW-RS")
+        print(f"[5] Test pushing {output_file} to PACS via STOW-RS")
         self.send_to_pacs_wado([output_file])
 
         print(f"Delete {output_file}")

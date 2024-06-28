@@ -160,6 +160,8 @@ class OrthodonticPhotograph(PhotographBase):
         self.treatment_event_type = metadata.get('treatment_event_type')
         self.days_after_event = metadata.get('days_after_event')
 
+        self._set_dicom_attributes()
+
         # TODO: extract this to a higher level to give the user the ability to set it when needed.
         # See https://github.com/open-ortho/dicom4ortho/issues/16
         self._ds.BurnedInAnnotation = metadata.get(
@@ -203,6 +205,10 @@ class OrthodonticPhotograph(PhotographBase):
         return Sequence([code_dataset])
 
     def _set_dicom_attributes(self):
+        if not self.type_keyword:
+            logger.warning("Cannot set DICOM Attributes from ADA 1107 Codes. No Keyword specified.")
+            return None
+
         # Get the array of functions to set this required type.
         logger.debug('Setting DICOM attributes for %s', self.type_keyword)
 
@@ -357,39 +363,6 @@ class OrthodonticPhotograph(PhotographBase):
         else:
             return False
     
-    def to_byte(self):
-        """Return a bytes-like object which can be accessed with read() and seek()."""
-        # Ensure necessary DICOM UIDs are set
-        if self._ds.StudyInstanceUID is None:
-            self._ds.StudyInstanceUID = defaults.generate_dicom_uid(root=defaults.StudyInstanceUID_ROOT)
-        if self._ds.SeriesInstanceUID is None:
-            self._ds.SeriesInstanceUID = defaults.generate_dicom_uid(root=defaults.SeriesInstanceUID_ROOT)
-
-        # Create an in-memory file-like object
-        file_like = io.BytesIO()
-
-        # Write the DICOM dataset to the in-memory file-like object
-        dcmwrite(file_like, self._ds)
-
-        # Seek to the beginning of the file-like object to read its contents
-        file_like.seek(0)
-
-        return file_like
-
-    def save(self, filename=None):
-        """Save the byte stream to a file."""
-        filename = filename or self.output_image_filename
-        
-        # Generate the byte stream from the dataset
-        byte_stream = self.to_byte()
-        
-        # Write the byte stream to a file
-        with open(filename, 'wb') as f:
-            f.write(byte_stream.read())
-
-        logging.info("File [%s] saved.", filename)
-
-
 class OrthodonticSeries():
     """ Class representing an Orthodontic Photo session.
 

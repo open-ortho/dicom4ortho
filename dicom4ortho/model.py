@@ -10,8 +10,8 @@ from pydicom.sequence import Sequence
 from pydicom.dataset import FileDataset, DataElement, FileMetaDataset
 from pydicom.datadict import tag_for_keyword
 from pydicom.encaps import encapsulate
-from pydicom.uid import JPEGBaseline8Bit, JPEGExtended12Bit, ImplicitVRLittleEndian, ExplicitVRBigEndian, ExplicitVRLittleEndian, JPEGLosslessSV1, RLELossless, JPEGLosslessP14, JPEG2000
-from pydicom import dcmread as pydicom_dcmread
+from pydicom.uid import JPEGBaseline8Bit, JPEGExtended12Bit, ImplicitVRLittleEndian, ExplicitVRBigEndian, ExplicitVRLittleEndian, JPEGLosslessSV1, RLELossless, JPEGLosslessP14, JPEG2000, VLPhotographicImageStorage
+from pydicom import dcmread, dcmwrite
 import numpy
 
 # pylint: disable=no-name-in-module
@@ -19,6 +19,8 @@ from pynetdicom.sop_class import VLPhotographicImageStorage
 from PIL import Image
 
 import dicom4ortho.defaults as defaults
+
+logger = logging.getLogger(__name__)
 
 
 class DicomBase(object):
@@ -42,6 +44,7 @@ class DicomBase(object):
         self._set_sop_common()
 
     def set_file_meta(self):
+        self.file_meta.MediaStorageSOPClassUID = VLPhotographicImageStorage
         self.file_meta.MediaStorageSOPInstanceUID = self.sop_instance_uid
         self.file_meta.ImplementationClassUID = defaults.ImplementationClassUID
         self.file_meta.ImplementationVersionName = defaults.ImplementationVersionName
@@ -57,13 +60,15 @@ class DicomBase(object):
 
     def _set_general_study(self):
         self._ds.AccessionNumber = ''
-        self._ds.StudyInstanceUID = defaults.generate_dicom_uid(root=defaults.StudyInstanceUID_ROOT)
+        self._ds.StudyInstanceUID = defaults.generate_dicom_uid(
+            root=defaults.StudyInstanceUID_ROOT)
         self._ds.StudyID = defaults.IDS_NUMBERS
         self._ds.StudyDate = self.date_string
         self._ds.StudyTime = self.time_string
 
     def _set_general_series(self):
-        self._ds.SeriesInstanceUID = defaults.generate_dicom_uid(root=defaults.SeriesInstanceUID_ROOT)
+        self._ds.SeriesInstanceUID = defaults.generate_dicom_uid(
+            root=defaults.SeriesInstanceUID_ROOT)
         self._ds.SeriesNumber = defaults.IDS_NUMBERS
 
     def _set_general_image(self):
@@ -411,32 +416,36 @@ class DicomBase(object):
     def save_implicit_little_endian(self, filename=None):
         if filename is None:
             filename = self.output_image_filename
-
+        self.add_missing_instance_uids()
         # Set the transfer syntax
         self._ds.file_meta.TransferSyntaxUID = ImplicitVRLittleEndian
         self._ds.is_little_endian = True
         self._ds.is_implicit_VR = True
 
-        logging.debug(
-            "Writing test file as Little Endian Implicit VR [%s]", filename)
+        logger.debug(
+            "Writing file as Little Endian Implicit VR [%s]", filename)
         self._ds.save_as(filename, write_like_original=False)
-        logging.info("File [%s] saved.", filename)
+        logger.info("File [%s] saved.", filename)
 
     def save_explicit_little_endian(self, filename=None):
         if filename is None:
             filename = self.output_image_filename
+        self.add_missing_instance_uids()
+        # Set the transfer syntax
         self._ds.file_meta.TransferSyntaxUID = ExplicitVRLittleEndian
         self._ds.is_little_endian = True
         self._ds.is_implicit_VR = False
 
-        logging.debug(
-            "Writing test file as Big Endian Explicit VR [%s]", filename)
+        logger.debug(
+            "Writing file as Big Endian Explicit VR [%s]", filename)
         self._ds.save_as(filename, write_like_original=False)
-        logging.info("File [%s] saved.", filename)
+        logger.info("File [%s] saved.", filename)
 
     def save_explicit_big_endian(self, filename=None):
         if filename is None:
             filename = self.output_image_filename
+        self.add_missing_instance_uids()
+        # Set the transfer syntax
         # Write as a different transfer syntax XXX shouldn't need this but pydicom
         # 0.9.5 bug not recognizing transfer syntax
         self._ds.file_meta.TransferSyntaxUID = ExplicitVRBigEndian
@@ -444,8 +453,55 @@ class DicomBase(object):
         self._ds.is_implicit_VR = False
         self._ds.save_as(filename, write_like_original=False)
 
+    def add_missing_instance_uids(self):
+        # Ensure necessary DICOM UIDs are set
+        if self._ds.StudyInstanceUID is None:
+            logger.warning(
+                "SeriesInstanceUID is None. No bueno. Generating one. THIS IS PROBABLY NOT WHAT YOU WANT!")
+            self._ds.StudyInstanceUID = defaults.generate_dicom_uid(
+                root=defaults.StudyInstanceUID_ROOT)
+
+        if self._ds.SeriesInstanceUID is None:
+            logger.warning(
+                "StudyInstanceUID is None. No bueno. Generating one. THIS IS PROBABLY NOT WHAT YOU WANT!")
+            self._ds.SeriesInstanceUID = defaults.generate_dicom_uid(
+                root=defaults.SeriesInstanceUID_ROOT)
+
+        # check that there are no duplicate UIDs before saving
+        if (self._ds.SeriesInstanceUID in [self._ds.StudyInstanceUID, self._ds.SOPInstanceUID] or
+                self._ds.StudyInstanceUID in [self._ds.SeriesInstanceUID, self._ds.SOPInstanceUID]):
+            logger.warning(
+                "SeriesInstanceUID == StudyInstanceUID. No bueno. Generating new ones.")
+            self._ds.SeriesInstanceUID = defaults.generate_dicom_uid(
+                root=defaults.SeriesInstanceUID_ROOT)
+            self._ds.StudyInstanceUID = defaults.generate_dicom_uid(
+                root=defaults.StudyInstanceUID_ROOT)
+
+    def to_byte(self):
+        """Return a bytes-like object which can be accessed with read() and seek()."""
+
+        self.add_missing_instance_uids()
+
+        # Create an in-memory file-like object
+        file_like = io.BytesIO()
+
+        # Write the DICOM dataset to the in-memory file-like object
+        dcmwrite(file_like, self._ds)
+
+        # Seek to the beginning of the file-like object to read its contents
+        file_like.seek(0)
+
+        return file_like
+
+    def save(self, filename=None):
+        """Save the byte stream to a file."""
+        filename = filename or self.output_image_filename
+        self.add_missing_instance_uids()
+        self._ds.save_as(filename=filename, write_like_original=False)
+        logger.info("File [%s] saved.", filename)
+
     def load(self, filename):
-        self._ds = pydicom_dcmread(filename)
+        self._ds = dcmread(filename)
 
     def print(self):
         print(self._ds)
@@ -463,7 +519,7 @@ class PhotographBase(DicomBase):
         self._set_sop_common()
         self._set_general_series()
         self._set_vl_image()
-        input_image_filename = kwargs.get('input_image_filename',None)
+        input_image_filename = kwargs.get('input_image_filename', None)
         if input_image_filename:
             self.set_image(filename=input_image_filename)
 
@@ -725,7 +781,7 @@ class PhotographBase(DicomBase):
         """
         filename = filename or self.input_image_filename
         with Image.open(filename) as im:
-            logging.info("Found format %s for %s image", im.format, filename)
+            logger.info("Found format %s for %s image", im.format, filename)
             self._ds.Rows = im.height
             self._ds.Columns = im.width
 

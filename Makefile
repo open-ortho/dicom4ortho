@@ -30,6 +30,7 @@ lint:
 .PHONY: test
 test: install-dev
 	docker compose -f ./test/docker-compose.yml up -d
+	sleep 3
 	python3 -m unittest
 	docker compose -f ./test/docker-compose.yml down
 

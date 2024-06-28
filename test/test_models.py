@@ -76,6 +76,34 @@ class TestDicomBaseAcquisitionDateTimeSetter(TestCase):
         expected_tz = dt_without_tz.astimezone().strftime('%z')
         self.assertEqual(self.dicombase._ds.AcquisitionDateTime[-5:], expected_tz)
 
+class TestDicomBase(TestCase):
+    def setUp(self) -> None:
+        self.dicombase = DicomBase()
+        return super().setUp()
+
+    def test_patient_sex_valid(self):
+        valid_inputs = ['Male', 'Female', 'Other', 'M', 'F', 'O']
+        expected_outputs = ['M', 'F', 'O', 'M', 'F', 'O']
+        for inp, exp in zip(valid_inputs, expected_outputs):
+            with self.subTest(inp=inp):
+                self.dicombase.patient_sex = inp
+                self.assertEqual(self.dicombase.patient_sex, exp)
+
+    def test_patient_sex_invalid(self):
+        invalid_inputs = ['male', '', 'X', '1', 'unknown', ' ', 'MF', 'MO']
+        expected_outputs = ['M', '', '', '', '', '','','']
+        for inp, exp in zip(invalid_inputs, expected_outputs):
+            with self.subTest(inp=inp):
+                self.dicombase.patient_sex = inp
+                self.assertEqual(self.dicombase.patient_sex, exp)
+
+    def test_patient_sex_long_strings(self):
+        long_strings = ['Maleeeeeeeeeee', 'Femaleeeeeeeee', 'Ooooooooooooo', 'Xxxxxxxxxxxxx','Malefemale','otherfemale']
+        expected = ['', '', '', '','','']
+        for inp, exp in zip(long_strings, expected):
+            with self.subTest(inp=inp):
+                self.dicombase.patient_sex = inp
+                self.assertEqual(self.dicombase.patient_sex, exp)
 
 
 class TestTimezoneSetterGetter(TestCase):

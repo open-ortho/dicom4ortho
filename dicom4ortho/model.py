@@ -226,9 +226,27 @@ class DicomBase(object):
     def patient_sex(self):
         return self._ds.PatientSex
 
-    @ patient_sex.setter
+    @patient_sex.setter
     def patient_sex(self, patient_sex):
-        self._ds.PatientSex = patient_sex
+        # Default empty string if no valid input
+        self._ds.PatientSex = ''
+
+        if not patient_sex:
+            return
+
+        # Normalize the input to handle case insensitivity
+        normalized_input = patient_sex.upper()
+
+        # Set appropriate sex or empty if not matched
+        if normalized_input == 'M' or normalized_input.startswith('MALE'):
+            if len(normalized_input) <= len('MALE'):
+                self._ds.PatientSex = 'M'
+        elif normalized_input == 'F' or normalized_input.startswith('FEMALE'):
+            if len(normalized_input) <= len('FEMALE'):
+                self._ds.PatientSex = 'F'
+        elif normalized_input == 'O' or normalized_input.startswith('OTHER'):
+            if len(normalized_input) <= len('OTHER'):
+                self._ds.PatientSex = 'O'
 
     @ property
     def patient_birthdate(self):

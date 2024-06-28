@@ -18,10 +18,14 @@ warnings.simplefilter('error', UserWarning)
 
 DEBUG = False
 
-dicomweb_url = 'http://127.0.0.1:8202/dicom-web/studies'
-username = 'orthanc'
-password = 'mock'
+# dicomweb_url = 'http://127.0.0.1:8202/dicom-web/studies'
+# username = 'orthanc'
+# password = 'mock'
+dicomweb_url = 'https://ovena-dev.lan.marcorosa.it/dicom-web/studies'
+username = 'user1'
+password = '3V2VC4iBMG3UVHz6'
 ssl_certificate = None # String of SSL certificate to match. Self-signed certs OK but hostname MUST match, or it will fail.
+ssl_verify = False
 
 
 def compare_jpeg2dicom(jpeg_image_file_path, dicom_image_file_path):
@@ -156,7 +160,9 @@ class TestPacsModule(unittest.TestCase):
             orthodontic_series=o_s,
             dicomweb_url=dicomweb_url,
             username=username,
-            password=password)
+            password=password,
+            ssl_certificate=ssl_certificate,
+            ssl_verify=ssl_verify)
 
         self.assertTrue(hasattr(response, 'text'))
         print("PASS: response has attribute text.")

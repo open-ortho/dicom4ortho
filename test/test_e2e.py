@@ -3,7 +3,7 @@
 # End to End tests, complete processes. These are slow.
 #
 from test.test_photography import make_photo_metadata
-from dicom4ortho.controller import SimpleController
+from dicom4ortho.controller import OrthodonticController
 from dicom4ortho.dicom import wado, dimse
 from pathlib import Path
 from pydicom import dcmread
@@ -152,7 +152,7 @@ class TestPacsModule(unittest.TestCase):
         images = self.resource_path.glob('sample_*')
         images = [f for f in images if not fnmatch.fnmatch(f, '*.dcm')]
 
-        c = SimpleController()
+        c = OrthodonticController()
         o_s = c.convert_images_to_orthodontic_series(
             images, make_photo_metadata())
         response = c.send(
@@ -194,7 +194,7 @@ class TestPacsModule(unittest.TestCase):
         metadata['image_type'] = image_type
 
         print(f"[1] Converting {inputfile} to a {output_file}")
-        c = SimpleController()
+        c = OrthodonticController()
         c.convert_image_to_dicom4orthograph_and_save(metadata=metadata)
         # Test existance
         self.assertTrue(output_file.exists())
@@ -236,7 +236,7 @@ class TestPacsModule(unittest.TestCase):
         pacs_port = 4242
         pacs_aet = 'ORTHANC-MOCK'
 
-        c = SimpleController()
+        c = OrthodonticController()
         status = c.send(
             send_method='dimse',
             dicom_files=[dicom_file_path],
@@ -252,7 +252,7 @@ class TestPacsModule(unittest.TestCase):
     def send_to_pacs_wado(self, dicom_files=None, orthodontic_series=None):
         # Arrange
         # Act
-        c = SimpleController()
+        c = OrthodonticController()
         response = c.send(
             send_method='wado',
             dicom_files=dicom_files,

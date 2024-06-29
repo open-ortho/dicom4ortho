@@ -160,7 +160,7 @@ USAGE
             logging.error("Cannot locate file %s:",args.input_filename)
             return 1
 
-        c = controller.SimpleController(args)
+        c = controller.OrthodonticController(args)
         if args.add_max_allowed_teeth:
             teeth = defaults.ADD_MAX_ALLOWED_TEETH
         elif args.teeth:

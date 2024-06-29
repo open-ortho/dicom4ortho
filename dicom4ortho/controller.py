@@ -12,7 +12,7 @@ from dicom4ortho.dicom import wado, dimse
 import logging
 logger = logging.getLogger()
 
-class SimpleController(object):
+class OrthodonticController(object):
     """
     Simple Controller
     """

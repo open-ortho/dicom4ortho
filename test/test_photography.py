@@ -9,7 +9,7 @@ import logging
 import importlib
 from io import BytesIO
 import dicom4ortho.m_orthodontic_photograph
-from dicom4ortho.controller import SimpleController
+from dicom4ortho.controller import OrthodonticController
 from dicom4ortho.m_orthodontic_photograph import OrthodonticPhotograph
 from dicom4ortho.defaults import generate_dicom_uid, StudyInstanceUID_ROOT, SeriesInstanceUID_ROOT
 from datetime import datetime, timezone, timedelta
@@ -166,7 +166,7 @@ class PhotoTests(unittest.TestCase):
         metadata['input_image_filename'] = Path(
             ".") / "test" / "resources" / "DSC_0001.NEF"
         metadata['image_type'] = "IV05"
-        c = SimpleController()
+        c = OrthodonticController()
         c.convert_image_to_dicom4orthograph(metadata=metadata)
 
     

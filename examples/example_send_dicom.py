@@ -1,10 +1,10 @@
 # example_send_dicom.py
 
-from dicom4ortho.controller import SimpleController
+from dicom4ortho.controller import OrthodonticController
 
 def main():
     # Initialize the controller
-    controller = SimpleController()
+    controller = OrthodonticController()
 
     # Example DICOM files to send
     dicom_files = [

@@ -70,7 +70,7 @@ def generate_dicom_uid(root=None, hash=None):
     hash has to be a 16 byte long bytes object.
     """
     new_uuid = hash or uuid.uuid4().bytes
-    dicom_uid = root or '2.25'
+    dicom_uid = root or DICOM4ORTHO_ROOT_UID or '2.25'
     for i in range(len(new_uuid)-len(dicom_uid.split('.'))):
         dicom_uid += '.' + str(new_uuid[i])
 

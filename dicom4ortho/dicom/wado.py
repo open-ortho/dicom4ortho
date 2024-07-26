@@ -20,7 +20,7 @@ def send(**kwargs):
     Has the ability to provide a PEM certificate to validate the connection, for self signed https connections. The PEM is fed via the ssl_certificate as a string, to facilitate storage in configurations.
     
     kwargs:
-        dicomweb_url (str): URL of the DICOMweb server.
+        dicomweb_url (str): URL of the DICOMweb server, with full path. Ex: http://dicomweb-server.com/dicomweb/studies
         dicom_files (List[str]): List of DICOM files.
         orthodontic_series (OrthodonticSeries): a dicom4ortho.m_orthodontic_photograph.OrthodonticSeries
         username (str, optional): Username for DICOMweb authentication.

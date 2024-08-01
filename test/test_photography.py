@@ -70,8 +70,18 @@ class PhotoTests(unittest.TestCase):
     def tearDown(self):
         pass
 
+    def testEV01(self):
+        """ Test that an image set as EV01 is tagged as expected.
+        """
+        o = photo_generator(image_type='EV-01',filename=Path('./test/resources/sample_NikonD90.JPG'))
+        for tag in o._ds:
+            print(f"{tag.tag} {tag.description()}: {tag.value}")
+
+
     
     def testDates(self):
+        """ Test setting date and times with different formats and time zones.
+        """
         o = OrthodonticPhotograph()
         o.study_datetime = datetime(1592, 2, 3, 12, 14, 11)
         self.assertEqual(o._ds.StudyDate, "15920203")

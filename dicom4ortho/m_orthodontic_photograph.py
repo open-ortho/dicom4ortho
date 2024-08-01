@@ -5,9 +5,7 @@ Adds SNOMED CT codes in DICOM object for Orthodontic Views.
 
 '''
 
-import io
 from datetime import datetime
-from pydicom import dcmwrite
 from pydicom.sequence import Sequence
 from pydicom.dataset import Dataset
 
@@ -218,6 +216,7 @@ class OrthodonticPhotograph(PhotographBase):
         # NBSP character OxA0 is not allowed in Image Comments. Replace with a
         # Space (0x20)
         self._ds.ImageComments = ImageComments.replace('\xa0', '\x20')
+
         self._ds.SeriesDescription = self.ada1107_view.get('SeriesDescription')
 
         patient_orientation_code = self.ada1107.CODES.get(

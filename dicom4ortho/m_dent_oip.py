@@ -6,10 +6,10 @@ Provides methods to download the ADA-1107 specifications in CSV and import it in
 
 import urllib.request
 import csv
-from dicom4ortho.defaults import URL_ADA1107_CODES, URL_ADA1107_VIEWS
+from dicom4ortho.defaults import URL_DENT_OIP_CODES, URL_DENT_OIP_VIEWS
 
 
-class ADA1107(object):
+class DENT_OIP(object):
     CODES = {}
     VIEWS = {}
 
@@ -19,7 +19,7 @@ class ADA1107(object):
 
     def _load_views(self):
         # Override official location, if not yet published, for dev purposes
-        with urllib.request.urlopen(URL_ADA1107_VIEWS) as response:
+        with urllib.request.urlopen(URL_DENT_OIP_VIEWS) as response:
             lines = [l.decode('utf-8').strip() for l in response.readlines()]
             reader = csv.DictReader(lines)
             for row in reader:
@@ -31,7 +31,7 @@ class ADA1107(object):
 
     def _load_codes(self):
         # Override official location, if not yet published, for dev purposes
-        with urllib.request.urlopen(URL_ADA1107_CODES) as response:
+        with urllib.request.urlopen(URL_DENT_OIP_CODES) as response:
             lines = [l.decode('utf-8').strip() for l in response.readlines()]
             reader = csv.DictReader(lines)
             for row in reader:

@@ -12,7 +12,7 @@ from pydicom.dataset import Dataset
 from dicom4ortho.model import PhotographBase
 import dicom4ortho.m_tooth_codes as ToothCodes
 from dicom4ortho import defaults
-from dicom4ortho.m_ada1107 import ADA1107
+from dicom4ortho.m_dent_oip import DENT_OIP
 
 import logging
 logger = logging.getLogger(__name__)
@@ -127,7 +127,7 @@ class OrthodonticPhotograph(PhotographBase):
 
     def __init__(self, **metadata):
         super().__init__(**metadata)
-        self.ada1107 = ADA1107()
+        self.ada1107 = DENT_OIP()
         self.teeth = metadata.get('teeth')
         if metadata.get('image_type') is not None:
             # Allow for both dash separated and not separated naming
@@ -177,7 +177,7 @@ class OrthodonticPhotograph(PhotographBase):
         self._ds.QualityControlImage = 'NO'
 
     def _get_code_dataset(self, ada1107_code_keyword) -> Dataset:
-        """ Construct a DICOM Dataset from a row in the codes.csv of ADA1107 
+        """ Construct a DICOM Dataset from a row in the codes.csv of DENT_OIP 
 
         ada1107_code must be a dictionary with the following keys:
         code

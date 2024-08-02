@@ -30,10 +30,14 @@ DATE_FORMAT = '%Y%m%d'
 TIME_FORMAT = '%H%M%S.%f'
 DICOM_PREAMBLE = b'\0' * 128
 
-URL_ADA1107_VIEWS = importlib_resources.files('dicom4ortho.resources') /'views.csv'
-URL_ADA1107_VIEWS = URL_ADA1107_VIEWS.as_uri()
-URL_ADA1107_CODES = importlib_resources.files('dicom4ortho.resources') /'codes.csv'
-URL_ADA1107_CODES = URL_ADA1107_CODES.as_uri()
+BASE_URL_DENT_OIP = "https://github.com/open-ortho/dent-oip/releases/download/v0.2.0-dev"
+URL_DENT_OIP_VIEWS = f"{BASE_URL_DENT_OIP}/ada1107_views.csv"
+URL_DENT_OIP_CODES = f"{BASE_URL_DENT_OIP}/ada1107_codes.csv"
+
+# URL_DENT_OIP_VIEWS = importlib_resources.files('dicom4ortho.resources') /'views.csv'
+# URL_DENT_OIP_VIEWS = URL_DENT_OIP_VIEWS.as_uri()
+# URL_DENT_OIP_CODES = importlib_resources.files('dicom4ortho.resources') /'codes.csv'
+# URL_DENT_OIP_CODES = URL_DENT_OIP_CODES.as_uri()
 
 # This is a unique ID generated for this specific software only.
 #  * Random generation using generate_dicom_uid() below

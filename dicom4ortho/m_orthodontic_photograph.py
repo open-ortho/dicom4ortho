@@ -120,19 +120,19 @@ class OrthodonticPhotograph(PhotographBase):
         output_image_filename: name of output image file
     """
     type_keyword = ""  # Orthodontic View String, e.g. "IV03"
-    ada1107_view = None  # Row in ADA-1107 views.csv for this particular view
+    dent_oip_view = None  # Row in DENT-OIP views.csv for this particular view
     teeth = None
     treatment_event_type = None
     days_after_event = None
 
     def __init__(self, **metadata):
         super().__init__(**metadata)
-        self.ada1107 = DENT_OIP()
+        self.dent_oip = DENT_OIP()
         self.teeth = metadata.get('teeth')
         if metadata.get('image_type') is not None:
             # Allow for both dash separated and not separated naming
             self.type_keyword = metadata.get('image_type').replace('-', '')
-            self.ada1107_view = self.ada1107.VIEWS.get(self.type_keyword)
+            self.dent_oip_view = self.dent_oip.VIEWS.get(self.type_keyword)
 
         patient_birthdate = metadata.get('patient_birthdate')
         if patient_birthdate is not None:
@@ -176,60 +176,60 @@ class OrthodonticPhotograph(PhotographBase):
         # See https://github.com/open-ortho/dicom4ortho/issues/15
         self._ds.QualityControlImage = 'NO'
 
-    def _get_code_dataset(self, ada1107_code_keyword) -> Dataset:
+    def _get_code_dataset(self, dent_oip_code_keyword) -> Dataset:
         """ Construct a DICOM Dataset from a row in the codes.csv of DENT_OIP 
 
-        ada1107_code must be a dictionary with the following keys:
+        dent_oip_code must be a dictionary with the following keys:
         code
         codeset
         meaning
         """
-        ada1107_code = self.ada1107.CODES.get(ada1107_code_keyword)
-        if ada1107_code == None:
+        dent_oip_code = self.dent_oip.CODES.get(dent_oip_code_keyword)
+        if dent_oip_code == None:
             logger.warning(
-                "Keyword [%s] did not match any code. Skipping.", ada1107_code_keyword)
+                "Keyword [%s] did not match any code. Skipping.", dent_oip_code_keyword)
             return None
         code_dataset = Dataset()
-        code_dataset.CodeMeaning = ada1107_code.get(
+        code_dataset.CodeMeaning = dent_oip_code.get(
             'meaning')[:64]  # LO only allows 64 characters
-        code_dataset.CodeValue = ada1107_code.get('code')
-        code_dataset.CodingSchemeDesignator = ada1107_code.get('codeset')
+        code_dataset.CodeValue = dent_oip_code.get('code')
+        code_dataset.CodingSchemeDesignator = dent_oip_code.get('codeset')
         return code_dataset
 
-    def _get_code_sequence(self, ada1107_code_keyword) -> Sequence:
-        code_dataset = self._get_code_dataset(ada1107_code_keyword)
+    def _get_code_sequence(self, dent_oip_code_keyword) -> Sequence:
+        code_dataset = self._get_code_dataset(dent_oip_code_keyword)
         if code_dataset is None:
             return None
         return Sequence([code_dataset])
 
     def _set_dicom_attributes(self):
         if not self.type_keyword:
-            logger.warning("Cannot set DICOM Attributes from ADA 1107 Codes. No Keyword specified.")
+            logger.warning("Cannot set DICOM Attributes from DENT-OPI Codes. No Keyword specified.")
             return None
 
         # Get the array of functions to set this required type.
         logger.debug('Setting DICOM attributes for %s', self.type_keyword)
 
         # Make a nice comment from keyword and description
-        ImageComments = f"{self.type_keyword}^{self.ada1107_view.get('ImageComments')}"
+        ImageComments = f"{self.type_keyword}^{self.dent_oip_view.get('ImageComments')}"
 
         # NBSP character OxA0 is not allowed in Image Comments. Replace with a
         # Space (0x20)
         self._ds.ImageComments = ImageComments.replace('\xa0', '\x20')
 
-        self._ds.SeriesDescription = self.ada1107_view.get('SeriesDescription')
+        self._ds.SeriesDescription = self.dent_oip_view.get('SeriesDescription')
 
-        patient_orientation_code = self.ada1107.CODES.get(
-            self.ada1107_view.get('PatientOrientation'))
+        patient_orientation_code = self.dent_oip.CODES.get(
+            self.dent_oip_view.get('PatientOrientation'))
         if patient_orientation_code is None:
-            patient_orientation_code = self.ada1107.CODES.get(
+            patient_orientation_code = self.dent_oip.CODES.get(
                 'OrientationFront')
             logger.warning(f"PatientOrientation not found for %s. Defaulting to %s",
                            self.output_image_filename, patient_orientation_code)
         self._ds.PatientOrientation = patient_orientation_code.get(
             'code').split('^')
-        self._ds.ImageLaterality = self.ada1107.CODES.get(
-            self.ada1107_view.get('ImageLaterality')).get('code')
+        self._ds.ImageLaterality = self.dent_oip.CODES.get(
+            self.dent_oip_view.get('ImageLaterality')).get('code')
 
         self.add_device()
         self.add_anatomic_region()
@@ -259,13 +259,13 @@ class OrthodonticPhotograph(PhotographBase):
                 AcquisitionContextSequence.append(acs_ds)
 
         AcquisitionContextSequence = Sequence([])
-        # Find all columns which start with AcquisitionContextSequence in ada1107_view
-        for index, key in enumerate(self.ada1107_view):
+        # Find all columns which start with AcquisitionContextSequence in dent_oip_view
+        for index, key in enumerate(self.dent_oip_view):
             if key.startswith("AcquisitionContextSequence"):
                 concept_name = key.split("^")[1]
                 concept_name_code_sequence = self._get_code_sequence(
                     concept_name)
-                for concept_code in self.ada1107_view.get(key).split("^"):
+                for concept_code in self.dent_oip_view.get(key).split("^"):
                     if concept_code != "na" and len(concept_code) > 0:
                         acs_ds = Dataset()
                         acs_ds.ValueType = 'CODE'
@@ -278,7 +278,7 @@ class OrthodonticPhotograph(PhotographBase):
 
     def add_device(self):
         DeviceSequence = Sequence([])
-        for device in self.ada1107_view.get('DeviceSequence').split("^"):
+        for device in self.dent_oip_view.get('DeviceSequence').split("^"):
             if device != "na" and len(device) > 0:
                 DeviceSequence.append(self._get_code_dataset(device))
         # The AnatomicRegionModifierSequence must be part of AnatomicRegionSequence
@@ -288,11 +288,11 @@ class OrthodonticPhotograph(PhotographBase):
     def add_anatomic_region(self):
         # AnatomicRegionSequence allows for a single value
         self._ds.AnatomicRegionSequence = self._get_code_sequence(
-            self.ada1107_view.get('AnatomicRegionSequence'))
+            self.dent_oip_view.get('AnatomicRegionSequence'))
 
         # More than one AnatomicRegionModifierSequence are allowed
         AnatomicRegionModifierSequence = Sequence([])
-        for arm in self.ada1107_view.get('AnatomicRegionModifierSequence').split("^"):
+        for arm in self.dent_oip_view.get('AnatomicRegionModifierSequence').split("^"):
             if arm != "na" and len(arm) > 0:
                 AnatomicRegionModifierSequence.append(
                     self._get_code_dataset(arm))
@@ -305,11 +305,11 @@ class OrthodonticPhotograph(PhotographBase):
         """
         # ViewCodeSequence allows for a single value
         self._ds.ViewCodeSequence = self._get_code_sequence(
-            self.ada1107_view.get('ViewCodeSequence'))
+            self.dent_oip_view.get('ViewCodeSequence'))
 
         # More than one AnatomicRegionModifierSequence are allowed
         ViewModifierCodeSequence = Sequence([])
-        for vmcs in self.ada1107_view.get('ViewModifierCodeSequence').split("^"):
+        for vmcs in self.dent_oip_view.get('ViewModifierCodeSequence').split("^"):
             if vmcs != "na" and len(vmcs) > 0:
                 ViewModifierCodeSequence.append(self._get_code_dataset(vmcs))
         # The AnatomicRegionModifierSequence must be part of AnatomicRegionSequence
@@ -318,14 +318,14 @@ class OrthodonticPhotograph(PhotographBase):
 
     def add_primary_anatomic_structure(self):
         # PrimaryAnatomicStructureSequence allows for multiple values, but currently only one is supported by this code.
-        pas = self.ada1107_view.get('PrimaryAnatomicStructureSequence')
+        pas = self.dent_oip_view.get('PrimaryAnatomicStructureSequence')
         if pas != "na" and len(pas) > 0:
             self._ds.PrimaryAnatomicStructureSequence = self._get_code_sequence(
                 pas)
 
             # More than one AnatomicRegionModifierSequence are allowed
             PrimaryAnatomicStructureModifierSequence = Sequence([])
-            for pasm in self.ada1107_view.get('PrimaryAnatomicStructureModifierSequence').split("^"):
+            for pasm in self.dent_oip_view.get('PrimaryAnatomicStructureModifierSequence').split("^"):
                 if pasm != "na" and len(pasm) > 0:
                     PrimaryAnatomicStructureModifierSequence.append(
                         self._get_code_dataset(pasm))

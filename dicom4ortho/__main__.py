@@ -105,8 +105,8 @@ USAGE
         parser.add_argument(
             "-t", "--image-type",
             dest="image_type",
-            help="Type of image using the abbreviations defined in ADA SCDI \
-            TR-1107. Use {} to get a list of allowed image \
+            help="Type of image using the abbreviations defined in DENT-OIP. \
+            Use {} to get a list of allowed image \
             types. [default: %(default)s]".format(LIST_IMAGE_TYPES),
             default='EV01',
             metavar='<image_type>',

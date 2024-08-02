@@ -1,6 +1,6 @@
-""" Codes and data defined from ADA-1107
+""" Codes and data defined from DENT-OIP
 
-Provides methods to download the ADA-1107 specifications in CSV and import it in a Python dictionary.
+Provides methods to download the DENT-OIP specifications in CSV and import it in a Python dictionary.
 
 """
 

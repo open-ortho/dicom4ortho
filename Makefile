@@ -1,9 +1,13 @@
-
 MAIN = dicom4ortho
 D3TOOLS_DIR = modules/dicom3tools
 D3TOOLS_VERSION = 1.00.snapshot.20230225185712
 D3TOOLS_BASE_URL = https://www.dclunie.com/dicom3tools/workinprogress/macexe/dicom3tools_
 D3TOOLS_FILE = dicom3tools.zip
+URL_DENT_OIP_LATEST_ROOT = https://raw.githubusercontent.com/open-ortho/dent-oip/latest
+URL_CODES = $(URL_DENT_OIP_LATEST_ROOT)/source/tables/codes.csv
+URL_VIEWS = $(URL_DENT_OIP_LATEST_ROOT)/source/tables/views.csv
+CODES = $(MAIN)/resources/codes.csv
+VIEWS = $(MAIN)/resources/views.csv
 
 ifeq ($(OS),Windows_NT)
 	D3TOOLS_URL = $(D3TOOLS_BASE_URL)winexe_$(D3TOOLS_VERSION).zip
@@ -48,9 +52,25 @@ $(DIST):
 	mkdir $@
 
 .PHONY: build
-build: lint test $(DIST)
+build: lint test $(DIST) update_resources
 	python3 -m setup sdist
 
+.PHONY: update_resources
+update_resources:
+	@# Download views.csv only if it has changed
+	curl --silent -z $(VIEWS) -o $(VIEWS) $(URL_VIEWS)
+	@# Download codes.csv only if it has changed
+	curl --silent -z $(CODES) -o $(CODES) $(URL_CODES)
+	@# Check if views.csv has "VER" and is different from the repository state
+	@if [ -f $(VIEWS) ] && grep -q "VER" $(VIEWS) && git diff --exit-code $(VIEWS); then \
+	    git add $(VIEWS); \
+	    git commit -m "Update views.csv"; \
+	fi
+	@# Check if codes.csv has "__version__" and is different from the repository state
+	@if [ -f $(CODES) ] && grep -q "__version__" $(CODES) && git diff --exit-code $(CODES); then \
+	    git add $(CODES); \
+	    git commit -m "Update codes.csv"; \
+	fi
 
 .PHONY: deploy
 deploy:

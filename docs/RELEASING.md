@@ -11,9 +11,7 @@
 6. `make install-dev`: make sure `dicom3tools` target works as expected.
 5. `make test`: make sure all tests pass.
 7. `make build`
-8. Make sure proper token for pypi is in `$HOME/.pypirc`. See https://pypi.org/manage/account/token/?selected_project=dicom4ortho
-9. `make deploy`
-10. If all goes well, then merge branch into master: `git flor release finish`.
+10. If all goes well, then merge branch into master: `git flor release finish`. The github actions will take care of deploying to PyPi.
 11. Update documentation in `gh-pages` branch.
 
 If there is a mistake in the uploaded version, and you need to re-upload, you will have to bump the patch version. PyPi will not allow to re-use the same version number, even if the package has been deleted via the Web GUI.

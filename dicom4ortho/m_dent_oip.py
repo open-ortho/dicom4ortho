@@ -13,13 +13,13 @@ class DENT_OIP(object):
     CODES = {}
     VIEWS = {}
 
-    def __init__(self) -> None:
-        self._load_views()
-        self._load_codes()
+    def __init__(self,url_codes=URL_DENT_OIP_CODES, url_views=URL_DENT_OIP_VIEWS) -> None:
+        self._load_views(url=url_views)
+        self._load_codes(url=url_codes)
 
-    def _load_views(self):
+    def _load_views(self, url):
         # Override official location, if not yet published, for dev purposes
-        with urllib.request.urlopen(URL_DENT_OIP_VIEWS) as response:
+        with urllib.request.urlopen(url) as response:
             lines = [l.decode('utf-8').strip() for l in response.readlines()]
             reader = csv.DictReader(lines)
             for row in reader:
@@ -29,9 +29,9 @@ class DENT_OIP(object):
                 else:
                     self.VIEWS[key] = row
 
-    def _load_codes(self):
+    def _load_codes(self, url):
         # Override official location, if not yet published, for dev purposes
-        with urllib.request.urlopen(URL_DENT_OIP_CODES) as response:
+        with urllib.request.urlopen(url) as response:
             lines = [l.decode('utf-8').strip() for l in response.readlines()]
             reader = csv.DictReader(lines)
             for row in reader:

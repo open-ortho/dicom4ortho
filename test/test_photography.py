@@ -118,7 +118,6 @@ class PhotoTests(unittest.TestCase):
         md["treatment_event_type"] = "OrthodonticTreatment"
         md["image_type"] = "EV08"
         o = OrthodonticPhotograph(**md)
-        o._set_dicom_attributes()
 
         self.assertEqual(o._ds.AcquisitionContextSequence[3].NumericValue, 212)
 

@@ -119,16 +119,19 @@ class OrthodonticPhotograph(PhotographBase):
 
         output_image_filename: name of output image file
     """
-    type_keyword = ""  # Orthodontic View String, e.g. "IV03"
-    dent_oip_view = None  # Row in DENT-OIP views.csv for this particular view
-    teeth = None
-    treatment_event_type = None
-    days_after_event = None
 
     def __init__(self, **metadata):
         super().__init__(**metadata)
+        
+        # Initialize local variables
+        self.type_keyword = ""  # Orthodontic View String, e.g. "IV03"
+        self.dent_oip_view = None  # Row in DENT-OIP views.csv for this particular view
+        self.teeth = None
+        self.treatment_event_type = None
+        self.days_after_event = None
         self.dent_oip = DENT_OIP()
         self.teeth = metadata.get('teeth')
+
         if metadata.get('image_type') is not None:
             # Allow for both dash separated and not separated naming
             self.type_keyword = metadata.get('image_type').replace('-', '')
@@ -158,7 +161,8 @@ class OrthodonticPhotograph(PhotographBase):
         self.treatment_event_type = metadata.get('treatment_event_type')
         self.days_after_event = metadata.get('days_after_event')
 
-        self._set_dicom_attributes()
+        if self.type_keyword:
+            self._set_dicom_attributes_by_type_keyword(type_keyword=self.type_keyword)
 
         # TODO: extract this to a higher level to give the user the ability to set it when needed.
         # See https://github.com/open-ortho/dicom4ortho/issues/16
@@ -202,16 +206,18 @@ class OrthodonticPhotograph(PhotographBase):
             return None
         return Sequence([code_dataset])
 
-    def _set_dicom_attributes(self):
-        if not self.type_keyword:
+    def _set_dicom_attributes_by_type_keyword(self, type_keyword):
+        """ Automatically set all DICOM tags, based on the image type keyword in views.csv.
+        """
+        if not type_keyword:
             logger.warning("Cannot set DICOM Attributes from DENT-OPI Codes. No Keyword specified.")
             return None
 
         # Get the array of functions to set this required type.
-        logger.debug('Setting DICOM attributes for %s', self.type_keyword)
+        logger.debug('Setting DICOM attributes for %s', type_keyword)
 
         # Make a nice comment from keyword and description
-        ImageComments = f"{self.type_keyword}^{self.dent_oip_view.get('ImageComments')}"
+        ImageComments = f"{type_keyword}^{self.dent_oip_view.get('ImageComments')}"
 
         # NBSP character OxA0 is not allowed in Image Comments. Replace with a
         # Space (0x20)

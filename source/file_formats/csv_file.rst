@@ -1,6 +1,8 @@
 CSV Image file format
 ~~~~~~~~~~~~~~~~~~~~~
 
+This is the documentation for the CSV file format used for bulk processing, not the one used to decide which attributes for which view.
+
 The CSV file should be:
 
 -  with ``,`` as separator

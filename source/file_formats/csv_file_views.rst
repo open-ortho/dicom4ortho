@@ -1,0 +1,73 @@
+.. _csv_file_views:
+
+Views CSV File Format Documentation
+===================================
+
+Introduction
+------------
+
+This document outlines the structure and format of the CSV file used in our project. The CSV file includes various headers related to medical imaging data, specifically tailored to our needs.
+
+File Structure
+--------------
+
+The CSV file contains the following columns:
+
+.. list-table:: CSV Header Descriptions
+   :widths: 50 50
+   :header-rows: 1
+
+   * - Header
+     - Description
+   * - keyword
+     - The unique keyword for this view.
+   * - PatientOrientation
+     - Use one of the codes defined in the codes table. Refer to `DENT-OIP <http://open-ortho.org/dent-oip/release/>`__
+   * - ImageLaterality
+     - Use one of the codes defined in the codes table. Refer to `DENT-OIP <http://open-ortho.org/dent-oip/release/>`__
+   * - AnatomicRegionSequence
+     - Use one of the codes defined in the codes table. Refer to `DENT-OIP <http://open-ortho.org/dent-oip/release/>`__
+   * - AnatomicRegionModifierSequence
+     - Use one of the codes defined in the codes table. Refer to `DENT-OIP <http://open-ortho.org/dent-oip/release/>`__
+   * - PrimaryAnatomicStructureSequence
+     - Use one of the codes defined in the codes table. Refer to `DENT-OIP <http://open-ortho.org/dent-oip/release/>`__
+   * - PrimaryAnatomicStructureModifierSequence
+     - Use one of the codes defined in the codes table. Refer to `DENT-OIP <http://open-ortho.org/dent-oip/release/>`__
+   * - DeviceSequence
+     - Use one of the codes defined in the codes table. Refer to `DENT-OIP <http://open-ortho.org/dent-oip/release/>`__
+   * - ViewCodeSequence
+     - Use one of the codes defined in the codes table. Refer to `DENT-OIP <http://open-ortho.org/dent-oip/release/>`__
+   * - ViewModifierCodeSequence
+     - Use one of the codes defined in the codes table. Refer to `DENT-OIP <http://open-ortho.org/dent-oip/release/>`__
+   * - AcquisitionContextSequence^FunctionalConditionPresentDuringAcquisition
+     - No longer used.
+   * - AcquisitionContextSequence^OrthognathicFunctionalConditions
+     - Use one of the codes defined in the codes table. Refer to `DENT-OIP <http://open-ortho.org/dent-oip/release/>`__
+   * - AcquisitionContextSequence^FindingByInspection
+     - Use one of the codes defined in the codes table. Refer to `DENT-OIP <http://open-ortho.org/dent-oip/release/>`__
+   * - AcquisitionContextSequence^ObservableEntity
+     - Use one of the codes defined in the codes table. Refer to `DENT-OIP <http://open-ortho.org/dent-oip/release/>`__
+   * - AcquisitionContextSequence^DentalOcclusion
+     - Use one of the codes defined in the codes table. Refer to `DENT-OIP <http://open-ortho.org/dent-oip/release/>`__
+   * - ImageComments
+     - Use one of the codes defined in the codes table. Refer to `DENT-OIP <http://open-ortho.org/dent-oip/release/>`__
+   * - StudyDescription
+     - Use one of the codes defined in the codes table. Refer to `DENT-OIP <http://open-ortho.org/dent-oip/release/>`__
+   * - SeriesDescription
+     - Use one of the codes defined in the codes table. Refer to `DENT-OIP <http://open-ortho.org/dent-oip/release/>`__
+   * - teeth_example
+     - Not used. ISO teeth numbers of teeth that appear in the image, separated by the caret character ``^``.
+
+Example Records
+---------------
+
+Below is an example record in the CSV format:
+
+.. code-block:: none
+
+   IV01,OrientationRight,LateralityUnpaired,Mouth,,StructureOfBuccalSpace,right,na,projection_right,na,,,,,co,"Intraoral Right Buccal Segment, Centric Occlusion, Direct View",<Progress Name>,Orthodontic Intraoral Series,54^55^16^84^85^46
+
+Conclusion
+----------
+
+This document provides a foundational understanding of the CSV file format utilized in our project, detailing each column's expected content to ensure accurate and consistent data entry.

@@ -7,25 +7,30 @@ from pathlib import Path
 
 import dicom4ortho.defaults as defaults
 import dicom4ortho.model as model
+from dicom4ortho.m_dent_oip import DENT_OIP
 from dicom4ortho.m_orthodontic_photograph import OrthodonticPhotograph, OrthodonticSeries
 from dicom4ortho.dicom import wado, dimse
 import logging
 logger = logging.getLogger()
 
+
 class OrthodonticController(object):
     """
-    Simple Controller
+    Controller
     """
 
-    def __init__(self, args=None):
-        self._cli_args = args
+    def __init__(self, **kwargs):
         self.photo = None
+        self.dent_oip = DENT_OIP(
+            url_codes=kwargs.get('url_codes'),
+            url_views=kwargs.get('url_views'))
 
     def bulk_convert_from_csv(self, csv_input, teeth=None):
         with open(csv_input, mode='r') as csv_file:
             csv_reader = csv.DictReader(csv_file, delimiter=',')
             for row in csv_reader:
-                row['input_image_filename'] = (Path(csv_input).parent / row['input_image_filename'])
+                row['input_image_filename'] = (
+                    Path(csv_input).parent / row['input_image_filename'])
                 row['teeth'] = teeth
                 self.convert_image_to_dicom4orthograph_and_save(metadata=row)
 
@@ -89,7 +94,6 @@ class OrthodonticController(object):
             orthodontic_series.add(orthodontic_photograph)
         return orthodontic_series
 
-
     def validate_dicom_file(self, input_image_filename=None):
         ''' Validate DICOM File.
 
@@ -100,7 +104,7 @@ class OrthodonticController(object):
             input_image_filename = self.photo.output_image_filename
 
         self.print_dicom_file(input_image_filename)
-        logger.info('\nValidating file %s',input_image_filename)
+        logger.info('\nValidating file %s', input_image_filename)
         os.system('{} {}'.format(
             Path(defaults.DICOM3TOOLS_PATH, 'dciodvfy'),
             input_image_filename))
@@ -114,7 +118,6 @@ class OrthodonticController(object):
         _photo.load(input_image_filename)
         _photo.print()
 
-
     def send(self, send_method, **kwargs):
         """
         Send DICOM files to a PACS.
@@ -124,7 +127,7 @@ class OrthodonticController(object):
         dicom_files (str): Array of paths to the DICOM files to send.
         send_method (str): Method to send DICOM. Must be 'dimse' or 'wado'.
         **kwargs: Additional keyword arguments depending on the send method:
-    
+
             For send_method 'dimse':
                 pacs_ip (str): IP address of the PACS server.
                 pacs_port (int): Port of the PACS server.
@@ -134,10 +137,10 @@ class OrthodonticController(object):
                 dicomweb_url (str): URL of the DICOMweb server.
                 username (str, optional): Username for DICOMweb authentication.
                 password (str, optional): Password for DICOMweb authentication.
-    
+
         Raises:
         ValueError: If an invalid send method is specified or required kwargs are missing.
-    
+
         Examples:
         send(
             dicom_files=['path/to/output.dcm'],
@@ -161,21 +164,21 @@ class OrthodonticController(object):
         # Send the DICOM file based on the specified method
         if send_method == 'dimse':
             return dimse.send(
-                dicom_files=kwargs.get('dicom_files',None), 
-                orthodontic_series=kwargs.get('orthodontic_series',None),
+                dicom_files=kwargs.get('dicom_files', None),
+                orthodontic_series=kwargs.get('orthodontic_series', None),
                 pacs_ip=kwargs['pacs_ip'],
                 pacs_port=kwargs['pacs_port'],
                 pacs_aet=kwargs['pacs_aet'])
 
         elif send_method == 'wado':
             return wado.send(
-                dicom_files=kwargs.get('dicom_files',None), 
-                orthodontic_series=kwargs.get('orthodontic_series',None),
+                dicom_files=kwargs.get('dicom_files', None),
+                orthodontic_series=kwargs.get('orthodontic_series', None),
                 dicomweb_url=kwargs['dicomweb_url'],
                 username=kwargs.get('username'),
                 password=kwargs.get('password'),
                 ssl_certificate=kwargs.get('ssl_certificate'),
                 ssl_verify=kwargs.get('ssl_verify'),
-                )
+            )
         else:
             logger.error('Invalid send method specified.')

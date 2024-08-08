@@ -5,21 +5,33 @@ import os
 import csv
 from pathlib import Path
 
-import dicom4ortho.defaults as defaults
-import dicom4ortho.model as model
+from dicom4ortho.config import DICOM3TOOLS_PATH
+from dicom4ortho.model import DicomBase
 from dicom4ortho.m_dent_oip import DENT_OIP
 from dicom4ortho.m_orthodontic_photograph import OrthodonticPhotograph, OrthodonticSeries
 from dicom4ortho.dicom import wado, dimse
+
 import logging
-logger = logging.getLogger()
+logger = logging.getLogger(__name__)
 
 
 class OrthodonticController(object):
-    """
-    Controller
+    """ Controller
+
     """
 
     def __init__(self, **kwargs):
+        """
+            allowed arguments for constructor:
+
+            url_codes:  location of file that contains the codes used in the views.
+                        Format is a URL, so file:/// for local files, https://, etc. 
+                        If not set, the internal one (downloaded from the dent-oip profile) will be used.
+
+            url_views:  location of file that contains the views used for each keyword.
+                        Format is a URL, so file:/// for local files, https://, etc.
+                        If not set, the internal one (downloaded from the dent-oip profile) will be used.
+        """
         self.photo = None
         self.dent_oip = DENT_OIP(
             url_codes=kwargs.get('url_codes'),
@@ -106,13 +118,13 @@ class OrthodonticController(object):
         self.print_dicom_file(input_image_filename)
         logger.info('\nValidating file %s', input_image_filename)
         os.system('{} {}'.format(
-            Path(defaults.DICOM3TOOLS_PATH, 'dciodvfy'),
+            Path(DICOM3TOOLS_PATH, 'dciodvfy'),
             input_image_filename))
 
     def print_dicom_file(self, input_image_filename):
         ''' Print DICOM tags
         '''
-        _photo = model.DicomBase(
+        _photo = DicomBase(
             input_image_filename=input_image_filename,
             output_image_filename=None)
         _photo.load(input_image_filename)

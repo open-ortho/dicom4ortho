@@ -6,7 +6,7 @@ Unit tests for controller.
 import unittest
 import logging
 import logging
-import dicom4ortho.defaults as defaults
+import dicom4ortho.config as config
 import dicom4ortho.controller as controller
 
 class Test(unittest.TestCase):

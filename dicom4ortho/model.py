@@ -18,7 +18,8 @@ import numpy
 from pynetdicom.sop_class import VLPhotographicImageStorage
 from PIL import Image
 
-import dicom4ortho.defaults as defaults
+from dicom4ortho import config 
+from dicom4ortho.utils import generate_dicom_uid
 
 logger = logging.getLogger(__name__)
 
@@ -29,9 +30,9 @@ class DicomBase(object):
 
     def __init__(self, **kwargs):
         self.sop_instance_uid = kwargs.get(
-            "sop_instance_uid") or defaults.generate_dicom_uid(root=defaults.SOPInstanceUID_ROOT)
-        self.time_string = datetime.datetime.now().strftime(defaults.TIME_FORMAT)
-        self.date_string = datetime.datetime.now().strftime(defaults.DATE_FORMAT)
+            "sop_instance_uid") or generate_dicom_uid(root=config.SOPInstanceUID_ROOT)
+        self.time_string = datetime.datetime.now().strftime(config.TIME_FORMAT)
+        self.date_string = datetime.datetime.now().strftime(config.DATE_FORMAT)
         self.input_image_filename = kwargs.get('input_image_filename')
         self.output_image_filename = kwargs.get('output_image_filename')
         self.file_meta = FileMetaDataset()
@@ -46,33 +47,33 @@ class DicomBase(object):
     def set_file_meta(self):
         self.file_meta.MediaStorageSOPClassUID = VLPhotographicImageStorage
         self.file_meta.MediaStorageSOPInstanceUID = self.sop_instance_uid
-        self.file_meta.ImplementationClassUID = defaults.ImplementationClassUID
-        self.file_meta.ImplementationVersionName = defaults.ImplementationVersionName
+        self.file_meta.ImplementationClassUID = config.ImplementationClassUID
+        self.file_meta.ImplementationVersionName = config.ImplementationVersionName
 
     def _set_dataset(self):
         self._ds = FileDataset(
             self.output_image_filename,
             {},
             file_meta=self.file_meta,
-            preamble=defaults.DICOM_PREAMBLE)
+            preamble=config.DICOM_PREAMBLE)
 
         self._ds.PatientName = "^"
 
     def _set_general_study(self):
         self._ds.AccessionNumber = ''
-        self._ds.StudyInstanceUID = defaults.generate_dicom_uid(
-            root=defaults.StudyInstanceUID_ROOT)
-        self._ds.StudyID = defaults.IDS_NUMBERS
+        self._ds.StudyInstanceUID = generate_dicom_uid(
+            root=config.StudyInstanceUID_ROOT)
+        self._ds.StudyID = config.IDS_NUMBERS
         self._ds.StudyDate = self.date_string
         self._ds.StudyTime = self.time_string
 
     def _set_general_series(self):
-        self._ds.SeriesInstanceUID = defaults.generate_dicom_uid(
-            root=defaults.SeriesInstanceUID_ROOT)
-        self._ds.SeriesNumber = defaults.IDS_NUMBERS
+        self._ds.SeriesInstanceUID = generate_dicom_uid(
+            root=config.SeriesInstanceUID_ROOT)
+        self._ds.SeriesNumber = config.IDS_NUMBERS
 
     def _set_general_image(self):
-        self._ds.InstanceNumber = defaults.IDS_NUMBERS
+        self._ds.InstanceNumber = config.IDS_NUMBERS
         self._ds_PatientOrientation = ''
 
     def _set_acquisition_context(self):
@@ -110,25 +111,25 @@ class DicomBase(object):
     def series_datetime(self):
         return datetime.datetime.strptime(
             f"{self._ds.SeriesDate}{self._ds.SeriesTime}",
-            f"{defaults.DATE_FORMAT}{defaults.TIME_FORMAT}"
+            f"{config.DATE_FORMAT}{config.TIME_FORMAT}"
         )
 
     @ series_datetime.setter
     def series_datetime(self, _seriesdatetime):
-        self._ds.SeriesTime = _seriesdatetime.strftime(defaults.TIME_FORMAT)
-        self._ds.SeriesDate = _seriesdatetime.strftime(defaults.DATE_FORMAT)
+        self._ds.SeriesTime = _seriesdatetime.strftime(config.TIME_FORMAT)
+        self._ds.SeriesDate = _seriesdatetime.strftime(config.DATE_FORMAT)
 
     @ property
     def study_datetime(self):
         return datetime.datetime.strptime(
             f"{self._ds.StudyDate}{self._ds.StudyTime}",
-            f"{defaults.DATE_FORMAT}{defaults.TIME_FORMAT}"
+            f"{config.DATE_FORMAT}{config.TIME_FORMAT}"
         )
 
     @ study_datetime.setter
     def study_datetime(self, _studydatetime):
-        self._ds.StudyTime = _studydatetime.strftime(defaults.TIME_FORMAT)
-        self._ds.StudyDate = _studydatetime.strftime(defaults.DATE_FORMAT)
+        self._ds.StudyTime = _studydatetime.strftime(config.TIME_FORMAT)
+        self._ds.StudyDate = _studydatetime.strftime(config.DATE_FORMAT)
 
     @ property
     def study_instance_uid(self):
@@ -255,12 +256,12 @@ class DicomBase(object):
 
     @ property
     def patient_birthdate(self):
-        return datetime.datetime.strptime(self._ds.PatientBirthDate, defaults.DATE_FORMAT).date()
+        return datetime.datetime.strptime(self._ds.PatientBirthDate, config.DATE_FORMAT).date()
 
     @ patient_birthdate.setter
     def patient_birthdate(self, patient_birthdate):
         self._ds.PatientBirthDate = patient_birthdate.strftime(
-            defaults.DATE_FORMAT)
+            config.DATE_FORMAT)
 
     @ property
     def performing_physician_firstname(self):
@@ -364,12 +365,12 @@ class DicomBase(object):
             _acquisition_datetime = _acquisition_datetime.astimezone()
 
         dtzs = _acquisition_datetime.strftime(
-            f"{defaults.DATE_FORMAT}{defaults.TIME_FORMAT}%z")
+            f"{config.DATE_FORMAT}{config.TIME_FORMAT}%z")
         self._ds.AcquisitionDateTime = dtzs
         self._ds.AcquisitionDate = _acquisition_datetime.strftime(
-            defaults.DATE_FORMAT)
+            config.DATE_FORMAT)
         self._ds.AcquisitionTime = _acquisition_datetime.strftime(
-            defaults.TIME_FORMAT)
+            config.TIME_FORMAT)
 
     @ property
     def date_captured(self):
@@ -379,16 +380,16 @@ class DicomBase(object):
         images are temporally related. This sounds like the case for
         orthodontic intraoral and extraoral photograph sets. return
         datetime.datetime.strptime(self.ds.ContentDate,
-        defaults.DATE_FORMAT).date()
+        config.DATE_FORMAT).date()
         '''
-        return datetime.datetime.strptime(self._ds.ContentDate, defaults.DATE_FORMAT).date()
+        return datetime.datetime.strptime(self._ds.ContentDate, config.DATE_FORMAT).date()
 
     @ date_captured.setter
     def date_captured(self, date_captured):
         # Date and time are required if images is part of a Series in which
         # the images are temporally related. This sounds like the case for orthodontic
         # intraoral and extraoral photograph sets.
-        self._ds.ContentDate = date_captured.strftime(defaults.DATE_FORMAT)
+        self._ds.ContentDate = date_captured.strftime(config.DATE_FORMAT)
 
     @ property
     def equipment_manufacturer(self):
@@ -458,24 +459,24 @@ class DicomBase(object):
         if self._ds.StudyInstanceUID is None:
             logger.warning(
                 "SeriesInstanceUID is None. No bueno. Generating one. THIS IS PROBABLY NOT WHAT YOU WANT!")
-            self._ds.StudyInstanceUID = defaults.generate_dicom_uid(
-                root=defaults.StudyInstanceUID_ROOT)
+            self._ds.StudyInstanceUID = generate_dicom_uid(
+                root=config.StudyInstanceUID_ROOT)
 
         if self._ds.SeriesInstanceUID is None:
             logger.warning(
                 "StudyInstanceUID is None. No bueno. Generating one. THIS IS PROBABLY NOT WHAT YOU WANT!")
-            self._ds.SeriesInstanceUID = defaults.generate_dicom_uid(
-                root=defaults.SeriesInstanceUID_ROOT)
+            self._ds.SeriesInstanceUID = generate_dicom_uid(
+                root=config.SeriesInstanceUID_ROOT)
 
         # check that there are no duplicate UIDs before saving
         if (self._ds.SeriesInstanceUID in [self._ds.StudyInstanceUID, self._ds.SOPInstanceUID] or
                 self._ds.StudyInstanceUID in [self._ds.SeriesInstanceUID, self._ds.SOPInstanceUID]):
             logger.warning(
                 "SeriesInstanceUID == StudyInstanceUID. No bueno. Generating new ones.")
-            self._ds.SeriesInstanceUID = defaults.generate_dicom_uid(
-                root=defaults.SeriesInstanceUID_ROOT)
-            self._ds.StudyInstanceUID = defaults.generate_dicom_uid(
-                root=defaults.StudyInstanceUID_ROOT)
+            self._ds.SeriesInstanceUID = generate_dicom_uid(
+                root=config.SeriesInstanceUID_ROOT)
+            self._ds.StudyInstanceUID = generate_dicom_uid(
+                root=config.StudyInstanceUID_ROOT)
 
     def to_byte(self):
         """Return a bytes-like object which can be accessed with read() and seek()."""

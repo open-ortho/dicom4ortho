@@ -11,7 +11,8 @@ from io import BytesIO
 import dicom4ortho.m_orthodontic_photograph
 from dicom4ortho.controller import OrthodonticController
 from dicom4ortho.m_orthodontic_photograph import OrthodonticPhotograph
-from dicom4ortho.defaults import generate_dicom_uid, StudyInstanceUID_ROOT, SeriesInstanceUID_ROOT
+from dicom4ortho.config import StudyInstanceUID_ROOT, SeriesInstanceUID_ROOT
+from dicom4ortho.utils import generate_dicom_uid
 from datetime import datetime, timezone, timedelta
 from pathlib import Path
 

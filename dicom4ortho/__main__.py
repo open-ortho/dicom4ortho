@@ -12,7 +12,7 @@ from argparse import RawDescriptionHelpFormatter
 import importlib.resources as importlib_resources
 from prettytable import PrettyTable
 
-import dicom4ortho.defaults as defaults
+import dicom4ortho.config as config
 import dicom4ortho.controller as controller
 
 LIST_IMAGE_TYPES = 'list-image-types'
@@ -63,14 +63,14 @@ def main(argv=None):
     else:
         sys.argv.extend(argv)
 
-    program_version = "v%s" % defaults.VERSION
+    program_version = "v%s" % config.VERSION
     program_version_message = '%%(prog)s %s' % (program_version)
     program_license = '''{short_description}
 
 USAGE
 '''.format(
-        short_description=defaults.__short_description__,
-        creation_date=defaults.__creation_date__)
+        short_description=config.__short_description__,
+        creation_date=config.__creation_date__)
 
     try:
         # Setup argument parser
@@ -178,7 +178,7 @@ USAGE
             url_codes=args.url_codes,
             url_views=args.url_views)
         if args.add_max_allowed_teeth:
-            teeth = defaults.ADD_MAX_ALLOWED_TEETH
+            teeth = config.ADD_MAX_ALLOWED_TEETH
         elif args.teeth:
             teeth = args.teeth
         else:

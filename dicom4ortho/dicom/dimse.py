@@ -8,7 +8,7 @@ from pydicom.uid import ImplicitVRLittleEndian
 from pydicom import dcmread
 from pynetdicom import AE, StoragePresentationContexts
 
-from dicom4ortho.defaults import PROJECT_NAME
+from dicom4ortho.config import PROJECT_NAME
 
 logger = logging.getLogger(__name__)
 

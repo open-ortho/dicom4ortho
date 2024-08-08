@@ -3,9 +3,9 @@ png, etc) into DICOM.
 
 """
 
-import dicom4ortho.defaults
+import dicom4ortho.config
 
-__version__ = dicom4ortho.defaults.VERSION
+__version__ = dicom4ortho.config.VERSION
 __url__ = 'https://github.com/open-ortho/dicom4ortho'
 __author__ = 'Toni Magni'
 __email__ = 'amagni@open-ortho.org'

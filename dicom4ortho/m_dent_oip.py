@@ -6,7 +6,7 @@ Provides methods to download the DENT-OIP specifications in CSV and import it in
 
 import urllib.request
 import csv
-from dicom4ortho.defaults import URL_DENT_OIP_CODES, URL_DENT_OIP_VIEWS
+from dicom4ortho.config import URL_DENT_OIP_CODES, URL_DENT_OIP_VIEWS
 import logging
 logger = logging.getLogger(__name__)
 

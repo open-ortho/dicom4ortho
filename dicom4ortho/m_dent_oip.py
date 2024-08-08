@@ -17,7 +17,7 @@ class DENT_OIP(object):
         self._load_views(url=url_views)
         self._load_codes(url=url_codes)
 
-    def _load_views(self, url):
+    def _load_views(self, url) -> None:
         # Override official location, if not yet published, for dev purposes
         with urllib.request.urlopen(url) as response:
             lines = [l.decode('utf-8').strip() for l in response.readlines()]
@@ -29,7 +29,7 @@ class DENT_OIP(object):
                 else:
                     self.VIEWS[key] = row
 
-    def _load_codes(self, url):
+    def _load_codes(self, url) -> None:
         # Override official location, if not yet published, for dev purposes
         with urllib.request.urlopen(url) as response:
             lines = [l.decode('utf-8').strip() for l in response.readlines()]

@@ -17,8 +17,6 @@ class OrthodonticController(object):
     Simple Controller
     """
 
-    photo = OrthodonticPhotograph()
-
     def __init__(self, args=None):
         self._cli_args = args
         self.photo = None

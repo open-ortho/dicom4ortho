@@ -11,7 +11,8 @@ from pydicom.dataset import Dataset
 
 from dicom4ortho.model import PhotographBase
 import dicom4ortho.m_tooth_codes as ToothCodes
-from dicom4ortho import config
+from dicom4ortho.config import IMPORT_DATE_FORMAT, ADD_MAX_ALLOWED_TEETH, SeriesInstanceUID_ROOT, StudyInstanceUID_ROOT
+from dicom4ortho.utils import generate_dicom_uid
 from dicom4ortho.m_dent_oip import DENT_OIP
 
 import logging
@@ -141,7 +142,7 @@ class OrthodonticPhotograph(PhotographBase):
         if patient_birthdate is not None:
             try:
                 self.patient_birthdate = datetime.strptime(
-                    patient_birthdate, config.IMPORT_DATE_FORMAT).date()
+                    patient_birthdate, IMPORT_DATE_FORMAT).date()
             except (ValueError, TypeError):
                 logger.warning("Invalid Patient Birthdate %s", patient_birthdate)
 
@@ -343,7 +344,7 @@ class OrthodonticPhotograph(PhotographBase):
     def add_teeth(self):
         teeth = self.teeth
         logger.debug("Adding teeth")
-        if teeth == config.ADD_MAX_ALLOWED_TEETH:
+        if teeth == ADD_MAX_ALLOWED_TEETH:
             logger.debug("Setting all possibly allowed teeth.")
             teeth = ALLOWED_TEETH[self.type_keyword]
 
@@ -390,8 +391,8 @@ class OrthodonticSeries():
         :description: The Series Description to add to all photos.
         """
         self.description = kwargs.get("description")
-        self.UID = kwargs.get("uid") or config.generate_dicom_uid(
-            root=config.SeriesInstanceUID_ROOT)
+        self.UID = kwargs.get("uid") or generate_dicom_uid(
+            root=SeriesInstanceUID_ROOT)
         self.Photos = []
 
     def __len__(self):
@@ -434,8 +435,8 @@ class OrthodonticStudy():
         :uid: The Series DICOM UID. Defaults to generating a new one.
         :description: The Study Description to add to all photos.
         """
-        self.UID = kwargs.get("uid") or defaults.generate_dicom_uid(
-            root=config.StudyInstanceUID_ROOT)
+        self.UID = kwargs.get("uid") or generate_dicom_uid(
+            root=StudyInstanceUID_ROOT)
         self.Series = []
 
     def __len__(self):

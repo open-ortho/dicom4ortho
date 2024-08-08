@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Codes CSV File Format Documentation &#8212; dicom4ortho docs 0.3 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="../_static/classic.css?v=def86cc0" />
+    
+    <script src="../_static/documentation_options.js?v=b489f392"></script>
+    <script src="../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    
+    <link rel="author" title="About these documents" href="../about.html" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Views CSV File Format Documentation" href="csv_file_views.html" />
+    <link rel="prev" title="Usage" href="../usage.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="csv_file_views.html" title="Views CSV File Format Documentation"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="../usage.html" title="Usage"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">dicom4ortho docs 0.3 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Codes CSV File Format Documentation</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section id="codes-csv-file-format-documentation">
+<span id="csv-file-codes"></span><h1>Codes CSV File Format Documentation<a class="headerlink" href="#codes-csv-file-format-documentation" title="Link to this heading">¶</a></h1>
+<section id="introduction">
+<h2>Introduction<a class="headerlink" href="#introduction" title="Link to this heading">¶</a></h2>
+<p>This documentation describes the structure of the CSV file used to manage and catalog various codes within our system. Each field in the CSV file is crucial for understanding the use and context of the codes listed.</p>
+</section>
+<section id="file-structure">
+<h2>File Structure<a class="headerlink" href="#file-structure" title="Link to this heading">¶</a></h2>
+<p>The CSV file contains the following columns, each providing specific details about the codes:</p>
+<table class="docutils align-default" id="id1">
+<caption><span class="caption-text">CSV Header Descriptions</span><a class="headerlink" href="#id1" title="Link to this table">¶</a></caption>
+<colgroup>
+<col style="width: 20.0%" />
+<col style="width: 80.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Header</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>keyword</p></td>
+<td><p>A unique identifier or key associated with each record. This is the key that will be used in <a class="reference internal" href="csv_file_views.html#csv-file-views"><span class="std std-ref">Views CSV File Format Documentation</span></a>.</p></td>
+</tr>
+<tr class="row-odd"><td><p>code</p></td>
+<td><p>The code that defines this term, according to the codeset used.</p></td>
+</tr>
+<tr class="row-even"><td><p>codeset</p></td>
+<td><p>The codeset that defined the coded (e.g. DCM, SCT, …)</p></td>
+</tr>
+<tr class="row-odd"><td><p>meaning</p></td>
+<td><p>The official meaning of this code, or what you would like to appear in the DICOM file. Must carry the same meaning.</p></td>
+</tr>
+<tr class="row-even"><td><p>used for</p></td>
+<td><p>The DICOM tag this code is used for.</p></td>
+</tr>
+<tr class="row-odd"><td><p>notes</p></td>
+<td><p>Additional information or remarks about the code.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="example-records">
+<h2>Example Records<a class="headerlink" href="#example-records" title="Link to this heading">¶</a></h2>
+<p>Below is an example record in the CSV format:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>TemporalEventType,128741,DCM,Longitudinal Temporal Event Type,AcquisitionContextSequence^LongitudinalTemporalEventType,A pre-defined type of a specific time point in a continuum.
+</pre></div>
+</div>
+</section>
+<section id="conclusion">
+<h2>Conclusion<a class="headerlink" href="#conclusion" title="Link to this heading">¶</a></h2>
+<p>This document serves as a reference for the CSV file format utilized by our system. Understanding each column’s function and the information it holds is essential for accurate data management and utilization.</p>
+</section>
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <div>
+    <h3><a href="../index.html">Table of Contents</a></h3>
+    <ul>
+<li><a class="reference internal" href="#">Codes CSV File Format Documentation</a><ul>
+<li><a class="reference internal" href="#introduction">Introduction</a></li>
+<li><a class="reference internal" href="#file-structure">File Structure</a></li>
+<li><a class="reference internal" href="#example-records">Example Records</a></li>
+<li><a class="reference internal" href="#conclusion">Conclusion</a></li>
+</ul>
+</li>
+</ul>
+
+  </div>
+  <div>
+    <h4>Previous topic</h4>
+    <p class="topless"><a href="../usage.html"
+                          title="previous chapter">Usage</a></p>
+  </div>
+  <div>
+    <h4>Next topic</h4>
+    <p class="topless"><a href="csv_file_views.html"
+                          title="next chapter">Views CSV File Format Documentation</a></p>
+  </div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/file_formats/csv_file_codes.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<search id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="csv_file_views.html" title="Views CSV File Format Documentation"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="../usage.html" title="Usage"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">dicom4ortho docs 0.3 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Codes CSV File Format Documentation</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+    &#169; Copyright 2021, open-ortho.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.3.7.
+    </div>
+  </body>
+</html>

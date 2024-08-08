@@ -5,7 +5,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Usage &#8212; dicom4ortho docs 0.3 documentation</title>
+    <title>Running Tests &#8212; dicom4ortho docs 0.3 documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=fa44fd50" />
     <link rel="stylesheet" type="text/css" href="_static/classic.css?v=def86cc0" />
     
@@ -16,8 +16,8 @@
     <link rel="author" title="About these documents" href="about.html" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Codes CSV File Format Documentation" href="file_formats/csv_file_codes.html" />
-    <link rel="prev" title="Installation" href="installation.html" /> 
+    <link rel="next" title="dicom4ortho Specifications" href="specifications.html" />
+    <link rel="prev" title="DICOM UIDs" href="notes.html" /> 
   </head><body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
@@ -26,13 +26,13 @@
           <a href="genindex.html" title="General Index"
              accesskey="I">index</a></li>
         <li class="right" >
-          <a href="file_formats/csv_file_codes.html" title="Codes CSV File Format Documentation"
+          <a href="specifications.html" title="dicom4ortho Specifications"
              accesskey="N">next</a> |</li>
         <li class="right" >
-          <a href="installation.html" title="Installation"
+          <a href="notes.html" title="DICOM UIDs"
              accesskey="P">previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="index.html">dicom4ortho docs 0.3 documentation</a> &#187;</li>
-        <li class="nav-item nav-item-this"><a href="">Usage</a></li> 
+        <li class="nav-item nav-item-this"><a href="">Running Tests</a></li> 
       </ul>
     </div>  
 
@@ -41,26 +41,13 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <section id="usage">
-<h1>Usage<a class="headerlink" href="#usage" title="Link to this heading">¶</a></h1>
-<p>The DICOM images require a lot of information which is not contained in
-a flat PNG or JPEG image. This information would, in a production
-environment, usually come from the practice management software, or
-photo management software.</p>
-<p>The easiest way to feed this information to <code class="docutils literal notranslate"><span class="pre">dicom4ortho</span></code>’s CLI is
-using a CSV file. You can find an example CSV file
-<a class="reference external" href="resources/example/input_from.csv">here</a></p>
-<p>Once installed, if necessary, start the virtual environment:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pipenv<span class="w"> </span>shell
-</pre></div>
-</div>
-<p>then use dicom4ortho like this:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>dicom4ortho<span class="w"> </span>&lt;filename&gt;
-</pre></div>
-</div>
-<p>Where <code class="docutils literal notranslate"><span class="pre">filename</span></code> should be a <code class="docutils literal notranslate"><span class="pre">.csv</span></code> file. Passing a single image
-file with metadata through arguments is planned for future
-implementations.</p>
+  <section id="running-tests">
+<h1>Running Tests<a class="headerlink" href="#running-tests" title="Link to this heading">¶</a></h1>
+<ul class="simple">
+<li><p>All tests are in the <code class="docutils literal notranslate"><span class="pre">test</span></code> directory.</p></li>
+<li><p>Some tests require docker images. In particular, the <code class="docutils literal notranslate"><span class="pre">test_pacs</span></code> module, requires a PACS. There is a <code class="docutils literal notranslate"><span class="pre">docker-compose.yml</span></code> file in <code class="docutils literal notranslate"><span class="pre">test/</span></code> that should have everything you need to run all tests.</p></li>
+<li><p>There is a target in <code class="docutils literal notranslate"><span class="pre">Makefile</span></code> called <code class="docutils literal notranslate"><span class="pre">tests</span></code>: <code class="docutils literal notranslate"><span class="pre">make</span> <span class="pre">tests</span></code> will launch the <code class="docutils literal notranslate"><span class="pre">docker-compose.yml</span></code> and run tests.</p></li>
+</ul>
 </section>
 
 
@@ -72,18 +59,18 @@ implementations.</p>
         <div class="sphinxsidebarwrapper">
   <div>
     <h4>Previous topic</h4>
-    <p class="topless"><a href="installation.html"
-                          title="previous chapter">Installation</a></p>
+    <p class="topless"><a href="notes.html"
+                          title="previous chapter">DICOM UIDs</a></p>
   </div>
   <div>
     <h4>Next topic</h4>
-    <p class="topless"><a href="file_formats/csv_file_codes.html"
-                          title="next chapter">Codes CSV File Format Documentation</a></p>
+    <p class="topless"><a href="specifications.html"
+                          title="next chapter">dicom4ortho Specifications</a></p>
   </div>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
-      <li><a href="_sources/usage.rst.txt"
+      <li><a href="_sources/running_tests.rst.txt"
             rel="nofollow">Show Source</a></li>
     </ul>
    </div>
@@ -108,13 +95,13 @@ implementations.</p>
           <a href="genindex.html" title="General Index"
              >index</a></li>
         <li class="right" >
-          <a href="file_formats/csv_file_codes.html" title="Codes CSV File Format Documentation"
+          <a href="specifications.html" title="dicom4ortho Specifications"
              >next</a> |</li>
         <li class="right" >
-          <a href="installation.html" title="Installation"
+          <a href="notes.html" title="DICOM UIDs"
              >previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="index.html">dicom4ortho docs 0.3 documentation</a> &#187;</li>
-        <li class="nav-item nav-item-this"><a href="">Usage</a></li> 
+        <li class="nav-item nav-item-this"><a href="">Running Tests</a></li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">

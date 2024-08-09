@@ -54,7 +54,7 @@ setup(
     ],
     keywords='DICOM VL Visible Light Photography Orthodontics',  # Optional
 
-    packages=['dicom4ortho'],
+    packages=find_packages(include=['dicom4ortho*']), 
     python_requires='>=3',
     install_requires=[
         'argparse',

@@ -40,7 +40,7 @@ test: install-dev
 
 .PHONY: clean
 clean:
-	rm -rf $(DIST)
+	rm -rf $(DIST) ./build
 	echo "Cleaned up $(DIST) folder."
 	rm -rf *.egg-info
 	echo "Removed all .egg-info files."

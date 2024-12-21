@@ -4,6 +4,7 @@ Controller
 import os
 import csv
 from pathlib import Path
+from pydicom.dataset import Dataset
 
 from dicom4ortho.config import DICOM3TOOLS_PATH
 from dicom4ortho.model import DicomBase
@@ -194,3 +195,7 @@ class OrthodonticController(object):
             )
         else:
             logger.error('Invalid send method specified.')
+
+
+    def get_image_view_code(self, ds:Dataset, code_system:CodeSystem):
+        pass

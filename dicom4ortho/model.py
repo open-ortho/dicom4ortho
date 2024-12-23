@@ -600,7 +600,7 @@ class PhotographBase(DicomBase):
         """
         self._ds.ImageType[0] = 'DERIVED'
 
-    def lossy_compression(self, lossy):
+    def lossy_compression(self, lossy:bool):
         if lossy == True:
             self._ds.LossyImageCompression = '01'
         elif lossy == False:

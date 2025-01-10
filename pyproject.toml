@@ -7,7 +7,7 @@ name = "dicom4ortho"
 version = "0.3.13-dev"
 description = "A DICOM Implementation for Orthodontic Images"
 readme = "README.md"
-requires-python = ">=3.6"
+requires-python = ">=3.10"
 license = {text = "MIT License"}
 authors = [
     {name = "Toni Magni", email = "amagni@open-ortho.org"},
@@ -32,7 +32,8 @@ dependencies = [
     "pynetdicom",
     "pillow",
     "prettytable",
-    "numpy"
+    "numpy",
+    "uvicorn"
 ]
 
 [project.urls]
@@ -40,6 +41,7 @@ homepage = 'https://github.com/open-ortho/dicom4ortho'
 
 [project.scripts]
 dicom4ortho = "dicom4ortho.__main__:main"
+fhir2dicom4ortho = "fhir2dicom4ortho.entry_points:fhir_api"
 
 [tool.setuptools.package-data]
 "*" = ["LICENSE"]

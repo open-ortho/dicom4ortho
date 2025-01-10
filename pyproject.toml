@@ -23,6 +23,9 @@ classifiers = [
     "Programming Language :: Python :: 3"
 ]
 dependencies = [
+    "pydantic",
+    "fhir.resources",
+    "httpx",
     "fastapi",
     "argparse",
     "pydicom",

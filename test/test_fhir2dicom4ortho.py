@@ -84,7 +84,7 @@ class TestFHIRAPI(unittest.TestCase):
         self.client = TestClient(fhir_api_app)
 
     def test_handle_bundle(self):
-        response = self.client.post("/Bundle", json=test_bundle)
+        response = self.client.post("/fhir/Bundle", json=test_bundle)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json(), {"status": "success", "message": "Bundle processed successfully"})
 

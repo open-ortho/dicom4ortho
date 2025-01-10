@@ -25,6 +25,7 @@ fastapi = "*"
 "fhir.resources" = "*"
 pydantic = "*"
 uvicorn = "*"
+apscheduler = "*"
 
 [requires]
 python_version = ">3.10"

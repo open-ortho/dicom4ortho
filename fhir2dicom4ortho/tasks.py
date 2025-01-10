@@ -2,12 +2,18 @@ from dicom4ortho.controller import OrthodonticController
 from fhir2dicom4ortho.utils import convert_binary_to_image, convert_binary_to_dataset
 from fhir.resources.bundle import Bundle
 from fhir.resources.binary import Binary
+from fhir.resources.task import Task
 import logging
 
-def process_bundle(bundle_data, job_id, job_store):
-    try:
-        bundle = Bundle(**bundle_data)
+TASK_RECEIVED = "received"
+TASK_COMPLETED = "completed"
+TASK_REJECTED = "rejected"
+TASK_FAILED = "failed"
+TASK_INPROGRESS = "in-progress"
 
+def process_bundle(bundle:Bundle, task_id, task_store):
+    task_store[task_id].status = TASK_INPROGRESS
+    try:
         # Extract Binary resources
         image_binary = None
         dicom_binary = None
@@ -21,7 +27,7 @@ def process_bundle(bundle_data, job_id, job_store):
                     dicom_binary = resource
 
         if not image_binary or not dicom_binary:
-            job_store[job_id]["status"] = "failed"
+            task_store[task_id].status = TASK_REJECTED
             raise ValueError("Invalid Bundle: Must contain one image Binary and one DICOM Binary")
 
         # Convert Binary resources to image and dataset
@@ -34,8 +40,8 @@ def process_bundle(bundle_data, job_id, job_store):
         # Convert image and dataset to an orthodontic photograph
         orthodontic_photograph = controller.convert_image_plus_mwl_to_dicom4orthograph(image, dataset)
 
-        # Update job status to completed
-        job_store[job_id]["status"] = "completed"
+        # Update task status to completed
+        task_store[task_id].status = TASK_COMPLETED
 
         # Log the resources
         logging.debug(image_binary.model_dump_json(indent=2))
@@ -43,4 +49,4 @@ def process_bundle(bundle_data, job_id, job_store):
 
     except Exception as e:
         logging.error(f"Error processing Bundle: {e}")
-        job_store[job_id]["status"] = "failed"
+        task_store[task_id].status = TASK_FAILED

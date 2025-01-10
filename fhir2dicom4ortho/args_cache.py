@@ -36,4 +36,10 @@ class ArgsCache:
             fhir_api=bool(strtobool(os.getenv('F2D4O_FHIR_API', 'True'))),
             fhir_listen=os.getenv('F2D4O_FHIR_LISTEN', ''),
             fhir_port=int(os.getenv('F2D4O_FHIR_PORT','8000')),
+
+            # DICOM PACS destination AET, IP and port.
+            pacs_aet=os.getenv('F2D4O_PACS_AET', ''),
+            pacs_ip=os.getenv('F2D4O_PACS_IP', ''),
+            pacs_port=int(os.getenv('F2D4O_PACS_PORT', '104')),
+
         )

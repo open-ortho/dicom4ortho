@@ -4,6 +4,7 @@ Controller
 import os
 import csv
 from pathlib import Path
+from PIL import Image
 from pydicom.dataset import Dataset
 
 from dicom4ortho.config import DICOM3TOOLS_PATH
@@ -92,6 +93,14 @@ class OrthodonticController(object):
         # if metadata['teeth']
 
         return self.photo
+
+    def convert_image_plus_mwl_to_dicom4orthograph(self, image:Image, mwl:Dataset) -> OrthodonticPhotograph:
+        ''' Converts a PIL image into an OrthodonticPhotograph using a DICOM MWL for metadata.
+
+        The MWL is passed as a pydicom Dataset object, and should contain a single ScheduledProtocolCode.
+
+        '''
+        pass
 
     def convert_image_to_dicom4orthograph_and_save(self, metadata):
         _photo = self.convert_image_to_dicom4orthograph(metadata=metadata)

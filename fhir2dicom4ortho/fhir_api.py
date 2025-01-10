@@ -1,7 +1,12 @@
+from PIL import Image
 from fastapi import FastAPI, HTTPException, Request
 from fhir.resources.bundle import Bundle
 from fhir.resources.task import Task
 from fhir.resources.binary import Binary
+from dicom4ortho.controller import Controller
+from pydicom.dataset import Dataset
+
+from fhir2dicom4ortho.utils import convert_binary_to_image, convert_binary_to_dataset
 import logging
 
 fhir_api_app = FastAPI()
@@ -37,3 +42,5 @@ async def handle_bundle(request: Request):
     except Exception as e:
         logging.error(f"Error processing Bundle: {e}")
         raise HTTPException(status_code=500, detail="Internal Server Error")
+
+

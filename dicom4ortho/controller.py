@@ -197,5 +197,5 @@ class OrthodonticController(object):
             logger.error('Invalid send method specified.')
 
 
-    def get_image_view_code(self, ds:Dataset, code_system:CodeSystem):
+    def get_image_view_code(self, ds:Dataset, code_system):
         pass

@@ -101,6 +101,8 @@ class DicomBase(object):
         elif position == 1:
             firstname = oldpart
             lastname = newpart
+        else:
+            raise ValueError("Position must be 0 or 1")
 
         value = f"{lastname}^{firstname}"
 

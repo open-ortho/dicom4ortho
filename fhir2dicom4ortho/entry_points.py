@@ -19,4 +19,4 @@ def fhir_api():
 
     import uvicorn
     logger.info(f"Lighting a FHIR API on {args.fhir_listen}:{args.fhir_port}")
-    uvicorn.run("fhir2dicom4ortho.fhir_api:app", host=args.fhir_listen, port=args.fhir_port)
+    uvicorn.run("fhir2dicom4ortho.fhir_api:fhir_api_app", host=args.fhir_listen, port=args.fhir_port)

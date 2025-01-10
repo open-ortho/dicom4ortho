@@ -4,9 +4,9 @@ from fhir.resources.task import Task
 from fhir.resources.binary import Binary
 import logging
 
-app = FastAPI()
+fhir_api_app = FastAPI()
 
-@app.post("/Bundle")
+@fhir_api_app.post("/Bundle")
 async def handle_bundle(request: Request):
     try:
         bundle_data = await request.json()

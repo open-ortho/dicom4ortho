@@ -7,4 +7,3 @@ logger.warning("DEPRECATION WARNING: dicom4ortho.defaults is deprecated. Make us
 
 from dicom4ortho.utils import generate_dicom_uid
 from dicom4ortho.config import *
-from dicom4ortho.config import __author__, __creation_date__, __email__, __short_description__, __updated__, __url__

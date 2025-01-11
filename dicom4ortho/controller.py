@@ -81,12 +81,21 @@ class OrthodonticController(object):
 
         return self.photo
 
-    def convert_image_plus_mwl_to_dicom4orthograph(self, image:Image, mwl:Dataset) -> OrthodonticPhotograph:
+    def convert_image_plus_mwl_to_dicom4orthograph(self, image_bytes, mwl:Dataset) -> OrthodonticPhotograph:
         ''' Converts a PIL image into an OrthodonticPhotograph using a DICOM MWL for metadata.
 
         The MWL is passed as a pydicom Dataset object, and should contain a single ScheduledProtocolCode.
 
+        Parameters:
+        image_bytes (bytes): Image bytes. Purposely set to raw bytes to avoid file I/O. Purposely avoiding PIL Image, because once in PIL Image, the image will be decoded and re-encoded even when saved as JPEG. This would result in loss of image quality.
+
         '''
+        metadata = {
+            'input_image_filename': None,
+            'input_image_bytes': image_bytes,
+            'dicom_mwl': mwl,
+        }
+        self.photo = OrthodonticPhotograph(**metadata)
         pass
 
     def convert_image_to_dicom4orthograph_and_save(self, metadata):

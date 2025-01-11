@@ -13,6 +13,7 @@ TASK_FAILED = "failed"
 TASK_INPROGRESS = "in-progress"
 
 def process_bundle(bundle:Bundle, task_id, task_store):
+    logger.info(f"Processing Task: {task_id}")
     task_store.modify_task_status(task_id, TASK_INPROGRESS)
     try:
         # Extract Binary resources
@@ -43,6 +44,7 @@ def process_bundle(bundle:Bundle, task_id, task_store):
 
         # Update task status to completed
         task_store.modify_task_status(task_id, TASK_COMPLETED)
+        logger.info(f"Task {task_id} completed")
 
         # Log the resources
         logger.debug(image_binary.model_dump_json(indent=2))

@@ -31,6 +31,7 @@ async def handle_bundle(request: Request):
         task = task_store.add_task(task)
         # Schedule the job with APScheduler
         job = scheduler.add_job(process_bundle, args=[bundle, task.id, task_store])
+        logger.info(f"Job scheduled: {job.id}")
 
         task_store.modify_task_status(task.id, TASK_RECEIVED)
         return task.model_dump()

@@ -3,7 +3,7 @@ from fhir2dicom4ortho.utils import convert_binary_to_image, convert_binary_to_da
 from fhir.resources.bundle import Bundle
 from fhir.resources.binary import Binary
 from fhir.resources.task import Task
-import logging
+from fhir2dicom4ortho import logger
 
 TASK_RECEIVED = "received"
 TASK_COMPLETED = "completed"
@@ -44,9 +44,10 @@ def process_bundle(bundle:Bundle, task_id, task_store):
         task_store[task_id].status = TASK_COMPLETED
 
         # Log the resources
-        logging.debug(image_binary.model_dump_json(indent=2))
-        logging.debug(dicom_binary.model_dump_json(indent=2))
+        logger.debug(image_binary.model_dump_json(indent=2))
+        logger.debug(dicom_binary.model_dump_json(indent=2))
 
     except Exception as e:
-        logging.error(f"Error processing Bundle: {e}")
+        logger.exception(e)
+        logger.error(f"Error processing Bundle: {e}")
         task_store[task_id].status = TASK_FAILED

@@ -4,6 +4,7 @@ from fhir.resources.task import Task
 from fhir2dicom4ortho.scheduler import scheduler
 from fhir2dicom4ortho.tasks import process_bundle, TASK_RECEIVED
 import uuid
+from fhir2dicom4ortho import logger
 
 fhir_api_app = FastAPI()
 
@@ -29,11 +30,12 @@ async def handle_bundle(request: Request):
         task_store[task.id] = task
 
         # Schedule the job with APScheduler
-        scheduler.add_job(process_bundle, args=[bundle_data, task.id, task_store])
+        scheduler.add_job(process_bundle, args=[bundle, task.id, task_store])
 
         return task.model_dump()
 
     except Exception as e:
+        logger.exception(e)
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
 @fhir_api_app.get("/fhir/Task/{task_id}")

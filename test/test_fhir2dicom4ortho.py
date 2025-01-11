@@ -21,7 +21,9 @@ class TestFHIRAPI(unittest.TestCase):
     def test_handle_bundle(self):
         response = self.client.post("/fhir/Bundle", json=test_bundle)
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.json(), {"status": "success", "message": "Bundle processed successfully"})
+        response_data = response.json()
+        self.assertIn("status", response_data)
+        self.assertEqual(response_data["status"], "draft")
 
 if __name__ == "__main__":
     unittest.main()

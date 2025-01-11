@@ -5,6 +5,7 @@ from fhir.resources.binary import Binary
 from fhir.resources.task import Task
 from fhir2dicom4ortho import logger
 
+TASK_DRAFT = "draft"
 TASK_RECEIVED = "received"
 TASK_COMPLETED = "completed"
 TASK_REJECTED = "rejected"
@@ -12,7 +13,7 @@ TASK_FAILED = "failed"
 TASK_INPROGRESS = "in-progress"
 
 def process_bundle(bundle:Bundle, task_id, task_store):
-    task_store[task_id].status = TASK_INPROGRESS
+    task_store.modify_task_status(task_id, TASK_INPROGRESS)
     try:
         # Extract Binary resources
         image_binary = None
@@ -27,7 +28,7 @@ def process_bundle(bundle:Bundle, task_id, task_store):
                     dicom_binary = resource
 
         if not image_binary or not dicom_binary:
-            task_store[task_id].status = TASK_REJECTED
+            task_store.modify_task_status(task_id, TASK_REJECTED)
             raise ValueError("Invalid Bundle: Must contain one image Binary and one DICOM Binary")
 
         # Convert Binary resources to image and dataset
@@ -41,13 +42,13 @@ def process_bundle(bundle:Bundle, task_id, task_store):
         orthodontic_photograph = controller.convert_image_plus_mwl_to_dicom4orthograph(image, dataset)
 
         # Update task status to completed
-        task_store[task_id].status = TASK_COMPLETED
+        task_store.modify_task_status(task_id, TASK_COMPLETED)
 
         # Log the resources
         logger.debug(image_binary.model_dump_json(indent=2))
         logger.debug(dicom_binary.model_dump_json(indent=2))
 
     except Exception as e:
+        task_store.modify_task_status(task_id, TASK_FAILED)
         logger.exception(e)
         logger.error(f"Error processing Bundle: {e}")
-        task_store[task_id].status = TASK_FAILED

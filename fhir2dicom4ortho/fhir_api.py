@@ -1,15 +1,16 @@
 from fastapi import FastAPI, HTTPException, Request
 from fhir.resources.bundle import Bundle
 from fhir.resources.task import Task
+from fhir.resources.operationoutcome import OperationOutcome
 from fhir2dicom4ortho.scheduler import scheduler
 from fhir2dicom4ortho.tasks import process_bundle, TASK_RECEIVED
-import uuid
+from fhir2dicom4ortho.task_store import TaskStore
 from fhir2dicom4ortho import logger
 
 fhir_api_app = FastAPI()
 
 # In-memory task store
-task_store = {}
+task_store = TaskStore()
 
 @fhir_api_app.post("/fhir/Bundle")
 async def handle_bundle(request: Request):
@@ -27,11 +28,11 @@ async def handle_bundle(request: Request):
         # Update Task status resource to represent the job
         task.status = TASK_RECEIVED
         task.description = "Processing Bundle"
-        task_store[task.id] = task
-
+        task = task_store.add_task(task)
         # Schedule the job with APScheduler
-        scheduler.add_job(process_bundle, args=[bundle, task.id, task_store])
+        job = scheduler.add_job(process_bundle, args=[bundle, task.id, task_store])
 
+        task_store.modify_task_status(task.id, TASK_RECEIVED)
         return task.model_dump()
 
     except Exception as e:
@@ -40,7 +41,21 @@ async def handle_bundle(request: Request):
 
 @fhir_api_app.get("/fhir/Task/{task_id}")
 async def get_task_status(task_id: str):
-    task:Task = task_store.get(task_id)
-    if not task:
-        raise HTTPException(status_code=404, detail="Task not found")
-    return task.model_dump()
+    try:
+        task = task_store.get_task_by_id(task_id)
+        if not task:
+            operation_outcome = OperationOutcome(
+                issue=[{
+                    "severity": "error",
+                    "code": "not-found",
+                    "diagnostics": f"Task with ID {task_id} not found"
+                }]
+            )
+            return operation_outcome.model_dump(), 404
+
+        return task.model_dump()
+
+
+    except Exception as e:
+        logger.exception(e)
+        raise HTTPException(status_code=500, detail="Internal Server Error")

@@ -7,7 +7,7 @@ import io
 from math import copysign
 
 from pydicom.sequence import Sequence
-from pydicom.dataset import FileDataset, DataElement, FileMetaDataset
+from pydicom.dataset import FileDataset, DataElement, FileMetaDataset, Dataset
 from pydicom.datadict import tag_for_keyword
 from pydicom.encaps import encapsulate
 from pydicom.uid import JPEGBaseline8Bit, JPEGExtended12Bit, ImplicitVRLittleEndian, ExplicitVRBigEndian, ExplicitVRLittleEndian, JPEGLosslessSV1, RLELossless, JPEGLosslessP14, JPEG2000, VLPhotographicImageStorage
@@ -42,7 +42,7 @@ class DicomBase(object):
         self.output_image_filename = kwargs.get('output_image_filename')
         self.input_image_bytes = kwargs.get('input_image_bytes')
         self.file_meta = FileMetaDataset()
-        self._ds = kwargs.get('dicom_mwl', None)
+        self.dicom_mwl = kwargs.get('dicom_mwl', None)
         self._image_format = None  # Cache for image format
         self._set_dataset()
         self._set_general_series()
@@ -50,6 +50,9 @@ class DicomBase(object):
         self._set_general_image()
         self._set_acquisition_context()
         self._set_sop_common()
+        if self.dicom_mwl:
+            # Copy MWL tags if available
+            self._copy_mwl_tags()
 
     def set_file_meta(self):
         self.file_meta.MediaStorageSOPClassUID = VLPhotographicImageStorage
@@ -78,6 +81,7 @@ class DicomBase(object):
         self._ds.SeriesInstanceUID = generate_dicom_uid(
             root=config.SeriesInstanceUID_ROOT)
         self._ds.SeriesNumber = config.IDS_NUMBERS
+        self._set_request_attributes()
 
     def _set_general_image(self):
         self._ds.InstanceNumber = config.IDS_NUMBERS
@@ -115,6 +119,120 @@ class DicomBase(object):
 
         self._ds[tagname] = DataElement(
             tag_for_keyword(tagname), 'PN', value)
+
+    def _copy_mwl_tags(self):
+        """ Copy tags from Modality Worklist to the new IOD.
+
+        This is done according to IHE RAD TF-2x. The tags copied are:
+
+        * Patient's Name
+        * Patient ID
+        * Patient's Birth Date
+        * Patient's 
+        """
+        if self.dicom_mwl is None:
+            return
+
+        # Patient's Name
+        if 'PatientName' in self.dicom_mwl:
+            self._ds.PatientName = self.dicom_mwl.PatientName
+
+        # Patient ID
+        if 'PatientID' in self.dicom_mwl:
+            self._ds.PatientID = self.dicom_mwl.PatientID
+
+        # Patient's Birth Date
+        if 'PatientBirthDate' in self.dicom_mwl:
+            self._ds.PatientBirthDate = self.dicom_mwl.PatientBirthDate
+
+        if 'StudyInstanceUID' in self.dicom_mwl:
+            self._ds.StudyInstanceUID = self.dicom_mwl.StudyInstanceUID
+
+        if 'ReferencedStudySequence' in self.dicom_mwl:
+            self._ds.ReferencedStudySequence = self.dicom_mwl.ReferencedStudySequence
+
+        if 'AccessionNumber' in self.dicom_mwl:
+            self._ds.AccessionNumber = self.dicom_mwl.AccessionNumber
+
+        if 'IssuerOfAccessionNumberSequence' in self.dicom_mwl:
+            self._ds.IssuerOfAccessionNumberSequence = self.dicom_mwl.IssuerOfAccessionNumberSequence
+
+        if 'InstitutionName' in self.dicom_mwl:
+            self._ds.InstitutionName = self.dicom_mwl.InstitutionName
+
+        if 'InstitutionAddress' in self.dicom_mwl:
+            self._ds.InstitutionAddress = self.dicom_mwl.InstitutionAddress
+
+        if 'InstitutionCodeSequence' in self.dicom_mwl:
+            self._ds.InstitutionCodeSequence = self.dicom_mwl.InstitutionCodeSequence
+
+        if 'PerformedProtocolCodeSequence' in self.dicom_mwl:
+            self._ds.PerformedProtocolCodeSequence = self.dicom_mwl.PerformedProtocolCodeSequence
+
+        if 'StudyID' in self.dicom_mwl:
+            if 'RequestedProcedureID' in self.dicom_mwl:
+                self._ds.StudyID = self.dicom_mwl.RequestedProcedureID # Recommended by IHE RAD TF-2x
+            else:
+                self._ds.StudyID = self.dicom_mwl.StudyID
+
+        if 'PerformedProcedureStepID' in self.dicom_mwl:
+            self._ds.PerformedProcedureStepID = self.dicom_mwl.PerformedProcedureStepID
+
+        if self._ds.StudyDate:
+            self._ds.PerformedProcedureStepStartDate = self._ds.StudyDate # Recommended by IHE RAD TF-2x
+        elif 'PerformedProcedureStepStartDate' in self.dicom_mwl:
+            self._ds.PerformedProcedureStepStartDate = self.dicom_mwl.PerformedProcedureStepStartDate
+
+        if self._ds.StudyTime:
+            self._ds.PerformedProcedureStepStartTime = self._ds.StudyTime # Recommended by IHE RAD TF-2x
+        elif 'PerformedProcedureStepStartTime' in self.dicom_mwl:
+            self._ds.PerformedProcedureStepStartTime = self.dicom_mwl.PerformedProcedureStepStartTime
+
+        if self._ds.StudyDescription:
+            self._ds.PerformedProcedureStepDescription = self._ds.StudyDescription # Recommended by IHE RAD TF-2x
+        elif 'PerformedProcedureStepDescription' in self.dicom_mwl:
+            self._ds.PerformedProcedureStepDescription = self.dicom_mwl.PerformedProcedureStepDescription
+
+        if 'RequestedProcedureCodeSequence' in self.dicom_mwl:
+            self._ds.ProcedureCodeSequence = self.dicom_mwl.RequestedProcedureCodeSequence # Recommended by IHE RAD TF-2x
+
+        if 'ReferencedSOPClassUID' in self.dicom_mwl:
+            self._ds.ReferencedSOPClassUID = self.dicom_mwl.ReferencedSOPClassUID
+
+    def _set_request_attributes(self):
+        ras = Dataset()
+        if 'RequestedProcedureID' in self.dicom_mwl:
+            self._ds.StudyID = self.dicom_mwl.RequestedProcedureID # Recommended by IHE RAD TF-2x
+            ras.RequestedProcedureID = self.dicom_mwl.RequestedProcedureID
+
+        if 'RequestedProcedureDescription' in self.dicom_mwl:
+            ras.RequestedProcedureDescription = self.dicom_mwl.RequestedProcedureDescription
+
+        if 'ReasonForTheRequestedProcedure' in self.dicom_mwl:
+            ras.ReasonForTheRequestedProcedure = self.dicom_mwl.ReasonForTheRequestedProcedure
+
+        if 'ReasonForTheRequestedProcedureCodeSequence' in self.dicom_mwl:
+            ras.ReasonForTheRequestedProcedureCodeSequence = self.dicom_mwl.ReasonForTheRequestedProcedureCodeSequence
+
+        if 'ScheduledProcedureStepID' in self.dicom_mwl:
+            ras.ScheduledProcedureStepID = self.dicom_mwl.ScheduledProcedureStepID
+
+        if 'ScheduledProcedureStepDescription' in self.dicom_mwl:
+            ras.ScheduledProcedureStepDescription = self.dicom_mwl.ScheduledProcedureStepDescription
+
+        if 'ScheduledProtocolCodeSequence' in self.dicom_mwl:
+            ras.ScheduledProtocolCodeSequence = self.dicom_mwl.ScheduledProtocolCodeSequence
+
+        self._ds.RequestAttributesSequence = Sequence([])
+        self._ds.RequestAttributesSequence.append(ras)
+
+
+    def _set_referenced_performed_procedure_step(self):
+        rpps = Dataset()
+        rpps.ReferencedSOPClassUID = "1.2.840.10008.3.1.2.3.3" # Modality Performed Procedure Step SOP Class UID (MPPS) Recommended by IHE RAD TF-2x
+
+        self._ds.ReferencedPerformedProcedureStepSequence = Sequence([])
+        self._ds.ReferencedPerformedProcedureStepSequence.append(rpps)
 
     def _input_filename_to_image_bytes(self) -> bytes:
         try:
@@ -568,7 +686,6 @@ class PhotographBase(DicomBase):
             self.input_image_filename = input_image_filename
 
         self.set_image()
-
 
     def _set_sop_common(self):
         super()._set_sop_common()

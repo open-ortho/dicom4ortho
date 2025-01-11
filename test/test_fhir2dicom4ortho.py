@@ -1,83 +1,18 @@
 import unittest
+import json
+import os
 from fastapi.testclient import TestClient
 from fhir2dicom4ortho.fhir_api import fhir_api_app
 
-# unknown | proposal | plan | order | original-order | reflex-order | filler-order | instance-order | option
-base64_sample_data = "VGhpcyBpcyBhIHNhbXBsZSBkaWNvbSBkYXRhLg=="
+# Get the directory of the current file
+current_dir = os.path.dirname(__file__)
 
-test_bundle = {
-  "resourceType": "Bundle",
-  "type": "transaction",
-  "entry": [
-    {
-      "fullUrl": "urn:uuid:task-example",
-      "resource": {
-        "resourceType": "Task",
-        "intent": "order",
-        "id": "task-example",
-        "status": "requested",
-        "description": "Process DICOM MWL and Image Input",
-        "authoredOn": "2024-06-16T14:00:00Z",
-        "requester": {
-          "reference": "Practitioner/456",
-          "display": "Dr. John Doe"
-        },
-        "for": {
-          "reference": "Patient/123",
-          "display": "Patient Example"
-        },
-        "input": [
-          {
-            "type": {
-              "text": "DICOM MWL"
-            },
-            "valueReference": {
-              "reference": "Binary/mwl-dicom"
-            }
-          },
-          {
-            "type": {
-              "text": "Image File"
-            },
-            "valueReference": {
-              "reference": "Binary/image-jpeg"
-            }
-          }
-        ]
-      },
-      "request": {
-        "method": "POST",
-        "url": "Task"
-      }
-    },
-    {
-      "fullUrl": "urn:uuid:mwl-dicom",
-      "resource": {
-        "resourceType": "Binary",
-        "id": "mwl-dicom",
-        "contentType": "application/dicom",
-        "data": base64_sample_data
-      },
-      "request": {
-        "method": "POST",
-        "url": "Binary"
-      }
-    },
-    {
-      "fullUrl": "urn:uuid:image-jpeg",
-      "resource": {
-        "resourceType": "Binary",
-        "id": "image-jpeg",
-        "contentType": "image/jpeg",
-        "data": base64_sample_data
-      },
-      "request": {
-        "method": "POST",
-        "url": "Binary"
-      }
-    }
-  ]
-}
+# Construct the path to the JSON file
+json_file_path = os.path.join(current_dir, 'fhir2dicom4ortho.Bundle.json')
+
+# Load the test_bundle from the JSON file
+with open(json_file_path, 'r') as f:
+    test_bundle = json.load(f)
 
 class TestFHIRAPI(unittest.TestCase):
     def setUp(self):

@@ -54,8 +54,6 @@ SOPInstanceUID_ROOT = f"{DICOM4ORTHO_ROOT_UID}.4"
 # The default IDs used for SeriesNumber StudyID and InstanceNumber
 IDS_NUMBERS = '000'
 
-ADD_MAX_ALLOWED_TEETH = 'ALL'
-
 # This is populated by controller.OrthodonticController._load_image_types()
 image_types = {}
 

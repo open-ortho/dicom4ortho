@@ -11,103 +11,12 @@ from pydicom.dataset import Dataset
 
 from dicom4ortho.model import PhotographBase
 import dicom4ortho.m_tooth_codes as ToothCodes
-from dicom4ortho.config import IMPORT_DATE_FORMAT, ADD_MAX_ALLOWED_TEETH, SeriesInstanceUID_ROOT, StudyInstanceUID_ROOT
+from dicom4ortho.config import IMPORT_DATE_FORMAT, SeriesInstanceUID_ROOT, StudyInstanceUID_ROOT
 from dicom4ortho.utils import generate_dicom_uid
 from dicom4ortho.m_dent_oip import DENT_OIP
 
 import logging
 logger = logging.getLogger(__name__)
-
-ALLOWED_TEETH = {
-    "EV01": [],
-    "EV02": [],
-    "EV03": [],
-    "EV04": [],
-    "EV05": [],
-    "EV06": [],
-    "EV07": [],
-    "EV08": [],
-    "EV09": [],
-    "EV10": [],
-    "EV11": [],
-    "EV12": [],
-    "EV13": [],
-    "EV14": [],
-    "EV15": [],
-    "EV16": [],
-    "EV17": [],
-    "EV18": [],
-    "EV19": [],
-    "EV20": [],
-    "EV21": [],
-    "EV22": [],
-    "EV23": [],
-    "EV24": [],
-    "EV25": [],
-    "EV26": [],
-    "EV27": [],
-    "EV28": [],
-    "EV29": [],
-    "EV30": [],
-    "EV31": [],
-    "EV32": [],
-    "EV33": [],
-    "EV34": [],
-    "EV35": [],
-    "EV36": [],
-    "EV37": [],
-    "EV38": [],
-    "EV39": [],
-    "EV40": [],
-    "EV41": [],
-    "EV42": [],
-    "EV43": [],
-
-    "IV01": [
-        '11', '12', '13', '14', '15', '16', '17', '18',
-        '41', '42', '43', '44', '45', '46', '47', '48',
-    ],
-    "IV02": [
-        '11', '12', '13', '14', '15', '16', '17', '18',
-        '41', '42', '43', '44', '45', '46', '47', '48',
-    ],
-    "IV03": [],
-    "IV04": [],
-    "IV05": [],
-    "IV06": [],
-    "IV07": [],
-    "IV08": [],
-    "IV09": [],
-    "IV10": [],
-    "IV11": [],
-    "IV12": [],
-    "IV13": [],
-    "IV14": [],
-    "IV15": [],
-    "IV16": [],
-    "IV17": [],
-    "IV18": [
-        '21', '22', '23', '24', '15', '26', '27', '28',
-        '31', '32', '33', '34', '35', '36', '37', '38',
-    ],
-    "IV19": [
-        '21', '22', '23', '24', '15', '26', '27', '28',
-        '31', '32', '33', '34', '35', '36', '37', '38',
-    ],
-    "IV20": [],
-    "IV21": [],
-    "IV22": [],
-    "IV23": [],
-    "IV24": [],
-    "IV25": [],
-    "IV26": [],
-    "IV27": [],
-    "IV28": [],
-    "IV29": [],
-    "IV30": [],
-
-}
-
 
 class OrthodonticPhotograph(PhotographBase):
     """ An Orthodontic Photograph as defined in WP-1100
@@ -127,11 +36,9 @@ class OrthodonticPhotograph(PhotographBase):
         # Initialize local variables
         self.type_keyword = ""  # Orthodontic View String, e.g. "IV03"
         self.dent_oip_view = None  # Row in DENT-OIP views.csv for this particular view
-        self.teeth = None
         self.treatment_event_type = None
         self.days_after_event = None
         self.dent_oip = DENT_OIP()
-        self.teeth = metadata.get('teeth')
 
         if metadata.get('image_type') is not None:
             # Allow for both dash separated and not separated naming
@@ -243,7 +150,6 @@ class OrthodonticPhotograph(PhotographBase):
         self.add_view_code()
         self.add_primary_anatomic_structure()
         self.add_acquisition_context()
-        # self.add_teeth()
 
     def add_acquisition_context(self):
         def add_progress():
@@ -340,22 +246,6 @@ class OrthodonticPhotograph(PhotographBase):
             if (len(PrimaryAnatomicStructureModifierSequence) > 0):
                 self._ds.PrimaryAnatomicStructureSequence[
                     0].PrimaryAnatomicStructureModifierSequence = PrimaryAnatomicStructureModifierSequence
-
-    def add_teeth(self):
-        teeth = self.teeth
-        logger.debug("Adding teeth")
-        if teeth == ADD_MAX_ALLOWED_TEETH:
-            logger.debug("Setting all possibly allowed teeth.")
-            teeth = ALLOWED_TEETH[self.type_keyword]
-
-        if len(teeth) > 0:
-            if not hasattr(self._ds, 'PrimaryAnatomicStructureSequence'):
-                self._ds.PrimaryAnatomicStructureSequence = Sequence([])
-
-            for tooth in teeth:
-                if ToothCodes.is_valid_tooth_number(tooth):
-                    self._ds.PrimaryAnatomicStructureSequence.append(
-                        self._get_code_dataset(*ToothCodes.SCT_TOOTH_CODES[tooth]))
 
     def is_extraoral(self) -> bool:
         if self.type_keyword.startswith("EV"):

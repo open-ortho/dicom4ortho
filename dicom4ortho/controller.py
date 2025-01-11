@@ -39,13 +39,12 @@ class OrthodonticController(object):
             url_codes=kwargs.get('url_codes'),
             url_views=kwargs.get('url_views'))
 
-    def bulk_convert_from_csv(self, csv_input, teeth=None):
+    def bulk_convert_from_csv(self, csv_input):
         with open(csv_input, mode='r') as csv_file:
             csv_reader = csv.DictReader(csv_file, delimiter=',')
             for row in csv_reader:
                 row['input_image_filename'] = (
                     Path(csv_input).parent / row['input_image_filename'])
-                row['teeth'] = teeth
                 self.convert_image_to_dicom4orthograph_and_save(metadata=row)
 
     def convert_image_to_dicom4orthograph(self, metadata) -> OrthodonticPhotograph:
@@ -69,9 +68,6 @@ class OrthodonticController(object):
                                             - "Posttreatment"
             days_after_event            : number of days from treatment_event_type
             burned_in_annotation        : 'YES' or 'NO'. Default = 'NO'.
-            teeth                       : array of teeth visible in the photograph.
-                                          Use ISO notation in string. Example:
-                                          teeth=['24','25','26','27','28','34','35','36','37','38']
             output_image_filename       : filename to write dicom image into.
                                           Default is the same name as the input file name with replaced
                                           extension.
@@ -82,15 +78,6 @@ class OrthodonticController(object):
             metadata['output_image_filename'] = str(p.with_suffix('.dcm'))
 
         self.photo = OrthodonticPhotograph(**metadata)
-
-        # TODO: check if metadata['teeth'] contains teeth and add
-        # What teeth are shown in the images is something we cannot guess from
-        # what image type is taken, and shold be entered manually or
-        # automtaicaly by the implementing software. Therefore, i would like
-        # the controller to have an option to add teeth and provide this option
-        # to the end user which, in this case, is the CLI, and the CSV import
-        # file.
-        # if metadata['teeth']
 
         return self.photo
 

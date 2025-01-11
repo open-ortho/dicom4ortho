@@ -42,7 +42,7 @@ async def handle_bundle(request: Request):
 @fhir_api_app.get("/fhir/Task/{task_id}")
 async def get_task_status(task_id: str):
     try:
-        task = task_store.get_task_by_id(task_id)
+        task = task_store.get_fhir_task_by_id(task_id)
         if not task:
             operation_outcome = OperationOutcome(
                 issue=[{

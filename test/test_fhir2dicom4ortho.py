@@ -1,6 +1,7 @@
 import unittest
 import json
 import os
+from time import sleep
 from fastapi.testclient import TestClient
 from fhir2dicom4ortho.fhir_api import fhir_api_app
 
@@ -24,6 +25,11 @@ class TestFHIRAPI(unittest.TestCase):
         response_data = response.json()
         self.assertIn("status", response_data)
         self.assertEqual(response_data["status"], "draft")
+        print("********** Waiting for Task to Complete... **********")
+        sleep(1)
+        response = self.client.get(f"/fhir/Task/{response_data['id']}")
+        response_data = response.json()
+        self.assertEqual(response_data["status"], "completed")
 
 if __name__ == "__main__":
     unittest.main()

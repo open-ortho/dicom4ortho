@@ -77,7 +77,8 @@ class TaskStore:
         if task:
             fhir_task = FHIRTask.model_validate_json(task.fhir_task)
             fhir_task.status = new_status
-            task.fhir_task = fhir_task.model_dump()
+            task.fhir_task = fhir_task.model_dump_json()
+            session.add(task)
             session.commit()
         session.close()
         return fhir_task if task else None

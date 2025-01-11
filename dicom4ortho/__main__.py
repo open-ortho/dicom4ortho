@@ -126,22 +126,6 @@ USAGE
             metavar='<image_type>',
         )
         parser.add_argument(
-            "--teeth",
-            dest="teeth",
-            nargs="*",
-            help="Add this tooth to image. Tooth should be clearly visible. \
-            Use ISO tooth numbering. Add as many as necessary, divided by a \
-            space, like: '--teeth 18 17 16'.",
-        )
-        parser.add_argument(
-            "--add-max-allowed-teeth",
-            dest="add_max_allowed_teeth",
-            action="store_true",
-            help="Adds the maximum allowed teeth for each image type. Assumes \
-            adult patient with all teeth present and clearly visible for the \
-            specified image type.",
-        )
-        parser.add_argument(
             "--validate",
             dest="validate",
             action="store_true",
@@ -177,24 +161,17 @@ USAGE
         c = controller.OrthodonticController(
             url_codes=args.url_codes,
             url_views=args.url_views)
-        if args.add_max_allowed_teeth:
-            teeth = config.ADD_MAX_ALLOWED_TEETH
-        elif args.teeth:
-            teeth = args.teeth
-        else:
-            teeth = []
 
         if args.validate is True:
             c.validate_dicom_file(args.input_filename)
             return 0
         elif args.input_filename.lower().endswith('.csv'):
-            c.bulk_convert_from_csv(args.input_filename, teeth=teeth)
+            c.bulk_convert_from_csv(args.input_filename)
             return 0
         else:
             c.convert_image_to_dicom4orthograph_and_save({
                 'image_type': args.image_type,
                 'input_image_filename': args.input_filename,
-                'teeth': teeth,
                 'output_image_filename': args.output_filename})
             c.photo.print()
             return 0

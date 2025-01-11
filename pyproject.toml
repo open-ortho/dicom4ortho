@@ -1,6 +1,52 @@
 [build-system]
-requires = [
-    "setuptools>=42",
-    "wheel"
-]
+requires = ["setuptools>=42", "wheel"]
 build-backend = "setuptools.build_meta"
+
+[project]
+name = "dicom4ortho"
+version = "0.3.13-dev"
+description = "A DICOM Implementation for Orthodontic Images"
+readme = "README.md"
+requires-python = ">=3.10"
+license = {text = "MIT License"}
+authors = [
+    {name = "Toni Magni", email = "amagni@open-ortho.org"},
+]
+keywords = ["DICOM", "VL", "Visible Light Photography", "Orthodontics"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Healthcare Industry",
+    "Topic :: Scientific/Engineering :: Medical Science Apps.",
+    "Topic :: Scientific/Engineering :: Image Processing",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3"
+]
+dependencies = [
+    "apscheduler",
+    "pydantic",
+    "fhir.resources",
+    "httpx",
+    "fastapi",
+    "argparse",
+    "pydicom",
+    "pynetdicom",
+    "pillow",
+    "prettytable",
+    "numpy",
+    "uvicorn"
+]
+
+[project.urls]
+homepage = 'https://github.com/open-ortho/dicom4ortho'
+
+[project.scripts]
+dicom4ortho = "dicom4ortho.__main__:main"
+fhir2dicom4ortho = "fhir2dicom4ortho.entry_points:fhir_api"
+
+[tool.setuptools.package-data]
+"*" = ["LICENSE"]
+"dicom4ortho" = ["resources/image_types.csv", "resources/codes.csv", "resources/views.csv"]
+
+[tool.setuptools.packages.find]
+include = ["dicom4ortho*", "fhir2dicom4ortho*"]

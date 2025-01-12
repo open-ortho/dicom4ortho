@@ -50,9 +50,6 @@ class DicomBase(object):
         self._set_general_image()
         self._set_acquisition_context()
         self._set_sop_common()
-        if self.dicom_mwl:
-            # Copy MWL tags if available
-            self._copy_mwl_tags()
 
     def set_file_meta(self):
         self.file_meta.MediaStorageSOPClassUID = VLPhotographicImageStorage
@@ -120,17 +117,17 @@ class DicomBase(object):
         self._ds[tagname] = DataElement(
             tag_for_keyword(tagname), 'PN', value)
 
-    def _copy_mwl_tags(self):
+    def copy_mwl_tags(self, dicom_mwl=None):
         """ Copy tags from Modality Worklist to the new IOD.
 
-        This is done according to IHE RAD TF-2x. The tags copied are:
+        This is done according to IHE RAD TF-2x.
 
-        * Patient's Name
-        * Patient ID
-        * Patient's Birth Date
-        * Patient's 
         """
         if self.dicom_mwl is None:
+            self.dicom_mwl = dicom_mwl
+
+        if self.dicom_mwl is None:
+            logger.warning("No Modality Worklist to copy tags from.")
             return
 
         # Patient's Name

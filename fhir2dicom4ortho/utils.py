@@ -5,6 +5,12 @@ from pydicom import Dataset, dcmread
 from fhir2dicom4ortho import logger
 
 def convert_binary_to_image(binary: Binary) -> Image:
+    """ Convert a FHIR Binary resource to a PIL Image object.
+    
+    Initially written to pass the PIL to dicom4ortho, but it is better to pass the raw bytes.
+    
+    If not used, remove.
+    """
     image_data = binary.data
 
     logger.debug(f"Decoded image data length: {len(image_data)}")
@@ -25,6 +31,61 @@ def convert_binary_to_image(binary: Binary) -> Image:
 
     return image
 
+def get_code_from_mwl(mwl: Dataset):
+    ''' Get Code from MWL
+    
+    Returns the first code of the ScheduledProtocolCodeSequence from the MWL, which is under the ScheduledProcedureStepSequence.
+
+    Used for MWL which have a single ScheduledProtocolCode to build the OrthodonticPhotograph.
+    '''
+    try:
+        scheduled_procedure_step_sequence = mwl.ScheduledProcedureStepSequence
+        if scheduled_procedure_step_sequence:
+            scheduled_procedure_step = scheduled_procedure_step_sequence[0]
+            code_sequence = scheduled_procedure_step.ScheduledProtocolCodeSequence
+            if code_sequence:
+                code = code_sequence[0]
+                logger.info(f"Code: {code}")
+                return code
+        logger.warning("ScheduledProtocolCodeSequence not found in MWL.")
+        return None
+    except Exception as e:
+        logger.exception(e)
+        logger.error(f"Error getting code from MWL: {str(e)}")
+        return None
+
+def get_opor_code_value_from_code(image_type_code):
+    """ Get OPOR Code Value from Code
+    
+    Pass whatever code came from the get_code_from_mwl function, and return the CodeValue if the CodeSchemeDesignator is '99OPOR'. Otherwise, look up in the terminology server.
+    """
+    if image_type_code:
+        if hasattr(image_type_code, 'CodeSchemeDesignator'):
+            if image_type_code.CodeSchemeDesignator == "99OPOR":
+                if hasattr(image_type_code, 'CodeValue'):
+                    image_type = image_type_code.CodeValue
+                    return image_type
+                else:
+                    logger.info("Code is not a valid OPOR code. Looking up in the terminology server...")
+                    return translate_code_to_opor(image_type_code)
+        else:
+            logger.warning("CodeSchemeDesignator is missing or does not match '99OPOR'.")
+    else:
+        logger.warning("image_type_code is None.")
+
+
+def translate_code_to_opor(code:Dataset) -> Dataset:
+    ''' Translate Code to OPOR
+    
+    Translate a code to an OPOR code by looking up in the terminology server.
+
+    Assumes code is a valid DICOM Code, with CodeValue, CodeMeaning, and CodeSchemeDesignator.
+    '''
+    # TODO: Implement this function
+    logger.warning(f"Translate Code: Function not implemented. Returning whatever code {code.CodeValue} was passed.")
+    return code
+
+    
 def convert_binary_to_dataset(binary: Binary) -> Dataset:
     # Decode the base64 data
     dicom_data = binary.data

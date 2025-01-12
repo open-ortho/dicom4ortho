@@ -1,5 +1,6 @@
 from dicom4ortho.controller import OrthodonticController
-from fhir2dicom4ortho.utils import convert_binary_to_image, convert_binary_to_dataset
+from dicom4ortho.m_orthodontic_photograph import OrthodonticPhotograph
+from fhir2dicom4ortho.utils import get_code_from_mwl, convert_binary_to_dataset
 from fhir.resources.bundle import Bundle
 from fhir.resources.binary import Binary
 from fhir.resources.task import Task
@@ -16,7 +17,7 @@ def process_bundle(bundle:Bundle, task_id, task_store):
     logger.info(f"Processing Task: {task_id}")
     task_store.modify_task_status(task_id, TASK_INPROGRESS)
     try:
-        # Extract Binary resources
+        logger.debug("Extracting Binary resources")
         image_binary = None
         dicom_binary = None
 
@@ -32,15 +33,24 @@ def process_bundle(bundle:Bundle, task_id, task_store):
             task_store.modify_task_status(task_id, TASK_REJECTED)
             raise ValueError("Invalid Bundle: Must contain one image Binary and one DICOM Binary")
 
-        # Convert Binary resources to image and dataset
-        image = convert_binary_to_image(image_binary)
-        dataset = convert_binary_to_dataset(dicom_binary)
+        logger.debug("Converting Binary resources to image and dataset")
+        # image = convert_binary_to_image(image_binary)
+        mwl_dataset = convert_binary_to_dataset(dicom_binary)
+        
+        logger.debug("Getting proper 99OPOR image type code from MWL")
+        image_type_code = get_code_from_mwl(mwl_dataset)
 
-        # Initialize the OrthodonticController
+        logger.debug("Building OrthodonticPhotograph")
+        orthodontic_photograph:OrthodonticPhotograph = OrthodonticPhotograph(
+            input_image_bytes=image_binary.data,
+            image_type_code=image_type_code.CodeValue,
+        )
+        
+        logger.debug("Copying MWL tags to OrthodonticPhotograph")
+        orthodontic_photograph.copy_mwl_tags(mwl_dataset=mwl_dataset)
+
+        logger.debug("Sending OrthodonticPhotograph to PACS")
         controller = OrthodonticController()
-
-        # Convert image and dataset to an orthodontic photograph
-        orthodontic_photograph = controller.convert_image_plus_mwl_to_dicom4orthograph(image, dataset)
         controller.send(
             send_method=args_cache.pacs_send_method,
             pacs_dimse_hostname=args_cache.pacs_dimse_hostname,
@@ -54,6 +64,7 @@ def process_bundle(bundle:Bundle, task_id, task_store):
         )
 
         # Update task status to completed
+        logger.debug("Setting Task status to completed")
         task_store.modify_task_status(task_id, TASK_COMPLETED)
         logger.info(f"Task {task_id} completed")
 

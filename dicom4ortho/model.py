@@ -639,6 +639,9 @@ class DicomBase(object):
             self._ds.StudyInstanceUID = generate_dicom_uid(
                 root=config.StudyInstanceUID_ROOT)
 
+    def to_dataset(self):
+        return self._ds
+
     def to_byte(self):
         """Return a bytes-like object which can be accessed with read() and seek()."""
 

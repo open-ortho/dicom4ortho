@@ -52,10 +52,18 @@ class TestTasks(unittest.TestCase):
     def test_process_bundle_task(self):
         """ Test requires mock PACS server """
         task_id = self.task_store.reserve_id(description="Test Task")
-        process_bundle(self.bundle, task_id, self.task_store)
+        # Capture the log output
+        with self.assertLogs('pynetdicom._handlers', level='INFO') as log:
+            process_bundle(self.bundle, task_id, self.task_store)
+
         task = self.task_store.get_fhir_task_by_id(task_id)
         self.assertIsNotNone(task)
         self.assertIn(task.status, [TASK_COMPLETED, TASK_FAILED, TASK_REJECTED, TASK_INPROGRESS])
+
+        # Check the log output for the success message
+        success_message = "Received Store Response (Status: 0x0000 - Success)"
+        log_output = "\n".join(log.output)
+        self.assertIn(success_message, log_output)
 
 
 

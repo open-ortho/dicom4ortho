@@ -197,6 +197,10 @@ class DicomBase(object):
             self._ds.ReferencedSOPClassUID = self.dicom_mwl.ReferencedSOPClassUID
 
     def _set_request_attributes(self):
+        if self.dicom_mwl is None:
+            logger.warning("No Modality Worklist to copy tags from.")
+            return
+
         ras = Dataset()
         if 'RequestedProcedureID' in self.dicom_mwl:
             self._ds.StudyID = self.dicom_mwl.RequestedProcedureID # Recommended by IHE RAD TF-2x

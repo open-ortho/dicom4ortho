@@ -11,7 +11,6 @@ from dicom4ortho.model import DicomBase
 from dicom4ortho.m_dent_oip import DENT_OIP
 from dicom4ortho.m_orthodontic_photograph import OrthodonticPhotograph, OrthodonticSeries
 from dicom4ortho.dicom import wado, dimse
-from dicom4ortho import args_cache
 
 import logging
 logger = logging.getLogger(__name__)
@@ -183,6 +182,7 @@ class OrthodonticController(object):
         # Send the DICOM file based on the specified method
         if send_method == 'dimse':
             return dimse.send(
+                dicom_datasets=kwargs.get('dicom_datasets', None),
                 dicom_files=kwargs.get('dicom_files', None),
                 orthodontic_series=kwargs.get('orthodontic_series', None),
                 pacs_dimse_hostname=kwargs['pacs_dimse_hostname'],

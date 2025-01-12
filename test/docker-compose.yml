@@ -1,6 +1,7 @@
 services:
   orthanc:
     # image: cr.medoco.health/open-ortho/orthanc-mock:latest
+    container_name: orthanc-mock
     image: jodogne/orthanc-plugins
     hostname: orthanc
     ports: ["127.0.0.1:8202:8042", "127.0.0.1:4242:4242"]

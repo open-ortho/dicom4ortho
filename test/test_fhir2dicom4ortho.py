@@ -3,7 +3,19 @@ import json
 import os
 from time import sleep
 from fastapi.testclient import TestClient
+
+os.environ['F2D4O_VERBOSITY'] = '2'
+os.environ['F2D4O_FHIR_LISTEN'] = ''
+os.environ['F2D4O_FHIR_PORT'] = '8123'
+os.environ['F2D4O_PACS_SEND_METHOD'] = 'dimse'
+os.environ['F2D4O_PACS_DIMSE_AET'] = 'ORTHANC-MOCK'
+os.environ['F2D4O_PACS_DIMSE_IP'] = '127.0.0.1'
+os.environ['F2D4O_PACS_DIMSE_PORT'] = '4242'
+
+from fhir.resources.bundle import Bundle
 from fhir2dicom4ortho.fhir_api import fhir_api_app
+from fhir2dicom4ortho.tasks import process_bundle, TASK_DRAFT, TASK_COMPLETED, TASK_FAILED, TASK_REJECTED, TASK_INPROGRESS
+from fhir2dicom4ortho.task_store import TaskStore 
 
 # Get the directory of the current file
 current_dir = os.path.dirname(__file__)
@@ -30,6 +42,22 @@ class TestFHIRAPI(unittest.TestCase):
         response = self.client.get(f"/fhir/Task/{response_data['id']}")
         response_data = response.json()
         self.assertEqual(response_data["status"], "completed")
+
+
+class TestTasks(unittest.TestCase):
+    def setUp(self):
+        self.task_store = TaskStore(db_url='sqlite:///test_tasks.sqlite')
+        self.bundle = Bundle.model_validate(test_bundle)
+
+    def test_process_bundle_task(self):
+        """ Test requires mock PACS server """
+        task_id = self.task_store.reserve_id(description="Test Task")
+        process_bundle(self.bundle, task_id, self.task_store)
+        task = self.task_store.get_fhir_task_by_id(task_id)
+        self.assertIsNotNone(task)
+        self.assertIn(task.status, [TASK_COMPLETED, TASK_FAILED, TASK_REJECTED, TASK_INPROGRESS])
+
+
 
 if __name__ == "__main__":
     unittest.main()

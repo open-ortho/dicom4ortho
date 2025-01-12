@@ -42,10 +42,10 @@ class ArgsCache:
             # DICOM PACS destination WADO coordinates.
             pacs_wado_url=os.getenv('F2D4O_PACS_WADO_URL', ''),
             pacs_wado_username=os.getenv('F2D4O_PACS_WADO_USERNAME', ''),
-            pacs_wado_password=int(os.getenv('F2D4O_PACS_WADO_PASSWORD', '')),
+            pacs_wado_password=os.getenv('F2D4O_PACS_WADO_PASSWORD', ''),
 
             # DICOM PACS destination DIMSE coordinates.
-            pacs_dimse_aet=os.getenv('F2D4O_PACS_DIOMSE_AET', ''),
+            pacs_dimse_aet=os.getenv('F2D4O_PACS_DIMSE_AET', ''),
             pacs_dimse_hostname=os.getenv('F2D4O_PACS_DIMSE_IP', ''),
             pacs_dimse_port=int(os.getenv('F2D4O_PACS_DIMSE_PORT', '104')),
 

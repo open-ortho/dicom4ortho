@@ -60,7 +60,7 @@ def send(**kwargs):
     assoc = ae.associate(pacs_dimse_hostname, pacs_dimse_port, ae_title=pacs_dimse_aet)
     status = None
     if assoc.is_established:
-        for dicom_file, dicom_dataset in zip(dicom_files, dicom_datasets):
+        for dicom_file, dicom_dataset in zip(dicom_files or [], dicom_datasets or []):
             if isinstance(dicom_dataset, Dataset):
                 dataset = dicom_dataset
             else:

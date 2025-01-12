@@ -19,7 +19,7 @@ Dependencies:
 import logging
 from fhir2dicom4ortho.args_cache import ArgsCache
 
-args_cache = ArgsCache()
+args_cache = ArgsCache().load_arguments()
 
 logging.basicConfig(
     format='%(asctime)s - %(levelname)s - %(funcName)s: %(message)s')

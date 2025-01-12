@@ -47,7 +47,7 @@ def process_bundle(bundle:Bundle, task_id, task_store):
         )
         
         logger.debug("Copying MWL tags to OrthodonticPhotograph")
-        orthodontic_photograph.copy_mwl_tags(mwl_dataset=mwl_dataset)
+        orthodontic_photograph.copy_mwl_tags(dicom_mwl=mwl_dataset)
 
         logger.debug("Sending OrthodonticPhotograph to PACS")
         controller = OrthodonticController()
@@ -59,7 +59,6 @@ def process_bundle(bundle:Bundle, task_id, task_store):
             pacs_wado_url=args_cache.pacs_wado_url,
             pacs_wado_username=args_cache.pacs_wado_username,
             pacs_wado_password=args_cache.pacs_wado_password,
-            orthodontic_series=orthodontic_photograph.series,
             dicom_datasets=[orthodontic_photograph.to_dataset()]
         )
 

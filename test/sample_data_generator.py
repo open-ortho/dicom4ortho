@@ -1,5 +1,7 @@
-import os
-from datetime import datetime
+""" Generate sample data for testing
+
+Execute and writes to file. Then do whatever you need. 
+"""
 from pydicom.uid import generate_uid
 from pydicom.dataset import Dataset
 from pynetdicom.sop_class import ModalityWorklistInformationFind

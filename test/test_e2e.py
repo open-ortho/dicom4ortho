@@ -18,12 +18,12 @@ warnings.simplefilter('error', UserWarning)
 
 DEBUG = False
 
-dicomweb_url = 'http://127.0.0.1:8202/dicom-web/studies'
-username = 'orthanc'
-password = 'mock'
-# dicomweb_url = 'https://ovena-dev.lan.marcorosa.it/dicom-web/studies'
-# username = 'user1'
-# password = '3V2VC4iBMG3UVHz6'
+pacs_wado_url = 'http://127.0.0.1:8202/dicom-web/studies'
+pacs_wado_username = 'orthanc'
+pacs_wado_password = 'mock'
+# pacs_wado_url = 'https://ovena-dev.lan.marcorosa.it/dicom-web/studies'
+# pacs_wado_username = 'user1'
+# pacs_wado_password = '3V2VC4iBMG3UVHz6'
 ssl_certificate = None # String of SSL certificate to match. Self-signed certs OK but hostname MUST match, or it will fail.
 ssl_verify = False
 
@@ -158,9 +158,9 @@ class TestPacsModule(unittest.TestCase):
         response = c.send(
             send_method='wado',
             orthodontic_series=o_s,
-            dicomweb_url=dicomweb_url,
-            username=username,
-            password=password,
+            pacs_wado_url=pacs_wado_url,
+            pacs_wado_username=pacs_wado_username,
+            pacs_wado_password=pacs_wado_password,
             ssl_certificate=ssl_certificate,
             ssl_verify=ssl_verify)
 
@@ -232,17 +232,17 @@ class TestPacsModule(unittest.TestCase):
         # dicom_file_path = Path(
         #     '/Users/afm/Desktop/1141_SLOT_1/PAZIENTE_1/DSC_0001.DCM')
         # dicom_file_path = Path('/Users/afm/git/open-ortho/dicom4ortho/test/resources/d90.dcm')
-        pacs_ip = '127.0.0.1'
-        pacs_port = 4242
-        pacs_aet = 'ORTHANC-MOCK'
+        pacs_dimse_hostname = '127.0.0.1'
+        pacs_dimse_port = 4242
+        pacs_dimse_aet = 'ORTHANC-MOCK'
 
         c = OrthodonticController()
         status = c.send(
             send_method='dimse',
             dicom_files=[dicom_file_path],
-            pasc_ip=pacs_ip,
-            pacs_port=pacs_port,
-            pacs_aet=pacs_aet)
+            pasc_ip=pacs_dimse_hostname,
+            pacs_dimse_port=pacs_dimse_port,
+            pacs_dimse_aet=pacs_dimse_aet)
         self.assertTrue(hasattr(status, 'Status'))
         if status:
             self.assertEqual(status.Status, 0)
@@ -257,9 +257,9 @@ class TestPacsModule(unittest.TestCase):
             send_method='wado',
             dicom_files=dicom_files,
             orthodontic_series=orthodontic_series,
-            dicomweb_url=dicomweb_url,
-            username=username,
-            password=password,
+            pacs_wado_url=pacs_wado_url,
+            pacs_wado_username=pacs_wado_username,
+            pacs_wado_password=pacs_wado_password,
             ssl_certificate=ssl_certificate,
             ssl_verify=False)
 

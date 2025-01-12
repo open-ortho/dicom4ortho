@@ -3,7 +3,7 @@ from fhir2dicom4ortho.utils import convert_binary_to_image, convert_binary_to_da
 from fhir.resources.bundle import Bundle
 from fhir.resources.binary import Binary
 from fhir.resources.task import Task
-from fhir2dicom4ortho import logger
+from fhir2dicom4ortho import logger, args_cache
 
 TASK_DRAFT = "draft"
 TASK_RECEIVED = "received"
@@ -41,6 +41,17 @@ def process_bundle(bundle:Bundle, task_id, task_store):
 
         # Convert image and dataset to an orthodontic photograph
         orthodontic_photograph = controller.convert_image_plus_mwl_to_dicom4orthograph(image, dataset)
+        controller.send(
+            send_method=args_cache.pacs_send_method,
+            pacs_dimse_hostname=args_cache.pacs_dimse_hostname,
+            pacs_dimse_port=args_cache.pacs_dimse_port,
+            pacs_dimse_aet=args_cache.pacs_dimse_aet,
+            pacs_wado_url=args_cache.pacs_wado_url,
+            pacs_wado_username=args_cache.pacs_wado_username,
+            pacs_wado_password=args_cache.pacs_wado_password,
+            orthodontic_series=orthodontic_photograph.series,
+            dicom_datasets=[orthodontic_photograph.to_dataset()]
+        )
 
         # Update task status to completed
         task_store.modify_task_status(task_id, TASK_COMPLETED)

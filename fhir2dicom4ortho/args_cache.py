@@ -34,12 +34,19 @@ class ArgsCache:
 
             # FHIR API server IP and port.
             fhir_api=bool(strtobool(os.getenv('F2D4O_FHIR_API', 'True'))),
-            fhir_listen=os.getenv('F2D4O_FHIR_LISTEN', ''),
+            fhir_listen=os.getenv('F2D4O_FHIR_LISTEN', '*'),
             fhir_port=int(os.getenv('F2D4O_FHIR_PORT','8000')),
 
-            # DICOM PACS destination AET, IP and port.
-            pacs_aet=os.getenv('F2D4O_PACS_AET', ''),
-            pacs_ip=os.getenv('F2D4O_PACS_IP', ''),
-            pacs_port=int(os.getenv('F2D4O_PACS_PORT', '104')),
+            pacs_send_method=os.getenv('F2D4O_PACS_SEND_METHOD', 'dimse'),
+
+            # DICOM PACS destination WADO coordinates.
+            pacs_wado_url=os.getenv('F2D4O_PACS_WADO_URL', ''),
+            pacs_wado_username=os.getenv('F2D4O_PACS_WADO_USERNAME', ''),
+            pacs_wado_password=int(os.getenv('F2D4O_PACS_WADO_PASSWORD', '')),
+
+            # DICOM PACS destination DIMSE coordinates.
+            pacs_dimse_aet=os.getenv('F2D4O_PACS_DIOMSE_AET', ''),
+            pacs_dimse_hostname=os.getenv('F2D4O_PACS_DIMSE_IP', ''),
+            pacs_dimse_port=int(os.getenv('F2D4O_PACS_DIMSE_PORT', '104')),
 
         )

@@ -2,10 +2,11 @@ from fastapi import FastAPI, HTTPException, Request
 from fhir.resources.bundle import Bundle
 from fhir.resources.task import Task
 from fhir.resources.operationoutcome import OperationOutcome
+
 from fhir2dicom4ortho.scheduler import scheduler
 from fhir2dicom4ortho.tasks import process_bundle, TASK_RECEIVED
 from fhir2dicom4ortho.task_store import TaskStore
-from fhir2dicom4ortho import logger
+from fhir2dicom4ortho import logger, args_cache
 
 fhir_api_app = FastAPI()
 

@@ -4,7 +4,6 @@ Controller
 import os
 import csv
 from pathlib import Path
-from PIL import Image
 from pydicom.dataset import Dataset
 
 from dicom4ortho.config import DICOM3TOOLS_PATH
@@ -12,10 +11,10 @@ from dicom4ortho.model import DicomBase
 from dicom4ortho.m_dent_oip import DENT_OIP
 from dicom4ortho.m_orthodontic_photograph import OrthodonticPhotograph, OrthodonticSeries
 from dicom4ortho.dicom import wado, dimse
+from dicom4ortho import args_cache
 
 import logging
 logger = logging.getLogger(__name__)
-
 
 class OrthodonticController(object):
     """ Controller
@@ -89,6 +88,8 @@ class OrthodonticController(object):
         Parameters:
         image_bytes (bytes): Image bytes. Purposely set to raw bytes to avoid file I/O. Purposely avoiding PIL Image, because once in PIL Image, the image will be decoded and re-encoded even when saved as JPEG. This would result in loss of image quality.
 
+        mwl (Dataset): DICOM MWL object.
+
         '''
         metadata = {
             'input_image_filename': None,
@@ -147,14 +148,14 @@ class OrthodonticController(object):
         **kwargs: Additional keyword arguments depending on the send method:
 
             For send_method 'dimse':
-                pacs_ip (str): IP address of the PACS server.
-                pacs_port (int): Port of the PACS server.
-                pacs_aet (str): AE Title of the PACS server.
+                pacs_dimse_hostname (str): IP address of the PACS server.
+                pacs_dimse_port (int): Port of the PACS server.
+                pacs_dimse_aet (str): AE Title of the PACS server.
 
             For send_method 'wado':
-                dicomweb_url (str): URL of the DICOMweb server.
-                username (str, optional): Username for DICOMweb authentication.
-                password (str, optional): Password for DICOMweb authentication.
+                pacs_wado_url (str): URL of the DICOMweb server.
+                pacs_wado_username (str, optional): Username for DICOMweb authentication.
+                pacs_wado_password (str, optional): Password for DICOMweb authentication.
 
         Raises:
         ValueError: If an invalid send method is specified or required kwargs are missing.
@@ -163,17 +164,17 @@ class OrthodonticController(object):
         send(
             dicom_files=['path/to/output.dcm'],
             send_method='dimse',
-            pacs_ip='127.0.0.1',
-            pacs_port=104,
-            pacs_aet='PACS_AET'
+            pacs_dimse_hostname='127.0.0.1',
+            pacs_dimse_port=104,
+            pacs_dimse_aet='PACS_AET'
         )
 
         send(
             orthodontic_series=orthodontic_series,
             send_method='wado',
-            dicomweb_url='http://dicomweb-server.com/dicomweb/studies',
-            username='user',
-            password='pass'
+            pacs_wado_url='http://dicomweb-server.com/dicomweb/studies',
+            pacs_wado_username='user',
+            pacs_wado_password='pass'
         )
         """
 
@@ -184,17 +185,17 @@ class OrthodonticController(object):
             return dimse.send(
                 dicom_files=kwargs.get('dicom_files', None),
                 orthodontic_series=kwargs.get('orthodontic_series', None),
-                pacs_ip=kwargs['pacs_ip'],
-                pacs_port=kwargs['pacs_port'],
-                pacs_aet=kwargs['pacs_aet'])
+                pacs_dimse_hostname=kwargs['pacs_dimse_hostname'],
+                pacs_dimse_port=kwargs['pacs_dimse_port'],
+                pacs_dimse_aet=kwargs['pacs_dimse_aet'])
 
         elif send_method == 'wado':
             return wado.send(
                 dicom_files=kwargs.get('dicom_files', None),
                 orthodontic_series=kwargs.get('orthodontic_series', None),
-                dicomweb_url=kwargs['dicomweb_url'],
-                username=kwargs.get('username'),
-                password=kwargs.get('password'),
+                pacs_wado_url=kwargs['pacs_wado_url'],
+                pacs_wado_username=kwargs.get('username'),
+                pacs_wado_password=kwargs.get('pacs_wado_password'),
                 ssl_certificate=kwargs.get('ssl_certificate'),
                 ssl_verify=kwargs.get('ssl_verify'),
             )

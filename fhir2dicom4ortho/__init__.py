@@ -16,9 +16,10 @@ Dependencies:
 - httpx
 - fastapi
 """
-import os
-import sys
 import logging
+from fhir2dicom4ortho.args_cache import ArgsCache
+
+args_cache = ArgsCache()
 
 logging.basicConfig(
     format='%(asctime)s - %(levelname)s - %(funcName)s: %(message)s')

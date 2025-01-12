@@ -31,7 +31,7 @@ def convert_binary_to_image(binary: Binary) -> Image:
 
     return image
 
-def get_code_from_mwl(mwl: Dataset):
+def get_code_from_mwl(mwl: Dataset) -> Dataset:
     ''' Get Code from MWL
     
     Returns the first code of the ScheduledProtocolCodeSequence from the MWL, which is under the ScheduledProcedureStepSequence.
@@ -45,7 +45,7 @@ def get_code_from_mwl(mwl: Dataset):
             code_sequence = scheduled_procedure_step.ScheduledProtocolCodeSequence
             if code_sequence:
                 code = code_sequence[0]
-                logger.info(f"Code: {code}")
+                logger.debug(f"Found code in MWL:\n{code}")
                 return code
         logger.warning("ScheduledProtocolCodeSequence not found in MWL.")
         return None
@@ -57,19 +57,20 @@ def get_code_from_mwl(mwl: Dataset):
 def get_opor_code_value_from_code(image_type_code):
     """ Get OPOR Code Value from Code
     
-    Pass whatever code came from the get_code_from_mwl function, and return the CodeValue if the CodeSchemeDesignator is '99OPOR'. Otherwise, look up in the terminology server.
+    Pass whatever code came from the get_code_from_mwl function, and return the CodeValue if the CodingSchemeDesignator is '99OPOR'. Otherwise, look up in the terminology server.
     """
     if image_type_code:
-        if hasattr(image_type_code, 'CodeSchemeDesignator'):
-            if image_type_code.CodeSchemeDesignator == "99OPOR":
+        if hasattr(image_type_code, 'CodingSchemeDesignator'):
+            if image_type_code.CodingSchemeDesignator == "99OPOR":
                 if hasattr(image_type_code, 'CodeValue'):
+                    logger.debug(f"Code is a valid OPOR code: {image_type_code.CodeValue}")
                     image_type = image_type_code.CodeValue
                     return image_type
-                else:
-                    logger.info("Code is not a valid OPOR code. Looking up in the terminology server...")
-                    return translate_code_to_opor(image_type_code)
+            else:
+                logger.info("Code is not a valid OPOR code. Looking up in the terminology server...")
+                return translate_code_to_opor(image_type_code)
         else:
-            logger.warning("CodeSchemeDesignator is missing or does not match '99OPOR'.")
+            logger.warning("CodingSchemeDesignator is missing or does not match '99OPOR'.")
     else:
         logger.warning("image_type_code is None.")
 

@@ -659,10 +659,20 @@ class DicomBase(object):
 
         return file_like
 
+    def prepare(self):
+        """Prepare the image for saving.
+
+        This method should be called before saving or sending the image to ensure that
+        the image data is properly set in the DICOM dataset.
+        
+        Method has been taken out of save() to allow for usage when sending over the network, without saving first.
+        """
+        self.add_missing_instance_uids()
+
     def save(self, filename=None):
         """Save the byte stream to a file."""
+        self.prepare()
         filename = filename or self.output_image_filename
-        self.add_missing_instance_uids()
         self._ds.save_as(filename=filename, write_like_original=False)
         logger.info("File [%s] saved.", filename)
 

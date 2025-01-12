@@ -60,11 +60,13 @@ def send(**kwargs):
     assoc = ae.associate(pacs_dimse_hostname, pacs_dimse_port, ae_title=pacs_dimse_aet)
     status = None
     if assoc.is_established:
-        for dicom_file, dicom_dataset in zip(dicom_files or [], dicom_datasets or []):
-            if isinstance(dicom_dataset, Dataset):
-                dataset = dicom_dataset
+        combined_dicoms = (dicom_files or []) + (dicom_datasets or [])
+        for dicom_thing in combined_dicoms:
+            logger.debug('Sending dicom Dataset')
+            if isinstance(dicom_thing, Dataset):
+                dataset = dicom_thing
             else:
-                dataset = dcmread(dicom_file)
+                dataset = dcmread(dicom_thing)
 
 
             # Set TransferSyntax to something common. This is done at the dicom instance itself.

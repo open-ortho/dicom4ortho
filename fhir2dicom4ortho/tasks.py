@@ -1,6 +1,6 @@
 from dicom4ortho.controller import OrthodonticController
 from dicom4ortho.m_orthodontic_photograph import OrthodonticPhotograph
-from fhir2dicom4ortho.utils import get_code_from_mwl, convert_binary_to_dataset
+from fhir2dicom4ortho.utils import get_code_from_mwl, convert_binary_to_dataset, get_opor_code_value_from_code
 from fhir.resources.bundle import Bundle
 from fhir.resources.binary import Binary
 from fhir.resources.task import Task
@@ -39,15 +39,18 @@ def process_bundle(bundle:Bundle, task_id, task_store):
         
         logger.debug("Getting proper 99OPOR image type code from MWL")
         image_type_code = get_code_from_mwl(mwl_dataset)
+        image_type_code_value = get_opor_code_value_from_code(image_type_code)
 
         logger.debug("Building OrthodonticPhotograph")
         orthodontic_photograph:OrthodonticPhotograph = OrthodonticPhotograph(
             input_image_bytes=image_binary.data,
-            image_type_code=image_type_code.CodeValue,
+            image_type=image_type_code_value,
         )
         
         logger.debug("Copying MWL tags to OrthodonticPhotograph")
+        orthodontic_photograph.prepare()
         orthodontic_photograph.copy_mwl_tags(dicom_mwl=mwl_dataset)
+
 
         logger.debug("Sending OrthodonticPhotograph to PACS")
         controller = OrthodonticController()
@@ -68,8 +71,8 @@ def process_bundle(bundle:Bundle, task_id, task_store):
         logger.info(f"Task {task_id} completed")
 
         # Log the resources
-        logger.debug(image_binary.model_dump_json(indent=2))
-        logger.debug(dicom_binary.model_dump_json(indent=2))
+        # logger.debug(image_binary.model_dump_json(indent=2))
+        # logger.debug(dicom_binary.model_dump_json(indent=2))
 
     except Exception as e:
         task_store.modify_task_status(task_id, TASK_FAILED)

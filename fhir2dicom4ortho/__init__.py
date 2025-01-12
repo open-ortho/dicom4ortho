@@ -19,8 +19,17 @@ Dependencies:
 import logging
 from fhir2dicom4ortho.args_cache import ArgsCache
 
+verbosity_mapping = {
+    0: logging.WARNING,  # Default to WARNING if -v is not provided
+    1: logging.INFO,
+    2: logging.DEBUG
+}
 args_cache = ArgsCache().load_arguments()
 
+level = verbosity_mapping.get(args_cache.verbosity, logging.DEBUG)
 logging.basicConfig(
-    format='%(asctime)s - %(levelname)s - %(funcName)s: %(message)s')
+    format='%(asctime)s - %(levelname)s - %(funcName)s: %(message)s',
+    level=level)
 logger = logging.getLogger(__name__)
+logger.setLevel(level)
+logger.propagate = True

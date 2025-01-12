@@ -1,8 +1,4 @@
-import unittest
-import json
 import os
-from time import sleep
-from fastapi.testclient import TestClient
 
 os.environ['F2D4O_VERBOSITY'] = '2'
 os.environ['F2D4O_FHIR_LISTEN'] = ''
@@ -12,6 +8,10 @@ os.environ['F2D4O_PACS_DIMSE_AET'] = 'ORTHANC-MOCK'
 os.environ['F2D4O_PACS_DIMSE_IP'] = '127.0.0.1'
 os.environ['F2D4O_PACS_DIMSE_PORT'] = '4242'
 
+import unittest
+import json
+from time import sleep
+from fastapi.testclient import TestClient
 from fhir.resources.bundle import Bundle
 from fhir2dicom4ortho.fhir_api import fhir_api_app
 from fhir2dicom4ortho.tasks import process_bundle, TASK_DRAFT, TASK_COMPLETED, TASK_FAILED, TASK_REJECTED, TASK_INPROGRESS

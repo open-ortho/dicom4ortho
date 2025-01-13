@@ -45,11 +45,12 @@ def process_bundle(bundle:Bundle, task_id, task_store):
         orthodontic_photograph:OrthodonticPhotograph = OrthodonticPhotograph(
             input_image_bytes=image_binary.data,
             image_type=image_type_code_value,
+            dicom_mwl=mwl_dataset
         )
         
         logger.debug("Copying MWL tags to OrthodonticPhotograph")
-        orthodontic_photograph.prepare()
         orthodontic_photograph.copy_mwl_tags(dicom_mwl=mwl_dataset)
+        orthodontic_photograph.prepare()
 
 
         logger.debug("Sending OrthodonticPhotograph to PACS")

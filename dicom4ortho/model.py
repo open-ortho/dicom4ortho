@@ -130,17 +130,6 @@ class DicomBase(object):
             logger.warning("No Modality Worklist to copy tags from.")
             return
 
-        # Patient's Name
-        if 'PatientName' in self.dicom_mwl:
-            self._ds.PatientName = self.dicom_mwl.PatientName
-
-        # Patient ID
-        if 'PatientID' in self.dicom_mwl:
-            self._ds.PatientID = self.dicom_mwl.PatientID
-
-        # Patient's Birth Date
-        if 'PatientBirthDate' in self.dicom_mwl:
-            self._ds.PatientBirthDate = self.dicom_mwl.PatientBirthDate
 
         if 'StudyInstanceUID' in self.dicom_mwl:
             self._ds.StudyInstanceUID = self.dicom_mwl.StudyInstanceUID
@@ -196,12 +185,72 @@ class DicomBase(object):
         if 'ReferencedSOPClassUID' in self.dicom_mwl:
             self._ds.ReferencedSOPClassUID = self.dicom_mwl.ReferencedSOPClassUID
 
+        # Patient Identification
+        if 'PatientName' in self.dicom_mwl:
+            self._ds.PatientName = self.dicom_mwl.PatientName
+
+        if 'PatientID' in self.dicom_mwl:
+            self._ds.PatientID = self.dicom_mwl.PatientID
+
+        if 'IssuerOfPatientID' in self.dicom_mwl:
+            self._ds.IssuerOfPatientID = self.dicom_mwl.IssuerOfPatientID
+
+        if 'IssuerOfPatientIDQualifiersSequence' in self.dicom_mwl:
+            self._ds.IssuerOfPatientIDQualifiersSequence = self.dicom_mwl.IssuerOfPatientIDQualifiersSequence
+
+        # Patient Demographic
+        if 'PatientBirthDate' in self.dicom_mwl:
+            self._ds.PatientBirthDate = self.dicom_mwl.PatientBirthDate
+
+        if 'PatientSex' in self.dicom_mwl:
+            self._ds.PatientSex = self.dicom_mwl.PatientSex
+
+        if 'ConfidentialityConstraintOnPatientDataDescription' in self.dicom_mwl:
+            self._ds.ConfidentialityConstraintOnPatientDataDescription = self.dicom_mwl.ConfidentialityConstraintOnPatientDataDescription
+
+        if 'EthnicGroup' in self.dicom_mwl:
+            self._ds.EthnicGroup = self.dicom_mwl.EthnicGroup
+
+        if 'PatientComments' in self.dicom_mwl:
+            self._ds.PatientComments = self.dicom_mwl.PatientComments
+
+        # Patient Medical
+        if 'PatientState' in self.dicom_mwl:
+            self._ds.PatientState = self.dicom_mwl.PatientState
+
+        if 'PregnancyStatus' in self.dicom_mwl:
+            self._ds.PregnancyStatus = self.dicom_mwl.PregnancyStatus
+
+        if 'MedicalAlerts' in self.dicom_mwl:
+            self._ds.MedicalAlerts = self.dicom_mwl.MedicalAlerts
+
+        if 'PatientAge' in self.dicom_mwl:
+            self._ds.PatientAge = self.dicom_mwl.PatientAge
+
+        if 'PatientSize' in self.dicom_mwl:
+            self._ds.PatientSize = self.dicom_mwl.PatientSize
+        
+        if 'PatientWeight' in self.dicom_mwl:
+            self._ds.PatientWeight = self.dicom_mwl.PatientWeight
+
+        if 'SpecialNeeds' in self.dicom_mwl:
+            self._ds.SpecialNeeds = self.dicom_mwl.SpecialNeeds
+
+        if 'AdmittingDiagnosesDescription' in self.dicom_mwl:
+            self._ds.AdmittingDiagnosesDescription = self.dicom_mwl.AdmittingDiagnosesDescription
+
+        if 'AdmittingDiagnosesCodeSequence' in self.dicom_mwl:
+            self._ds.AdmittingDiagnosesCodeSequence = self.dicom_mwl.AdmittingDiagnosesCodeSequence
+
     def _set_request_attributes(self):
         if self.dicom_mwl is None:
             logger.warning("No Modality Worklist to copy tags from.")
             return
 
         ras = Dataset()
+        if 'AccessionNumber' in self.dicom_mwl:
+            ras.AccessionNumber = self.dicom_mwl.AccessionNumber
+
         if 'RequestedProcedureID' in self.dicom_mwl:
             self._ds.StudyID = self.dicom_mwl.RequestedProcedureID # Recommended by IHE RAD TF-2x
             ras.RequestedProcedureID = self.dicom_mwl.RequestedProcedureID
@@ -212,8 +261,8 @@ class DicomBase(object):
         if 'ReasonForTheRequestedProcedure' in self.dicom_mwl:
             ras.ReasonForTheRequestedProcedure = self.dicom_mwl.ReasonForTheRequestedProcedure
 
-        if 'ReasonForTheRequestedProcedureCodeSequence' in self.dicom_mwl:
-            ras.ReasonForTheRequestedProcedureCodeSequence = self.dicom_mwl.ReasonForTheRequestedProcedureCodeSequence
+        if 'ReasonForRequestedProcedureCodeSequence' in self.dicom_mwl:
+            ras.ReasonForRequestedProcedureCodeSequence = self.dicom_mwl.ReasonForRequestedProcedureCodeSequence
 
         if 'ScheduledProcedureStepID' in self.dicom_mwl:
             ras.ScheduledProcedureStepID = self.dicom_mwl.ScheduledProcedureStepID
@@ -221,8 +270,9 @@ class DicomBase(object):
         if 'ScheduledProcedureStepDescription' in self.dicom_mwl:
             ras.ScheduledProcedureStepDescription = self.dicom_mwl.ScheduledProcedureStepDescription
 
-        if 'ScheduledProtocolCodeSequence' in self.dicom_mwl:
-            ras.ScheduledProtocolCodeSequence = self.dicom_mwl.ScheduledProtocolCodeSequence
+        if 'ScheduledProcedureStepSequence' in self.dicom_mwl and self.dicom_mwl.ScheduledProcedureStepSequence:
+            if 'ScheduledProtocolCodeSequence' in self.dicom_mwl.ScheduledProcedureStepSequence[0]:
+                ras.ScheduledProtocolCodeSequence = self.dicom_mwl.ScheduledProcedureStepSequence[0].ScheduledProtocolCodeSequence
 
         self._ds.RequestAttributesSequence = Sequence([])
         self._ds.RequestAttributesSequence.append(ras)
@@ -620,13 +670,13 @@ class DicomBase(object):
         # Ensure necessary DICOM UIDs are set
         if self._ds.StudyInstanceUID is None:
             logger.warning(
-                "SeriesInstanceUID is None. No bueno. Generating one. THIS IS PROBABLY NOT WHAT YOU WANT!")
+                "StudyInstanceUID is None. No bueno. Generating one. THIS IS PROBABLY NOT WHAT YOU WANT!")
             self._ds.StudyInstanceUID = generate_dicom_uid(
                 root=config.StudyInstanceUID_ROOT)
 
         if self._ds.SeriesInstanceUID is None:
             logger.warning(
-                "StudyInstanceUID is None. No bueno. Generating one. THIS IS PROBABLY NOT WHAT YOU WANT!")
+                "SeriesInstanceUID is None. No bueno. Generating one. THIS IS PROBABLY NOT WHAT YOU WANT!")
             self._ds.SeriesInstanceUID = generate_dicom_uid(
                 root=config.SeriesInstanceUID_ROOT)
 

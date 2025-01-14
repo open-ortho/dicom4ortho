@@ -1,6 +1,6 @@
 {
   "resourceType": "Bundle",
-  "type": "transaction",
+  "type": "batch",
   "entry": [
     {
       "fullUrl": "urn:uuid:4f887e20-8f3b-4c8b-9f3b-4c8b9f3b4c7c",
@@ -35,12 +35,74 @@
             "valueReference": {
               "reference": "Binary/image-jpeg"
             }
+          },
+          {
+            "type": {
+              "text": "Image Study"
+            },
+            "valueReference": {
+              "reference": "ImageingStudy/imaging-study"
+            }
           }
         ]
       },
       "request": {
         "method": "POST",
-        "url": "Task"
+        "url": "http://fhir2dicom4ortho/fhir/Bundle"
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:4f887e20-8f3b-4c8b-9f3b-4c8b9f3b4c8e",
+      "resource": {
+        "resourceType": "ImagingStudy",
+        "id": "image-study",
+        "identifier": [
+          {
+            "system": "urn:dicom:uid",
+            "value": "1.2.840.10008.5.1.4.1.1.77.1.4.1"
+          }
+        ],
+        "status": "available",
+        "subject": {
+          "reference": "Patient/123",
+          "display": "Patient Example"
+        },
+        "started": "2024-06-16T14:00:00Z",
+        "numberOfSeries": 1,
+        "numberOfInstances": 1,
+        "series": [
+          {
+            "uid": "1.3.6.1.4.1.61741.11.2.3.250.184.10.136.8.7",
+            "modality": {
+              "coding": [
+                {
+                  "system": "http://dicom.nema.org/resources/ontology/DCM",
+                  "code": "XC",
+                  "display": "External-camera Photography"
+                }
+              ]
+            },
+            "started": "2024-06-16T14:00:00Z",
+            "description": "Sample XC Series",
+            "numberOfInstances": 1,
+            "instance": [
+              {
+                "uid": "1.3.6.1.4.1.61741.11.2.4.146.2.192.6.158.81",
+                "sopClass": {
+                  "system": "https://termgit.elga.gv.at/CodeSystem/dicom-sopclasses",
+                  "code": "1.2.840.10008.5.1.4.1.1.77.1.4.1",
+                  "display": "VL Photographic Image Storage"
+                },
+                "number": 1,
+                "title": "Sample Orthodontic Image"
+              }
+            ]
+          }
+        ]
+      },
+      "request": {
+        "method": "POST",
+        "url": "http://fhir2dicom4ortho/fhir/Bundle"
       }
     },
     {
@@ -49,11 +111,11 @@
         "resourceType": "Binary",
         "id": "mwl-dicom",
         "contentType": "application/dicom",
-        "data": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABESUNNAgAAAFVMBADIAAAAAgABAE9CAAACAAAAAAECAAIAVUkWADEuMi44NDAuMTAwMDguNS4xLjQuMzECAAMAVUlAADEuMi44MjYuMC4xLjM2ODAwNDMuOC40OTguMzYzNTQzNTI2Mjc5OTUyMjQ5NzgyNDc0NTIwODA2MDIyMDYxMTECABAAVUkSADEuMi44NDAuMTAwMDguMS4yAAIAEgBVSRwAMS4yLjgyNi4wLjEuMzY4MDA0My44LjQ5OC4xAAIAEwBTSA4AUFlESUNPTSAyLjQuNCAIAAUACgAAAElTT19JUiAxMDAIABYAFgAAADEuMi44NDAuMTAwMDguNS4xLjQuMzEIABgAQAAAADEuMi44MjYuMC4xLjM2ODAwNDMuOC40OTguMzYzNTQzNTI2Mjc5OTUyMjQ5NzgyNDc0NTIwODA2MDIyMDYxMTEIAFAADAAAAFRPUFMtMTIzNDU2IBAAEAAMAAAARG9lXkpvaG5eXk1yEAAgAAoAAAAxMjM0NTY3ODkgEAAwAAgAAAAxOTgwMDEwMRAAQAACAAAATSAgAA0AQAAAADEuMi44MjYuMC4xLjM2ODAwNDMuOC40OTguMjM5NTE4MjI2NjI0NDA4NzkxNzE1NzkwNjUyMTM0MTEwMjI3MzAyADIQEAAAAEJyb3duXkVtaWx5Xl5EciAyAGAQDAAAAENoZXN0IFgtcmF5IEAAAAHwAAAA/v8A4OgAAAAIAGAAAgAAAFZMQAACAAgAAAAyMDI0MTIwOUAAAwAGAAAAMDkwMDAwQAAGABAAAABTbWl0aF5Sb2JlcnReXkRyQAAHABIAAABYLXJheSBvZiB0aGUgY2hlc3RAAAgAXgAAAP7/AOBWAAAACAAAAQQAAABFVjE5CAACAQYAAAA5OU9QT1IIAAQBNAAAAEV4dHJhb3JhbCwgRnVsbCBGYWNlLCBGdWxsIFNtaWxlLCBDZW50cmljIE9jY2x1c2lvbiBAAAkACAAAAFNURVAtMDAxQAARABAAAABSb29tIDEwMS1DaGFpciBBQAABEAoAAABQUk9DLTk4NzY1QAAAFC4AAABQYXRpZW50IGhhcyBiZWVuIGV4cGVyaWVuY2luZyBtaWxkIGNoZXN0IHBhaW4u"
+        "data": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABESUNNAgAAAFVMBADIAAAAAgABAE9CAAACAAAAAAECAAIAVUkWADEuMi44NDAuMTAwMDguNS4xLjQuMzECAAMAVUlAADEuMi44MjYuMC4xLjM2ODAwNDMuOC40OTguMTIyMDIxODg0MjU3MTUwNjcwNjQzOTYzMTQ2MzI1NDEwNzE5MjACABAAVUkSADEuMi44NDAuMTAwMDguMS4yAAIAEgBVSRwAMS4yLjgyNi4wLjEuMzY4MDA0My44LjQ5OC4xAAIAEwBTSA4AUFlESUNPTSAyLjQuNCAIAAUACgAAAElTT19JUiAxMDAIABYAFgAAADEuMi44NDAuMTAwMDguNS4xLjQuMzEIABgAQAAAADEuMi44MjYuMC4xLjM2ODAwNDMuOC40OTguMTIyMDIxODg0MjU3MTUwNjcwNjQzOTYzMTQ2MzI1NDEwNzE5MjAIAFAADAAAAFRPUFMtMTIzNDU2IBAAEAAMAAAARG9lXkpvaG5eXk1yEAAgAAoAAAAxMjM0NTY3ODkgEAAwAAgAAAAxOTgwMDEwMRAAQAACAAAATSAgAA0AQAAAADEuMi44MjYuMC4xLjM2ODAwNDMuOC40OTguMTAyNTUyOTY1NjQyODQ1ODU5Mzc5NTQ2NDcwMjE1Mzc2NjgwMTQyADIQEAAAAEJyb3duXkVtaWx5Xl5EciAyAGAQDAAAAENoZXN0IFgtcmF5IEAAAAFMAQAA/v8A4EQBAAAIAGAAAgAAAFZMQAACAAgAAAAyMDI0MTIwOUAAAwAGAAAAMDkwMDAwQAAGABAAAABTbWl0aF5Sb2JlcnReXkRyQAAHABIAAABYLXJheSBvZiB0aGUgY2hlc3RAAAgAugAAAP7/AOBWAAAACAAAAQQAAABFVjE5CAACAQYAAAA5OU9QT1IIAAQBNAAAAEV4dHJhb3JhbCwgRnVsbCBGYWNlLCBGdWxsIFNtaWxlLCBDZW50cmljIE9jY2x1c2lvbiD+/wDgVAAAAAgAAAEEAAAARVYyMAgAAgEGAAAAOTlPUE9SCAAEATIAAABFeHRyYW9yYWwsIEZ1bGwgRmFjZSwgRnVsbCBTbWlsZSwgQ2VudHJpYyBSZWxhdGlvbkAACQAIAAAAU1RFUC0wMDFAABEAEAAAAFJvb20gMTAxLUNoYWlyIEFAAAEQCgAAAFBST0MtOTg3NjVAAAAULgAAAFBhdGllbnQgaGFzIGJlZW4gZXhwZXJpZW5jaW5nIG1pbGQgY2hlc3QgcGFpbi4="
       },
       "request": {
         "method": "POST",
-        "url": "Binary"
+        "url": "http://fhir2dicom4ortho/fhir/Bundle"
       }
     },
     {
@@ -66,7 +128,7 @@
       },
       "request": {
         "method": "POST",
-        "url": "Binary"
+        "url": "http://fhir2dicom4ortho/fhir/Bundle"
       }
     }
   ]

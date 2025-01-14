@@ -14,6 +14,7 @@ from prettytable import PrettyTable
 
 import dicom4ortho.config as config
 import dicom4ortho.controller as controller
+from dicom4ortho.utils import generate_dicom_uid
 
 LIST_IMAGE_TYPES = 'list-image-types'
 
@@ -180,6 +181,9 @@ USAGE
         ### handle keyboard interrupt ###
         return 120
 
+
+def generate_uid():
+    print(generate_dicom_uid())
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv[1:]))

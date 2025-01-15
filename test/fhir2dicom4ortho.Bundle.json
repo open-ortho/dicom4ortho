@@ -47,6 +47,14 @@
             "valueReference": {
               "reference": "ImagingStudy/4f887e20-8f3b-4c8b-9f3b-4c8b9f3b4c8e"
             }
+          },
+          {
+            "type": {
+              "text": "Image Code"
+            },
+            "valueReference": {
+              "reference": "Basic/284ab58f-684c-4e2b-87cb-e98342ff4b24"
+            }
           }
         ]
       },
@@ -102,7 +110,21 @@
                   "display": "VL Photographic Image Storage"
                 },
                 "number": 1,
-                "title": "Sample Orthodontic Image"
+                "title": "Sample Orthodontic Image",
+                "extension": [
+                  {
+                    "url": "http://terminology.open-ortho.org/fhir/extraoral-2d-photographic-views",
+                    "valueCodeableConcept": {
+                      "coding": [
+                        {
+                          "system": "http://terminology.open-ortho.org/fhir/extraoral-2d-photographic-views",
+                          "code": "EV20",
+                          "display": "Extraoral, Full Face, Full Smile, Centric Relation"
+                        }
+                      ]
+                    }
+                  }
+                ]
               }
             ]
           }
@@ -111,6 +133,30 @@
       "request": {
         "method": "POST",
         "url": "http://fhir2dicom4ortho/fhir/Bundle"
+      }
+    },
+    {
+      "fullUrl": "urn:uuid:284ab58f-684c-4e2b-87cb-e98342ff4b24",
+      "resource": {
+        "resourceType": "Basic",
+        "id": "284ab58f-684c-4e2b-87cb-e98342ff4b24",
+        "text": {
+          "status": "generated",
+          "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"><p><b>Basic</b></p><p><b>Code</b>: EV20</p><p><b>Display</b>: Extraoral, Full Face, Full Smile, Centric Relation</p></div>"
+        },
+        "code": {
+          "coding": [
+            {
+              "system": "http://terminology.open-ortho.org/fhir/extraoral-2d-photographic-views",
+              "code": "EV20",
+              "display": "Extraoral, Full Face, Full Smile, Centric Relation"
+            }
+          ]
+        }
+      },
+      "request": {
+        "method": "POST",
+        "url": "Basic"
       }
     },
     {

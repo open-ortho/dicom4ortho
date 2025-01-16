@@ -6,7 +6,10 @@ Argparse support was purposely removed, because it was creating too much trouble
 
 """
 import os
-from distutils.util import strtobool
+
+
+def strtobool(value):
+    return value.lower() in ('yes', 'true', 't', '1')
 
 
 class Namespace:
@@ -35,7 +38,7 @@ class ArgsCache:
             # FHIR API server IP and port.
             fhir_api=bool(strtobool(os.getenv('F2D4O_FHIR_API', 'True'))),
             fhir_listen=os.getenv('F2D4O_FHIR_LISTEN', '*'),
-            fhir_port=int(os.getenv('F2D4O_FHIR_PORT','8000')),
+            fhir_port=int(os.getenv('F2D4O_FHIR_PORT', '8000')),
 
             pacs_send_method=os.getenv('F2D4O_PACS_SEND_METHOD', 'dimse'),
 

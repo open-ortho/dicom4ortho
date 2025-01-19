@@ -1,10 +1,13 @@
-import os
-from datetime import datetime
+""" Generate sample data for testing
+
+Execute and writes to file. Then do whatever you need. 
+"""
 from pydicom.uid import generate_uid
 from pydicom.dataset import Dataset
 from pynetdicom.sop_class import ModalityWorklistInformationFind
 from pydicom.filewriter import FileMetaDataset
 from pydicom.uid import ExplicitVRLittleEndian, ImplicitVRLittleEndian, PYDICOM_IMPLEMENTATION_UID
+import json
 
 def make_sample_MWL(modality, startdate, starttime):
     # Create the main dataset
@@ -56,6 +59,13 @@ def make_sample_MWL(modality, startdate, starttime):
     spc.CodingSchemeDesignator = "99OPOR"
     spc.CodeMeaning = "Extraoral, Full Face, Full Smile, Centric Occlusion"
 
+    # Properly add a new Dataset to the list
+    ev20 = Dataset()
+    ev20.CodeValue = "EV20"
+    ev20.CodingSchemeDesignator = "99OPOR"
+    ev20.CodeMeaning = "Extraoral, Full Face, Full Smile, Centric Relation"
+    sps.ScheduledProtocolCodeSequence.append(ev20)
+
     # Requesting physician details
     ds.RequestingPhysician = "Brown^Emily^^Dr"
 
@@ -86,6 +96,10 @@ def main():
     mwl_CT.save_as('mwl_CT.dcm', write_like_original=False)
     mwl_VL.save_as('mwl_VL.dcm', write_like_original=False)
     mwl_DX.save_as('mwl_DX.dcm', write_like_original=False)
+
+    print(mwl_CT)
+    print(mwl_VL)
+    print(mwl_DX) 
 
 if __name__ == "__main__":
     main()

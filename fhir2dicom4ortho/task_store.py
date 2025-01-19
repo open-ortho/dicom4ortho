@@ -4,9 +4,9 @@ from sqlalchemy.orm import sessionmaker
 from fhir.resources.task import Task as FHIRTask
 from fhir2dicom4ortho.tasks import TASK_DRAFT
 import uuid
-import json
 
 Base = declarative_base()
+
 
 class Task(Base):
     __tablename__ = 'tasks'
@@ -23,7 +23,7 @@ class TaskStore:
 
     def add_task(self, fhir_task: FHIRTask):
         """ Add a new task to the store
-        
+
         This method is used to add a new task to the store. The task is stored in the database with a unique ID, and the same ID is used to overwrite the FHIR Task ID.
         """
         session = self.Session()
@@ -44,6 +44,10 @@ class TaskStore:
         """ Reserve a new task ID.
 
         This method is used in order to send the correct task ID to the actual running task process, so it can update the status of the task.
+        
+        Huh? But the Job is being run by APScheduler, not the Task. The Task is just a record in the database. The Job is the one that needs to update the Task status. So, this method should not be needed: just add the Task to the task store first, then schedule the Job with the Task ID returned...
+
+        Maybe this method is necessary in tests?
         """
         session = self.Session()
         fhir_task = FHIRTask.model_construct(
@@ -95,4 +99,3 @@ class TaskStore:
     #         session.commit()
     #     session.close()
     #     return updated_fhir_task if task else None
-

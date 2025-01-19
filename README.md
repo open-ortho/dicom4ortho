@@ -137,6 +137,10 @@ then use dicom4ortho like this:
 Where `filename` should be a `.csv` file. Passing a single image file with
 metadata through arguments is planned for future implementations.
 
+generate a new UID for DICOM usage with this root:
+
+    $ d4o_generate
+
 ## Known Issues
 
 Please check the [Implementation Status](docs/IMPLEMENTATION_STATUS.md)

@@ -18,9 +18,9 @@ def main():
         controller.send(
             dicom_files=dicom_files,
             send_method='dimse',
-            pacs_ip='192.168.0.1',
-            pacs_port=104,
-            pacs_aet='ORTHANC'
+            pacs_dimse_hostname='192.168.0.1',
+            pacs_dimse_port=104,
+            pacs_dimse_aet='ORTHANC'
         )
         print("DICOM files have been sent via DIMSE.")
     except ValueError as e:
@@ -32,9 +32,9 @@ def main():
         controller.send(
             dicom_files=dicom_files,
             send_method='wado',
-            dicomweb_url='http://dicomweb-server.com/dicomweb/studies',
-            username='user',
-            password='pass'
+            pacs_wado_url='http://dicomweb-server.com/dicomweb/studies',
+            pacs_wado_username='user',
+            pacs_wado_password='pass'
         )
         print("DICOM files have been sent via WADO.")
     except ValueError as e:

@@ -2,8 +2,9 @@ from fastapi import FastAPI, HTTPException, Request
 from fhir.resources.bundle import Bundle
 from fhir.resources.task import Task
 from fhir.resources.operationoutcome import OperationOutcome
+
 from fhir2dicom4ortho.scheduler import scheduler
-from fhir2dicom4ortho.tasks import process_bundle, TASK_RECEIVED
+from fhir2dicom4ortho.tasks import build_and_send_dicom_image, TASK_RECEIVED
 from fhir2dicom4ortho.task_store import TaskStore
 from fhir2dicom4ortho import logger
 
@@ -30,7 +31,7 @@ async def handle_bundle(request: Request):
         task.description = "Processing Bundle"
         task = task_store.add_task(task)
         # Schedule the job with APScheduler
-        job = scheduler.add_job(process_bundle, args=[bundle, task.id, task_store])
+        job = scheduler.add_job(build_and_send_dicom_image, args=[bundle, task.id, task_store])
         logger.info(f"Job scheduled: {job.id}")
 
         task_store.modify_task_status(task.id, TASK_RECEIVED)

@@ -14,7 +14,7 @@ from dicom4ortho.config import PROJECT_NAME
 logger = logging.getLogger(__name__)
 
 
-def send(**kwargs):
+def send(**kwargs) -> Dataset:
     """ Send multiple DICOM files to PACS using DIMSE protocol.
 
     kwargs:
@@ -24,6 +24,7 @@ def send(**kwargs):
         pacs_dimse_port (int): Port of the PACS server.
         pacs_dimse_aet (str): AE Title of the PACS server.
 
+    returns a Status Dataset contiaining the response.
     """
     orthodontic_series = kwargs.get('orthodontic_series', None)
     if orthodontic_series:

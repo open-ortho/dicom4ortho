@@ -32,6 +32,16 @@ class TestFHIRAPI(unittest.TestCase):
         self.client = TestClient(fhir_api_app)
 
     def test_handle_bundle(self):
+        """ Test that the bundle is handled correctly and completely.
+
+        - Sent test_bundle to the FHIR API: the system should accept it.
+        - Check that the system accepte it with the response 200
+        - As soon as it is accepted, the status should be "draft". Check the resopnse for the status of the Task to be "draft"
+        - The system should generate the DICOM and try to send the image to the PACS server. Wait 1 second for the Task to complete
+        - Query the Task endpoint to check the status of the Task to be either "completed" or "failed".
+
+        This test does not test the actual sending of the DICOM image to the PACS server, so the orthanc-mock server is not necessary. It will try to send, and either log success or failure. Both will pass the test.
+        """
         response = self.client.post("/fhir/Bundle", json=test_bundle)
         self.assertEqual(response.status_code, 200)
         response_data = response.json()
@@ -41,7 +51,7 @@ class TestFHIRAPI(unittest.TestCase):
         sleep(1)
         response = self.client.get(f"/fhir/Task/{response_data['id']}")
         response_data = response.json()
-        self.assertEqual(response_data["status"], "completed")
+        self.assertIn(response_data["status"], [TASK_COMPLETED, TASK_FAILED])
 
 
 class TestTasks(unittest.TestCase):

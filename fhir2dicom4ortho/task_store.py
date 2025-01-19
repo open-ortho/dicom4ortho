@@ -8,6 +8,7 @@ import json
 
 Base = declarative_base()
 
+
 class Task(Base):
     __tablename__ = 'tasks'
     id = Column(String, primary_key=True, default=lambda: str(uuid.uuid4()))
@@ -23,7 +24,7 @@ class TaskStore:
 
     def add_task(self, fhir_task: FHIRTask):
         """ Add a new task to the store
-        
+
         This method is used to add a new task to the store. The task is stored in the database with a unique ID, and the same ID is used to overwrite the FHIR Task ID.
         """
         session = self.Session()
@@ -95,4 +96,3 @@ class TaskStore:
     #         session.commit()
     #     session.close()
     #     return updated_fhir_task if task else None
-

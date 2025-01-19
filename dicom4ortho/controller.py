@@ -175,6 +175,8 @@ class OrthodonticController(object):
             pacs_wado_username='user',
             pacs_wado_password='pass'
         )
+
+        Returns either a DICOM Dateset or a response containing the response.
         """
 
         # Convert image to DICOM (assuming you have a function for this)

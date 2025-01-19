@@ -14,7 +14,7 @@ from dicom4ortho.m_orthodontic_photograph import OrthodonticPhotograph
 logger = logging.getLogger(__name__)
 
 
-def send(**kwargs):
+def send(**kwargs) -> requests.Response:
     """ send images or OrthodonticSeries to PACS using STOW-RS.
 
     Has the ability to provide a PEM certificate to validate the connection, for self signed https connections. The PEM is fed via the ssl_certificate as a string, to facilitate storage in configurations.

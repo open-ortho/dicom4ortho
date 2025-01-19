@@ -14,6 +14,8 @@ TASK_FAILED = "failed"
 TASK_INPROGRESS = "in-progress"
 
 def process_bundle(bundle:Bundle, task_id, task_store):
+    """ Build a DICOM image and send it to PACS from a FHIR Bundle containing a Binary image, Binary DICOM MWL, a Basic with code..
+    """
     logger.info(f"Processing Task: {task_id}")
     task_store.modify_task_status(task_id, TASK_INPROGRESS)
     try:
@@ -55,7 +57,7 @@ def process_bundle(bundle:Bundle, task_id, task_store):
 
         logger.debug("Sending OrthodonticPhotograph to PACS")
         controller = OrthodonticController()
-        controller.send(
+        result = controller.send(
             send_method=args_cache.pacs_send_method,
             pacs_dimse_hostname=args_cache.pacs_dimse_hostname,
             pacs_dimse_port=args_cache.pacs_dimse_port,
@@ -66,10 +68,10 @@ def process_bundle(bundle:Bundle, task_id, task_store):
             dicom_datasets=[orthodontic_photograph.to_dataset()]
         )
 
-        # Update task status to completed
-        logger.debug("Setting Task status to completed")
-        task_store.modify_task_status(task_id, TASK_COMPLETED)
-        logger.info(f"Task {task_id} completed")
+        task_status = get_status_from_response(result)
+        logger.debug(f"Setting Task status to {task_status}")
+        task_store.modify_task_status(task_id, get_status_from_response(result))
+        logger.info(f"Task {task_id} {task_status}")
 
         # Log the resources
         # logger.debug(image_binary.model_dump_json(indent=2))
@@ -79,3 +81,23 @@ def process_bundle(bundle:Bundle, task_id, task_store):
         task_store.modify_task_status(task_id, TASK_FAILED)
         logger.exception(e)
         logger.error(f"Error processing Bundle: {e}")
+
+def get_status_from_response(response):
+    """ Set the status of a task from a response object
+    """
+    if response is None:
+        return TASK_FAILED
+
+    # DICOM DIMSE response
+    if "Status" in response:
+        if response.Status == 0x0000:
+            return TASK_COMPLETED
+
+    # DICOM WADO response
+    if "status_code" in response:
+        if response.status_code == 200:
+            return TASK_COMPLETED
+    if response.status_code == 200:
+        return TASK_COMPLETED
+    
+    return TASK_FAILED

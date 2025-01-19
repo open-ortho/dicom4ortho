@@ -14,7 +14,7 @@ TASK_REJECTED = "rejected"
 TASK_FAILED = "failed"
 TASK_INPROGRESS = "in-progress"
 
-def process_bundle(bundle:Bundle, task_id, task_store):
+def build_and_send_dicom_image(bundle:Bundle, task_id, task_store):
     """ Build a DICOM image and send it to PACS from a FHIR Bundle containing a Binary image, Binary DICOM MWL, a Basic with code..
     """
     logger.info(f"Processing Task: {task_id}")

@@ -110,21 +110,7 @@
                   "display": "VL Photographic Image Storage"
                 },
                 "number": 1,
-                "title": "Sample Orthodontic Image",
-                "extension": [
-                  {
-                    "url": "http://terminology.open-ortho.org/fhir/extraoral-2d-photographic-views",
-                    "valueCodeableConcept": {
-                      "coding": [
-                        {
-                          "system": "http://terminology.open-ortho.org/fhir/extraoral-2d-photographic-views",
-                          "code": "EV20",
-                          "display": "Extraoral, Full Face, Full Smile, Centric Relation"
-                        }
-                      ]
-                    }
-                  }
-                ]
+                "title": "Sample Orthodontic Image"
               }
             ]
           }
@@ -152,6 +138,9 @@
               "display": "Extraoral, Full Face, Full Smile, Centric Relation"
             }
           ]
+        },
+        "subject": {
+          "reference": "urn:uuid:4f887e20-8f3b-4c8b-9f3b-4c8b9f3b4c9a"
         }
       },
       "request": {

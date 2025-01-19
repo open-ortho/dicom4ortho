@@ -164,6 +164,7 @@ class TestPacsModule(unittest.TestCase):
             ssl_certificate=ssl_certificate,
             ssl_verify=ssl_verify)
 
+        self.assertEqual(response.status_code, 200, msg=response.reason)
         self.assertTrue(hasattr(response, 'text'))
         print("PASS: response has attribute text.")
         j = json.loads(response.text)

@@ -196,7 +196,7 @@ class OrthodonticController(object):
                 dicom_files=kwargs.get('dicom_files', None),
                 orthodontic_series=kwargs.get('orthodontic_series', None),
                 pacs_wado_url=kwargs['pacs_wado_url'],
-                pacs_wado_username=kwargs.get('username'),
+                pacs_wado_username=kwargs.get('pacs_wado_username'),
                 pacs_wado_password=kwargs.get('pacs_wado_password'),
                 ssl_certificate=kwargs.get('ssl_certificate'),
                 ssl_verify=kwargs.get('ssl_verify'),

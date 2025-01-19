@@ -1040,7 +1040,7 @@ class PhotographBase(DicomBase):
         self.lossy_compression(True)
 
     def set_image(self):
-        if not self.input_image_filename or not self.input_image_bytes:
+        if not self.input_image_filename and not self.input_image_bytes:
             logger.warning(f"set_image() called on an object without image data. Either set input_image_filename or input_image_bytes")
             return False
         if self.image_format in ('JPEG', 'MPO'):

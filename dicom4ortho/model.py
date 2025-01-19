@@ -1010,7 +1010,7 @@ class PhotographBase(DicomBase):
 
         if recompress_quality is None:
             # PIL does not saving the JPEG the way it was loaded. The original JPEG is required.
-            image_bytes = self.image_bytes
+            image_bytes = io.BytesIO(self.image_bytes)
         else:
             image_bytes = io.BytesIO()
             im.save(image_bytes, format='jpeg', quality=recompress_quality)
@@ -1040,6 +1040,9 @@ class PhotographBase(DicomBase):
         self.lossy_compression(True)
 
     def set_image(self):
+        if not self.input_image_filename or not self.input_image_bytes:
+            logger.warning(f"set_image() called on an object without image data. Either set input_image_filename or input_image_bytes")
+            return False
         if self.image_format in ('JPEG', 'MPO'):
             return self._set_image_jpeg_data()
         elif self.image_format in ('JPEG2000'):

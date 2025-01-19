@@ -45,6 +45,7 @@ def make_photo_metadata():
 def photo_generator(image_type: str, filename: Path) -> OrthodonticPhotograph:
     o = OrthodonticPhotograph(
         image_type=image_type,
+        input_image_filename=filename,
     )
     o.patient_firstname = "Michael"
     o.patient_lastname = "Jackson"
@@ -53,7 +54,6 @@ def photo_generator(image_type: str, filename: Path) -> OrthodonticPhotograph:
     o.patient_sex = "M"
     o.dental_provider_firstname = "Conrad"
     o.dental_provider_lastname = "Murray"
-    o.input_image_filename = filename
     o.output_image_filename = o.input_image_filename.with_suffix(".dcm")
     return o
 

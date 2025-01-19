@@ -50,7 +50,11 @@ class TestTasks(unittest.TestCase):
         self.bundle = Bundle.model_validate(test_bundle)
 
     def test_process_bundle_task(self):
-        """ Test requires mock PACS server """
+        """ Test requires mock PACS server
+
+        cd test/
+        docker compose up -d 
+        """
         task_id = self.task_store.reserve_id(description="Test Task")
         # Capture the log output
         with self.assertLogs('pynetdicom._handlers', level='INFO') as log:

@@ -1,10 +1,11 @@
-from dicom4ortho.controller import OrthodonticController
-from dicom4ortho.m_orthodontic_photograph import OrthodonticPhotograph
-from fhir2dicom4ortho.utils import get_code_from_mwl, convert_binary_to_dataset, get_opor_code_value_from_code
 from fhir.resources.bundle import Bundle
 from fhir.resources.binary import Binary
-from fhir.resources.task import Task
 from fhir2dicom4ortho import logger, args_cache
+
+from dicom4ortho.controller import OrthodonticController
+from dicom4ortho.m_orthodontic_photograph import OrthodonticPhotograph
+# from fhir2dicom4ortho.task_store import TaskStore # Cannot import TaskStore for circular import
+from fhir2dicom4ortho.utils import get_scheduled_protocol_from_basic, convert_binary_to_dataset, get_opor_code_value_from_code
 
 TASK_DRAFT = "draft"
 TASK_RECEIVED = "received"
@@ -40,13 +41,13 @@ def process_bundle(bundle:Bundle, task_id, task_store):
         mwl_dataset = convert_binary_to_dataset(dicom_binary)
         
         logger.debug("Getting proper 99OPOR image type code from MWL")
-        image_type_code = get_code_from_mwl(mwl_dataset)
-        image_type_code_value = get_opor_code_value_from_code(image_type_code)
+        scheduled_protocol_code = get_scheduled_protocol_from_basic(mwl_dataset)
+        scheduled_protocol_code_value = get_opor_code_value_from_code(scheduled_protocol_code)
 
         logger.debug("Building OrthodonticPhotograph")
         orthodontic_photograph:OrthodonticPhotograph = OrthodonticPhotograph(
             input_image_bytes=image_binary.data,
-            image_type=image_type_code_value,
+            image_type=scheduled_protocol_code_value,
             dicom_mwl=mwl_dataset
         )
         

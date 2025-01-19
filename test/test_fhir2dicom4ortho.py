@@ -14,7 +14,7 @@ from time import sleep
 from fastapi.testclient import TestClient
 from fhir.resources.bundle import Bundle
 from fhir2dicom4ortho.fhir_api import fhir_api_app
-from fhir2dicom4ortho.tasks import process_bundle, TASK_DRAFT, TASK_COMPLETED, TASK_FAILED, TASK_REJECTED, TASK_INPROGRESS
+from fhir2dicom4ortho.tasks import build_and_send_dicom_image, TASK_DRAFT, TASK_COMPLETED, TASK_FAILED, TASK_REJECTED, TASK_INPROGRESS
 from fhir2dicom4ortho.task_store import TaskStore 
 
 # Get the directory of the current file
@@ -64,11 +64,13 @@ class TestTasks(unittest.TestCase):
 
         cd test/
         docker compose up -d 
+
+
         """
-        task_id = self.task_store.reserve_id(description="Test Task")
+        task_id = self.task_store.reserve_id(description=self._testMethodName)
         # Capture the log output
         with self.assertLogs('pynetdicom._handlers', level='INFO') as log:
-            process_bundle(self.bundle, task_id, self.task_store)
+            build_and_send_dicom_image(self.bundle, task_id, self.task_store)
 
         task = self.task_store.get_fhir_task_by_id(task_id)
         self.assertIsNotNone(task)
@@ -78,6 +80,7 @@ class TestTasks(unittest.TestCase):
         success_message = "Received Store Response (Status: 0x0000 - Success)"
         log_output = "\n".join(log.output)
         self.assertIn(success_message, log_output)
+        self.assertIn(task.status, [TASK_COMPLETED])
 
 
 

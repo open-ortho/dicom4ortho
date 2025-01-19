@@ -1,6 +1,7 @@
 from PIL import Image
 from io import BytesIO
 from fhir.resources.binary import Binary
+from fhir.resources.basic import Basic
 from pydicom import Dataset, dcmread
 from fhir2dicom4ortho import logger
 
@@ -37,6 +38,8 @@ def get_code_from_mwl(mwl: Dataset) -> Dataset:
     Returns the first code of the ScheduledProtocolCodeSequence from the MWL, which is under the ScheduledProcedureStepSequence.
 
     Used for MWL which have a single ScheduledProtocolCode to build the OrthodonticPhotograph.
+
+    This method was used before i started using the Basic resource method, and should be kept until the format has been defined.
     '''
     try:
         scheduled_procedure_step_sequence = mwl.ScheduledProcedureStepSequence
@@ -52,6 +55,29 @@ def get_code_from_mwl(mwl: Dataset) -> Dataset:
     except Exception as e:
         logger.exception(e)
         logger.error(f"Error getting code from MWL: {str(e)}")
+        return None
+
+def get_scheduled_protocol_from_basic(basic: Basic) -> Dataset:
+    ''' Get Scheduled Protocol from FHIR Basic
+    
+    Returns the first code of the Basic FHIR resource.
+
+    '''
+    try:
+        codings = basic.code.coding
+        if codings:
+            code = codings[0]
+            dicom_code = Dataset()
+            logger.debug(f"Found code in Basic:\n{code}")
+            dicom_code.CodeValue = code.code
+            dicom_code.CodingSchemeDesignator = code.system
+            dicom_code.CodeMeaning = code.display
+            return dicom_code
+        logger.warning("CodeSequence not found in Basic.")
+        return None
+    except Exception as e:
+        logger.exception(e)
+        logger.error(f"Error getting code from Basic: {str(e)}")
         return None
 
 def get_opor_code_value_from_code(image_type_code):

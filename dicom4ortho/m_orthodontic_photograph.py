@@ -40,10 +40,6 @@ class OrthodonticPhotograph(PhotographBase):
         self.days_after_event = None
         self.dent_oip = DENT_OIP()
 
-        if metadata.get('image_type') is not None:
-            # Allow for both dash separated and not separated naming
-            self.type_keyword = metadata.get('image_type').replace('-', '')
-            self.dent_oip_view = self.dent_oip.VIEWS.get(self.type_keyword)
 
         patient_birthdate = metadata.get('patient_birthdate')
         if patient_birthdate is not None:
@@ -69,8 +65,7 @@ class OrthodonticPhotograph(PhotographBase):
         self.treatment_event_type = metadata.get('treatment_event_type')
         self.days_after_event = metadata.get('days_after_event')
 
-        if self.type_keyword:
-            self._set_dicom_attributes_by_type_keyword(type_keyword=self.type_keyword)
+        self.set_dicom_attributes_by_type_keyword(metadata.get('image_type'))
 
         # TODO: extract this to a higher level to give the user the ability to set it when needed.
         # See https://github.com/open-ortho/dicom4ortho/issues/16
@@ -114,18 +109,30 @@ class OrthodonticPhotograph(PhotographBase):
             return None
         return Sequence([code_dataset])
 
-    def _set_dicom_attributes_by_type_keyword(self, type_keyword):
+    def set_dicom_attributes_by_type_keyword(self, type_keyword=None):
         """ Automatically set all DICOM tags, based on the image type keyword in views.csv.
-        """
-        if not type_keyword:
-            logger.warning("Cannot set DICOM Attributes from DENT-OPI Codes. No Keyword specified.")
-            return None
 
+        """
+        if type_keyword:
+            # Allow for both dash separated and not separated naming
+            self.type_keyword = type_keyword.replace('-', '')
+
+        if not self.type_keyword:
+            scheduled_protocol_code = self.get_scheduled_protocol_code()
+            if scheduled_protocol_code is not None and 'CodeValue' in scheduled_protocol_code:
+                self.type_keyword = self.get_scheduled_protocol_code().CodeValue
+
+        if not self.type_keyword:
+            logger.info("No type_keyword set for %s", self.output_image_filename)
+            return
+
+        self.dent_oip_view = self.dent_oip.VIEWS.get(self.type_keyword)
+        
         # Get the array of functions to set this required type.
-        logger.debug('Setting DICOM attributes for %s', type_keyword)
+        logger.debug('Setting DICOM attributes for %s', self.type_keyword)
 
         # Make a nice comment from keyword and description
-        ImageComments = f"{type_keyword}^{self.dent_oip_view.get('ImageComments')}"
+        ImageComments = f"{self.type_keyword}^{self.dent_oip_view.get('ImageComments')}"
 
         # NBSP character OxA0 is not allowed in Image Comments. Replace with a
         # Space (0x20)

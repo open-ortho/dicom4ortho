@@ -312,10 +312,10 @@ class TestPacsModule(unittest.TestCase):
 
     @unittest.skip("TODO: Connection aborted during transfer. Not working.")
     def test_send_to_dimse_simple_file(self):
-        self.send_to_pacs_dimse(self.resource_path / 'd90.dcm')
+        self.send_to_pacs_dimse(self.resource_path / 'test.dcm')
 
     def test_send_to_wado_simple_file(self):
-        self.send_to_pacs_wado([self.resource_path / 'd90.dcm'])
+        self.send_to_pacs_wado([self.resource_path / 'test.dcm'])
 
 
 if __name__ == '__main__':

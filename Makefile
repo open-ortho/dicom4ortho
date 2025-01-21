@@ -1,5 +1,4 @@
 MAIN = dicom4ortho
-FHIR2DICOM4ORTHO = fhir2dicom4ortho
 D3TOOLS_DIR = modules/dicom3tools
 D3TOOLS_VERSION = 1.00.snapshot.20230225185712
 D3TOOLS_BASE_URL = https://www.dclunie.com/dicom3tools/workinprogress/macexe/dicom3tools_
@@ -30,7 +29,6 @@ default: clean build
 .PHONY: lint
 lint:
 	$(LINTER) $(MAIN)
-	$(LINTER) $(FHIR2DICOM4ORTHO)
 
 .PHONY: test
 test: install-dev

@@ -23,19 +23,12 @@ classifiers = [
     "Programming Language :: Python :: 3"
 ]
 dependencies = [
-    "apscheduler",
-    "pydantic",
-    "fhir.resources",
-    "httpx",
-    "fastapi",
     "argparse",
     "pydicom",
     "pynetdicom",
     "pillow",
     "prettytable",
     "numpy",
-    "sqlalchemy",
-    "uvicorn"
 ]
 
 [project.urls]

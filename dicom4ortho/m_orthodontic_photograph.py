@@ -275,13 +275,13 @@ class OrthodonticPhotograph(PhotographBase):
         if 'ScheduledProtocolCodeSequence' not in self._ds.RequestAttributesSequence[0] or self._ds.RequestAttributesSequence[0].ScheduledProtocolCodeSequence is None:
             logger.warning("Cannot identify this image: ScheduledProtocolCodeSequence not present.")
             return None
-        if 'InstanceNumber' not in self._ds or self._ds.InstanceNumber is None:
+        if 'InstanceNumber' not in self._ds or self._ds.InstanceNumber is None or self._ds.InstanceNumber == "":
             logger.warning("Cannot identify this image: InstanceNumber not present.")
             return None
         
         # As defined in DENT-OIP/ADA-1107, the IndexNumber of this image is also used to determine the ScheduledProtocolCode within its ScheduledProtocolCodeSequence.
         # There can be up to 100 instances of the same ScheduledProtocolCode, each with a different InstanceNumber. So all 100s are index 1, all 200s are index 2, etc.
-        scheduled_protocol_index = self._ds.InstanceNumber // 100
+        scheduled_protocol_index = int(self._ds.InstanceNumber) // 100
         try:
             return self._ds.RequestAttributesSequence[0].ScheduledProtocolCodeSequence[scheduled_protocol_index]
         except IndexError:

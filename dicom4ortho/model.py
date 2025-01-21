@@ -360,6 +360,22 @@ class DicomBase(object):
         self._ds.SeriesInstanceUID = uuid
 
     @ property
+    def series_number(self):
+        return self._ds.SeriesNumber
+
+    @ series_number.setter
+    def series_number(self, series_number:str):
+        self._ds.SeriesNumber = series_number or ''
+
+    @ property
+    def instance_number(self):
+        return self._ds.InstanceNumber
+
+    @ instance_number.setter
+    def instance_number(self, instance_number:str):
+        self._ds.InstanceNumber = f"{int(instance_number):05d}" if instance_number else ''
+
+    @ property
     def operator_firstname(self):
         return str(self._ds.OperatorsName).split('^')[1]
 

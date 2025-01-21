@@ -10,7 +10,7 @@ from pydicom.sequence import Sequence
 from pydicom.dataset import FileDataset, DataElement, FileMetaDataset, Dataset
 from pydicom.datadict import tag_for_keyword
 from pydicom.encaps import encapsulate
-from pydicom.uid import JPEGBaseline8Bit, JPEGExtended12Bit, ImplicitVRLittleEndian, ExplicitVRBigEndian, ExplicitVRLittleEndian, JPEGLosslessSV1, RLELossless, JPEGLosslessP14, JPEG2000, VLPhotographicImageStorage
+from pydicom.uid import JPEGBaseline8Bit,  ImplicitVRLittleEndian, ExplicitVRBigEndian, ExplicitVRLittleEndian, JPEG2000, VLPhotographicImageStorage
 from pydicom import dcmread, dcmwrite
 import numpy
 

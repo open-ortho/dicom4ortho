@@ -20,8 +20,8 @@ from PIL import Image, ExifTags
 from pydicom.dataset import Dataset
 
 logger = logging.getLogger(__name__)
-logging.basicConfig(format = '%(asctime)s %(module)s %(levelname)s: %(message)s',
-                    datefmt = '%m/%d/%Y %I:%M:%S %p', level = logging.INFO)
+logging.basicConfig(format='%(asctime)s %(module)s %(levelname)s: %(message)s',
+                    datefmt='%m/%d/%Y %I:%M:%S %p', level=logging.INFO)
 
 
 def make_photo_metadata():
@@ -58,7 +58,6 @@ def photo_generator(image_type: str, filename: Path) -> OrthodonticPhotograph:
     return o
 
 
-
 class PhotoTests(unittest.TestCase):
 
     def setUp(self):
@@ -74,12 +73,11 @@ class PhotoTests(unittest.TestCase):
     def testEV01(self):
         """ Test that an image set as EV01 is tagged as expected.
         """
-        o = photo_generator(image_type='EV-01',filename=Path('./test/resources/sample_NikonD90.JPG'))
+        o = photo_generator(
+            image_type='EV-01', filename=Path('./test/resources/sample_NikonD90.JPG'))
         for tag in o._ds:
             print(f"{tag.tag} {tag.description()}: {tag.value}")
 
-
-    
     def testDates(self):
         """ Test setting date and times with different formats and time zones.
         """
@@ -179,7 +177,6 @@ class PhotoTests(unittest.TestCase):
         c = OrthodonticController()
         c.convert_image_to_dicom4orthograph(metadata=metadata)
 
-    
     @unittest.skip("Just a tool, not a test")
     def testEXIF(self):
         filename = Path(
@@ -197,7 +194,6 @@ class PhotoTests(unittest.TestCase):
             }
         for tag in exif.items():
             print(f"{tag}")
-
 
     @unittest.skip("Just a tool, not a test")
     def testsplitMPO(self):

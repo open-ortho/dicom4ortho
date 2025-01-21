@@ -14,17 +14,17 @@ from dicom4ortho.m_orthodontic_photograph import OrthodonticPhotograph
 logger = logging.getLogger(__name__)
 
 
-def send(**kwargs):
+def send(**kwargs) -> requests.Response:
     """ send images or OrthodonticSeries to PACS using STOW-RS.
 
     Has the ability to provide a PEM certificate to validate the connection, for self signed https connections. The PEM is fed via the ssl_certificate as a string, to facilitate storage in configurations.
     
     kwargs:
-        dicomweb_url (str): URL of the DICOMweb server, with full path. Ex: http://dicomweb-server.com/dicomweb/studies
+        pacs_wado_url (str): URL of the DICOMweb server, with full path. Ex: http://dicomweb-server.com/dicomweb/studies
         dicom_files (List[str]): List of DICOM files.
         orthodontic_series (OrthodonticSeries): a dicom4ortho.m_orthodontic_photograph.OrthodonticSeries
-        username (str, optional): Username for DICOMweb authentication.
-        password (str, optional): Password for DICOMweb authentication.
+        pacs_wado_username (str, optional): Username for DICOMweb authentication.
+        pacs_wado_password (str, optional): Password for DICOMweb authentication.
         ssl_certificate (str, optional): SSL Certificate to use to validate SSL Connection in string format.
         ssl_verify (bool, True): set to False to ignore SSL certificate errors.
 
@@ -36,10 +36,10 @@ def send(**kwargs):
 
 
     """
-    dicomweb_url = kwargs.get('dicomweb_url')
-    if not dicomweb_url:
+    pacs_wado_url = kwargs.get('pacs_wado_url')
+    if not pacs_wado_url:
         logger.error(
-            "No URL to send to. Specify a dicom-web URL using the dicomweb_url argument.")
+            "No URL to send to. Specify a dicom-web URL using the pacs_wado_url argument.")
         return None
 
     boundary = str(uuid.uuid4())
@@ -83,8 +83,8 @@ def send(**kwargs):
         'Content-Type': f'multipart/related; type="application/dicom"; boundary={boundary}',
         'Accept': 'application/dicom+json',
     }
-    auth = (kwargs.get('username'), kwargs.get('password')) if kwargs.get(
-        'username') and kwargs.get('password') else None
+    auth = (kwargs.get('pacs_wado_username'), kwargs.get('pacs_wado_password')) if kwargs.get(
+        'pacs_wado_username') and kwargs.get('pacs_wado_password') else None
 
     if ssl_certificate:
         # post(verify=) takes a filename as string. So we have to write to a tmpfile.
@@ -93,10 +93,10 @@ def send(**kwargs):
             tmpfile.flush()  # Ensure data is written to the file before it's read by the requests library
 
             # Now perform the POST request within the 'with' block
-            response = requests.post(dicomweb_url, data=body,
+            response = requests.post(pacs_wado_url, data=body,
                                      headers=headers, auth=auth, verify=tmpfile.name)
     else:
-        response = requests.post(dicomweb_url, data=body,
+        response = requests.post(pacs_wado_url, data=body,
                                  headers=headers, auth=auth, verify=ssl_verify)
 
     return response

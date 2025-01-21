@@ -4,6 +4,7 @@ Controller
 import os
 import csv
 from pathlib import Path
+from pydicom.dataset import Dataset
 
 from dicom4ortho.config import DICOM3TOOLS_PATH
 from dicom4ortho.model import DicomBase
@@ -13,7 +14,6 @@ from dicom4ortho.dicom import wado, dimse
 
 import logging
 logger = logging.getLogger(__name__)
-
 
 class OrthodonticController(object):
     """ Controller
@@ -37,13 +37,12 @@ class OrthodonticController(object):
             url_codes=kwargs.get('url_codes'),
             url_views=kwargs.get('url_views'))
 
-    def bulk_convert_from_csv(self, csv_input, teeth=None):
+    def bulk_convert_from_csv(self, csv_input):
         with open(csv_input, mode='r') as csv_file:
             csv_reader = csv.DictReader(csv_file, delimiter=',')
             for row in csv_reader:
                 row['input_image_filename'] = (
                     Path(csv_input).parent / row['input_image_filename'])
-                row['teeth'] = teeth
                 self.convert_image_to_dicom4orthograph_and_save(metadata=row)
 
     def convert_image_to_dicom4orthograph(self, metadata) -> OrthodonticPhotograph:
@@ -67,9 +66,6 @@ class OrthodonticController(object):
                                             - "Posttreatment"
             days_after_event            : number of days from treatment_event_type
             burned_in_annotation        : 'YES' or 'NO'. Default = 'NO'.
-            teeth                       : array of teeth visible in the photograph.
-                                          Use ISO notation in string. Example:
-                                          teeth=['24','25','26','27','28','34','35','36','37','38']
             output_image_filename       : filename to write dicom image into.
                                           Default is the same name as the input file name with replaced
                                           extension.
@@ -81,16 +77,26 @@ class OrthodonticController(object):
 
         self.photo = OrthodonticPhotograph(**metadata)
 
-        # TODO: check if metadata['teeth'] contains teeth and add
-        # What teeth are shown in the images is something we cannot guess from
-        # what image type is taken, and shold be entered manually or
-        # automtaicaly by the implementing software. Therefore, i would like
-        # the controller to have an option to add teeth and provide this option
-        # to the end user which, in this case, is the CLI, and the CSV import
-        # file.
-        # if metadata['teeth']
-
         return self.photo
+
+    def convert_image_plus_mwl_to_dicom4orthograph(self, image_bytes, mwl:Dataset) -> OrthodonticPhotograph:
+        ''' Converts a PIL image into an OrthodonticPhotograph using a DICOM MWL for metadata.
+
+        The MWL is passed as a pydicom Dataset object, and should contain a single ScheduledProtocolCode.
+
+        Parameters:
+        image_bytes (bytes): Image bytes. Purposely set to raw bytes to avoid file I/O. Purposely avoiding PIL Image, because once in PIL Image, the image will be decoded and re-encoded even when saved as JPEG. This would result in loss of image quality.
+
+        mwl (Dataset): DICOM MWL object.
+
+        '''
+        metadata = {
+            'input_image_filename': None,
+            'input_image_bytes': image_bytes,
+            'dicom_mwl': mwl,
+        }
+        self.photo = OrthodonticPhotograph(**metadata)
+        pass
 
     def convert_image_to_dicom4orthograph_and_save(self, metadata):
         _photo = self.convert_image_to_dicom4orthograph(metadata=metadata)
@@ -141,14 +147,14 @@ class OrthodonticController(object):
         **kwargs: Additional keyword arguments depending on the send method:
 
             For send_method 'dimse':
-                pacs_ip (str): IP address of the PACS server.
-                pacs_port (int): Port of the PACS server.
-                pacs_aet (str): AE Title of the PACS server.
+                pacs_dimse_hostname (str): IP address of the PACS server.
+                pacs_dimse_port (int): Port of the PACS server.
+                pacs_dimse_aet (str): AE Title of the PACS server.
 
             For send_method 'wado':
-                dicomweb_url (str): URL of the DICOMweb server.
-                username (str, optional): Username for DICOMweb authentication.
-                password (str, optional): Password for DICOMweb authentication.
+                pacs_wado_url (str): URL of the DICOMweb server.
+                pacs_wado_username (str, optional): Username for DICOMweb authentication.
+                pacs_wado_password (str, optional): Password for DICOMweb authentication.
 
         Raises:
         ValueError: If an invalid send method is specified or required kwargs are missing.
@@ -157,18 +163,20 @@ class OrthodonticController(object):
         send(
             dicom_files=['path/to/output.dcm'],
             send_method='dimse',
-            pacs_ip='127.0.0.1',
-            pacs_port=104,
-            pacs_aet='PACS_AET'
+            pacs_dimse_hostname='127.0.0.1',
+            pacs_dimse_port=104,
+            pacs_dimse_aet='PACS_AET'
         )
 
         send(
             orthodontic_series=orthodontic_series,
             send_method='wado',
-            dicomweb_url='http://dicomweb-server.com/dicomweb/studies',
-            username='user',
-            password='pass'
+            pacs_wado_url='http://dicomweb-server.com/dicomweb/studies',
+            pacs_wado_username='user',
+            pacs_wado_password='pass'
         )
+
+        Returns either a DICOM Dateset or a response containing the response.
         """
 
         # Convert image to DICOM (assuming you have a function for this)
@@ -176,21 +184,26 @@ class OrthodonticController(object):
         # Send the DICOM file based on the specified method
         if send_method == 'dimse':
             return dimse.send(
+                dicom_datasets=kwargs.get('dicom_datasets', None),
                 dicom_files=kwargs.get('dicom_files', None),
                 orthodontic_series=kwargs.get('orthodontic_series', None),
-                pacs_ip=kwargs['pacs_ip'],
-                pacs_port=kwargs['pacs_port'],
-                pacs_aet=kwargs['pacs_aet'])
+                pacs_dimse_hostname=kwargs['pacs_dimse_hostname'],
+                pacs_dimse_port=kwargs['pacs_dimse_port'],
+                pacs_dimse_aet=kwargs['pacs_dimse_aet'])
 
         elif send_method == 'wado':
             return wado.send(
                 dicom_files=kwargs.get('dicom_files', None),
                 orthodontic_series=kwargs.get('orthodontic_series', None),
-                dicomweb_url=kwargs['dicomweb_url'],
-                username=kwargs.get('username'),
-                password=kwargs.get('password'),
+                pacs_wado_url=kwargs['pacs_wado_url'],
+                pacs_wado_username=kwargs.get('pacs_wado_username'),
+                pacs_wado_password=kwargs.get('pacs_wado_password'),
                 ssl_certificate=kwargs.get('ssl_certificate'),
                 ssl_verify=kwargs.get('ssl_verify'),
             )
         else:
             logger.error('Invalid send method specified.')
+
+
+    def get_image_view_code(self, ds:Dataset, code_system):
+        pass

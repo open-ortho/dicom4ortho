@@ -12,7 +12,7 @@
     <img src="https://raw.githubusercontent.com/open-ortho/dicom4ortho/master/images/open-ortho.png" alt="Logo" width="80" height="80">
   </a>
 
-  <h3 align="center">dicom4ortho 0.3.12</h3>
+  <h3 align="center">dicom4ortho 0.4.0</h3>
 
   <p align="center">
     A Python library to create fully defined orthodontic photographs in DICOM.
@@ -136,6 +136,10 @@ then use dicom4ortho like this:
 
 Where `filename` should be a `.csv` file. Passing a single image file with
 metadata through arguments is planned for future implementations.
+
+generate a new UID for DICOM usage with this root:
+
+    $ d4o_generate
 
 ## Known Issues
 

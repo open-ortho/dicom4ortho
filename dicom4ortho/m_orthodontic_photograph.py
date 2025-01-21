@@ -11,103 +11,12 @@ from pydicom.dataset import Dataset
 
 from dicom4ortho.model import PhotographBase
 import dicom4ortho.m_tooth_codes as ToothCodes
-from dicom4ortho.config import IMPORT_DATE_FORMAT, ADD_MAX_ALLOWED_TEETH, SeriesInstanceUID_ROOT, StudyInstanceUID_ROOT
+from dicom4ortho.config import IMPORT_DATE_FORMAT, SeriesInstanceUID_ROOT, StudyInstanceUID_ROOT
 from dicom4ortho.utils import generate_dicom_uid
 from dicom4ortho.m_dent_oip import DENT_OIP
 
 import logging
 logger = logging.getLogger(__name__)
-
-ALLOWED_TEETH = {
-    "EV01": [],
-    "EV02": [],
-    "EV03": [],
-    "EV04": [],
-    "EV05": [],
-    "EV06": [],
-    "EV07": [],
-    "EV08": [],
-    "EV09": [],
-    "EV10": [],
-    "EV11": [],
-    "EV12": [],
-    "EV13": [],
-    "EV14": [],
-    "EV15": [],
-    "EV16": [],
-    "EV17": [],
-    "EV18": [],
-    "EV19": [],
-    "EV20": [],
-    "EV21": [],
-    "EV22": [],
-    "EV23": [],
-    "EV24": [],
-    "EV25": [],
-    "EV26": [],
-    "EV27": [],
-    "EV28": [],
-    "EV29": [],
-    "EV30": [],
-    "EV31": [],
-    "EV32": [],
-    "EV33": [],
-    "EV34": [],
-    "EV35": [],
-    "EV36": [],
-    "EV37": [],
-    "EV38": [],
-    "EV39": [],
-    "EV40": [],
-    "EV41": [],
-    "EV42": [],
-    "EV43": [],
-
-    "IV01": [
-        '11', '12', '13', '14', '15', '16', '17', '18',
-        '41', '42', '43', '44', '45', '46', '47', '48',
-    ],
-    "IV02": [
-        '11', '12', '13', '14', '15', '16', '17', '18',
-        '41', '42', '43', '44', '45', '46', '47', '48',
-    ],
-    "IV03": [],
-    "IV04": [],
-    "IV05": [],
-    "IV06": [],
-    "IV07": [],
-    "IV08": [],
-    "IV09": [],
-    "IV10": [],
-    "IV11": [],
-    "IV12": [],
-    "IV13": [],
-    "IV14": [],
-    "IV15": [],
-    "IV16": [],
-    "IV17": [],
-    "IV18": [
-        '21', '22', '23', '24', '15', '26', '27', '28',
-        '31', '32', '33', '34', '35', '36', '37', '38',
-    ],
-    "IV19": [
-        '21', '22', '23', '24', '15', '26', '27', '28',
-        '31', '32', '33', '34', '35', '36', '37', '38',
-    ],
-    "IV20": [],
-    "IV21": [],
-    "IV22": [],
-    "IV23": [],
-    "IV24": [],
-    "IV25": [],
-    "IV26": [],
-    "IV27": [],
-    "IV28": [],
-    "IV29": [],
-    "IV30": [],
-
-}
-
 
 class OrthodonticPhotograph(PhotographBase):
     """ An Orthodontic Photograph as defined in WP-1100
@@ -127,16 +36,10 @@ class OrthodonticPhotograph(PhotographBase):
         # Initialize local variables
         self.type_keyword = ""  # Orthodontic View String, e.g. "IV03"
         self.dent_oip_view = None  # Row in DENT-OIP views.csv for this particular view
-        self.teeth = None
         self.treatment_event_type = None
         self.days_after_event = None
         self.dent_oip = DENT_OIP()
-        self.teeth = metadata.get('teeth')
 
-        if metadata.get('image_type') is not None:
-            # Allow for both dash separated and not separated naming
-            self.type_keyword = metadata.get('image_type').replace('-', '')
-            self.dent_oip_view = self.dent_oip.VIEWS.get(self.type_keyword)
 
         patient_birthdate = metadata.get('patient_birthdate')
         if patient_birthdate is not None:
@@ -162,8 +65,7 @@ class OrthodonticPhotograph(PhotographBase):
         self.treatment_event_type = metadata.get('treatment_event_type')
         self.days_after_event = metadata.get('days_after_event')
 
-        if self.type_keyword:
-            self._set_dicom_attributes_by_type_keyword(type_keyword=self.type_keyword)
+        self.set_dicom_attributes_by_type_keyword(metadata.get('image_type'))
 
         # TODO: extract this to a higher level to give the user the ability to set it when needed.
         # See https://github.com/open-ortho/dicom4ortho/issues/16
@@ -207,18 +109,30 @@ class OrthodonticPhotograph(PhotographBase):
             return None
         return Sequence([code_dataset])
 
-    def _set_dicom_attributes_by_type_keyword(self, type_keyword):
+    def set_dicom_attributes_by_type_keyword(self, type_keyword=None):
         """ Automatically set all DICOM tags, based on the image type keyword in views.csv.
-        """
-        if not type_keyword:
-            logger.warning("Cannot set DICOM Attributes from DENT-OPI Codes. No Keyword specified.")
-            return None
 
+        """
+        if type_keyword:
+            # Allow for both dash separated and not separated naming
+            self.type_keyword = type_keyword.replace('-', '')
+
+        if not self.type_keyword:
+            scheduled_protocol_code = self.get_scheduled_protocol_code()
+            if scheduled_protocol_code is not None and 'CodeValue' in scheduled_protocol_code:
+                self.type_keyword = self.get_scheduled_protocol_code().CodeValue
+
+        if not self.type_keyword:
+            logger.info("No type_keyword set for %s", self.output_image_filename)
+            return
+
+        self.dent_oip_view = self.dent_oip.VIEWS.get(self.type_keyword)
+        
         # Get the array of functions to set this required type.
-        logger.debug('Setting DICOM attributes for %s', type_keyword)
+        logger.debug('Setting DICOM attributes for %s', self.type_keyword)
 
         # Make a nice comment from keyword and description
-        ImageComments = f"{type_keyword}^{self.dent_oip_view.get('ImageComments')}"
+        ImageComments = f"{self.type_keyword}^{self.dent_oip_view.get('ImageComments')}"
 
         # NBSP character OxA0 is not allowed in Image Comments. Replace with a
         # Space (0x20)
@@ -243,7 +157,6 @@ class OrthodonticPhotograph(PhotographBase):
         self.add_view_code()
         self.add_primary_anatomic_structure()
         self.add_acquisition_context()
-        # self.add_teeth()
 
     def add_acquisition_context(self):
         def add_progress():
@@ -341,22 +254,6 @@ class OrthodonticPhotograph(PhotographBase):
                 self._ds.PrimaryAnatomicStructureSequence[
                     0].PrimaryAnatomicStructureModifierSequence = PrimaryAnatomicStructureModifierSequence
 
-    def add_teeth(self):
-        teeth = self.teeth
-        logger.debug("Adding teeth")
-        if teeth == ADD_MAX_ALLOWED_TEETH:
-            logger.debug("Setting all possibly allowed teeth.")
-            teeth = ALLOWED_TEETH[self.type_keyword]
-
-        if len(teeth) > 0:
-            if not hasattr(self._ds, 'PrimaryAnatomicStructureSequence'):
-                self._ds.PrimaryAnatomicStructureSequence = Sequence([])
-
-            for tooth in teeth:
-                if ToothCodes.is_valid_tooth_number(tooth):
-                    self._ds.PrimaryAnatomicStructureSequence.append(
-                        self._get_code_dataset(*ToothCodes.SCT_TOOTH_CODES[tooth]))
-
     def is_extraoral(self) -> bool:
         if self.type_keyword.startswith("EV"):
             return True
@@ -368,6 +265,28 @@ class OrthodonticPhotograph(PhotographBase):
             return True
         else:
             return False
+    
+    def get_scheduled_protocol_code(self) -> Dataset:
+        """ Returns the code for the scheduled protocol pertaining to this instance.
+        """
+        if 'RequestAttributesSequence' not in self._ds or self._ds.RequestAttributesSequence is None:
+            logger.warning("Cannot identify this image: RequestAttributesSequence not present.")
+            return None
+        if 'ScheduledProtocolCodeSequence' not in self._ds.RequestAttributesSequence[0] or self._ds.RequestAttributesSequence[0].ScheduledProtocolCodeSequence is None:
+            logger.warning("Cannot identify this image: ScheduledProtocolCodeSequence not present.")
+            return None
+        if 'InstanceNumber' not in self._ds or self._ds.InstanceNumber is None or self._ds.InstanceNumber == "":
+            logger.warning("Cannot identify this image: InstanceNumber not present.")
+            return None
+        
+        # As defined in DENT-OIP/ADA-1107, the IndexNumber of this image is also used to determine the ScheduledProtocolCode within its ScheduledProtocolCodeSequence.
+        # There can be up to 100 instances of the same ScheduledProtocolCode, each with a different InstanceNumber. So all 100s are index 1, all 200s are index 2, etc.
+        scheduled_protocol_index = int(self._ds.InstanceNumber) // 100
+        try:
+            return self._ds.RequestAttributesSequence[0].ScheduledProtocolCodeSequence[scheduled_protocol_index]
+        except IndexError:
+            logger.warning("Cannot identify this image: ScheduledProtocolCodeSequence does not have %s codes!", scheduled_protocol_index + 1)
+            return None
     
 class OrthodonticSeries():
     """ Class representing an Orthodontic Photo session.

@@ -28,7 +28,6 @@ default: clean build
 
 .PHONY: lint
 lint:
-	$(LINTER) setup.py
 	$(LINTER) $(MAIN)
 
 .PHONY: test
@@ -53,7 +52,7 @@ $(DIST):
 
 .PHONY: build
 build: lint test $(DIST) update_resources
-	python3 -m setup sdist
+	python3 -m build
 
 .PHONY: update_resources
 update_resources:

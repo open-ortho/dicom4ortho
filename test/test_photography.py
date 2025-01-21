@@ -3,25 +3,25 @@ Unittests for DICOM objects.
 
 @author: Toni Magni
 '''
-import io
 import unittest
 import logging
 import importlib
 from io import BytesIO
-import dicom4ortho.m_orthodontic_photograph
+from datetime import datetime, timezone, timedelta
+from pathlib import Path
+
 from dicom4ortho.controller import OrthodonticController
 from dicom4ortho.m_orthodontic_photograph import OrthodonticPhotograph
 from dicom4ortho.config import StudyInstanceUID_ROOT, SeriesInstanceUID_ROOT
 from dicom4ortho.utils import generate_dicom_uid
-from datetime import datetime, timezone, timedelta
-from pathlib import Path
+from test.sample_data_generator import make_sample_MWL
 
 from PIL import Image, ExifTags
 from pydicom.dataset import Dataset
 
 logger = logging.getLogger(__name__)
-logging.basicConfig(format = '%(asctime)s %(module)s %(levelname)s: %(message)s',
-                    datefmt = '%m/%d/%Y %I:%M:%S %p', level = logging.INFO)
+logging.basicConfig(format='%(asctime)s %(module)s %(levelname)s: %(message)s',
+                    datefmt='%m/%d/%Y %I:%M:%S %p', level=logging.INFO)
 
 
 def make_photo_metadata():
@@ -45,6 +45,7 @@ def make_photo_metadata():
 def photo_generator(image_type: str, filename: Path) -> OrthodonticPhotograph:
     o = OrthodonticPhotograph(
         image_type=image_type,
+        input_image_filename=filename,
     )
     o.patient_firstname = "Michael"
     o.patient_lastname = "Jackson"
@@ -53,10 +54,8 @@ def photo_generator(image_type: str, filename: Path) -> OrthodonticPhotograph:
     o.patient_sex = "M"
     o.dental_provider_firstname = "Conrad"
     o.dental_provider_lastname = "Murray"
-    o.input_image_filename = filename
     o.output_image_filename = o.input_image_filename.with_suffix(".dcm")
     return o
-
 
 
 class PhotoTests(unittest.TestCase):
@@ -74,12 +73,11 @@ class PhotoTests(unittest.TestCase):
     def testEV01(self):
         """ Test that an image set as EV01 is tagged as expected.
         """
-        o = photo_generator(image_type='EV-01',filename=Path('./test/resources/sample_NikonD90.JPG'))
+        o = photo_generator(
+            image_type='EV-01', filename=Path('./test/resources/sample_NikonD90.JPG'))
         for tag in o._ds:
             print(f"{tag.tag} {tag.description()}: {tag.value}")
 
-
-    
     def testDates(self):
         """ Test setting date and times with different formats and time zones.
         """
@@ -170,6 +168,40 @@ class PhotoTests(unittest.TestCase):
         self.assertEqual(o.operator_firstname, "Toni")
         self.assertEqual(o.operator_lastname, "Magni")
 
+    def testProtocolCode(self):
+        # Generate a sample MWL
+        mwl = make_sample_MWL(modality='VL', startdate='20241209', starttime='090000')
+
+        # Create an OrthodonticPhotograph using the sample MWL
+        metadata = {
+            'dicom_mwl': mwl,
+            'input_image_filename': self.resource_path / 'EV-01_EO.RP.LR.CO.png',
+            'output_image_filename': 'output_image.dcm',
+            # 'image_type': 'EV20',
+            # 'patient_firstname': 'John',
+            # 'patient_lastname': 'Doe',
+            # 'patient_id': '123456789',
+            # 'patient_sex': 'M',
+            # 'study_instance_uid': mwl.StudyInstanceUID,
+            # 'series_instance_uid': mwl.ScheduledProcedureStepSequence[0].ScheduledProcedureStepID,
+            # 'study_description': mwl.RequestedProcedureDescription,
+            # 'series_description': mwl.ScheduledProcedureStepSequence[0].ScheduledProcedureStepDescription,
+            'manufacturer': 'Test Manufacturer'
+        }
+        o = OrthodonticPhotograph(**metadata)
+        o.copy_mwl_tags(dicom_mwl=mwl)
+        # Set the instance number
+        o.instance_number = '100'
+
+        # Test the get_scheduled_protocol_code method
+        scheduled_protocol_code = o.get_scheduled_protocol_code()
+        self.assertIsNotNone(scheduled_protocol_code, "Scheduled Protocol Code should not be None")
+        self.assertEqual(scheduled_protocol_code.CodeValue, 'EV20', "Scheduled Protocol Code Value does not match")
+        self.assertEqual(scheduled_protocol_code.CodingSchemeDesignator, '99OPOR', "Scheduled Protocol Coding Scheme Designator does not match")
+        self.assertEqual(scheduled_protocol_code.CodeMeaning, 'Extraoral, Full Face, Full Smile, Centric Relation', "Scheduled Protocol Code Meaning does not match")
+
+
+
     @unittest.skip("I don't think NEF is read properly by Pillow")
     def testNEF(self):
         metadata = make_photo_metadata()
@@ -179,7 +211,6 @@ class PhotoTests(unittest.TestCase):
         c = OrthodonticController()
         c.convert_image_to_dicom4orthograph(metadata=metadata)
 
-    
     @unittest.skip("Just a tool, not a test")
     def testEXIF(self):
         filename = Path(
@@ -197,7 +228,6 @@ class PhotoTests(unittest.TestCase):
             }
         for tag in exif.items():
             print(f"{tag}")
-
 
     @unittest.skip("Just a tool, not a test")
     def testsplitMPO(self):

@@ -7,10 +7,10 @@ import io
 from math import copysign
 
 from pydicom.sequence import Sequence
-from pydicom.dataset import FileDataset, DataElement, FileMetaDataset
+from pydicom.dataset import FileDataset, DataElement, FileMetaDataset, Dataset
 from pydicom.datadict import tag_for_keyword
 from pydicom.encaps import encapsulate
-from pydicom.uid import JPEGBaseline8Bit, JPEGExtended12Bit, ImplicitVRLittleEndian, ExplicitVRBigEndian, ExplicitVRLittleEndian, JPEGLosslessSV1, RLELossless, JPEGLosslessP14, JPEG2000, VLPhotographicImageStorage
+from pydicom.uid import JPEGBaseline8Bit,  ImplicitVRLittleEndian, ExplicitVRBigEndian, ExplicitVRLittleEndian, JPEG2000, VLPhotographicImageStorage
 from pydicom import dcmread, dcmwrite
 import numpy
 
@@ -18,7 +18,7 @@ import numpy
 from pynetdicom.sop_class import VLPhotographicImageStorage
 from PIL import Image
 
-from dicom4ortho import config 
+from dicom4ortho import config
 from dicom4ortho.utils import generate_dicom_uid
 
 logger = logging.getLogger(__name__)
@@ -26,6 +26,11 @@ logger = logging.getLogger(__name__)
 
 class DicomBase(object):
     """ Functions and fields common to most DICOM images.
+
+    kwargs:
+        dicom_mwl: DICOM dataset from a Modality Worklist. If set, the new IOD will copy tags from Modality Worklist as specified in IHE RAD TF-2x. If not set, a new one will be created.
+
+        input_pil_image: PIL Image object. If set, the image will be used to set the image data. If not set, the input_image_filename will be used.
     """
 
     def __init__(self, **kwargs):
@@ -35,8 +40,10 @@ class DicomBase(object):
         self.date_string = datetime.datetime.now().strftime(config.DATE_FORMAT)
         self.input_image_filename = kwargs.get('input_image_filename')
         self.output_image_filename = kwargs.get('output_image_filename')
+        self.input_image_bytes = kwargs.get('input_image_bytes')
         self.file_meta = FileMetaDataset()
-        self._ds = None
+        self.dicom_mwl = kwargs.get('dicom_mwl', None)
+        self._image_format = None  # Cache for image format
         self._set_dataset()
         self._set_general_series()
         self._set_general_study()
@@ -71,6 +78,7 @@ class DicomBase(object):
         self._ds.SeriesInstanceUID = generate_dicom_uid(
             root=config.SeriesInstanceUID_ROOT)
         self._ds.SeriesNumber = config.IDS_NUMBERS
+        self._set_request_attributes()
 
     def _set_general_image(self):
         self._ds.InstanceNumber = config.IDS_NUMBERS
@@ -101,11 +109,215 @@ class DicomBase(object):
         elif position == 1:
             firstname = oldpart
             lastname = newpart
+        else:
+            raise ValueError("Position must be 0 or 1")
 
         value = f"{lastname}^{firstname}"
 
         self._ds[tagname] = DataElement(
             tag_for_keyword(tagname), 'PN', value)
+
+    def copy_mwl_tags(self, dicom_mwl=None):
+        """ Copy tags from Modality Worklist to the new IOD.
+
+        This is done according to IHE RAD TF-2x.
+
+        """
+        if self.dicom_mwl is None:
+            self.dicom_mwl = dicom_mwl
+
+        if self.dicom_mwl is None:
+            logger.warning("No Modality Worklist to copy tags from.")
+            return
+
+
+        if 'StudyInstanceUID' in self.dicom_mwl:
+            self._ds.StudyInstanceUID = self.dicom_mwl.StudyInstanceUID
+
+        if 'ReferencedStudySequence' in self.dicom_mwl:
+            self._ds.ReferencedStudySequence = self.dicom_mwl.ReferencedStudySequence
+
+        if 'AccessionNumber' in self.dicom_mwl:
+            self._ds.AccessionNumber = self.dicom_mwl.AccessionNumber
+
+        if 'IssuerOfAccessionNumberSequence' in self.dicom_mwl:
+            self._ds.IssuerOfAccessionNumberSequence = self.dicom_mwl.IssuerOfAccessionNumberSequence
+
+        if 'InstitutionName' in self.dicom_mwl:
+            self._ds.InstitutionName = self.dicom_mwl.InstitutionName
+
+        if 'InstitutionAddress' in self.dicom_mwl:
+            self._ds.InstitutionAddress = self.dicom_mwl.InstitutionAddress
+
+        if 'InstitutionCodeSequence' in self.dicom_mwl:
+            self._ds.InstitutionCodeSequence = self.dicom_mwl.InstitutionCodeSequence
+
+        if 'PerformedProtocolCodeSequence' in self.dicom_mwl:
+            self._ds.PerformedProtocolCodeSequence = self.dicom_mwl.PerformedProtocolCodeSequence
+
+        if 'StudyID' in self.dicom_mwl:
+            if 'RequestedProcedureID' in self.dicom_mwl:
+                self._ds.StudyID = self.dicom_mwl.RequestedProcedureID # Recommended by IHE RAD TF-2x
+            else:
+                self._ds.StudyID = self.dicom_mwl.StudyID
+
+        if 'PerformedProcedureStepID' in self.dicom_mwl:
+            self._ds.PerformedProcedureStepID = self.dicom_mwl.PerformedProcedureStepID
+
+        if self._ds.StudyDate:
+            self._ds.PerformedProcedureStepStartDate = self._ds.StudyDate # Recommended by IHE RAD TF-2x
+        elif 'PerformedProcedureStepStartDate' in self.dicom_mwl:
+            self._ds.PerformedProcedureStepStartDate = self.dicom_mwl.PerformedProcedureStepStartDate
+
+        if self._ds.StudyTime:
+            self._ds.PerformedProcedureStepStartTime = self._ds.StudyTime # Recommended by IHE RAD TF-2x
+        elif 'PerformedProcedureStepStartTime' in self.dicom_mwl:
+            self._ds.PerformedProcedureStepStartTime = self.dicom_mwl.PerformedProcedureStepStartTime
+
+        if self._ds.StudyDescription:
+            self._ds.PerformedProcedureStepDescription = self._ds.StudyDescription # Recommended by IHE RAD TF-2x
+        elif 'PerformedProcedureStepDescription' in self.dicom_mwl:
+            self._ds.PerformedProcedureStepDescription = self.dicom_mwl.PerformedProcedureStepDescription
+
+        if 'RequestedProcedureCodeSequence' in self.dicom_mwl:
+            self._ds.ProcedureCodeSequence = self.dicom_mwl.RequestedProcedureCodeSequence # Recommended by IHE RAD TF-2x
+
+        if 'ReferencedSOPClassUID' in self.dicom_mwl:
+            self._ds.ReferencedSOPClassUID = self.dicom_mwl.ReferencedSOPClassUID
+
+        # Patient Identification
+        if 'PatientName' in self.dicom_mwl:
+            self._ds.PatientName = self.dicom_mwl.PatientName
+
+        if 'PatientID' in self.dicom_mwl:
+            self._ds.PatientID = self.dicom_mwl.PatientID
+
+        if 'IssuerOfPatientID' in self.dicom_mwl:
+            self._ds.IssuerOfPatientID = self.dicom_mwl.IssuerOfPatientID
+
+        if 'IssuerOfPatientIDQualifiersSequence' in self.dicom_mwl:
+            self._ds.IssuerOfPatientIDQualifiersSequence = self.dicom_mwl.IssuerOfPatientIDQualifiersSequence
+
+        # Patient Demographic
+        if 'PatientBirthDate' in self.dicom_mwl:
+            self._ds.PatientBirthDate = self.dicom_mwl.PatientBirthDate
+
+        if 'PatientSex' in self.dicom_mwl:
+            self._ds.PatientSex = self.dicom_mwl.PatientSex
+
+        if 'ConfidentialityConstraintOnPatientDataDescription' in self.dicom_mwl:
+            self._ds.ConfidentialityConstraintOnPatientDataDescription = self.dicom_mwl.ConfidentialityConstraintOnPatientDataDescription
+
+        if 'EthnicGroup' in self.dicom_mwl:
+            self._ds.EthnicGroup = self.dicom_mwl.EthnicGroup
+
+        if 'PatientComments' in self.dicom_mwl:
+            self._ds.PatientComments = self.dicom_mwl.PatientComments
+
+        # Patient Medical
+        if 'PatientState' in self.dicom_mwl:
+            self._ds.PatientState = self.dicom_mwl.PatientState
+
+        if 'PregnancyStatus' in self.dicom_mwl:
+            self._ds.PregnancyStatus = self.dicom_mwl.PregnancyStatus
+
+        if 'MedicalAlerts' in self.dicom_mwl:
+            self._ds.MedicalAlerts = self.dicom_mwl.MedicalAlerts
+
+        if 'PatientAge' in self.dicom_mwl:
+            self._ds.PatientAge = self.dicom_mwl.PatientAge
+
+        if 'PatientSize' in self.dicom_mwl:
+            self._ds.PatientSize = self.dicom_mwl.PatientSize
+        
+        if 'PatientWeight' in self.dicom_mwl:
+            self._ds.PatientWeight = self.dicom_mwl.PatientWeight
+
+        if 'SpecialNeeds' in self.dicom_mwl:
+            self._ds.SpecialNeeds = self.dicom_mwl.SpecialNeeds
+
+        if 'AdmittingDiagnosesDescription' in self.dicom_mwl:
+            self._ds.AdmittingDiagnosesDescription = self.dicom_mwl.AdmittingDiagnosesDescription
+
+        if 'AdmittingDiagnosesCodeSequence' in self.dicom_mwl:
+            self._ds.AdmittingDiagnosesCodeSequence = self.dicom_mwl.AdmittingDiagnosesCodeSequence
+
+    def _set_request_attributes(self):
+        if self.dicom_mwl is None:
+            logger.warning("No Modality Worklist to copy tags from.")
+            return
+
+        ras = Dataset()
+        if 'AccessionNumber' in self.dicom_mwl:
+            ras.AccessionNumber = self.dicom_mwl.AccessionNumber
+
+        if 'RequestedProcedureID' in self.dicom_mwl:
+            self._ds.StudyID = self.dicom_mwl.RequestedProcedureID # Recommended by IHE RAD TF-2x
+            ras.RequestedProcedureID = self.dicom_mwl.RequestedProcedureID
+
+        if 'RequestedProcedureDescription' in self.dicom_mwl:
+            ras.RequestedProcedureDescription = self.dicom_mwl.RequestedProcedureDescription
+
+        if 'ReasonForTheRequestedProcedure' in self.dicom_mwl:
+            ras.ReasonForTheRequestedProcedure = self.dicom_mwl.ReasonForTheRequestedProcedure
+
+        if 'ReasonForRequestedProcedureCodeSequence' in self.dicom_mwl:
+            ras.ReasonForRequestedProcedureCodeSequence = self.dicom_mwl.ReasonForRequestedProcedureCodeSequence
+
+        if 'ScheduledProcedureStepID' in self.dicom_mwl:
+            ras.ScheduledProcedureStepID = self.dicom_mwl.ScheduledProcedureStepID
+
+        if 'ScheduledProcedureStepDescription' in self.dicom_mwl:
+            ras.ScheduledProcedureStepDescription = self.dicom_mwl.ScheduledProcedureStepDescription
+
+        if 'ScheduledProcedureStepSequence' in self.dicom_mwl and self.dicom_mwl.ScheduledProcedureStepSequence:
+            if 'ScheduledProtocolCodeSequence' in self.dicom_mwl.ScheduledProcedureStepSequence[0]:
+                ras.ScheduledProtocolCodeSequence = self.dicom_mwl.ScheduledProcedureStepSequence[0].ScheduledProtocolCodeSequence
+
+        self._ds.RequestAttributesSequence = Sequence([])
+        self._ds.RequestAttributesSequence.append(ras)
+
+
+    def _set_referenced_performed_procedure_step(self):
+        rpps = Dataset()
+        rpps.ReferencedSOPClassUID = "1.2.840.10008.3.1.2.3.3" # Modality Performed Procedure Step SOP Class UID (MPPS) Recommended by IHE RAD TF-2x
+
+        self._ds.ReferencedPerformedProcedureStepSequence = Sequence([])
+        self._ds.ReferencedPerformedProcedureStepSequence.append(rpps)
+
+    def _input_filename_to_image_bytes(self) -> bytes:
+        try:
+            with open(self.input_image_filename, "rb") as image_file:
+                return image_file.read()
+        except FileNotFoundError:
+            logger.error("File [%s] not found.", self.input_image_filename)
+            return None
+        except IOError as e:
+            logger.error(
+                "Error opening file [%s]: %s", self.input_image_filename, e)
+            return None
+
+    @property
+    def image_format(self):
+        if self._image_format is None:
+            im = Image.open(io.BytesIO(self.image_bytes))
+            self._image_format = im.format
+        return self._image_format
+
+    @ property
+    def image_bytes(self) -> Image:
+        if self.input_image_bytes is None:
+            self.input_image_bytes = self._input_filename_to_image_bytes()
+        return self.input_image_bytes
+
+    @ image_bytes.setter
+    def image_bytes(self, image):
+        if type(image) is Image:
+            self.input_image_bytes = image
+        elif type(image) is str:
+            self.input_image_bytes = self._input_filename_to_image_bytes()
+        else:
+            raise ValueError("Image must be a Bytes object or a filename.")
 
     @ property
     def series_datetime(self):
@@ -146,6 +358,22 @@ class DicomBase(object):
     @ series_instance_uid.setter
     def series_instance_uid(self, uuid):
         self._ds.SeriesInstanceUID = uuid
+
+    @ property
+    def series_number(self):
+        return self._ds.SeriesNumber
+
+    @ series_number.setter
+    def series_number(self, series_number:str):
+        self._ds.SeriesNumber = series_number or ''
+
+    @ property
+    def instance_number(self):
+        return self._ds.InstanceNumber
+
+    @ instance_number.setter
+    def instance_number(self, instance_number:str):
+        self._ds.InstanceNumber = f"{int(instance_number):05d}" if instance_number else ''
 
     @ property
     def operator_firstname(self):
@@ -458,13 +686,13 @@ class DicomBase(object):
         # Ensure necessary DICOM UIDs are set
         if self._ds.StudyInstanceUID is None:
             logger.warning(
-                "SeriesInstanceUID is None. No bueno. Generating one. THIS IS PROBABLY NOT WHAT YOU WANT!")
+                "StudyInstanceUID is None. No bueno. Generating one. THIS IS PROBABLY NOT WHAT YOU WANT!")
             self._ds.StudyInstanceUID = generate_dicom_uid(
                 root=config.StudyInstanceUID_ROOT)
 
         if self._ds.SeriesInstanceUID is None:
             logger.warning(
-                "StudyInstanceUID is None. No bueno. Generating one. THIS IS PROBABLY NOT WHAT YOU WANT!")
+                "SeriesInstanceUID is None. No bueno. Generating one. THIS IS PROBABLY NOT WHAT YOU WANT!")
             self._ds.SeriesInstanceUID = generate_dicom_uid(
                 root=config.SeriesInstanceUID_ROOT)
 
@@ -477,6 +705,9 @@ class DicomBase(object):
                 root=config.SeriesInstanceUID_ROOT)
             self._ds.StudyInstanceUID = generate_dicom_uid(
                 root=config.StudyInstanceUID_ROOT)
+
+    def to_dataset(self):
+        return self._ds
 
     def to_byte(self):
         """Return a bytes-like object which can be accessed with read() and seek()."""
@@ -494,10 +725,20 @@ class DicomBase(object):
 
         return file_like
 
+    def prepare(self):
+        """Prepare the image for saving.
+
+        This method should be called before saving or sending the image to ensure that
+        the image data is properly set in the DICOM dataset.
+        
+        Method has been taken out of save() to allow for usage when sending over the network, without saving first.
+        """
+        self.add_missing_instance_uids()
+
     def save(self, filename=None):
         """Save the byte stream to a file."""
+        self.prepare()
         filename = filename or self.output_image_filename
-        self.add_missing_instance_uids()
         self._ds.save_as(filename=filename, write_like_original=False)
         logger.info("File [%s] saved.", filename)
 
@@ -522,7 +763,9 @@ class PhotographBase(DicomBase):
         self._set_vl_image()
         input_image_filename = kwargs.get('input_image_filename', None)
         if input_image_filename:
-            self.set_image(filename=input_image_filename)
+            self.input_image_filename = input_image_filename
+
+        self.set_image()
 
     def _set_sop_common(self):
         super()._set_sop_common()
@@ -600,13 +843,13 @@ class PhotographBase(DicomBase):
         """
         self._ds.ImageType[0] = 'DERIVED'
 
-    def lossy_compression(self, lossy):
+    def lossy_compression(self, lossy: bool):
         if lossy == True:
             self._ds.LossyImageCompression = '01'
         elif lossy == False:
             self._ds.LossyImageCompression = '00'
 
-    def _set_image_raw_data(self, filename=None):
+    def _set_image_raw_data(self):
         """ Sets general Image Module Data and Metadata
 
             Image Pixel M
@@ -620,131 +863,128 @@ class PhotographBase(DicomBase):
             0
             The sample values for the first pixel are followed by the sample values for the second pixel, etc. For RGB images, this means the order of the pixel values encoded shall be R1, G1, B1, R2, G2, B2, …, etc.
         """
-        filename = filename or self.input_image_filename
-        with Image.open(filename) as im:
+        im = Image.open(io.BytesIO(self.image_bytes))
+        # Note
 
-            # Note
+        # self._ds.Rows = im.size[1]
+        # self._ds.Columns = im.size[0]
+        self._ds.Rows = im.height
+        self._ds.Columns = im.width
+        self._ds.PixelRepresentation = 0x0
+        # (1-bit pixels, black and white, stored with one pixel per byte)
+        if im.mode == '1':
+            self._ds.SamplesPerPixel = 1
+            try:
+                del self._ds.PlanarConfiguration
+            except AttributeError:
+                pass
+            self._ds.BitsStored = 1
+            self._ds.HighBit = 0
+            self._ds.PhotometricInterpretation = 'MONOCHROME2'
+            # @TODO: Not sure if this works
+            # Got this from https://stackoverflow.com/questions/5602155/numpy-boolean-array-with-1-bit-entries
+            npa = numpy.array(im.getdata(), dtype=numpy.bool)
+            self._ds.PixelData = numpy.packbits(npa, axis=None).tobytes()
+        elif im.mode == 'L':  # (8-bit pixels, black and white)
+            self._ds.SamplesPerPixel = 1
+            try:
+                del self._ds.PlanarConfiguration
+            except AttributeError:
+                pass
+            self._ds.BitsAllocated = 8
+            self._ds.BitsStored = 8
+            self._ds.HighBit = 7
+            self._ds.PhotometricInterpretation = 'MONOCHROME2'
+            self._ds.PixelData = numpy.array(
+                im.getdata(), dtype=numpy.uint8).tobytes()
+        # (8-bit pixels, mapped to any other mode using a color palette)
+        elif im.mode == 'P':
+            print(
+                "ERROR: mode [{}] is not yet implemented.".format(im.mode))
+            raise NotImplementedError
 
-            # self._ds.Rows = im.size[1]
-            # self._ds.Columns = im.size[0]
-            self._ds.Rows = im.height
-            self._ds.Columns = im.width
-            self._ds.PixelRepresentation = 0x0
-            # (1-bit pixels, black and white, stored with one pixel per byte)
-            if im.mode == '1':
-                self._ds.SamplesPerPixel = 1
-                try:
-                    del self._ds.PlanarConfiguration
-                except AttributeError:
-                    pass
-                self._ds.BitsStored = 1
-                self._ds.HighBit = 0
-                self._ds.PhotometricInterpretation = 'MONOCHROME2'
-                # @TODO: Not sure if this works
-                # Got this from https://stackoverflow.com/questions/5602155/numpy-boolean-array-with-1-bit-entries
-                npa = numpy.array(im.getdata(), dtype=numpy.bool)
-                self._ds.PixelData = numpy.packbits(npa, axis=None).tobytes()
-            elif im.mode == 'L':  # (8-bit pixels, black and white)
-                self._ds.SamplesPerPixel = 1
-                try:
-                    del self._ds.PlanarConfiguration
-                except AttributeError:
-                    pass
-                self._ds.BitsAllocated = 8
-                self._ds.BitsStored = 8
-                self._ds.HighBit = 7
-                self._ds.PhotometricInterpretation = 'MONOCHROME2'
-                self._ds.PixelData = numpy.array(
-                    im.getdata(), dtype=numpy.uint8).tobytes()
-            # (8-bit pixels, mapped to any other mode using a color palette)
-            elif im.mode == 'P':
-                print(
-                    "ERROR: mode [{}] is not yet implemented.".format(im.mode))
-                raise NotImplementedError
-
-                # self.ds.SamplesPerPixel = 1
-                # self.ds.BitsAllocated = 8
-                # self.ds.BitsStored = 8
-                # self.ds.HighBit = 7
-                # self.ds.PhotometricInterpretation = 'PALETTE COLOR'
-            elif im.mode == 'RGB':  # (3x8-bit pixels, true color)
-                self._ds.SamplesPerPixel = 3
-                # Planar Configuration (0028,0006) is not meaningful when a compression Transfer Syntax is used that involves reorganization of sample components in the compressed bit stream. In such cases, since the Attribute is required to be present, then an appropriate value to use may be specified in the description of the Transfer Syntax in PS3.5, though in all likelihood the value of the Attribute will be ignored by the receiving implementation.
-                self._ds.PlanarConfiguration = 0
-                self._ds.BitsAllocated = 8
-                self._ds.BitsStored = 8
-                self._ds.HighBit = 7
-                self._ds.PhotometricInterpretation = 'RGB'
-                self._ds.PixelData = numpy.array(im.getdata(), dtype=numpy.uint8)[
-                    :, :3].tobytes()
-            # (4x8-bit pixels, true color with transparency mask)
-            elif im.mode == 'RGBA':
-                print(
-                    "ERROR: mode [{}] is not yet implemented.".format(im.mode))
-                raise NotImplementedError
-                # self.ds.SamplesPerPixel = 4
-                # self.ds.PlanarConfiguration = 0
-                # self.ds.BitsAllocated = 8
-                # self.ds.BitsStored = 8
-                # self.ds.HighBit = 7
-                # self.ds.PhotometricInterpretation = 'ARGB'
-            elif im.mode == 'CMYK':  # (4x8-bit pixels, color separation)
-                print(
-                    "ERROR: mode [{}] is not yet implemented.".format(im.mode))
-                raise NotImplementedError
-                # self.ds.SamplesPerPixel = 4
-                # self.ds.PlanarConfiguration = 0
-                # self.ds.BitsAllocated = 8
-                # self.ds.BitsStored = 8
-                # self.ds.HighBit = 7
-                # self.ds.PhotometricInterpretation = 'CMYK'
-            # (3x8-bit pixels, color video format) Note that this refers to the JPEG, and not the ITU-R BT.2020, standard
-            elif im.mode == 'YCbCr':
-                print(
-                    "ERROR: mode [{}] is not yet implemented.".format(im.mode))
-                raise NotImplementedError
-                # self.ds.SamplesPerPixel = 3
-                # self.ds.PlanarConfiguration = 0
-                # self.ds.BitsAllocated = 8
-                # self.ds.BitsStored = 8
-                # self.ds.HighBit = 7
-                # self.ds.PhotometricInterpretation = 'YBR_FULL'
-            elif im.mode == 'LAB':  # (3x8-bit pixels, the L*a*b color space)
-                print(
-                    "ERROR: mode [{}] is not yet implemented.".format(im.mode))
-                raise NotImplementedError
-            # (3x8-bit pixels, Hue, Saturation, Value color space)
-            elif im.mode == 'HSV':
-                print(
-                    "ERROR: mode [{}] is not yet implemented.".format(im.mode))
-                raise NotImplementedError
-            elif im.mode == 'I':  # (32-bit signed integer pixels)
-                print(
-                    "ERROR: mode [{}] is not yet implemented.".format(im.mode))
-                raise NotImplementedError
-            elif im.mode == 'F':  # (32-bit floating point pixels)
-                print(
-                    "ERROR: mode [{}] is not yet implemented.".format(im.mode))
-                raise NotImplementedError
+            # self.ds.SamplesPerPixel = 1
+            # self.ds.BitsAllocated = 8
+            # self.ds.BitsStored = 8
+            # self.ds.HighBit = 7
+            # self.ds.PhotometricInterpretation = 'PALETTE COLOR'
+        elif im.mode == 'RGB':  # (3x8-bit pixels, true color)
+            self._ds.SamplesPerPixel = 3
+            # Planar Configuration (0028,0006) is not meaningful when a compression Transfer Syntax is used that involves reorganization of sample components in the compressed bit stream. In such cases, since the Attribute is required to be present, then an appropriate value to use may be specified in the description of the Transfer Syntax in PS3.5, though in all likelihood the value of the Attribute will be ignored by the receiving implementation.
+            self._ds.PlanarConfiguration = 0
+            self._ds.BitsAllocated = 8
+            self._ds.BitsStored = 8
+            self._ds.HighBit = 7
+            self._ds.PhotometricInterpretation = 'RGB'
+            self._ds.PixelData = numpy.array(im.getdata(), dtype=numpy.uint8)[
+                :, :3].tobytes()
+        # (4x8-bit pixels, true color with transparency mask)
+        elif im.mode == 'RGBA':
+            print(
+                "ERROR: mode [{}] is not yet implemented.".format(im.mode))
+            raise NotImplementedError
+            # self.ds.SamplesPerPixel = 4
+            # self.ds.PlanarConfiguration = 0
+            # self.ds.BitsAllocated = 8
+            # self.ds.BitsStored = 8
+            # self.ds.HighBit = 7
+            # self.ds.PhotometricInterpretation = 'ARGB'
+        elif im.mode == 'CMYK':  # (4x8-bit pixels, color separation)
+            print(
+                "ERROR: mode [{}] is not yet implemented.".format(im.mode))
+            raise NotImplementedError
+            # self.ds.SamplesPerPixel = 4
+            # self.ds.PlanarConfiguration = 0
+            # self.ds.BitsAllocated = 8
+            # self.ds.BitsStored = 8
+            # self.ds.HighBit = 7
+            # self.ds.PhotometricInterpretation = 'CMYK'
+        # (3x8-bit pixels, color video format) Note that this refers to the JPEG, and not the ITU-R BT.2020, standard
+        elif im.mode == 'YCbCr':
+            print(
+                "ERROR: mode [{}] is not yet implemented.".format(im.mode))
+            raise NotImplementedError
+            # self.ds.SamplesPerPixel = 3
+            # self.ds.PlanarConfiguration = 0
+            # self.ds.BitsAllocated = 8
+            # self.ds.BitsStored = 8
+            # self.ds.HighBit = 7
+            # self.ds.PhotometricInterpretation = 'YBR_FULL'
+        elif im.mode == 'LAB':  # (3x8-bit pixels, the L*a*b color space)
+            print(
+                "ERROR: mode [{}] is not yet implemented.".format(im.mode))
+            raise NotImplementedError
+        # (3x8-bit pixels, Hue, Saturation, Value color space)
+        elif im.mode == 'HSV':
+            print(
+                "ERROR: mode [{}] is not yet implemented.".format(im.mode))
+            raise NotImplementedError
+        elif im.mode == 'I':  # (32-bit signed integer pixels)
+            print(
+                "ERROR: mode [{}] is not yet implemented.".format(im.mode))
+            raise NotImplementedError
+        elif im.mode == 'F':  # (32-bit floating point pixels)
+            print(
+                "ERROR: mode [{}] is not yet implemented.".format(im.mode))
+            raise NotImplementedError
         self._ds.file_meta.TransferSyntaxUID = ExplicitVRLittleEndian
         self._ds.is_little_endian = True
         self._ds.is_implicit_VR = False
 
-        return filename
-
-    def _set_image_jpeg2000_data(self, filename=None):
+    def _set_image_jpeg2000_data(self):
         """ Set Image Data for JPEG2000 Images.
 
         Encapsulates a JPEG2000 as it is, without touching anything.
         """
-        filename = filename or self.input_image_filename
-        # self._set_image_raw_data(filename=filename)
-        with Image.open(filename) as im:
-            self._ds.Rows = im.height
-            self._ds.Columns = im.width
-            with open(file=filename, mode="rb") as image_file:
-                self._ds.PixelData = encapsulate(
-                    [image_file.read()])  # needs to be an array
+        im = Image.open(io.BytesIO(self.image_bytes))
+        self._ds.Rows = im.height
+        self._ds.Columns = im.width
+
+        image_bytes = io.BytesIO()
+        im.save(image_bytes, format='JPEG2000')
+
+        # Encapsulate the image bytes
+        self._ds.PixelData = encapsulate([image_bytes.getvalue()])
 
         self._ds['PixelData'].is_undefined_length = True
 
@@ -766,9 +1006,8 @@ class PhotographBase(DicomBase):
 
         self.lossy_compression(False)
         # self._ds.compress(RLELossless)
-        return filename
 
-    def _set_image_jpeg_data(self, filename=None, recompress_quality=None):
+    def _set_image_jpeg_data(self, recompress_quality=None):
         """ Set Image Data for JPG Images.
 
         If a lossy JPG image is obtained from the camera (non-ideal), then we should just store it as such. Storing it as raw is not reccommende because it would deceiving (unless one adds all the secondary capture tags), becuase the image would have been compressed in the first place, but then stored uncompressed, so data would be lost, without this being recorded anywhere. And takes up a lot more space.
@@ -780,21 +1019,20 @@ class PhotographBase(DicomBase):
         Quality of 98
 
         """
-        filename = filename or self.input_image_filename
-        with Image.open(filename) as im:
-            logger.info("Found format %s for %s image", im.format, filename)
-            self._ds.Rows = im.height
-            self._ds.Columns = im.width
+        im = Image.open(io.BytesIO(self.image_bytes))
+        logger.info("Found format %s for image", im.format)
+        self._ds.Rows = im.height
+        self._ds.Columns = im.width
 
-            if recompress_quality is None:
-                with open(file=filename, mode="rb") as image_file:
-                    self._ds.PixelData = encapsulate(
-                        [image_file.read()])  # needs to be an array
-            else:
-                with io.BytesIO() as output:
-                    im.save(output, format='jpeg', quality=recompress_quality)
-                    self._ds.PixelData = encapsulate(
-                        [output.getvalue()])  # needs to be an array
+        if recompress_quality is None:
+            # PIL does not saving the JPEG the way it was loaded. The original JPEG is required.
+            image_bytes = io.BytesIO(self.image_bytes)
+        else:
+            image_bytes = io.BytesIO()
+            im.save(image_bytes, format='jpeg', quality=recompress_quality)
+
+        self._ds.PixelData = encapsulate(
+            [image_bytes.getvalue()])  # needs to be an array
 
         # self._ds['PixelData'].is_undefined_length = True
 
@@ -816,18 +1054,15 @@ class PhotographBase(DicomBase):
         self._ds.is_implicit_VR = False
 
         self.lossy_compression(True)
-        return filename
 
-    def set_image(self, filename=None):
-        filename = filename or self.input_image_filename
-
-        with Image.open(filename) as img:
-            file_type = img.format
-
-        if file_type in ('JPEG', 'MPO'):
-            return self._set_image_jpeg_data(filename=filename)
-        elif file_type in ('JPEG2000'):
-            return self._set_image_jpeg2000_data(filename=filename)
+    def set_image(self):
+        if not self.input_image_filename and not self.input_image_bytes:
+            logger.warning(f"set_image() called on an object without image data. Either set input_image_filename or input_image_bytes")
+            return False
+        if self.image_format in ('JPEG', 'MPO'):
+            return self._set_image_jpeg_data()
+        elif self.image_format in ('JPEG2000'):
+            return self._set_image_jpeg2000_data()
         else:
             # DICOM only supports encapsulation for JPEG. Everything else needs to be decoded and re-encoded as raw.
-            return self._set_image_raw_data(filename=filename)
+            return self._set_image_raw_data()

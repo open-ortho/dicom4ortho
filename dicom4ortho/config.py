@@ -6,7 +6,7 @@ import re
 from pathlib import Path
 import importlib.resources as importlib_resources
 
-VERSION = '0.3.12'
+VERSION = '0.4.0'
 PROJECT_NAME = 'dicom4ortho'
 __url__ = 'https://github.com/open-ortho/dicom4ortho'
 __author__ = 'Toni Magni'
@@ -53,8 +53,6 @@ SOPInstanceUID_ROOT = f"{DICOM4ORTHO_ROOT_UID}.4"
 
 # The default IDs used for SeriesNumber StudyID and InstanceNumber
 IDS_NUMBERS = '000'
-
-ADD_MAX_ALLOWED_TEETH = 'ALL'
 
 # This is populated by controller.OrthodonticController._load_image_types()
 image_types = {}

@@ -12,7 +12,7 @@ from pydicom.dataset import Dataset
 from dicom4ortho.model import PhotographBase
 import dicom4ortho.m_tooth_codes as ToothCodes
 from dicom4ortho.config import IMPORT_DATE_FORMAT, SeriesInstanceUID_ROOT, StudyInstanceUID_ROOT
-from dicom4ortho.utils import generate_dicom_uid
+from dicom4ortho.utils import generate_dicom_uid, get_scheduled_protocol_code
 from dicom4ortho.m_dent_oip import DENT_OIP
 
 import logging
@@ -118,9 +118,9 @@ class OrthodonticPhotograph(PhotographBase):
             self.type_keyword = type_keyword.replace('-', '')
 
         if not self.type_keyword:
-            scheduled_protocol_code = self.get_scheduled_protocol_code()
+            scheduled_protocol_code = get_scheduled_protocol_code(self._ds)
             if scheduled_protocol_code is not None and 'CodeValue' in scheduled_protocol_code:
-                self.type_keyword = self.get_scheduled_protocol_code().CodeValue
+                self.type_keyword = get_scheduled_protocol_code(self._ds).CodeValue
 
         if not self.type_keyword:
             logger.info("No type_keyword set for %s", self.output_image_filename)
@@ -265,28 +265,6 @@ class OrthodonticPhotograph(PhotographBase):
             return True
         else:
             return False
-    
-    def get_scheduled_protocol_code(self) -> Dataset:
-        """ Returns the code for the scheduled protocol pertaining to this instance.
-        """
-        if 'RequestAttributesSequence' not in self._ds or self._ds.RequestAttributesSequence is None:
-            logger.warning("Cannot identify this image: RequestAttributesSequence not present.")
-            return None
-        if 'ScheduledProtocolCodeSequence' not in self._ds.RequestAttributesSequence[0] or self._ds.RequestAttributesSequence[0].ScheduledProtocolCodeSequence is None:
-            logger.warning("Cannot identify this image: ScheduledProtocolCodeSequence not present.")
-            return None
-        if 'InstanceNumber' not in self._ds or self._ds.InstanceNumber is None or self._ds.InstanceNumber == "":
-            logger.warning("Cannot identify this image: InstanceNumber not present.")
-            return None
-        
-        # As defined in DENT-OIP/ADA-1107, the IndexNumber of this image is also used to determine the ScheduledProtocolCode within its ScheduledProtocolCodeSequence.
-        # There can be up to 100 instances of the same ScheduledProtocolCode, each with a different InstanceNumber. So all 100s are index 1, all 200s are index 2, etc.
-        scheduled_protocol_index = int(self._ds.InstanceNumber) // 100
-        try:
-            return self._ds.RequestAttributesSequence[0].ScheduledProtocolCodeSequence[scheduled_protocol_index]
-        except IndexError:
-            logger.warning("Cannot identify this image: ScheduledProtocolCodeSequence does not have %s codes!", scheduled_protocol_index + 1)
-            return None
     
 class OrthodonticSeries():
     """ Class representing an Orthodontic Photo session.

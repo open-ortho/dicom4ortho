@@ -13,7 +13,7 @@ from pathlib import Path
 from dicom4ortho.controller import OrthodonticController
 from dicom4ortho.m_orthodontic_photograph import OrthodonticPhotograph
 from dicom4ortho.config import StudyInstanceUID_ROOT, SeriesInstanceUID_ROOT
-from dicom4ortho.utils import generate_dicom_uid
+from dicom4ortho.utils import generate_dicom_uid, get_scheduled_protocol_code
 from test.sample_data_generator import make_sample_MWL
 
 from PIL import Image, ExifTags
@@ -194,7 +194,7 @@ class PhotoTests(unittest.TestCase):
         o.instance_number = '100'
 
         # Test the get_scheduled_protocol_code method
-        scheduled_protocol_code = o.get_scheduled_protocol_code()
+        scheduled_protocol_code = get_scheduled_protocol_code(o._ds)
         self.assertIsNotNone(scheduled_protocol_code, "Scheduled Protocol Code should not be None")
         self.assertEqual(scheduled_protocol_code.CodeValue, 'EV20', "Scheduled Protocol Code Value does not match")
         self.assertEqual(scheduled_protocol_code.CodingSchemeDesignator, '99OPOR', "Scheduled Protocol Coding Scheme Designator does not match")

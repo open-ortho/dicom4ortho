@@ -12,7 +12,7 @@ from pydicom.dataset import Dataset
 from dicom4ortho.model import PhotographBase
 import dicom4ortho.m_tooth_codes as ToothCodes
 from dicom4ortho.config import IMPORT_DATE_FORMAT, SeriesInstanceUID_ROOT, StudyInstanceUID_ROOT
-from dicom4ortho.utils import generate_dicom_uid
+from dicom4ortho.utils import generate_dicom_uid, get_scheduled_protocol_code
 from dicom4ortho.m_dent_oip import DENT_OIP
 
 import logging
@@ -118,9 +118,9 @@ class OrthodonticPhotograph(PhotographBase):
             self.type_keyword = type_keyword.replace('-', '')
 
         if not self.type_keyword:
-            scheduled_protocol_code = self.get_scheduled_protocol_code()
+            scheduled_protocol_code = get_scheduled_protocol_code(self._ds)
             if scheduled_protocol_code is not None and 'CodeValue' in scheduled_protocol_code:
-                self.type_keyword = self.get_scheduled_protocol_code().CodeValue
+                self.type_keyword = get_scheduled_protocol_code(self._ds).CodeValue
 
         if not self.type_keyword:
             logger.info("No type_keyword set for %s", self.output_image_filename)

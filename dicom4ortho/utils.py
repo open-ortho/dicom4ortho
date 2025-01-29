@@ -28,7 +28,7 @@ def get_scheduled_protocol_code(ds:Dataset) -> Dataset:
 
     Other modules can use it with more simplicity if it is here.
     """
-    if 'RequestAttributesSequence' not in ds or _s.RequestAttributesSequence is None:
+    if 'RequestAttributesSequence' not in ds or ds.RequestAttributesSequence is None:
         logger.warning("Cannot identify this image: RequestAttributesSequence not present.")
         return None
     if 'ScheduledProtocolCodeSequence' not in ds.RequestAttributesSequence[0] or ds.RequestAttributesSequence[0].ScheduledProtocolCodeSequence is None:

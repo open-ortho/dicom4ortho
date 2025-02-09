@@ -30,8 +30,9 @@ default: clean build
 lint:
 	$(LINTER) $(MAIN)
 
+# install-dev is required here, but it cannot ruun from pipenv environment because it relies on sudo, i guess its a new security feature. So install-dev is a manual step which needs to be run before run outside of pipenv.
 .PHONY: test
-test: install-dev
+test:
 	docker compose -f ./test/docker-compose.yml up -d
 	sleep 3
 	python3 -m unittest

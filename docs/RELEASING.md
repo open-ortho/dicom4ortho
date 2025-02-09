@@ -10,9 +10,10 @@
 5. `pipenv --rm` Delete pipenv environment
 6. `rm Pipfile.lock` 
 7. `pipenv install --dev` rebuild, to make sure there are no `Pipfile` errors or lock errors.
-8. `make install-dev`: make sure `dicom3tools` target works as expected.
-9. `make build`: make sure all tests pass. Build will run test first.
+8. Outside pipenv environment: `make install-dev`: make sure `dicom3tools` target works as expected.
+9. `pipenv run make build`: make sure all tests pass. Build will run test first.
 11. If all goes well, then merge branch into master: `git flow release finish`. The github actions will take care of deploying to PyPi.
-12. Update documentation in `gh-pages` branch.
+12. Make sure you are on `develop`, then `bumpversion patch` to bump to next `-dev` version.
+13. Update documentation in `gh-pages` branch.
 
 If there is a mistake in the uploaded version, and you need to re-upload, you will have to bump the patch version. PyPi will not allow to re-use the same version number, even if the package has been deleted via the Web GUI.

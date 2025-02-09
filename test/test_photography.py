@@ -168,6 +168,26 @@ class PhotoTests(unittest.TestCase):
         self.assertEqual(o.operator_firstname, "Toni")
         self.assertEqual(o.operator_lastname, "Magni")
 
+    def testExifTags(self):
+        # Create an OrthodonticPhotograph using the sample MWL
+        metadata = {
+            'input_image_filename': self.resource_path / 'sample_NikonD90.JPG',
+            'output_image_filename': 'output_image.dcm',
+            'manufacturer': 'Test Manufacturer'
+        }
+        o = OrthodonticPhotograph(**metadata)
+        o.prepare()
+
+        # Assert that date/time tags were properly set from EXIF
+        self.assertIsNotNone(o._ds.ContentDate, "ContentDate should be set from EXIF DateTime")
+        self.assertIsNotNone(o._ds.ContentTime, "ContentTime should be set from EXIF DateTime")
+        self.assertIsNotNone(o._ds.AcquisitionDateTime, "AcquisitionDateTime should be set from EXIF DateTime")
+        
+        # Check that the dates are in proper DICOM format
+        self.assertTrue(len(o._ds.ContentDate) == 8, "ContentDate should be 8 characters YYYYMMDD")
+        self.assertTrue(len(o._ds.ContentTime) == 13, "ContentTime should be 13 characters HHMMSS.FFFFFF")
+        self.assertTrue(len(o._ds.AcquisitionDateTime) >= 19, "AcquisitionDateTime should be at least 19 characters YYYYMMDDHHMMSS.FFFFFF")
+
     def testProtocolCode(self):
         # Generate a sample MWL
         mwl = make_sample_MWL(modality='VL', startdate='20241209', starttime='090000')
@@ -175,7 +195,7 @@ class PhotoTests(unittest.TestCase):
         # Create an OrthodonticPhotograph using the sample MWL
         metadata = {
             'dicom_mwl': mwl,
-            'input_image_filename': self.resource_path / 'EV-01_EO.RP.LR.CO.png',
+            'input_image_filename': self.resource_path / 'sample_NikonD90.JPG',
             'output_image_filename': 'output_image.dcm',
             # 'image_type': 'EV20',
             # 'patient_firstname': 'John',
@@ -192,7 +212,7 @@ class PhotoTests(unittest.TestCase):
         o.copy_mwl_tags(dicom_mwl=mwl)
         # Set the instance number
         o.instance_number = '100'
-
+        o.save()
         # Test the get_scheduled_protocol_code method
         scheduled_protocol_code = get_scheduled_protocol_code(o._ds)
         self.assertIsNotNone(scheduled_protocol_code, "Scheduled Protocol Code should not be None")

@@ -17,6 +17,7 @@ import numpy
 # pylint: disable=no-name-in-module
 from pynetdicom.sop_class import VLPhotographicImageStorage
 from PIL import Image
+from PIL.ExifTags import TAGS, GPSTAGS
 
 from dicom4ortho import config
 from dicom4ortho.utils import generate_dicom_uid
@@ -767,6 +768,14 @@ class PhotographBase(DicomBase):
 
         self.set_image()
 
+    def prepare(self):
+        super().prepare()
+        self.set_exif_tags()
+
+    def save(self, filename=None):
+        self.prepare()
+        super().save(filename)
+
     def _set_sop_common(self):
         super()._set_sop_common()
         self._ds.SOPClassUID = VLPhotographicImageStorage
@@ -1066,3 +1075,71 @@ class PhotographBase(DicomBase):
         else:
             # DICOM only supports encapsulation for JPEG. Everything else needs to be decoded and re-encoded as raw.
             return self._set_image_raw_data()
+
+    def set_exif_tags(self):
+        """
+        Sets EXIF tags, if they exist, according to https://dicom.nema.org/medical/dicom/current/output/chtml/part17/chapter_NNNN.html
+        """
+        def _convert_exif_datetime(exif_dt_string: str) -> tuple[str, str]:
+            """Convert EXIF DateTime string to DICOM DA and TM format
+
+            Args:
+                exif_dt_string: DateTime string in EXIF format (YYYY:MM:DD HH:MM:SS)
+
+            Returns:
+                tuple: (date_string, time_string) where
+                    date_string is DICOM DA format (YYYYMMDD)
+                    time_string is DICOM TM format (HHMMSS.FFFFFF)
+            """
+            try:
+                dt = datetime.datetime.strptime(exif_dt_string, '%Y:%m:%d %H:%M:%S')
+                return (
+                    dt.strftime(config.DATE_FORMAT),  # YYYYMMDD
+                    dt.strftime(config.TIME_FORMAT)   # HHMMSS.FFFFFF
+                )
+            except ValueError as e:
+                logger.warning(f"Could not parse EXIF datetime string: {e}")
+                return None, None
+
+        try:
+            image = Image.open(io.BytesIO(self.image_bytes))
+            exif_data = image._getexif()
+            if exif_data is not None:
+                for tag_id, value in exif_data.items():
+                    tag = TAGS.get(tag_id, tag_id)
+                    if isinstance(tag, int):
+                        continue  # Skip non-string tags
+
+                    # Map EXIF tags to DICOM tags based on the standard
+                    if tag == 'DateTimeOriginal':
+                        date, time = _convert_exif_datetime(value)
+                        if date and time:
+                            self._ds.AcquisitionDateTime = f"{date}{time}"
+                            self._ds.AcquisitionDate = date
+                            self._ds.AcquisitionTime = time
+                    elif tag in ['DateTimeDigitized','DateTime']:
+                        date, time = _convert_exif_datetime(value)
+                        if date and time:
+                            self._ds.ContentDate = date
+                            self._ds.ContentTime = time
+                    elif tag == 'GPSInfo':
+                        pass
+                    elif tag == 'Orientation':
+                        pass # Specifically not mapped according to standard.
+                    elif tag == 'Make':
+                        self._ds.Manufacturer = value
+                    elif tag == 'Model':
+                        self._ds.ManufacturerModelName = value
+                    elif tag == 'Make':
+                        self._ds.Manufacturer = value
+                    elif tag == 'Model':
+                        self._ds.DeviceSerialNumber = value
+                    elif tag == 'Software':
+                        self._ds.SoftwareVersions = value
+                    elif tag == 'ApertureValue':
+                        self._ds.ApertureValue = value
+                    elif tag == 'ShutterSpeedValue':
+                        self._ds.ShutterSpeedValue = value
+                    # Add more tag mappings as needed
+        except Exception as e:
+            logger.warning(f"Error reading EXIF data: {e}")

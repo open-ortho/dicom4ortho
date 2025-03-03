@@ -241,7 +241,7 @@ class TestPacsModule(unittest.TestCase):
         status = c.send(
             send_method='dimse',
             dicom_files=[dicom_file_path],
-            pasc_ip=pacs_dimse_hostname,
+            pacs_dimse_hostname=pacs_dimse_hostname,
             pacs_dimse_port=pacs_dimse_port,
             pacs_dimse_aet=pacs_dimse_aet)
         self.assertTrue(hasattr(status, 'Status'))
@@ -310,7 +310,6 @@ class TestPacsModule(unittest.TestCase):
             print(f"\nTesting with {sample_file}...")
             self.full_flow_test_via_dicom_file(sample_file)
 
-    @unittest.skip("TODO: Connection aborted during transfer. Not working.")
     def test_send_to_dimse_simple_file(self):
         self.send_to_pacs_dimse(self.resource_path / 'test.dcm')
 

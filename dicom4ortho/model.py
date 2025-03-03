@@ -708,6 +708,10 @@ class DicomBase(object):
                 root=config.StudyInstanceUID_ROOT)
 
     def to_dataset(self):
+        """ Return the DICOM dataset.
+        
+        If you want to save the dataset to a file, use save() instead. If you get the Dataset from here, then you have to deal with all the transfer syntaxes and other settings yourself, before saving.
+        """
         return self._ds
 
     def to_byte(self):

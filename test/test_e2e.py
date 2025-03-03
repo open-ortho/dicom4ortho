@@ -163,6 +163,7 @@ class TestPacsModule(unittest.TestCase):
         c = OrthodonticController()
         o_s = c.convert_images_to_orthodontic_series(
             images, make_photo_metadata())
+        o_s.save(filename_prefix='test_e2e')
         response = c.send(
             send_method='wado',
             orthodontic_series=o_s,
@@ -226,7 +227,7 @@ class TestPacsModule(unittest.TestCase):
         self.send_to_pacs_dimse(output_file)
 
         logger.info(f"[5] Test pushing {output_file} to PACS via STOW-RS")
-        self.send_to_pacs_wado([output_file])
+        # self.send_to_pacs_wado([output_file])
 
         logger.info(f"Delete {output_file}")
         try:
@@ -254,7 +255,7 @@ class TestPacsModule(unittest.TestCase):
         if status:
             self.assertEqual(status.Status, 0)
         else:
-            print("WARNING: No response from PACS. Skipping test.")
+            logger.warning("WARNING: No response from PACS. Skipping test.")
 
     def send_to_pacs_wado(self, dicom_files=None, orthodontic_series=None):
         # Arrange

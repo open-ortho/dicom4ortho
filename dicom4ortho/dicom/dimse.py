@@ -3,16 +3,13 @@
 This module is here to satisfy specificion  **IE-03:** ``dicom4ortho`` SHALL support sending images to a DICOM node (as SCU or SCP, DICOMweb, WADO, or whatever).
 
 """
-import logging
-from pydicom.uid import ImplicitVRLittleEndian
+from dicom4ortho import logger
+from pydicom.uid import ImplicitVRLittleEndian, JPEGBaseline8Bit
 from pydicom.dataset import Dataset
 from pydicom import dcmread
 from pynetdicom import AE, StoragePresentationContexts
 
 from dicom4ortho.config import PROJECT_NAME
-
-logger = logging.getLogger(__name__)
-
 
 def send(**kwargs) -> Dataset:
     """ Send multiple DICOM files to PACS using DIMSE protocol.
@@ -73,16 +70,15 @@ def send(**kwargs) -> Dataset:
             # Set TransferSyntax to something common. This is done at the dicom instance itself.
             if not hasattr(dataset, 'file_meta') or dataset.file_meta is None:
                 dataset.file_meta = dataset.FileMetaDataset()
-            dataset.file_meta.TransferSyntaxUID = ImplicitVRLittleEndian
-            dataset.is_implicit_VR = True
-            dataset.is_little_endian = True
+                dataset.file_meta.TransferSyntaxUID = ImplicitVRLittleEndian
+                dataset.is_implicit_VR = True
+                dataset.is_little_endian = True
 
             status = assoc.send_c_store(dataset)
             if status:
                 logger.info(f'C-STORE request status: 0x{status.Status:04x}')
             else:
-                logger.error(
-                    'Connection timed out, was aborted, or received an invalid response')
+                logger.error(f'Connection timed out, was aborted, or received an invalid response. Status: [{status}]')
 
         # Release the association
         assoc.release()

@@ -62,12 +62,12 @@ update_resources:
 	@# Download codes.csv only if it has changed
 	curl --silent -z $(CODES) -o $(CODES) $(URL_CODES)
 	@# Check if views.csv has "VER" and is different from the repository state
-	@if [ -f $(VIEWS) ] && grep -q "VER" $(VIEWS) && git diff --exit-code $(VIEWS); then \
+	@if [ -f $(VIEWS) ] && grep -q "VER" $(VIEWS) && ! git diff --quiet --exit-code $(VIEWS); then \
 	    git add $(VIEWS); \
 	    git commit -m "Update views.csv"; \
 	fi
 	@# Check if codes.csv has "__version__" and is different from the repository state
-	@if [ -f $(CODES) ] && grep -q "__version__" $(CODES) && git diff --exit-code $(CODES); then \
+	@if [ -f $(CODES) ] && grep -q "__version__" $(CODES) && ! git diff --quiet --exit-code $(CODES); then \
 	    git add $(CODES); \
 	    git commit -m "Update codes.csv"; \
 	fi

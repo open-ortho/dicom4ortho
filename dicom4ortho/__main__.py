@@ -12,6 +12,7 @@ from argparse import RawDescriptionHelpFormatter
 import importlib.resources as importlib_resources
 from prettytable import PrettyTable
 
+from dicom4ortho import logger
 import dicom4ortho.config as config
 import dicom4ortho.controller as controller
 from dicom4ortho.utils import generate_dicom_uid
@@ -32,10 +33,20 @@ class CLIError(Exception):
     def __unicode__(self):
         return self.msg
 
+def setup_logging(log_level):
+    root_logger = logging.getLogger()
+    root_logger.setLevel(log_level)
+
+    formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(name)s.%(funcName)s: %(message)s')
+
+    console_handler = logging.StreamHandler()
+    console_handler.setFormatter(formatter)
+    root_logger.addHandler(console_handler)
+
 
 def print_image_types():
     image_types_filename = importlib_resources.files('dicom4ortho.resources') / 'image_types.csv'
-    logging.debug("Image type filenames is: %s",image_types_filename)
+    logger.debug("Image type filenames is: %s",image_types_filename)
     header1 = 'Type'
     header2 = 'Abbreviated'
     header3 = 'Full Meaning'
@@ -58,7 +69,6 @@ def print_image_types():
 
 def main(argv=None):
     '''Command line options.'''
-
     if argv is None:
         argv = sys.argv
     else:
@@ -143,20 +153,21 @@ USAGE
         args = parser.parse_args(argv[1:])
         if args.verbose is True:
             args.log_level = logging.DEBUG
+        else:
+            args.log_level = logging.INFO
 
-        logging.basicConfig(format='%(asctime)s - %(levelname)s - %(funcName)s: %(message)s',
-                            level=args.log_level)
+        setup_logging(args.log_level)
 
-        logging.debug("passed arguments: %s",argv)
+        logger.debug("passed arguments: %s",argv)
         for k,v in sorted(vars(args).items()):
-            logging.debug("%s: %s",k,v)
+            logger.debug("%s: %s",k,v)
 
         if args.input_filename == LIST_IMAGE_TYPES:
             print_image_types()
             return 0
 
         if not os.path.isfile(args.input_filename):
-            logging.error("Cannot locate file %s:",args.input_filename)
+            logger.error("Cannot locate file %s:",args.input_filename)
             return 1
 
         c = controller.OrthodonticController(

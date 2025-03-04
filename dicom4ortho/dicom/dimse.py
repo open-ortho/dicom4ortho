@@ -3,15 +3,14 @@
 This module is here to satisfy specificion  **IE-03:** ``dicom4ortho`` SHALL support sending images to a DICOM node (as SCU or SCP, DICOMweb, WADO, or whatever).
 
 """
-import logging
-from pydicom.uid import ImplicitVRLittleEndian
+from dicom4ortho import logger
+from pynetdicom.sop_class import VLPhotographicImageStorage  # pylint: disable=E0611
 from pydicom.dataset import Dataset
 from pydicom import dcmread
-from pynetdicom import AE, StoragePresentationContexts
+from pynetdicom import AE
 
 from dicom4ortho.config import PROJECT_NAME
-
-logger = logging.getLogger(__name__)
+from pydicom.uid import AllTransferSyntaxes, ImplicitVRLittleEndian
 
 
 def send(**kwargs) -> Dataset:
@@ -23,6 +22,7 @@ def send(**kwargs) -> Dataset:
         pacs_dimse_hostname (str): IP address of the PACS server.
         pacs_dimse_port (int): Port of the PACS server.
         pacs_dimse_aet (str): AE Title of the PACS server.
+        local_aet (str): Local AE Title to use (default: PROJECT_NAME.upper()).
 
     returns a Status Dataset contiaining the response.
     """
@@ -34,12 +34,14 @@ def send(**kwargs) -> Dataset:
     dicom_datasets = kwargs.get('dicom_datasets', None)
     dicom_files = kwargs.get('dicom_files', None)
     if not dicom_datasets and not dicom_files:
-        logger.error("No files or DICOM Datasets to send to. Set the dicom_files or dicom_datasets argument.")
+        logger.error(
+            "No files or DICOM Datasets to send to. Set the dicom_files or dicom_datasets argument.")
         return None
 
     pacs_dimse_hostname = kwargs.get('pacs_dimse_hostname', None)
     if not pacs_dimse_hostname:
-        logger.error("Nowhere to send to. Set the pacs_dimse_hostname argument.")
+        logger.error(
+            "Nowhere to send to. Set the pacs_dimse_hostname argument.")
         return None
 
     pacs_dimse_port = kwargs.get('pacs_dimse_port', None)
@@ -53,12 +55,21 @@ def send(**kwargs) -> Dataset:
             "No PACS Application Entity Title defined! Set the pacs_dimse_aet argument.")
         return None
 
-    # Create application entity and specify the requested presentation contexts
-    ae = AE(ae_title=PROJECT_NAME.upper())
-    ae.requested_contexts = StoragePresentationContexts
+    local_aet = kwargs.get('local_aet', PROJECT_NAME.upper())
 
-    # Establish association with PACS
-    assoc = ae.associate(pacs_dimse_hostname, pacs_dimse_port, ae_title=pacs_dimse_aet)
+    # Create application entity and specify the requested presentation contexts
+    ae = AE(ae_title=local_aet)
+
+    # Add all transfer syntaxes to the VLPhotographicImageStorage.
+    for transfer_syntax in AllTransferSyntaxes:
+        ae.add_requested_context(VLPhotographicImageStorage, transfer_syntax)
+
+    # Now try to establish the association with this comprehensive list of presentation contexts
+    assoc = ae.associate(
+        addr=pacs_dimse_hostname,
+        port=pacs_dimse_port,
+        ae_title=pacs_dimse_aet)
+
     status = None
     if assoc.is_established:
         combined_dicoms = (dicom_files or []) + (dicom_datasets or [])
@@ -69,20 +80,19 @@ def send(**kwargs) -> Dataset:
             else:
                 dataset = dcmread(dicom_thing)
 
-
             # Set TransferSyntax to something common. This is done at the dicom instance itself.
             if not hasattr(dataset, 'file_meta') or dataset.file_meta is None:
                 dataset.file_meta = dataset.FileMetaDataset()
-            dataset.file_meta.TransferSyntaxUID = ImplicitVRLittleEndian
-            dataset.is_implicit_VR = True
-            dataset.is_little_endian = True
+                dataset.file_meta.TransferSyntaxUID = ImplicitVRLittleEndian
+                dataset.is_implicit_VR = True
+                dataset.is_little_endian = True
 
             status = assoc.send_c_store(dataset)
             if status:
                 logger.info(f'C-STORE request status: 0x{status.Status:04x}')
             else:
                 logger.error(
-                    'Connection timed out, was aborted, or received an invalid response')
+                    f'Connection timed out, was aborted, or received an invalid response. Status: [{status}]')
 
         # Release the association
         assoc.release()

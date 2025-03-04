@@ -5,6 +5,7 @@ Adds SNOMED CT codes in DICOM object for Orthodontic Views.
 
 '''
 
+from typing import List
 from datetime import datetime
 from pydicom.sequence import Sequence
 from pydicom.dataset import Dataset
@@ -290,7 +291,7 @@ class OrthodonticSeries():
         self.description = kwargs.get("description")
         self.UID = kwargs.get("uid") or generate_dicom_uid(
             root=SeriesInstanceUID_ROOT)
-        self.Photos = []
+        self.Photos : List[OrthodonticPhotograph] = []
 
     def __len__(self):
         return len(self.Photos)
@@ -303,13 +304,17 @@ class OrthodonticSeries():
             raise TypeError(f"'photo' cannot be of type '{type(photo)}'. Can only add objects of type 'OrthodonticPhotograph'")
         self.Photos.append(photo)
 
-    def save(self) -> None:
+    def save(self,filename_prefix=None) -> None:
         logger.info(
             "Requested to save %s Photos within Series %s", len(self.Photos), self.UID)
+        i = 0
         for photo in self.Photos:
+            i += 1
             photo.series_description = self.description
             photo.series_instance_uid = self.UID
             photo.study_instance_uid = self.StudyUID
+            if not photo.output_image_filename:
+                photo.output_image_filename = f"{filename_prefix}_{i}.dcm"
             photo.save()
 
 

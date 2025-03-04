@@ -9,3 +9,5 @@ modules/dicom3tools
 docs/.buildinfo
 .test*
 *.sqlite
+
+.DS_Store

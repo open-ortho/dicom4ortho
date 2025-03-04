@@ -4,13 +4,14 @@ This module is here to satisfy specificion  **IE-03:** ``dicom4ortho`` SHALL sup
 
 """
 from dicom4ortho import logger
-from pynetdicom.sop_class import VLPhotographicImageStorage
+from pynetdicom.sop_class import VLPhotographicImageStorage  # pylint: disable=E0611
 from pydicom.dataset import Dataset
 from pydicom import dcmread
-from pynetdicom import AE, StoragePresentationContexts, build_context
+from pynetdicom import AE
 
 from dicom4ortho.config import PROJECT_NAME
 from pydicom.uid import AllTransferSyntaxes, ImplicitVRLittleEndian
+
 
 def send(**kwargs) -> Dataset:
     """ Send multiple DICOM files to PACS using DIMSE protocol.
@@ -33,12 +34,14 @@ def send(**kwargs) -> Dataset:
     dicom_datasets = kwargs.get('dicom_datasets', None)
     dicom_files = kwargs.get('dicom_files', None)
     if not dicom_datasets and not dicom_files:
-        logger.error("No files or DICOM Datasets to send to. Set the dicom_files or dicom_datasets argument.")
+        logger.error(
+            "No files or DICOM Datasets to send to. Set the dicom_files or dicom_datasets argument.")
         return None
 
     pacs_dimse_hostname = kwargs.get('pacs_dimse_hostname', None)
     if not pacs_dimse_hostname:
-        logger.error("Nowhere to send to. Set the pacs_dimse_hostname argument.")
+        logger.error(
+            "Nowhere to send to. Set the pacs_dimse_hostname argument.")
         return None
 
     pacs_dimse_port = kwargs.get('pacs_dimse_port', None)
@@ -56,11 +59,11 @@ def send(**kwargs) -> Dataset:
 
     # Create application entity and specify the requested presentation contexts
     ae = AE(ae_title=local_aet)
-    
+
     # Add all transfer syntaxes to the VLPhotographicImageStorage.
     for transfer_syntax in AllTransferSyntaxes:
         ae.add_requested_context(VLPhotographicImageStorage, transfer_syntax)
-    
+
     # Now try to establish the association with this comprehensive list of presentation contexts
     assoc = ae.associate(
         addr=pacs_dimse_hostname,
@@ -77,7 +80,6 @@ def send(**kwargs) -> Dataset:
             else:
                 dataset = dcmread(dicom_thing)
 
-
             # Set TransferSyntax to something common. This is done at the dicom instance itself.
             if not hasattr(dataset, 'file_meta') or dataset.file_meta is None:
                 dataset.file_meta = dataset.FileMetaDataset()
@@ -89,7 +91,8 @@ def send(**kwargs) -> Dataset:
             if status:
                 logger.info(f'C-STORE request status: 0x{status.Status:04x}')
             else:
-                logger.error(f'Connection timed out, was aborted, or received an invalid response. Status: [{status}]')
+                logger.error(
+                    f'Connection timed out, was aborted, or received an invalid response. Status: [{status}]')
 
         # Release the association
         assoc.release()

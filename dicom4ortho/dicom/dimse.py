@@ -4,12 +4,13 @@ This module is here to satisfy specificion  **IE-03:** ``dicom4ortho`` SHALL sup
 
 """
 from dicom4ortho import logger
-from pydicom.uid import ImplicitVRLittleEndian, JPEGBaseline8Bit
+from pynetdicom.sop_class import VLPhotographicImageStorage
 from pydicom.dataset import Dataset
 from pydicom import dcmread
-from pynetdicom import AE, StoragePresentationContexts
+from pynetdicom import AE, StoragePresentationContexts, build_context
 
 from dicom4ortho.config import PROJECT_NAME
+from pydicom.uid import AllTransferSyntaxes, ImplicitVRLittleEndian
 
 def send(**kwargs) -> Dataset:
     """ Send multiple DICOM files to PACS using DIMSE protocol.
@@ -20,6 +21,7 @@ def send(**kwargs) -> Dataset:
         pacs_dimse_hostname (str): IP address of the PACS server.
         pacs_dimse_port (int): Port of the PACS server.
         pacs_dimse_aet (str): AE Title of the PACS server.
+        local_aet (str): Local AE Title to use (default: PROJECT_NAME.upper()).
 
     returns a Status Dataset contiaining the response.
     """
@@ -50,12 +52,21 @@ def send(**kwargs) -> Dataset:
             "No PACS Application Entity Title defined! Set the pacs_dimse_aet argument.")
         return None
 
-    # Create application entity and specify the requested presentation contexts
-    ae = AE(ae_title=PROJECT_NAME.upper())
-    ae.requested_contexts = StoragePresentationContexts
+    local_aet = kwargs.get('local_aet', PROJECT_NAME.upper())
 
-    # Establish association with PACS
-    assoc = ae.associate(pacs_dimse_hostname, pacs_dimse_port, ae_title=pacs_dimse_aet)
+    # Create application entity and specify the requested presentation contexts
+    ae = AE(ae_title=local_aet)
+    
+    # Add all transfer syntaxes to the VLPhotographicImageStorage.
+    for transfer_syntax in AllTransferSyntaxes:
+        ae.add_requested_context(VLPhotographicImageStorage, transfer_syntax)
+    
+    # Now try to establish the association with this comprehensive list of presentation contexts
+    assoc = ae.associate(
+        addr=pacs_dimse_hostname,
+        port=pacs_dimse_port,
+        ae_title=pacs_dimse_aet)
+
     status = None
     if assoc.is_established:
         combined_dicoms = (dicom_files or []) + (dicom_datasets or [])

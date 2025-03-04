@@ -1,6 +1,7 @@
 {
     "Name": "orthanc-mock",
     "DicomAet": "ORTHANC-MOCK",
+    "DicomPort": 4242,
     "HttpsVerifyPeers": false,
     "StorageCompression": false,
     "LimitFindResults": 100,
@@ -21,6 +22,7 @@
     "RegisteredUsers": {
         "orthanc": "mock"
     },
+    "AcceptedSopClasses" : [],
     "Plugins" : [ 
         "/usr/share/orthanc/plugins", "/usr/local/share/orthanc/plugins"
       ],

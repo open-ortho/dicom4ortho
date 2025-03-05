@@ -128,6 +128,9 @@ class OrthodonticPhotograph(PhotographBase):
             return
 
         self.dent_oip_view = self.dent_oip.VIEWS.get(self.type_keyword)
+        if self.dent_oip_view is None:
+            logger.info("No type_keyword recognized the image type %s for file: %s", self.type_keyword, self.output_image_filename)
+            return
         
         # Get the array of functions to set this required type.
         logger.debug('Setting DICOM attributes for %s', self.type_keyword)
@@ -147,7 +150,7 @@ class OrthodonticPhotograph(PhotographBase):
             patient_orientation_code = self.dent_oip.CODES.get(
                 'OrientationFront')
             logger.warning(f"PatientOrientation not found for %s. Defaulting to %s",
-                           self.output_image_filename, patient_orientation_code)
+                          self.output_image_filename, patient_orientation_code)
         self._ds.PatientOrientation = patient_orientation_code.get(
             'code').split('^')
         self._ds.ImageLaterality = self.dent_oip.CODES.get(

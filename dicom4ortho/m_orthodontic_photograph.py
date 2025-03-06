@@ -47,8 +47,7 @@ class OrthodonticPhotograph(PhotographBase):
                 self.patient_birthdate = datetime.strptime(
                     patient_birthdate, IMPORT_DATE_FORMAT).date()
             except (ValueError, TypeError):
-                logger.warning("Invalid Patient Birthdate %s",
-                               patient_birthdate)
+                logger.warning("Invalid Patient Birthdate provided.")
 
         self.study_instance_uid = metadata.get('study_instance_uid')
         self.study_description = metadata.get('study_description')

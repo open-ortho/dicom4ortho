@@ -11,13 +11,13 @@ from pydicom.sequence import Sequence
 from pydicom.dataset import Dataset
 
 from dicom4ortho.model import PhotographBase
-import dicom4ortho.m_tooth_codes as ToothCodes
 from dicom4ortho.config import IMPORT_DATE_FORMAT, SeriesInstanceUID_ROOT, StudyInstanceUID_ROOT
 from dicom4ortho.utils import generate_dicom_uid, get_scheduled_protocol_code
 from dicom4ortho.m_dent_oip import DENT_OIP
 
 import logging
 logger = logging.getLogger(__name__)
+
 
 class OrthodonticPhotograph(PhotographBase):
     """ An Orthodontic Photograph as defined in WP-1100
@@ -33,7 +33,7 @@ class OrthodonticPhotograph(PhotographBase):
 
     def __init__(self, **metadata):
         super().__init__(**metadata)
-        
+
         # Initialize local variables
         self.type_keyword = ""  # Orthodontic View String, e.g. "IV03"
         self.dent_oip_view = None  # Row in DENT-OIP views.csv for this particular view
@@ -41,14 +41,13 @@ class OrthodonticPhotograph(PhotographBase):
         self.days_after_event = None
         self.dent_oip = DENT_OIP()
 
-
         patient_birthdate = metadata.get('patient_birthdate')
         if patient_birthdate is not None:
             try:
                 self.patient_birthdate = datetime.strptime(
                     patient_birthdate, IMPORT_DATE_FORMAT).date()
             except (ValueError, TypeError):
-                logger.warning("Invalid Patient Birthdate %s", patient_birthdate)
+                logger.warning("Invalid Patient Birthdate provided.")
 
         self.study_instance_uid = metadata.get('study_instance_uid')
         self.study_description = metadata.get('study_description')
@@ -121,14 +120,20 @@ class OrthodonticPhotograph(PhotographBase):
         if not self.type_keyword:
             scheduled_protocol_code = get_scheduled_protocol_code(self._ds)
             if scheduled_protocol_code is not None and 'CodeValue' in scheduled_protocol_code:
-                self.type_keyword = get_scheduled_protocol_code(self._ds).CodeValue
+                self.type_keyword = get_scheduled_protocol_code(
+                    self._ds).CodeValue
 
         if not self.type_keyword:
-            logger.info("No type_keyword set for %s", self.output_image_filename)
+            logger.info("No type_keyword set for %s",
+                        self.output_image_filename)
             return
 
         self.dent_oip_view = self.dent_oip.VIEWS.get(self.type_keyword)
-        
+        if self.dent_oip_view is None:
+            logger.info("No type_keyword recognized the image type %s for file: %s",
+                        self.type_keyword, self.output_image_filename)
+            return
+
         # Get the array of functions to set this required type.
         logger.debug('Setting DICOM attributes for %s', self.type_keyword)
 
@@ -139,7 +144,8 @@ class OrthodonticPhotograph(PhotographBase):
         # Space (0x20)
         self._ds.ImageComments = ImageComments.replace('\xa0', '\x20')
 
-        self._ds.SeriesDescription = self.dent_oip_view.get('SeriesDescription')
+        self._ds.SeriesDescription = self.dent_oip_view.get(
+            'SeriesDescription')
 
         patient_orientation_code = self.dent_oip.CODES.get(
             self.dent_oip_view.get('PatientOrientation'))
@@ -266,7 +272,8 @@ class OrthodonticPhotograph(PhotographBase):
             return True
         else:
             return False
-    
+
+
 class OrthodonticSeries():
     """ Class representing an Orthodontic Photo session.
 
@@ -291,7 +298,7 @@ class OrthodonticSeries():
         self.description = kwargs.get("description")
         self.UID = kwargs.get("uid") or generate_dicom_uid(
             root=SeriesInstanceUID_ROOT)
-        self.Photos : List[OrthodonticPhotograph] = []
+        self.Photos: List[OrthodonticPhotograph] = []
 
     def __len__(self):
         return len(self.Photos)
@@ -301,10 +308,11 @@ class OrthodonticSeries():
 
     def add(self, photo: OrthodonticPhotograph) -> None:
         if not isinstance(photo, OrthodonticPhotograph):
-            raise TypeError(f"'photo' cannot be of type '{type(photo)}'. Can only add objects of type 'OrthodonticPhotograph'")
+            raise TypeError(
+                f"'photo' cannot be of type '{type(photo)}'. Can only add objects of type 'OrthodonticPhotograph'")
         self.Photos.append(photo)
 
-    def save(self,filename_prefix=None) -> None:
+    def save(self, filename_prefix=None) -> None:
         logger.info(
             "Requested to save %s Photos within Series %s", len(self.Photos), self.UID)
         i = 0

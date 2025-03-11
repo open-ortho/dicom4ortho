@@ -1043,7 +1043,7 @@ class PhotographBase(DicomBase):
         self._ds.PixelData = encapsulate(
             [image_bytes.getvalue()])  # needs to be an array
 
-        # self._ds['PixelData'].is_undefined_length = True
+        self._ds['PixelData'].is_undefined_length = True
 
         # Values as defined in Part 5 Sect 8.2.1
         # https://dicom.nema.org/medical/dicom/current/output/chtml/part05/sect_8.2.html#sect_8.2.1

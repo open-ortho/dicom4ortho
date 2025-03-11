@@ -155,6 +155,7 @@ class TestPacsModule(unittest.TestCase):
         c = OrthodonticController()
         o_s = c.convert_images_to_orthodontic_series(
             images, make_photo_metadata())
+        o_s.save(filename_prefix='test_e2e_')
         response = c.send(
             send_method='wado',
             orthodontic_series=o_s,

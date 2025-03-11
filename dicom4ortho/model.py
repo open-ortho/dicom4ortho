@@ -1043,7 +1043,11 @@ class PhotographBase(DicomBase):
         self._ds.PixelData = encapsulate(
             [image_bytes.getvalue()])  # needs to be an array
 
-        # self._ds['PixelData'].is_undefined_length = True
+        # Set the undefined length for PixelData, which is required for compressed data (e.g., JPEG).
+        # In DICOM, compressed PixelData must be encoded as an element with undefined length (encapsulated format). 
+        # This is necessary because the length of the compressed data is not known until the entire data is encoded.
+        # REF: A.4 Transfer Syntaxes For Encapsulation of Encoded Pixel Data: https://dicom.nema.org/dicom/2013/output/chtml/part05/sect_A.4.html
+        self._ds['PixelData'].is_undefined_length = True
 
         # Values as defined in Part 5 Sect 8.2.1
         # https://dicom.nema.org/medical/dicom/current/output/chtml/part05/sect_8.2.html#sect_8.2.1

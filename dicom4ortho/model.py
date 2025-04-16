@@ -74,8 +74,9 @@ class DicomBase(object):
         self._ds.StudyInstanceUID = generate_dicom_uid(
             root=config.StudyInstanceUID_ROOT)
         self._ds.StudyID = config.IDS_NUMBERS
-        self._ds.StudyDate = self.date_string
-        self._ds.StudyTime = self.time_string
+        # StudyDate and StudyTime are "2", i.e. required fields, empty if unknown
+        self._ds.StudyDate = ""
+        self._ds.StudyTime = ""
 
     def _set_general_series(self):
         self._ds.SeriesInstanceUID = generate_dicom_uid(

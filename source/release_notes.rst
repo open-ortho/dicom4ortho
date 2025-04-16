@@ -1,6 +1,11 @@
 Release notes
 =============
 
+0.4.7
+-----
+
+* Fix default Series and Study Date and Time to empty.
+
 0.4.2
 -----
 

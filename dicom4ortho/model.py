@@ -15,9 +15,8 @@ from pydicom import dcmread, dcmwrite
 import numpy
 
 # pylint: disable=no-name-in-module
-from pynetdicom.sop_class import VLPhotographicImageStorage
 from PIL import Image
-from PIL.ExifTags import TAGS, GPSTAGS
+from PIL.ExifTags import TAGS
 
 from dicom4ortho import config
 from dicom4ortho.utils import generate_dicom_uid

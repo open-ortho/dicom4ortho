@@ -81,6 +81,14 @@ class TestDicomBase(TestCase):
         self.dicombase = DicomBase()
         return super().setUp()
 
+    def test_default_date_time_attributes(self):
+        """Test that a DicomBase object by default has StudyDate and StudyTime as empty strings,
+        and no SeriesDate and SeriesTime."""
+        self.assertEqual(self.dicombase._ds.StudyDate, '')
+        self.assertEqual(self.dicombase._ds.StudyTime, '')
+        self.assertFalse(hasattr(self.dicombase._ds, 'SeriesDate'))
+        self.assertFalse(hasattr(self.dicombase._ds, 'SeriesTime'))
+
     def test_patient_sex_valid(self):
         valid_inputs = ['Male', 'Female', 'Other', 'M', 'F', 'O']
         expected_outputs = ['M', 'F', 'O', 'M', 'F', 'O']

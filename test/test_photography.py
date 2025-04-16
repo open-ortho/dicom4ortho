@@ -82,6 +82,13 @@ class PhotoTests(unittest.TestCase):
         """ Test setting date and times with different formats and time zones.
         """
         o = OrthodonticPhotograph()
+        
+        # Test default date/time attributes
+        self.assertEqual(o._ds.StudyDate, '')
+        self.assertEqual(o._ds.StudyTime, '')
+        self.assertFalse(hasattr(o._ds, 'SeriesDate'))
+        self.assertFalse(hasattr(o._ds, 'SeriesTime'))
+        
         o.study_datetime = datetime(1592, 2, 3, 12, 14, 11)
         self.assertEqual(o._ds.StudyDate, "15920203")
         self.assertEqual(o._ds.StudyTime, "121411.000000")

@@ -28,9 +28,12 @@ class DicomBase(object):
     """ Functions and fields common to most DICOM images.
 
     kwargs:
-        dicom_mwl: DICOM dataset from a Modality Worklist. If set, the new IOD will copy tags from Modality Worklist as specified in IHE RAD TF-2x. If not set, a new one will be created.
+        dicom_mwl: DICOM dataset from a Modality Worklist. If set, the new IOD
+        will copy tags from Modality Worklist as specified in IHE RAD TF-2x. If
+        not set, a new one will be created.
 
-        input_pil_image: PIL Image object. If set, the image will be used to set the image data. If not set, the input_image_filename will be used.
+        input_pil_image: PIL Image object. If set, the image will be used to set
+        the image data. If not set, the input_image_filename will be used.
     """
 
     def __init__(self, **kwargs):
@@ -130,7 +133,6 @@ class DicomBase(object):
             logger.warning("No Modality Worklist to copy tags from.")
             return
 
-
         if 'StudyInstanceUID' in self.dicom_mwl:
             self._ds.StudyInstanceUID = self.dicom_mwl.StudyInstanceUID
 
@@ -157,7 +159,8 @@ class DicomBase(object):
 
         if 'StudyID' in self.dicom_mwl:
             if 'RequestedProcedureID' in self.dicom_mwl:
-                self._ds.StudyID = self.dicom_mwl.RequestedProcedureID # Recommended by IHE RAD TF-2x
+                # Recommended by IHE RAD TF-2x
+                self._ds.StudyID = self.dicom_mwl.RequestedProcedureID
             else:
                 self._ds.StudyID = self.dicom_mwl.StudyID
 
@@ -165,22 +168,26 @@ class DicomBase(object):
             self._ds.PerformedProcedureStepID = self.dicom_mwl.PerformedProcedureStepID
 
         if self._ds.StudyDate:
-            self._ds.PerformedProcedureStepStartDate = self._ds.StudyDate # Recommended by IHE RAD TF-2x
+            # Recommended by IHE RAD TF-2x
+            self._ds.PerformedProcedureStepStartDate = self._ds.StudyDate
         elif 'PerformedProcedureStepStartDate' in self.dicom_mwl:
             self._ds.PerformedProcedureStepStartDate = self.dicom_mwl.PerformedProcedureStepStartDate
 
         if self._ds.StudyTime:
-            self._ds.PerformedProcedureStepStartTime = self._ds.StudyTime # Recommended by IHE RAD TF-2x
+            # Recommended by IHE RAD TF-2x
+            self._ds.PerformedProcedureStepStartTime = self._ds.StudyTime
         elif 'PerformedProcedureStepStartTime' in self.dicom_mwl:
             self._ds.PerformedProcedureStepStartTime = self.dicom_mwl.PerformedProcedureStepStartTime
 
         if self._ds.StudyDescription:
-            self._ds.PerformedProcedureStepDescription = self._ds.StudyDescription # Recommended by IHE RAD TF-2x
+            # Recommended by IHE RAD TF-2x
+            self._ds.PerformedProcedureStepDescription = self._ds.StudyDescription
         elif 'PerformedProcedureStepDescription' in self.dicom_mwl:
             self._ds.PerformedProcedureStepDescription = self.dicom_mwl.PerformedProcedureStepDescription
 
         if 'RequestedProcedureCodeSequence' in self.dicom_mwl:
-            self._ds.ProcedureCodeSequence = self.dicom_mwl.RequestedProcedureCodeSequence # Recommended by IHE RAD TF-2x
+            # Recommended by IHE RAD TF-2x
+            self._ds.ProcedureCodeSequence = self.dicom_mwl.RequestedProcedureCodeSequence
 
         if 'ReferencedSOPClassUID' in self.dicom_mwl:
             self._ds.ReferencedSOPClassUID = self.dicom_mwl.ReferencedSOPClassUID
@@ -229,7 +236,7 @@ class DicomBase(object):
 
         if 'PatientSize' in self.dicom_mwl:
             self._ds.PatientSize = self.dicom_mwl.PatientSize
-        
+
         if 'PatientWeight' in self.dicom_mwl:
             self._ds.PatientWeight = self.dicom_mwl.PatientWeight
 
@@ -252,7 +259,8 @@ class DicomBase(object):
             ras.AccessionNumber = self.dicom_mwl.AccessionNumber
 
         if 'RequestedProcedureID' in self.dicom_mwl:
-            self._ds.StudyID = self.dicom_mwl.RequestedProcedureID # Recommended by IHE RAD TF-2x
+            # Recommended by IHE RAD TF-2x
+            self._ds.StudyID = self.dicom_mwl.RequestedProcedureID
             ras.RequestedProcedureID = self.dicom_mwl.RequestedProcedureID
 
         if 'RequestedProcedureDescription' in self.dicom_mwl:
@@ -272,15 +280,16 @@ class DicomBase(object):
 
         if 'ScheduledProcedureStepSequence' in self.dicom_mwl and self.dicom_mwl.ScheduledProcedureStepSequence:
             if 'ScheduledProtocolCodeSequence' in self.dicom_mwl.ScheduledProcedureStepSequence[0]:
-                ras.ScheduledProtocolCodeSequence = self.dicom_mwl.ScheduledProcedureStepSequence[0].ScheduledProtocolCodeSequence
+                ras.ScheduledProtocolCodeSequence = self.dicom_mwl.ScheduledProcedureStepSequence[
+                    0].ScheduledProtocolCodeSequence
 
         self._ds.RequestAttributesSequence = Sequence([])
         self._ds.RequestAttributesSequence.append(ras)
 
-
     def _set_referenced_performed_procedure_step(self):
         rpps = Dataset()
-        rpps.ReferencedSOPClassUID = "1.2.840.10008.3.1.2.3.3" # Modality Performed Procedure Step SOP Class UID (MPPS) Recommended by IHE RAD TF-2x
+        # Modality Performed Procedure Step SOP Class UID (MPPS) Recommended by IHE RAD TF-2x
+        rpps.ReferencedSOPClassUID = "1.2.840.10008.3.1.2.3.3"
 
         self._ds.ReferencedPerformedProcedureStepSequence = Sequence([])
         self._ds.ReferencedPerformedProcedureStepSequence.append(rpps)
@@ -304,13 +313,13 @@ class DicomBase(object):
             self._image_format = im.format
         return self._image_format
 
-    @ property
+    @property
     def image_bytes(self) -> Image:
         if self.input_image_bytes is None:
             self.input_image_bytes = self._input_filename_to_image_bytes()
         return self.input_image_bytes
 
-    @ image_bytes.setter
+    @image_bytes.setter
     def image_bytes(self, image):
         if type(image) is Image:
             self.input_image_bytes = image
@@ -319,144 +328,144 @@ class DicomBase(object):
         else:
             raise ValueError("Image must be a Bytes object or a filename.")
 
-    @ property
+    @property
     def series_datetime(self):
         return datetime.datetime.strptime(
             f"{self._ds.SeriesDate}{self._ds.SeriesTime}",
             f"{config.DATE_FORMAT}{config.TIME_FORMAT}"
         )
 
-    @ series_datetime.setter
+    @series_datetime.setter
     def series_datetime(self, _seriesdatetime):
         self._ds.SeriesTime = _seriesdatetime.strftime(config.TIME_FORMAT)
         self._ds.SeriesDate = _seriesdatetime.strftime(config.DATE_FORMAT)
 
-    @ property
+    @property
     def study_datetime(self):
         return datetime.datetime.strptime(
             f"{self._ds.StudyDate}{self._ds.StudyTime}",
             f"{config.DATE_FORMAT}{config.TIME_FORMAT}"
         )
 
-    @ study_datetime.setter
+    @study_datetime.setter
     def study_datetime(self, _studydatetime):
         self._ds.StudyTime = _studydatetime.strftime(config.TIME_FORMAT)
         self._ds.StudyDate = _studydatetime.strftime(config.DATE_FORMAT)
 
-    @ property
+    @property
     def study_instance_uid(self):
         return self._ds.StudyInstanceUID
 
-    @ study_instance_uid.setter
+    @study_instance_uid.setter
     def study_instance_uid(self, uuid):
         self._ds.StudyInstanceUID = uuid
 
-    @ property
+    @property
     def series_instance_uid(self):
         return self._ds.SeriesInstanceUID
 
-    @ series_instance_uid.setter
+    @series_instance_uid.setter
     def series_instance_uid(self, uuid):
         self._ds.SeriesInstanceUID = uuid
 
-    @ property
+    @property
     def series_number(self):
         return self._ds.SeriesNumber
 
-    @ series_number.setter
-    def series_number(self, series_number:str):
+    @series_number.setter
+    def series_number(self, series_number: str):
         self._ds.SeriesNumber = series_number or ''
 
-    @ property
+    @property
     def instance_number(self):
         return self._ds.InstanceNumber
 
-    @ instance_number.setter
-    def instance_number(self, instance_number:str):
+    @instance_number.setter
+    def instance_number(self, instance_number: str):
         self._ds.InstanceNumber = f"{int(instance_number):05d}" if instance_number else ''
 
-    @ property
+    @property
     def operator_firstname(self):
         return str(self._ds.OperatorsName).split('^')[1]
 
-    @ operator_firstname.setter
+    @operator_firstname.setter
     def operator_firstname(self, firstname):
         self._set_name("OperatorsName", firstname, 0)
 
-    @ property
+    @property
     def operator_lastname(self):
         return str(self._ds.OperatorsName).split('^')[0]
 
-    @ operator_lastname.setter
+    @operator_lastname.setter
     def operator_lastname(self, lastname):
         self._set_name("OperatorsName", lastname, 1)
 
-    @ property
+    @property
     def institution_address(self):
         return self._ds.InstitutionAddress
 
-    @ institution_address.setter
+    @institution_address.setter
     def institution_address(self, address):
         self._ds.InstitutionAddress = address
 
-    @ property
+    @property
     def institution_name(self):
         return self._ds.InstitutionName
 
-    @ institution_name.setter
+    @institution_name.setter
     def institution_name(self, name):
         self._ds.InstitutionName = name
 
-    @ property
+    @property
     def study_description(self):
         return self._ds.StudyDescription
 
-    @ study_description.setter
+    @study_description.setter
     def study_description(self, description):
         self._ds.StudyDescription = description
 
-    @ property
+    @property
     def series_description(self):
         return self._ds.SeriesDescription
 
-    @ series_description.setter
+    @series_description.setter
     def series_description(self, description):
         self._ds.SeriesDescription = description
 
-    @ property
+    @property
     def patient_firstname(self):
         return str(self._ds.PatientName).split('^')[1]
 
-    @ patient_firstname.setter
+    @patient_firstname.setter
     def patient_firstname(self, firstname):
         self._set_name("PatientName", firstname, 0)
 
-    @ property
+    @property
     def patient_lastname(self):
         return str(self._ds.PatientName).split('^')[0]
 
-    @ patient_lastname.setter
+    @patient_lastname.setter
     def patient_lastname(self, lastname):
         self._set_name("PatientName", lastname, 1)
 
-    @ property
+    @property
     def patient_id(self):
         return self._ds.PatientID
 
-    @ patient_id.setter
+    @patient_id.setter
     def patient_id(self, patient_id):
         # Patient ID in DICOM must be a String.
         self._ds.PatientID = str(patient_id)
 
-    @ property
+    @property
     def reason_for_visit(self):
         return self._ds.ReasonForVisit
 
-    @ reason_for_visit.setter
+    @reason_for_visit.setter
     def reason_for_visit(self, reason):
         self._ds.ReasonForVisit = reason
 
-    @ property
+    @property
     def patient_sex(self):
         return self._ds.PatientSex
 
@@ -482,48 +491,48 @@ class DicomBase(object):
             if len(normalized_input) <= len('OTHER'):
                 self._ds.PatientSex = 'O'
 
-    @ property
+    @property
     def patient_birthdate(self):
         return datetime.datetime.strptime(self._ds.PatientBirthDate, config.DATE_FORMAT).date()
 
-    @ patient_birthdate.setter
+    @patient_birthdate.setter
     def patient_birthdate(self, patient_birthdate):
         self._ds.PatientBirthDate = patient_birthdate.strftime(
             config.DATE_FORMAT)
 
-    @ property
+    @property
     def performing_physician_firstname(self):
         return str(self._ds.PerformingPhysicianName).split('^')[1]
 
-    @ performing_physician_firstname.setter
+    @performing_physician_firstname.setter
     def performing_physician_firstname(self, firstname):
         self._set_name("PerformingPhysicianName", firstname, 0)
 
-    @ property
+    @property
     def performing_physician_lastname(self):
         return str(self._ds.PerformingPhysicianName).split('^')[0]
 
-    @ performing_physician_lastname.setter
+    @performing_physician_lastname.setter
     def performing_physician_lastname(self, lastname):
         self._set_name("PerformingPhysicianName", lastname, 1)
 
-    @ property
+    @property
     def dental_provider_firstname(self):
         return str(self._ds.ReferringPhysicianName).split('^')[1]
 
-    @ dental_provider_firstname.setter
+    @dental_provider_firstname.setter
     def dental_provider_firstname(self, firstname):
         self._set_name("ReferringPhysicianName", firstname, 0)
 
-    @ property
+    @property
     def dental_provider_lastname(self):
         return str(self._ds.ReferringPhysicianName).split('^')[0]
 
-    @ dental_provider_lastname.setter
+    @dental_provider_lastname.setter
     def dental_provider_lastname(self, lastname):
         self._set_name("ReferringPhysicianName", lastname, 1)
 
-    @ property
+    @property
     def timezone(self) -> datetime.timezone:
         """ Convert the TimezoneOffsetFromUTC to a Python datetime.timezone.
 
@@ -545,7 +554,7 @@ class DicomBase(object):
         except ValueError:
             return None
 
-    @ timezone.setter
+    @timezone.setter
     def timezone(self, tz: datetime.timezone) -> None:
         ''' Set timezone of TimezoneOffsetFromUTC from a Python datetime.timezone object.
 
@@ -573,11 +582,11 @@ class DicomBase(object):
         else:
             self._ds.TimezoneOffsetFromUTC = None
 
-    @ property
+    @property
     def acquisition_datetime(self):
         return self._ds.AcquisitionDateTime
 
-    @ acquisition_datetime.setter
+    @acquisition_datetime.setter
     def acquisition_datetime(self, _acquisition_datetime: datetime.datetime):
         """
         Set Acquisition DateTime using local Time Zone.
@@ -600,7 +609,7 @@ class DicomBase(object):
         self._ds.AcquisitionTime = _acquisition_datetime.strftime(
             config.TIME_FORMAT)
 
-    @ property
+    @property
     def date_captured(self):
         ''' Date of image capture.
 
@@ -612,18 +621,18 @@ class DicomBase(object):
         '''
         return datetime.datetime.strptime(self._ds.ContentDate, config.DATE_FORMAT).date()
 
-    @ date_captured.setter
+    @date_captured.setter
     def date_captured(self, date_captured):
         # Date and time are required if images is part of a Series in which
         # the images are temporally related. This sounds like the case for orthodontic
         # intraoral and extraoral photograph sets.
         self._ds.ContentDate = date_captured.strftime(config.DATE_FORMAT)
 
-    @ property
+    @property
     def equipment_manufacturer(self):
         return self._ds.manufacturer
 
-    @ equipment_manufacturer.setter
+    @equipment_manufacturer.setter
     def equipment_manufacturer(self, manufacturer):
         self._ds.Manufacturer = manufacturer
 
@@ -730,7 +739,7 @@ class DicomBase(object):
 
         This method should be called before saving or sending the image to ensure that
         the image data is properly set in the DICOM dataset.
-        
+
         Method has been taken out of save() to allow for usage when sending over the network, without saving first.
         """
         self.add_missing_instance_uids()
@@ -1043,7 +1052,7 @@ class PhotographBase(DicomBase):
             [image_bytes.getvalue()])  # needs to be an array
 
         # Set the undefined length for PixelData, which is required for compressed data (e.g., JPEG).
-        # In DICOM, compressed PixelData must be encoded as an element with undefined length (encapsulated format). 
+        # In DICOM, compressed PixelData must be encoded as an element with undefined length (encapsulated format).
         # This is necessary because the length of the compressed data is not known until the entire data is encoded.
         # REF: A.4 Transfer Syntaxes For Encapsulation of Encoded Pixel Data: https://dicom.nema.org/dicom/2013/output/chtml/part05/sect_A.4.html
         self._ds['PixelData'].is_undefined_length = True
@@ -1069,7 +1078,8 @@ class PhotographBase(DicomBase):
 
     def set_image(self):
         if not self.input_image_filename and not self.input_image_bytes:
-            logger.warning(f"set_image() called on an object without image data. Either set input_image_filename or input_image_bytes")
+            logger.warning(
+                f"set_image() called on an object without image data. Either set input_image_filename or input_image_bytes")
             return False
         if self.image_format in ('JPEG', 'MPO'):
             return self._set_image_jpeg_data()
@@ -1095,7 +1105,8 @@ class PhotographBase(DicomBase):
                     time_string is DICOM TM format (HHMMSS.FFFFFF)
             """
             try:
-                dt = datetime.datetime.strptime(exif_dt_string, '%Y:%m:%d %H:%M:%S')
+                dt = datetime.datetime.strptime(
+                    exif_dt_string, '%Y:%m:%d %H:%M:%S')
                 return (
                     dt.strftime(config.DATE_FORMAT),  # YYYYMMDD
                     dt.strftime(config.TIME_FORMAT)   # HHMMSS.FFFFFF
@@ -1120,7 +1131,7 @@ class PhotographBase(DicomBase):
                             self._ds.AcquisitionDateTime = f"{date}{time}"
                             self._ds.AcquisitionDate = date
                             self._ds.AcquisitionTime = time
-                    elif tag in ['DateTimeDigitized','DateTime']:
+                    elif tag in ['DateTimeDigitized', 'DateTime']:
                         date, time = _convert_exif_datetime(value)
                         if date and time:
                             self._ds.ContentDate = date
@@ -1128,7 +1139,7 @@ class PhotographBase(DicomBase):
                     elif tag == 'GPSInfo':
                         pass
                     elif tag == 'Orientation':
-                        pass # Specifically not mapped according to standard.
+                        pass  # Specifically not mapped according to standard.
                     elif tag == 'Make':
                         self._ds.Manufacturer = value
                     elif tag == 'Model':

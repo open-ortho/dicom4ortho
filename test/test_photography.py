@@ -227,7 +227,28 @@ class PhotoTests(unittest.TestCase):
         self.assertEqual(scheduled_protocol_code.CodingSchemeDesignator, '99OPOR', "Scheduled Protocol Coding Scheme Designator does not match")
         self.assertEqual(scheduled_protocol_code.CodeMeaning, 'Extraoral, Full Face, Full Smile, Centric Relation', "Scheduled Protocol Code Meaning does not match")
 
+    def testOperatorAndReferringPhysicianNameEtcAssignmentFromMwl(self):
+        # Generate a sample MWL
+        mwl = make_sample_MWL(modality='VL', startdate='20241209', starttime='090000')
 
+        # Create an OrthodonticPhotograph using the sample MWL
+        metadata = {
+            'dicom_mwl': mwl,
+            'input_image_filename': self.resource_path / 'sample_NikonD90.JPG',
+            'output_image_filename': 'output_image.dcm',
+            'manufacturer': 'Test Manufacturer'
+        }
+        o = OrthodonticPhotograph(**metadata)
+        o.copy_mwl_tags(dicom_mwl=mwl)
+
+        # Test the testOperatorName method
+        self.assertEqual(o._ds.OperatorsName, mwl.OperatorsName)
+        self.assertEqual(o._ds.RequestingPhysician, mwl.RequestingPhysician)
+        self.assertEqual(o._ds.ReferringPhysicianName, mwl.ReferringPhysicianName)
+
+        scheduledPerformingPhysicianName = mwl.ScheduledProcedureStepSequence[0].ScheduledPerformingPhysicianName
+        for step in o._ds.RequestAttributesSequence:
+            self.assertEqual(step.ScheduledPerformingPhysicianName, scheduledPerformingPhysicianName)
 
     @unittest.skip("I don't think NEF is read properly by Pillow")
     def testNEF(self):

@@ -66,8 +66,14 @@ def make_sample_MWL(modality, startdate, starttime):
     ev20.CodeMeaning = "Extraoral, Full Face, Full Smile, Centric Relation"
     sps.ScheduledProtocolCodeSequence.append(ev20)
 
+    # Opeators name
+    ds.OperatorsName = "Brown^Roger"
+
     # Requesting physician details
     ds.RequestingPhysician = "Brown^Emily^^Dr"
+
+    # ReferringPhysicianNamedetails
+    ds.ReferringPhysicianName = "Johnson^Alice^^Dr"
 
     # SOP Class and Instance UID
     ds.SOPClassUID = ModalityWorklistInformationFind

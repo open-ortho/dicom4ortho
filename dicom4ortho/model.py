@@ -250,13 +250,16 @@ class DicomBase(object):
         if 'AdmittingDiagnosesCodeSequence' in self.dicom_mwl:
             self._ds.AdmittingDiagnosesCodeSequence = self.dicom_mwl.AdmittingDiagnosesCodeSequence
 
-        # Actors involved in the procedure
+        # RequestingPhysician, ReferringPhysicianName, OperatorsName, ScheduledPerformingPhysicianName
         if 'RequestingPhysician' in self.dicom_mwl:
             self._ds.RequestingPhysician = self.dicom_mwl.RequestingPhysician
+
         if 'ReferringPhysicianName' in self.dicom_mwl:
             self._ds.ReferringPhysicianName = self.dicom_mwl.ReferringPhysicianName
+
         if 'OperatorsName' in self.dicom_mwl:
             self._ds.OperatorsName = self.dicom_mwl.OperatorsName
+
         if 'ScheduledProcedureStepSequence' in self.dicom_mwl and len(self.dicom_mwl.ScheduledProcedureStepSequence) > 0:
             scheduledPerformingPhysicianName = self.dicom_mwl.ScheduledProcedureStepSequence[0].ScheduledPerformingPhysicianName
             for step in self._ds.RequestAttributesSequence:

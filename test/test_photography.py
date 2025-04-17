@@ -227,7 +227,7 @@ class PhotoTests(unittest.TestCase):
         self.assertEqual(scheduled_protocol_code.CodingSchemeDesignator, '99OPOR', "Scheduled Protocol Coding Scheme Designator does not match")
         self.assertEqual(scheduled_protocol_code.CodeMeaning, 'Extraoral, Full Face, Full Smile, Centric Relation', "Scheduled Protocol Code Meaning does not match")
 
-    def testOperatorAndReferringPhysicianNameEtcAssignment(self):
+    def testOperatorAndReferringPhysicianNameEtcAssignmentFromMwl(self):
         # Generate a sample MWL
         mwl = make_sample_MWL(modality='VL', startdate='20241209', starttime='090000')
 

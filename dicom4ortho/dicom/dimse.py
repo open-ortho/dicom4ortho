@@ -3,14 +3,15 @@
 This module is here to satisfy specificion  **IE-03:** ``dicom4ortho`` SHALL support sending images to a DICOM node (as SCU or SCP, DICOMweb, WADO, or whatever).
 
 """
-from dicom4ortho import logger
-from pynetdicom.sop_class import VLPhotographicImageStorage  # pylint: disable=E0611
 from pydicom.dataset import Dataset
 from pydicom import dcmread
+from pydicom.uid import AllTransferSyntaxes, ImplicitVRLittleEndian
 from pynetdicom import AE
+from pynetdicom.sop_class import VLPhotographicImageStorage  # pylint: disable=E0611
 
 from dicom4ortho.config import PROJECT_NAME
-from pydicom.uid import AllTransferSyntaxes, ImplicitVRLittleEndian
+from dicom4ortho import logger
+from dicom4ortho.dicom.status_codes import format_status
 
 
 def send(**kwargs) -> Dataset:
@@ -89,7 +90,7 @@ def send(**kwargs) -> Dataset:
 
             status = assoc.send_c_store(dataset)
             if status:
-                logger.info(f'C-STORE request status: 0x{status.Status:04x}')
+                logger.info(format_status(status))
             else:
                 logger.error(
                     f'Connection timed out, was aborted, or received an invalid response. Status: [{status}]')

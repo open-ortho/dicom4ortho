@@ -250,6 +250,21 @@ class DicomBase(object):
         if 'AdmittingDiagnosesCodeSequence' in self.dicom_mwl:
             self._ds.AdmittingDiagnosesCodeSequence = self.dicom_mwl.AdmittingDiagnosesCodeSequence
 
+        # RequestingPhysician, ReferringPhysicianName, OperatorsName, ScheduledPerformingPhysicianName
+        if 'RequestingPhysician' in self.dicom_mwl:
+            self._ds.RequestingPhysician = self.dicom_mwl.RequestingPhysician
+
+        if 'ReferringPhysicianName' in self.dicom_mwl:
+            self._ds.ReferringPhysicianName = self.dicom_mwl.ReferringPhysicianName
+
+        if 'OperatorsName' in self.dicom_mwl:
+            self._ds.OperatorsName = self.dicom_mwl.OperatorsName
+
+        if 'ScheduledProcedureStepSequence' in self.dicom_mwl and len(self.dicom_mwl.ScheduledProcedureStepSequence) > 0:
+            scheduledPerformingPhysicianName = self.dicom_mwl.ScheduledProcedureStepSequence[0].ScheduledPerformingPhysicianName
+            for step in self._ds.RequestAttributesSequence:
+                step.ScheduledPerformingPhysicianName = scheduledPerformingPhysicianName
+
     def _set_request_attributes(self):
         if self.dicom_mwl is None:
             logger.warning("No Modality Worklist to copy tags from.")

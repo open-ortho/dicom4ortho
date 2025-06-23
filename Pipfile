@@ -14,10 +14,10 @@ build = "*"
 prettytable = "*"
 
 [packages]
-pydicom = "*"
+pydicom = ">=2,<3"
+pynetdicom = ">=2,<3"
 # There is a vulnerability flaw in <8.2.0 of Pillow.
 pillow = ">=9.2.0"
-pynetdicom = "*"
 # There is a vulnerability flaw in <1.26.5 of urllib3.
 urllib3 = ">=1.26.5"
 sphinx = "*"

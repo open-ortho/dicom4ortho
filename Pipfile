@@ -14,7 +14,7 @@ build = "*"
 prettytable = "*"
 
 [packages]
-pydicom = ">=2,<3" # Issue #58 has been created to address the current issue with versione >= 3 of the library
+pydicom = "*"
 pynetdicom = ">=2,<3" # Issue #58 has been create to address the current issue with versione >= 3 of the library
 # There is a vulnerability flaw in <8.2.0 of Pillow.
 pillow = ">=9.2.0"

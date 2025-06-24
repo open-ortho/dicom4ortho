@@ -9,7 +9,7 @@ from typing import List, Optional
 from datetime import datetime
 from pydicom.sequence import Sequence
 from pydicom.dataset import Dataset
-from dicom4ortho.config import DICOM4ORTHO_VIEW_CID
+from dicom4ortho.config import VL_DENTAL_VIEW_CID, DICOM4ORTHO_ROOT_UID, DATE_FORMAT
 
 from dicom4ortho.model import PhotographBase
 from dicom4ortho.config import IMPORT_DATE_FORMAT, SeriesInstanceUID_ROOT, StudyInstanceUID_ROOT
@@ -33,21 +33,20 @@ class OrthodonticPhotograph(PhotographBase):
     """
 
     @property
-    def image_type_code_sequence(self):
+    def image_type_code_sequence(self) -> Optional[Dataset]:
         """
-        Get the image type as a DICOM Code Sequence (Dataset).
-        Uses get_image_type_code_sequence utility for DRY and consistency.
+        Get the code Dataset from ViewCodeSequence with the proprietary CID.
+        Returns only the code Dataset, not the whole sequence.
         """
         return self.get_image_type_code_sequence(self._ds)
 
     @image_type_code_sequence.setter
-    def image_type_code_sequence(self, code_sequence):
+    def image_type_code_sequence(self, code_dataset: Dataset):
         """
-        Set the image type using a DICOM Code Sequence (Dataset).
-        Sets ViewCodeSequence and Context Identifier (proprietary CID) on the item.
+        Set or update the code Dataset with the proprietary CID in ViewCodeSequence.
+        Only the code Dataset with the proprietary CID is set or replaced; others are preserved.
         """
-        self._ds.ViewCodeSequence = self.set_image_type_code_sequence(
-            self._ds, code_sequence)
+        self.set_image_type_code_sequence(self._ds, code_dataset)
 
     def __init__(self, **metadata):
         super().__init__(**metadata)
@@ -104,8 +103,11 @@ class OrthodonticPhotograph(PhotographBase):
     @staticmethod
     def get_image_type_code_sequence(ds: Dataset) -> Optional[Dataset]:
         """
-        Returns the first code item from ViewCodeSequence with the proprietary Context Identifier (CID).
-        Only returns items where the item's ContextIdentifier matches DICOM4ORTHO_VIEW_CID.
+        Get the code that defines this image type.
+
+        Returns the first code item from ViewCodeSequence with the Context
+        Identifier (CID) VL_DENTAL_VIEW_CID and Context Group Extension Flag set
+        to 'Y'. 
         """
         view_seq = getattr(ds, 'ViewCodeSequence', None)
         if not view_seq:
@@ -113,25 +115,63 @@ class OrthodonticPhotograph(PhotographBase):
                 "Cannot identify this image: ViewCodeSequence not present.")
             return None
         for item in view_seq:
-            cid = getattr(item, 'ContextIdentifier', None)
-            if cid == DICOM4ORTHO_VIEW_CID:
+            if (
+                getattr(item, 'ContextIdentifier', None) == VL_DENTAL_VIEW_CID and
+                getattr(item, 'ContextGroupExtensionFlag', None) == 'Y'
+            ):
                 return item
         logger.warning(
-            "No ViewCodeSequence item with proprietary ContextIdentifier found.")
+            "No ViewCodeSequence item with proprietary ContextIdentifier and extension flag found.")
         return None
 
     @staticmethod
-    def set_image_type_code_sequence(ds: Dataset, code_sequence: Dataset) -> Dataset:
+    def set_image_type_code_sequence(ds: Dataset, code_dataset: Dataset, creator_uid: str = None) -> None:
         """
-        Sets the ViewCodeSequence on the Dataset with the provided code_sequence.
-        The code_sequence must have a ContextIdentifier set to DICOM4ORTHO_VIEW_CID.
-        """
-        if code_sequence is None:
-            return ds
+        Set the code that defines this image type.
 
-        code_sequence.ContextIdentifier = DICOM4ORTHO_VIEW_CID
-        ds.ViewCodeSequence = Sequence([code_sequence])
-        return ds
+        Adds Context Group Extension attributes as required by DICOM for private
+        codes.  Only the code Dataset with the proprietary CID and extension
+        flag is set or replaced; others are preserved.
+
+        This function modifies the given Dataset in place and does not return a value.
+
+        :param ds: The DICOM Dataset to modify
+        :param code_dataset: The code Dataset to insert/update
+        :param creator_uid: (optional) The ContextGroupExtensionCreatorUID to use. If not provided, will use code_dataset's value if set, else fallback to DICOM4ORTHO_ROOT_UID with a warning.
+        """
+        if code_dataset is None:
+            return
+        code_dataset.ContextIdentifier = VL_DENTAL_VIEW_CID
+        code_dataset.ContextGroupExtensionFlag = 'Y'
+
+        # set the version to the current date, as this code is private and could
+        # be different for each invocation.
+        code_dataset.ContextGroupLocalVersion = datetime.now().strftime(DATE_FORMAT)
+        # Determine which Creator UID to use
+        if creator_uid is not None:
+            code_dataset.ContextGroupExtensionCreatorUID = creator_uid
+        elif getattr(code_dataset, 'ContextGroupExtensionCreatorUID', None):
+            pass  # already set by caller
+        else:
+            logger.warning(
+                "No ContextGroupExtensionCreatorUID provided by caller or in code_dataset; using dicom4ortho UID. This is probably NOT what you want.")
+            code_dataset.ContextGroupExtensionCreatorUID = DICOM4ORTHO_ROOT_UID
+        view_seq = getattr(ds, 'ViewCodeSequence', None)
+        if not view_seq:
+            ds.ViewCodeSequence = Sequence([code_dataset])
+            return
+        replaced = False
+        for idx, item in enumerate(view_seq):
+            if (
+                getattr(item, 'ContextIdentifier', None) == VL_DENTAL_VIEW_CID and
+                getattr(item, 'ContextGroupExtensionFlag', None) == 'Y'
+            ):
+                view_seq[idx] = code_dataset
+                replaced = True
+                break
+        if not replaced:
+            view_seq.append(code_dataset)
+        ds.ViewCodeSequence = view_seq
 
     def _get_code_dataset(self, dent_oip_code_keyword) -> Dataset:
         """ Construct a DICOM Dataset from a row in the codes.csv of DENT_OIP 

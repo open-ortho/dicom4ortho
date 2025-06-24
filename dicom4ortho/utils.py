@@ -1,7 +1,7 @@
 from typing import Optional
 import uuid
 from pydicom.dataset import Dataset
-from dicom4ortho.config import DICOM4ORTHO_ROOT_UID, DICOM4ORTHO_VIEW_CID
+from dicom4ortho.config import DICOM4ORTHO_ROOT_UID, VL_DENTAL_VIEW_CID
 
 import logging
 logger = logging.getLogger(__name__)
@@ -23,12 +23,12 @@ def generate_dicom_uid(root=None, hash=None):
     logger.debug("Generated new Instance UID {}".format(dicom_uid))
     return dicom_uid
 
+
 def get_scheduled_protocol_code(ds: Dataset) -> Optional[Dataset]:
     """
     Deprecated. Use get_image_type_code_sequence instead.
     """
     # Avoid circular import by importing here
-    # Remove when 
     import warnings
     from dicom4ortho.m_orthodontic_photograph import OrthodonticPhotograph
     warnings.warn("get_scheduled_protocol_code is deprecated. Use get_image_type_code_sequence instead.",

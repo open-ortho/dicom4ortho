@@ -144,18 +144,28 @@ All tests are located in the `test/` directory and can be executed after install
 Some tests require Docker to run integration tests with an Orthanc DICOM server. 
 A docker-compose file is provided in the `test/` directory.
 
-To start the Docker containers required for testing:
+If you're not using the Makefile, you can manually manage the Docker containers:
 
-    $ cd test
-    $ docker-compose up -d
-
-This will start an Orthanc DICOM server container that tests can connect to.
-
-To stop the containers after testing:
-
-    $ docker-compose down
+    $ docker compose -f ./test/docker-compose.yml up -d
+    $ # Run your tests...
+    $ docker compose -f ./test/docker-compose.yml down
 
 Make sure Docker is installed and running before executing integration tests.
+
+### Using the Makefile
+
+The project includes a Makefile that simplifies common development tasks:
+
+    $ make test              # Run all tests (automatically handles Docker)
+    $ make clean             # Clean build artifacts
+    $ make build             # Build the package (includes linting and testing)
+    $ make lint              # Run linter on the code
+    $ make all               # Clean and build
+    $ make install-dev       # Install development tools including dicom3tools
+    $ make update_resources  # Update resource files from source
+    $ make deploy            # Deploy to PyPI
+
+The Makefile handles Docker for you when running tests. It starts the required Docker containers before running tests and shuts them down afterward.
 
 ### Validation with dicom3tools
 

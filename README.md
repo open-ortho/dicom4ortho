@@ -75,8 +75,6 @@ acknowledgements.
 * [pydicom](https://pydicom.github.io/)
 * [pynetdicom](https://pydicom.github.io/pynetdicom/)
 * [pillow](https://python-pillow.org/)
-* [fastapi](https://fastapi.tiangolo.com/)
-* [fhir.resources](https://pypi.org/project/fhir.resources/)
 * [dicom3tools](https://www.dclunie.com/dicom3tools.html)
 
 <!-- GETTING STARTED -->

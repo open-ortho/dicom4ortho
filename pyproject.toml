@@ -29,7 +29,8 @@ dependencies = [
     "pillow>=9.2.0",
     "prettytable",
     "numpy",
-    "urllib3>=1.26.5"
+    "urllib3>=1.26.5",
+    "requests (>=2.32.4,<3.0.0)"
 ]
 
 [project.optional-dependencies]

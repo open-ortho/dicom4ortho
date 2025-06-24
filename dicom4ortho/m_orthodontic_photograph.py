@@ -35,16 +35,14 @@ class OrthodonticPhotograph(PhotographBase):
     @property
     def image_type_code_dataset(self) -> Optional[Dataset]:
         """
-        Get the code Dataset from ViewCodeSequence with the proprietary CID.
-        Returns only the code Dataset, not the whole sequence.
+        The code Dataset that defines this image type.
         """
         return self.get_image_type_code_sequence(self._ds)
 
     @image_type_code_dataset.setter
     def image_type_code_dataset(self, code_dataset: Dataset):
         """
-        Set or update the code Dataset with the proprietary CID in ViewCodeSequence.
-        Only the code Dataset with the proprietary CID is set or replaced; others are preserved.
+        The code Dataset that defines this image type.
         """
         self.set_image_type_code_sequence(self._ds, code_dataset)
 

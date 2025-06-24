@@ -8,11 +8,11 @@ Adds SNOMED CT codes in DICOM object for Orthodontic Views.
 from typing import List
 from datetime import datetime
 from pydicom.sequence import Sequence
-from pydicom.dataset import Dataset
+from dicom4ortho.config import DICOM4ORTHO_VIEW_CID
 
 from dicom4ortho.model import PhotographBase
 from dicom4ortho.config import IMPORT_DATE_FORMAT, SeriesInstanceUID_ROOT, StudyInstanceUID_ROOT
-from dicom4ortho.utils import generate_dicom_uid, get_scheduled_protocol_code
+from dicom4ortho.utils import generate_dicom_uid, get_image_type_code_sequence
 from dicom4ortho.m_dent_oip import DENT_OIP
 
 import logging
@@ -30,6 +30,26 @@ class OrthodonticPhotograph(PhotographBase):
 
         output_image_filename: name of output image file
     """
+
+    @property
+    def image_type_code_sequence(self):
+        """
+        Get the image type as a DICOM Code Sequence (Dataset).
+        Uses get_image_type_code_sequence utility for DRY and consistency.
+        """
+        return get_image_type_code_sequence(self._ds)
+
+    @image_type_code_sequence.setter
+    def image_type_code_sequence(self, code_sequence):
+        """
+        Set the image type using a DICOM Code Sequence (Dataset).
+        Sets ViewCodeSequence and Context Identifier (proprietary CID) on the item.
+        """
+        if code_sequence is None:
+            self._ds.ViewCodeSequence = None
+            return
+        code_sequence.ContextIdentifier = DICOM4ORTHO_VIEW_CID
+        self._ds.ViewCodeSequence = Sequence([code_sequence])
 
     def __init__(self, **metadata):
         super().__init__(**metadata)

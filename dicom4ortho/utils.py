@@ -1,10 +1,11 @@
 from typing import Optional
 import uuid
 from pydicom.dataset import Dataset
-from dicom4ortho.config import DICOM4ORTHO_ROOT_UID
+from dicom4ortho.config import DICOM4ORTHO_ROOT_UID, DICOM4ORTHO_VIEW_CID
 
 import logging
 logger = logging.getLogger(__name__)
+
 
 def generate_dicom_uid(root=None, hash=None):
     """
@@ -22,30 +23,29 @@ def generate_dicom_uid(root=None, hash=None):
     logger.debug("Generated new Instance UID {}".format(dicom_uid))
     return dicom_uid
 
-def get_scheduled_protocol_code(ds:Dataset) -> Optional[Dataset]:
-    """ Returns the code for the scheduled protocol pertaining to the passed Dataset.
 
-    Was initially inside the OrthodonticPhotograph. However, better suited as a standalone function, since the OrthodonticPhotograph is not yet capable of being used to decode (kind of like loading an existing DICOM with a validate() method) and is not the only object that can have a ScheduledProtocolCode.
-
-    Other modules can use it with more simplicity if it is here.
+def get_image_type_code_sequence(ds: Dataset) -> Optional[Dataset]:
     """
-    if 'RequestAttributesSequence' not in ds or ds.RequestAttributesSequence is None:
-        logger.warning("Cannot identify this image: RequestAttributesSequence not present.")
+    Returns the first code item from ViewCodeSequence with the proprietary Context Identifier (CID).
+    Only returns items where the item's ContextIdentifier matches DICOM4ORTHO_VIEW_CID.
+    """
+    view_seq = getattr(ds, 'ViewCodeSequence', None)
+    if not view_seq:
+        logger.warning("Cannot identify this image: ViewCodeSequence not present.")
         return None
-    if 'ScheduledProtocolCodeSequence' not in ds.RequestAttributesSequence[0] or ds.RequestAttributesSequence[0].ScheduledProtocolCodeSequence is None:
-        logger.warning("Cannot identify this image: ScheduledProtocolCodeSequence not present.")
-        return None
-    if 'InstanceNumber' not in ds or ds.InstanceNumber is None or ds.InstanceNumber == "":
-        logger.warning("Cannot identify this image: InstanceNumber not present.")
-        return None
-    
-    # As defined in DENT-OIP/ADA-1107, the IndexNumber of this image is also used to determine the ScheduledProtocolCode within its ScheduledProtocolCodeSequence.
-    # There can be up to 100 instances of the same ScheduledProtocolCode, each with a different InstanceNumber. So all 100s are index 1, all 200s are index 2, etc.
-    # The index is 0-based, so we subtract 1 from the index.
-    scheduled_protocol_index = int(ds.InstanceNumber) // 100 - 1
-    try:
-        return ds.RequestAttributesSequence[0].ScheduledProtocolCodeSequence[scheduled_protocol_index]
-    except IndexError:
-        logger.warning("Cannot identify this image: ScheduledProtocolCodeSequence does not have %s index!", scheduled_protocol_index)
-        return None
-    
+    for item in view_seq:
+        cid = getattr(item, 'ContextIdentifier', None)
+        if cid == DICOM4ORTHO_VIEW_CID:
+            return item
+    logger.warning("No ViewCodeSequence item with proprietary ContextIdentifier found.")
+    return None
+
+
+def get_scheduled_protocol_code(ds: Dataset) -> Optional[Dataset]:
+    """
+    Deprecated. Use get_image_type_code_sequence instead.
+    """
+    import warnings
+    warnings.warn("get_scheduled_protocol_code is deprecated. Use get_image_type_code_sequence instead.",
+                  DeprecationWarning, stacklevel=2)
+    return get_image_type_code_sequence(ds)

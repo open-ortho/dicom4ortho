@@ -1,0 +1,238 @@
+8 Encoding of Coded Entry Data
+The primary method of incorporating coded entry data in DICOM IODs is the Code Sequence Attribute. These attributes are encoded as a Sequence of Items, typically including "Code Sequence" in their name, and encode terms using codes from Coding Schemes.
+
+Each item in a Code Sequence Attribute contains:
+
+Coding Scheme Designator (0008,0102)
+
+Code Value (0008,0100) (or Long Code Value (0008,0119) or URN Code Value (0008,0120))
+
+Code Meaning (0008,0104)
+
+Optional and conditional attributes may also be present.
+
+The range of codes for a Code Sequence Attribute can be suggested or constrained by a Context Group.
+
+A Baseline Context Group lists suggested codes that are not required.
+
+A Defined Context Group lists codes that shall be used if the term is used.
+
+Context Groups are defined in a Mapping Resource (e.g., DICOM Content Mapping Resource (DCMR) in PS3.16). They consist of lists of contextually related coded concepts, unique by their Code Value (or Long/URN Code Value) and Coding Scheme Designator. Context Groups can be extensible.
+
+Context Identifiers (CID) (0008,010F) formally specify the context of use.
+
+8.1 Code Value
+Code Value (0008,0100): An identifier unambiguous within its Coding Scheme.
+
+Shall be present if the code value length is ≤ 16 characters and is not a URN or URL.
+
+Long Code Value (0008,0119): Used for codes exceeding 16 characters and not a URN/URL. If present, Code Value (0008,0100) shall not be present.
+
+URN Code Value (0008,0120): Used for codes represented using URN or URL notation. If present, Code Value (0008,0100) shall not be present.
+
+8.2 Coding Scheme Designator and Coding Scheme Version
+Coding Scheme Designator (0008,0102): Identifies the Coding Scheme. Standard designators are listed in PS3.16.
+
+Shall be present if Code Value (0008,0100) or Long Code Value (0008,0119) is present.
+
+Coding Scheme Version (0008,0103): May identify the version if necessary to resolve ambiguity.
+
+Required if Coding Scheme Designator (0008,0102) is present and insufficient to identify the Code Value unambiguously.
+
+Shall not be present if Coding Scheme Designator (0008,0102) is absent.
+
+8.3 Code Meaning
+Code Meaning (0008,0104): Text conveying the meaning of the Coded Entry.
+
+Shall never be used as a key, index, or decision value.
+
+Values should be from the Coding Scheme or its translations, not arbitrary free text.
+
+8.4 Mapping Resource
+Mapping Resource (0008,0105): Denotes the message/terminology Mapping Resource that specifies the Context Group.
+
+Defined Terms: DCMR (DICOM Content Mapping Resource), SDM (SNOMED DICOM Microglossary - Retired).
+
+Required if Context Identifier (0008,010F) is present.
+
+Mapping Resource UID (0008,0118): Unique identifier for the Mapping Resource.
+
+Mapping Resource Name (0008,0122): Name of the Mapping Resource.
+
+8.5 Context Group Version
+Context Group Version (0008,0106): Conveys the version of the Context Group identified by Context Identifier (0008,010F).
+
+Required if Context Identifier (0008,010F) is present.
+
+8.6 Context Identifier and Context UID
+Context Identifier (0008,010F): Identifies the Context Group from which Code Values/Meanings were selected or extended.
+
+For PS3.16 defined Context Groups, the Value shall be the Context Group Identifier as a string of digits without leading zeros.
+
+Context UID (0008,0117): Uniquely identifies the Context Group.
+
+8.7 Context Group Extensions
+Context Group Extension Flag (0008,010B): Indicates if the code triplet is from a private extension.
+
+Enumerated Values: Y, N.
+
+Context Group Local Version (0008,0107): An implementation-specific private version DateTime.
+
+Required if Context Group Extension Flag (0008,010B) is "Y".
+
+Context Group Extension Creator UID (0008,010D): Identifies the creator of the extension.
+
+Required if Context Group Extension Flag (0008,010B) is "Y".
+
+8.8 Standard Attribute Sets for Code Sequence Attributes
+Table 8.8-1a. Basic Code Sequence Macro Attributes
+
+Attribute Name
+
+Tag
+
+Type
+
+Attribute Description
+
+Code Value
+
+(0008,0100)
+
+1C
+
+The identifier of the Coded Entry. Shall be present if the length of the code value is 16 characters or less, and the code value is not a URN or URL.
+
+Coding Scheme Designator
+
+(0008,0102)
+
+1C
+
+The identifier of the Coding Scheme in which the Coded Entry is defined. Shall be present if Code Value (0008,0100) or Long Code Value (0008,0119) is present. May be present otherwise.
+
+Coding Scheme Version
+
+(0008,0103)
+
+1C
+
+An identifier of the version of the Coding Scheme if necessary to resolve ambiguity. Required if the Value of Coding Scheme Designator (0008,0102) is present and is not sufficient to identify the Code Value (0008,0100) or Long Code Value (0008,0119) unambiguously. Shall not be present if Coding Scheme Designator (0008,0102) is absent. May be present otherwise.
+
+Code Meaning
+
+(0008,0104)
+
+1
+
+Text that conveys the meaning of the Coded Entry.
+
+Long Code Value
+
+(0008,0119)
+
+1C
+
+The identifier of the Coded Entry. Shall be present if Code Value (0008,0100) is not present and the Code Value is not a URN or URL.
+
+URN Code Value
+
+(0008,0120)
+
+1C
+
+The identifier of the Coded Entry. Shall be present if Code Value (0008,0100) is not present and the Code Value is a URN or URL.
+
+Table 8.8-1b. Enhanced Code Sequence Macro Attributes
+
+Attribute Name
+
+Tag
+
+Type
+
+Attribute Description
+
+Context Identifier
+
+(0008,010F)
+
+3
+
+The identifier of the Context Group from which the Coded Entry was selected.
+
+Context UID
+
+(0008,0117)
+
+3
+
+The unique identifier of the Context Group from which the Coded Entry was selected.
+
+Mapping Resource
+
+(0008,0105)
+
+1C
+
+The identifier of the Mapping Resource that defines the Context Group from which Coded Entry was selected. Required if Context Identifier (0008,010F) is present.
+
+Mapping Resource UID
+
+(0008,0118)
+
+3
+
+The unique identifier of the Mapping Resource that defines the Context Group from which Coded Entry was selected.
+
+Mapping Resource Name
+
+(0008,0122)
+
+3
+
+The name of the Mapping Resource that defines the Context Group from which Coded Entry was selected.
+
+Context Group Version
+
+(0008,0106)
+
+1C
+
+The identifier of the version of the Context Group from which the Coded Entry was selected. Required if Context Identifier (0008,010F) is present.
+
+Context Group Extension Flag
+
+(0008,010B)
+
+3
+
+Indicates whether the triplet of Code Value (0008,0100) (or Long Code Value (0008,0119) or URN Code Value (0008,0120))/Coding Scheme Designator (0008,0102)/Code Meaning (0008,0104) is selected from a private extension of the Context Group identified in Context Identifier (0008,010F). Enumerated Values: Y, N.
+
+Context Group Local Version
+
+(0008,0107)
+
+1C
+
+An implementation-specific version of a Context Group that contains private extensions. Required if the Value of Context Group Extension Flag (0008,010B) is "Y".
+
+Context Group Extension Creator UID
+
+(0008,010D)
+
+1C
+
+Identifies the person or organization who created an extension to the Context Group. Required if the Value of Context Group Extension Flag (0008,010B) is "Y".
+
+8.9 Equivalent Code Sequence
+Equivalent Code Sequence (0008,0121): Optionally conveys different codes for the same concept.
+
+Equivalence means having the same or similar meaning, without different aspects, properties, features, characteristics, or parameters.
+
+One or more Items are permitted in this Sequence.
+
+Can include codes from different representations within a standard, different standard schemes, or local/standard schemes.
+
+8.11 Retired Codes and Expected Behavior
+Implementations should continue to send and receivers should continue to recognize Retired codes, including Code Value (0008,0100) and Coding Scheme Designator (0008,0102) values, even if no longer published in the current Standard.

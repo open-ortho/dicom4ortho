@@ -33,15 +33,15 @@ class OrthodonticPhotograph(PhotographBase):
     """
 
     @property
-    def image_type_code_sequence(self) -> Optional[Dataset]:
+    def image_type_code_dataset(self) -> Optional[Dataset]:
         """
         Get the code Dataset from ViewCodeSequence with the proprietary CID.
         Returns only the code Dataset, not the whole sequence.
         """
         return self.get_image_type_code_sequence(self._ds)
 
-    @image_type_code_sequence.setter
-    def image_type_code_sequence(self, code_dataset: Dataset):
+    @image_type_code_dataset.setter
+    def image_type_code_dataset(self, code_dataset: Dataset):
         """
         Set or update the code Dataset with the proprietary CID in ViewCodeSequence.
         Only the code Dataset with the proprietary CID is set or replaced; others are preserved.
@@ -208,9 +208,9 @@ class OrthodonticPhotograph(PhotographBase):
             self.type_keyword = type_keyword.replace('-', '')
 
         if not self.type_keyword:
-            scheduled_protocol_code = self.image_type_code_sequence
+            scheduled_protocol_code = self.image_type_code_dataset
             if scheduled_protocol_code is not None and 'CodeValue' in scheduled_protocol_code:
-                self.type_keyword = self.image_type_code_sequence.CodeValue
+                self.type_keyword = self.image_type_code_dataset.CodeValue
 
         if not self.type_keyword:
             logger.info("No type_keyword set for %s",

@@ -230,7 +230,7 @@ class PhotoTests(unittest.TestCase):
         code.CodeValue = 'EV20'
         code.CodingSchemeDesignator = '99OPOR'
         code.CodeMeaning = 'Extraoral, Full Face, Full Smile, Centric Relation'
-        o.image_type_code_sequence = code
+        o.image_type_code_dataset = code
         o.save()
         # Test the get_scheduled_protocol_code method
         scheduled_protocol_code = get_scheduled_protocol_code(o._ds)
@@ -388,3 +388,41 @@ class PhotoTests(unittest.TestCase):
         self.assertEqual(item3.CodeValue, 'EV32')
         self.assertEqual(item3.CodingSchemeDesignator, '99OPOR')
         self.assertEqual(item3.CodeMeaning, 'Extraoral, Profile, Open Mouth')
+
+    def test_image_type_code_dataset_property(self):
+        """Test OrthodonticPhotograph.image_type_code_dataset property setter/getter for all creator_uid scenarios."""
+        # 1. Explicit creator_uid argument via property setter (simulate by setting in code_dataset)
+        o = OrthodonticPhotograph()
+        code = Dataset()
+        code.CodeValue = 'EV40'
+        code.CodingSchemeDesignator = '99OPOR'
+        code.CodeMeaning = 'Extraoral, Oblique, Smile'
+        # Set creator UID directly
+        code.ContextGroupExtensionCreatorUID = '1.2.3.4.5.6.7.8.9'
+        o.image_type_code_dataset = code
+        item = o.image_type_code_dataset
+        self.assertIsNotNone(item)
+        self.assertEqual(item.ContextGroupExtensionCreatorUID,
+                         '1.2.3.4.5.6.7.8.9')
+        self.assertEqual(item.ContextIdentifier, VL_DENTAL_VIEW_CID)
+        self.assertEqual(item.ContextGroupExtensionFlag, 'Y')
+        self.assertEqual(item.CodeValue, 'EV40')
+        self.assertEqual(item.CodingSchemeDesignator, '99OPOR')
+        self.assertEqual(item.CodeMeaning, 'Extraoral, Oblique, Smile')
+
+        # 2. No creator_uid in code_dataset (should fallback to library UID)
+        o2 = OrthodonticPhotograph()
+        code2 = Dataset()
+        code2.CodeValue = 'EV41'
+        code2.CodingSchemeDesignator = '99OPOR'
+        code2.CodeMeaning = 'Extraoral, Oblique, Resting'
+        o2.image_type_code_dataset = code2
+        item2 = o2.image_type_code_dataset
+        self.assertIsNotNone(item2)
+        self.assertEqual(item2.ContextGroupExtensionCreatorUID,
+                         DICOM4ORTHO_ROOT_UID)
+        self.assertEqual(item2.ContextIdentifier, VL_DENTAL_VIEW_CID)
+        self.assertEqual(item2.ContextGroupExtensionFlag, 'Y')
+        self.assertEqual(item2.CodeValue, 'EV41')
+        self.assertEqual(item2.CodingSchemeDesignator, '99OPOR')
+        self.assertEqual(item2.CodeMeaning, 'Extraoral, Oblique, Resting')

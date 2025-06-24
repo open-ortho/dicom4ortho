@@ -40,10 +40,11 @@ def get_scheduled_protocol_code(ds:Dataset) -> Dataset:
     
     # As defined in DENT-OIP/ADA-1107, the IndexNumber of this image is also used to determine the ScheduledProtocolCode within its ScheduledProtocolCodeSequence.
     # There can be up to 100 instances of the same ScheduledProtocolCode, each with a different InstanceNumber. So all 100s are index 1, all 200s are index 2, etc.
-    scheduled_protocol_index = int(ds.InstanceNumber) // 100
+    # The index is 0-based, so we subtract 1 from the index.
+    scheduled_protocol_index = int(ds.InstanceNumber) // 100 - 1
     try:
         return ds.RequestAttributesSequence[0].ScheduledProtocolCodeSequence[scheduled_protocol_index]
     except IndexError:
-        logger.warning("Cannot identify this image: ScheduledProtocolCodeSequence does not have %s codes!", scheduled_protocol_index + 1)
+        logger.warning("Cannot identify this image: ScheduledProtocolCodeSequence does not have %s index!", scheduled_protocol_index)
         return None
     

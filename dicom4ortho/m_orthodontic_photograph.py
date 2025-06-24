@@ -8,6 +8,7 @@ Adds SNOMED CT codes in DICOM object for Orthodontic Views.
 from typing import List
 from datetime import datetime
 from pydicom.sequence import Sequence
+from pydicom.dataset import Dataset
 from dicom4ortho.config import DICOM4ORTHO_VIEW_CID
 
 from dicom4ortho.model import PhotographBase
@@ -138,9 +139,9 @@ class OrthodonticPhotograph(PhotographBase):
             self.type_keyword = type_keyword.replace('-', '')
 
         if not self.type_keyword:
-            scheduled_protocol_code = get_scheduled_protocol_code(self._ds)
+            scheduled_protocol_code = get_image_type_code_sequence(self._ds)
             if scheduled_protocol_code is not None and 'CodeValue' in scheduled_protocol_code:
-                self.type_keyword = get_scheduled_protocol_code(
+                self.type_keyword = get_image_type_code_sequence(
                     self._ds).CodeValue
 
         if not self.type_keyword:

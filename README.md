@@ -124,7 +124,7 @@ usually come from the practice management software, or photo management
 software.
 
 The easiest way to feed this information to `dicom4ortho`'s CLI is using a
-CSV file. You can find an example CSV file [here](resources/example/input_from.csv)
+CSV file. You can find an example CSV file [here](resources/original-images/input_from.csv).
 
 Once installed, if necessary, start the virtual environment:
 

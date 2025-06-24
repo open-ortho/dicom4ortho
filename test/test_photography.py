@@ -294,9 +294,11 @@ class PhotoTests(unittest.TestCase):
         code.CodeMeaning = 'Extraoral, Full Face, Full Smile, Centric Relation'
 
         # 1. Explicit creator_uid argument
-        OrthodonticPhotograph.set_image_type_code_sequence(ds, code, creator_uid='1.2.3.4.5.6.7.8.9')
+        OrthodonticPhotograph.set_image_type_code_sequence(
+            ds, code, creator_uid='1.2.3.4.5.6.7.8.9')
         item = ds.ViewCodeSequence[0]
-        self.assertEqual(item.ContextGroupExtensionCreatorUID, '1.2.3.4.5.6.7.8.9')
+        self.assertEqual(item.ContextGroupExtensionCreatorUID,
+                         '1.2.3.4.5.6.7.8.9')
         self.assertEqual(item.ContextIdentifier, VL_DENTAL_VIEW_CID)
         self.assertEqual(item.ContextGroupExtensionFlag, 'Y')
         self.assertTrue(hasattr(item, 'ContextGroupLocalVersion'))
@@ -310,7 +312,8 @@ class PhotoTests(unittest.TestCase):
         code2.ContextGroupExtensionCreatorUID = '9.8.7.6.5.4.3.2.1'
         OrthodonticPhotograph.set_image_type_code_sequence(ds2, code2)
         item2 = ds2.ViewCodeSequence[0]
-        self.assertEqual(item2.ContextGroupExtensionCreatorUID, '9.8.7.6.5.4.3.2.1')
+        self.assertEqual(item2.ContextGroupExtensionCreatorUID,
+                         '9.8.7.6.5.4.3.2.1')
         self.assertEqual(item2.ContextIdentifier, VL_DENTAL_VIEW_CID)
         self.assertEqual(item2.ContextGroupExtensionFlag, 'Y')
         self.assertTrue(hasattr(item2, 'ContextGroupLocalVersion'))
@@ -324,7 +327,64 @@ class PhotoTests(unittest.TestCase):
         with self.assertLogs('dicom4ortho.m_orthodontic_photograph', level='WARNING') as cm:
             OrthodonticPhotograph.set_image_type_code_sequence(ds3, code3)
         item3 = ds3.ViewCodeSequence[0]
-        self.assertEqual(item3.ContextGroupExtensionCreatorUID, DICOM4ORTHO_ROOT_UID)
+        self.assertEqual(item3.ContextGroupExtensionCreatorUID,
+                         DICOM4ORTHO_ROOT_UID)
         self.assertEqual(item3.ContextIdentifier, VL_DENTAL_VIEW_CID)
         self.assertEqual(item3.ContextGroupExtensionFlag, 'Y')
-        self.assertTrue(any('using dicom4ortho UID' in msg for msg in cm.output))
+        self.assertTrue(
+            any('using dicom4ortho UID' in msg for msg in cm.output))
+
+    def test_get_image_type_code_sequence(self):
+        """Test get_image_type_code_sequence returns the correct item after set_image_type_code_sequence."""
+        ds = Dataset()
+        code = Dataset()
+        code.CodeValue = 'EV30'
+        code.CodingSchemeDesignator = '99OPOR'
+        code.CodeMeaning = 'Extraoral, Profile, Smile'
+        # Set with explicit creator_uid
+        OrthodonticPhotograph.set_image_type_code_sequence(
+            ds, code, creator_uid='1.2.3.4.5.6.7.8.9')
+        item = OrthodonticPhotograph.get_image_type_code_sequence(ds)
+        self.assertIsNotNone(item)
+        self.assertEqual(item.ContextGroupExtensionCreatorUID,
+                         '1.2.3.4.5.6.7.8.9')
+        self.assertEqual(item.ContextIdentifier, VL_DENTAL_VIEW_CID)
+        self.assertEqual(item.ContextGroupExtensionFlag, 'Y')
+        self.assertEqual(item.CodeValue, 'EV30')
+        self.assertEqual(item.CodingSchemeDesignator, '99OPOR')
+        self.assertEqual(item.CodeMeaning, 'Extraoral, Profile, Smile')
+
+        # Set with creator UID in code_dataset
+        ds2 = Dataset()
+        code2 = Dataset()
+        code2.CodeValue = 'EV31'
+        code2.CodingSchemeDesignator = '99OPOR'
+        code2.CodeMeaning = 'Extraoral, Profile, Resting'
+        code2.ContextGroupExtensionCreatorUID = '9.8.7.6.5.4.3.2.1'
+        OrthodonticPhotograph.set_image_type_code_sequence(ds2, code2)
+        item2 = OrthodonticPhotograph.get_image_type_code_sequence(ds2)
+        self.assertIsNotNone(item2)
+        self.assertEqual(item2.ContextGroupExtensionCreatorUID,
+                         '9.8.7.6.5.4.3.2.1')
+        self.assertEqual(item2.ContextIdentifier, VL_DENTAL_VIEW_CID)
+        self.assertEqual(item2.ContextGroupExtensionFlag, 'Y')
+        self.assertEqual(item2.CodeValue, 'EV31')
+        self.assertEqual(item2.CodingSchemeDesignator, '99OPOR')
+        self.assertEqual(item2.CodeMeaning, 'Extraoral, Profile, Resting')
+
+        # Set with fallback to library UID
+        ds3 = Dataset()
+        code3 = Dataset()
+        code3.CodeValue = 'EV32'
+        code3.CodingSchemeDesignator = '99OPOR'
+        code3.CodeMeaning = 'Extraoral, Profile, Open Mouth'
+        OrthodonticPhotograph.set_image_type_code_sequence(ds3, code3)
+        item3 = OrthodonticPhotograph.get_image_type_code_sequence(ds3)
+        self.assertIsNotNone(item3)
+        self.assertEqual(item3.ContextGroupExtensionCreatorUID,
+                         DICOM4ORTHO_ROOT_UID)
+        self.assertEqual(item3.ContextIdentifier, VL_DENTAL_VIEW_CID)
+        self.assertEqual(item3.ContextGroupExtensionFlag, 'Y')
+        self.assertEqual(item3.CodeValue, 'EV32')
+        self.assertEqual(item3.CodingSchemeDesignator, '99OPOR')
+        self.assertEqual(item3.CodeMeaning, 'Extraoral, Profile, Open Mouth')

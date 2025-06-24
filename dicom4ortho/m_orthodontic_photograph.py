@@ -5,7 +5,7 @@ Adds SNOMED CT codes in DICOM object for Orthodontic Views.
 
 '''
 
-from typing import List
+from typing import List, Optional
 from datetime import datetime
 from pydicom.sequence import Sequence
 from pydicom.dataset import Dataset
@@ -13,7 +13,7 @@ from dicom4ortho.config import DICOM4ORTHO_VIEW_CID
 
 from dicom4ortho.model import PhotographBase
 from dicom4ortho.config import IMPORT_DATE_FORMAT, SeriesInstanceUID_ROOT, StudyInstanceUID_ROOT
-from dicom4ortho.utils import generate_dicom_uid, get_image_type_code_sequence
+from dicom4ortho.utils import generate_dicom_uid
 from dicom4ortho.m_dent_oip import DENT_OIP
 
 import logging
@@ -38,7 +38,7 @@ class OrthodonticPhotograph(PhotographBase):
         Get the image type as a DICOM Code Sequence (Dataset).
         Uses get_image_type_code_sequence utility for DRY and consistency.
         """
-        return get_image_type_code_sequence(self._ds)
+        return self.get_image_type_code_sequence(self._ds)
 
     @image_type_code_sequence.setter
     def image_type_code_sequence(self, code_sequence):
@@ -46,11 +46,8 @@ class OrthodonticPhotograph(PhotographBase):
         Set the image type using a DICOM Code Sequence (Dataset).
         Sets ViewCodeSequence and Context Identifier (proprietary CID) on the item.
         """
-        if code_sequence is None:
-            self._ds.ViewCodeSequence = None
-            return
-        code_sequence.ContextIdentifier = DICOM4ORTHO_VIEW_CID
-        self._ds.ViewCodeSequence = Sequence([code_sequence])
+        self._ds.ViewCodeSequence = self.set_image_type_code_sequence(
+            self._ds, code_sequence)
 
     def __init__(self, **metadata):
         super().__init__(**metadata)
@@ -104,6 +101,38 @@ class OrthodonticPhotograph(PhotographBase):
         # See https://github.com/open-ortho/dicom4ortho/issues/15
         self._ds.QualityControlImage = 'NO'
 
+    @staticmethod
+    def get_image_type_code_sequence(ds: Dataset) -> Optional[Dataset]:
+        """
+        Returns the first code item from ViewCodeSequence with the proprietary Context Identifier (CID).
+        Only returns items where the item's ContextIdentifier matches DICOM4ORTHO_VIEW_CID.
+        """
+        view_seq = getattr(ds, 'ViewCodeSequence', None)
+        if not view_seq:
+            logger.warning(
+                "Cannot identify this image: ViewCodeSequence not present.")
+            return None
+        for item in view_seq:
+            cid = getattr(item, 'ContextIdentifier', None)
+            if cid == DICOM4ORTHO_VIEW_CID:
+                return item
+        logger.warning(
+            "No ViewCodeSequence item with proprietary ContextIdentifier found.")
+        return None
+
+    @staticmethod
+    def set_image_type_code_sequence(ds: Dataset, code_sequence: Dataset) -> Dataset:
+        """
+        Sets the ViewCodeSequence on the Dataset with the provided code_sequence.
+        The code_sequence must have a ContextIdentifier set to DICOM4ORTHO_VIEW_CID.
+        """
+        if code_sequence is None:
+            return ds
+
+        code_sequence.ContextIdentifier = DICOM4ORTHO_VIEW_CID
+        ds.ViewCodeSequence = Sequence([code_sequence])
+        return ds
+
     def _get_code_dataset(self, dent_oip_code_keyword) -> Dataset:
         """ Construct a DICOM Dataset from a row in the codes.csv of DENT_OIP 
 
@@ -139,10 +168,9 @@ class OrthodonticPhotograph(PhotographBase):
             self.type_keyword = type_keyword.replace('-', '')
 
         if not self.type_keyword:
-            scheduled_protocol_code = get_image_type_code_sequence(self._ds)
+            scheduled_protocol_code = self.image_type_code_sequence
             if scheduled_protocol_code is not None and 'CodeValue' in scheduled_protocol_code:
-                self.type_keyword = get_image_type_code_sequence(
-                    self._ds).CodeValue
+                self.type_keyword = self.image_type_code_sequence.CodeValue
 
         if not self.type_keyword:
             logger.info("No type_keyword set for %s",

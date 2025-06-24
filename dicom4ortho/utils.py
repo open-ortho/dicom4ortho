@@ -23,29 +23,14 @@ def generate_dicom_uid(root=None, hash=None):
     logger.debug("Generated new Instance UID {}".format(dicom_uid))
     return dicom_uid
 
-
-def get_image_type_code_sequence(ds: Dataset) -> Optional[Dataset]:
-    """
-    Returns the first code item from ViewCodeSequence with the proprietary Context Identifier (CID).
-    Only returns items where the item's ContextIdentifier matches DICOM4ORTHO_VIEW_CID.
-    """
-    view_seq = getattr(ds, 'ViewCodeSequence', None)
-    if not view_seq:
-        logger.warning("Cannot identify this image: ViewCodeSequence not present.")
-        return None
-    for item in view_seq:
-        cid = getattr(item, 'ContextIdentifier', None)
-        if cid == DICOM4ORTHO_VIEW_CID:
-            return item
-    logger.warning("No ViewCodeSequence item with proprietary ContextIdentifier found.")
-    return None
-
-
 def get_scheduled_protocol_code(ds: Dataset) -> Optional[Dataset]:
     """
     Deprecated. Use get_image_type_code_sequence instead.
     """
+    # Avoid circular import by importing here
+    # Remove when 
     import warnings
+    from dicom4ortho.m_orthodontic_photograph import OrthodonticPhotograph
     warnings.warn("get_scheduled_protocol_code is deprecated. Use get_image_type_code_sequence instead.",
                   DeprecationWarning, stacklevel=2)
-    return get_image_type_code_sequence(ds)
+    return OrthodonticPhotograph.get_image_type_code_sequence(ds)

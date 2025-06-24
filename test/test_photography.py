@@ -18,6 +18,7 @@ from test.sample_data_generator import make_sample_MWL
 
 from PIL import Image, ExifTags
 from pydicom.dataset import Dataset
+from pydicom.sequence import Sequence
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(format='%(asctime)s %(module)s %(levelname)s: %(message)s',
@@ -224,8 +225,11 @@ class PhotoTests(unittest.TestCase):
         }
         o = OrthodonticPhotograph(**metadata)
         o.copy_mwl_tags(dicom_mwl=mwl)
-        # Set the instance number
-        o.instance_number = '200'
+        code = Dataset()
+        code.CodeValue = 'EV20'
+        code.CodingSchemeDesignator = '99OPOR'
+        code.CodeMeaning = 'Extraoral, Full Face, Full Smile, Centric Relation'
+        o.image_type_code_sequence = code
         o.save()
         # Test the get_scheduled_protocol_code method
         scheduled_protocol_code = get_scheduled_protocol_code(o._ds)

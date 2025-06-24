@@ -1,0 +1,1023 @@
+﻿DICOM Change Proposal
+STATUS
+Final Text
+Date of Last Update
+2025/03/30
+Person Assigned
+Andrew Casertano, Toni Magni
+acasertano@gmail.com, afm@case.edu
+Submitter Name
+Andrew Casertano, Toni Magni
+acasertano@gmail.com, afm@case.edu
+Submission Date
+2018/03/12
+
+Change Number	CP-1570
+Log Summary:	 Add Dental Acquisition Attributes into VL IOD 
+Name of Standard
+PS3.3, PS3.6, PS3.16 2025a
+Rationale for Change:
+The Rationale for Correction:
+Dentistry needs to make use of Acquisition Context attributes for clinical and forensic use cases. 
+The Visible Light Photography IOD includes the “Acquisition Context Module” to describe conditions present during data acquisition. Rather than develop a new module, a new context group provides the required standard attributes. Other attributes may be vendor-specific; therefore, it may not be possible to define the commonly used values. However, being able to convey those in a coded way in the Acquisition Context Sequence appears to be much more favorable and informative to the end-user, compared to the use of private tags.
+A prospective ADA Standard (ADA-1107), with the potential to evolve into an IHE Profile (DENT-OIP), meticulously describes how to use DICOM for orthodontic photographs, and has been used as a source for this Correction Package. Regular nightly builds can be accessed at the following link: https://open-ortho.org/dent-oip/nightly/.
+An operational instantiation of this standard is underway, facilitated by the open-ortho project. For more information, visit: https://github.com/open-ortho/dicom4ortho.
+Change Wording:
+
+Modify PS3.3 Section VL Photographic Image IOD Content Constraints as follows:
+A.32.4.4 VL Photographic Image IOD Content Constraints
+A.32.4.4.1 Modality
+The value of Modality (0008,0060) shall be XC.
+A.32.4.4.2 Anatomic Region Sequence
+For dermatology applications:
+•	For Anatomic Region Sequence (0008,2218) BCID 4029 “Dermatology Anatomic Site” may be used.
+    • For Anatomic Region Modifier Sequence (0008,2220) BCID 245 “Laterality with Median” may be used.
+For dental applications:
+•	For Anatomic Region Sequence (0008,2218) BCID 4028 “Craniofacial Anatomic Region” may be used.
+•	For Anatomic Region Modifier Sequence (0008,2220) BCID CID 247 “Laterality Left-Right Only” may be used.
+•	For Primary Anatomic Structure Sequence (0008,2228) BCID 4061 “Head and Neck Primary Anatomic Structure” may be used.
+•	For Primary Anatomic Structure Modifier Sequence (0008,2230) BCID CID 247 “Laterality Left-Right Only” may be used.
+A.32.4.4.3 Acquisition Context Module
+For dental applications:
+•	For Acquisition Context Sequence (0040,0555) BTID 3465 “VL Orthodontic Acquisition Context” may be used.
+Modify PS3.3 Section A.32.4.4.2 Anatomic Region Sequence as follows:
+C.8.12.1 VL Image Module
+Table C.8-77 specifies the Attributes of the VL Image Module, which describe a VL Image produced by Endoscopy (ES), General Microscopy (GM), Automated-Stage Microscopy (SM), External-camera Photography (XC), Dermoscopy (DMS), or other VL imaging Modalities.
+Table C.8-77. VL Image Module Attributes
+Attribute Name
+Tag
+Type
+Attribute Description
+Image Type
+(0008,0008)
+1
+Image identification characteristics.
+See Section C.8.12.1.1.6 for specialization.
+Photometric Interpretation
+(0028,0004)
+1
+Specifies the intended interpretation of the pixel data.
+See Section C.8.12.1.1.1 for specialization of this Attribute.
+Bits Allocated
+(0028,0100)
+1
+Number of bits allocated for each pixel sample. Each sample shall have the same number of bits allocated.
+See Section C.8.12.1.1.2 for specialization of this Attribute. See PS3.5 for further explanation.
+Bits Stored
+(0028,0101)
+1
+Number of bits stored for each pixel sample. Each sample shall have the same number of bits stored.
+See Section C.8.12.1.1.2 for specialization of this Attribute. See PS3.5 for further explanation.
+High Bit
+(0028,0102)
+1
+Most significant bit for pixel sample data. Each sample shall have the same high bit.
+See Section C.8.12.1.1.2 for specialization of this Attribute. See PS3.5 for further explanation.
+Pixel Representation
+(0028,0103)
+1
+Data representation of the pixel samples. Each sample shall have the same pixel representation.
+See Section C.8.12.1.1.3 for specialization of this Attribute.
+Samples per Pixel
+(0028,0002)
+1
+Number of samples (planes) per image.
+See Section C.8.12.1.1.4 for specialization of this Attribute.
+Planar Configuration
+(0028,0006)
+1C
+Indicates whether the pixel data are encoded color-by-plane or color-by-pixel. Required if Samples per Pixel (0028,0002) has a value greater than 1.
+See Section C.8.12.1.1.5 for specialization of this Attribute.
+Content Time
+(0008,0033)
+1C
+The time the image pixel data creation started. Required if the Image is part of a Series in which the images are temporally related.
+Note
+This Attribute was formerly known as Image Time.
+Lossy Image Compression
+(0028,2110)
+	
+Specifies whether an Image has undergone lossy compression (at a point in its lifetime).
+Enumerated Values:
+00 	Image has NOT been subjected to lossy compression.
+01 	Image has been subjected to lossy compression.
+Once this value has been set to "01" it shall not be reset.
+See Section C.7.6.1.1.5
+Referenced Image Sequence
+(0008,1140)
+1C
+A Sequence that references other images significantly related to this image.
+One or more Items are permitted in this Sequence.
+Required if Image Type (0008,0008) Value 3 is present and has a value of "STEREO L" or "STEREO R". May also be present otherwise. See Section C.8.12.1.1.7.
+>Include Table 10-3 “Image SOP Instance Reference Macro Attributes”
+>Purpose of Reference Code Sequence
+(0040,A170)
+2
+Describes the purpose for which the reference is made.
+Zero or one Item shall be included in this Sequence.
+>>Include Table 8.8-1 “Code Sequence Macro Attributes”
+DCID 7201 “Referenced Image Purpose of Reference”.
+Window Center
+(0028,1050)
+3
+Window Center for display. See Section C.11.2.1.2 for further explanation.
+Meaningful only if Photometric Interpretation (0028,0004) is MONOCHROME2.
+Window Width
+(0028,1051)
+1C
+Window Width for display. See Section C.11.2.1.2 for further explanation.
+Required if Window Center (0028,1050) is present.
+Image Laterality
+(0020,0062)
+3
+Laterality of (possibly paired) body part (as described in Anatomic Region Sequence (0008,2218)) examined.
+Enumerated Values:
+R	right
+L	left
+U	unpaired
+B	both left and right
+Shall be consistent with any laterality information contained in Primary Anatomic Structure Modifier Sequence (0008,2230), Anatomic Region Modifier Sequence (0008,2220), and/or Laterality (0020,0060), if present.
+Note
+    1. Laterality (0020,0060) is a Series level Attribute and must be the same for all Images in the Series, hence it must be absent if Image Laterality (0020,0062) has different values for Images in the same Series.
+    2. There is no value for median, for which Primary Anatomic Structure Modifier Sequence (0008,2230) or Anatomic Region Modifier Sequence (0008,2220) may be used instead.
+View Code Sequence
+(0054,0220)
+3
+Sequence that describes the perspective of the anatomic region of interest in the image.
+Only a single Item is permitted in this Sequence.
+>Include Table 8.8-1 “Code Sequence Macro Attributes” .
+BCID 4062 VL View.
+BCID 4063 VL Dental View for dental applications.
+>View Modifier Code Sequence
+(0054,0222)
+3
+Sequence that provides modifiers for the view of the anatomic region of interest in the image.
+One or more Items are permitted in this Sequence. 
+>>Include Table 8.8-1 “Code Sequence Macro Attributes”
+BCID 4064 VL View Modifier
+BCID 4065 VL Dental View Modifier for dental applications.
+Anatomic Region Sequence
+(0008,2218)
+1C
+Sequence that identifies the anatomic region of interest in this image (i.e., external anatomy, surface anatomy, or general region of the body).
+Only a single Item shall be included in this Sequence.
+Required if Number of Frames (0028,0008) is present and Specimen Description Sequence (0040,0560) is absent. May be present otherwise.
+>Include Table 8.8-1 “Code Sequence Macro Attributes”
+DCID 4040 “Endoscopy Anatomic Region” for the Video Endoscopic IOD.
+BCID 4029 “Dermatology Anatomic Site” for the VL Photographic Image IOD and Dermoscopic Photography Image IOD for dermatology applications.
+BCID 4031 “Common Anatomic Region” for humans and BCID 7483 “Common Anatomic Regions for Animal” for non-human organisms.
+BCID 4028 “Craniofacial Anatomic Region” for dental applications.
+>Anatomic Region Modifier Sequence
+(0008,2220)
+3
+Sequence of Items that modifies the anatomic region of interest of this image
+One or more Items are permitted in this Sequence.
+>>Include Table 8.8-1 “Code Sequence Macro Attributes”
+BCID 2 “Anatomic Modifier”.
+BCID 245 “Laterality with Median” is defined for the VL Photographic Image IOD and Dermoscopic Photography Image IOD for dermatology applications.
+BCID CID 247 “Laterality Left-Right Only” is defined for the VL Photographic Image IOD for dental applications 
+Include Table 10-8 “Primary Anatomic Structure Macro Attributes”
+No CID is defined.
+BCID 4061 “Head and Neck Primary Anatomic Structure” for dental applications.
+These Type 3 Attributes are not appropriate when Specimen Description Sequence (0040,0560) is present, as it includes the Primary Anatomic Structure Macro for each specimen in the image.
+Channel Description Code Sequence
+(0022,001A)
+3
+Describes the light color used for each channel to generate the image.
+If Photometric Interpretation (0028,0004) has one of the YBR values, the meaning is for pixel data in an equivalent RGB encoding.
+Note
+Interpretation and representation of RGB images rely on the assumption that the red channel really contains the red wavelength range of illumination light, the blue channel the blue wavelength range, etc. Some modalities use the RGB Photometric Interpretation as a container representing 3 channels of any illumination wavelength.
+Shall have the same number of Items as the value of Samples per Pixel (0028,0002). The channels shall be described in the order in which the channels are encoded.
+>Include Table 8.8-1 “Code Sequence Macro Attributes”
+BCID 4206 “Ophthalmic Channel Description”.
+Pixel Spacing
+(0028,0030)
+3
+Physical distance in the imaging target (patient or specimen) between the center of each pixel, specified as a numeric pair - adjacent row spacing \ adjacent column spacing, in mm. See Section 10.7.1.3.
+Imager Pixel Spacing
+(0018,1164)
+3
+Physical distance measured at the front plane of the Image Receptor housing between the center of each pixel. Specified by a numeric pair - row spacing value (delimiter) column spacing value - in mm.
+In the case of a photographic camera, the front plane is defined to be the focal plane.
+
+Add the following to PS3.16 Section C Acquisition Context Module, Protocol and Workflow Context Templates:
+TID 3465 VL Orthodontic Acquisition Context
+Type:	Extensible
+Order:	Non-Significant
+Root:	No
+Table TID 3465. VL Orthodontic Acquisition Context
+
+
+NL
+VT
+Concept Name
+VM
+Req Type
+Condition
+Value Set Constraint
+1
+
+CODE
+DT (130325, DCM, "Orthognathic Functional Condition")
+1-n
+U
+
+BCID 4066 “Orthognathic Functional Condition”
+2
+
+CODE
+DT (118243007, SCT, "Finding by inspection")
+1-n
+U
+
+BCID 4067 “Orthodontic Finding by Inspection”
+3
+
+CODE
+DT (363787002, SCT, "Observable entity")
+1-n
+U
+
+BCID 4068 “Orthodontic Observable Entity”
+4
+
+CODE
+DT (25272006, SCT, "Dental occlusion")
+1
+U
+
+BCID 4069 “Dental Occlusion”
+5
+
+CODE
+EV (128741, DCM, “Longitudinal Temporal Event Type”)
+1
+U
+
+BCID 4070 “Orthodontic Treatment Progress”
+6
+
+NUMERIC
+EV (128740, DCM, “Longitudinal Temporal Offset from Event”)
+1
+U
+
+UNITS = DT (d, UCUM, "days")
+
+Modify PS3.16 Table CID 4028. Craniofacial Anatomic Region as follows:
+Table CID 4028. Craniofacial Anatomic Region
+Version: 20170914 20250330
+
+Coding Scheme Designator
+Code Value
+Code Meaning
+SNOMED-RT ID
+UMLS Concept Unique ID
+…
+SCT
+123851003
+Mouth
+T-D0662
+C0230028
+
+Modify PS3.16 Table CID 4051.General Device as follows:
+Table CID 4051. General Device
+Version: 20160525 20250330
+
+Coding Scheme Designator
+Code Value
+Code Meaning
+SNOMED-RT ID
+UMLS Concept Unique ID
+Include CID 8 “Angiographic Interventional Device”
+Include CID 3451 “Calibration Object”
+Include CID 4052 “Phantom Device”
+Include CID 4071 “General Photography Device”
+SCT
+61968008
+Syringe
+A-10150
+C0039142
+
+Add the following to PS3.16 B. DCMR Context Groups:
+CID 4061 Head and Neck Primary Anatomic Structure
+Resources:	HTML | FHIR JSON | FHIR XML | IHE SVS XML
+Keyword:	HeadAndNeckPrimaryAnatomicStructure
+FHIR Keyword:	dicom-cid-4061-HeadAndNeckPrimaryAnatomicStructure
+Type:		Extensible
+Version:	20250330
+UID:		1.2.840.10008.6.1.1501
+Table CID 4061. Head and Neck Primary Anatomic Structure
+
+Coding Scheme Designator
+Code Value
+Code Meaning
+SNOMED-RT ID
+UMLS Concept Unique ID
+SCT
+89545001
+Face 
+T-D1200
+C0015450
+SCT
+74262004
+Oral cavity
+T-51004
+C0226896
+SCT
+88176008
+Mandibular dental arch
+T-54170
+C0227027
+SCT
+39481002
+Maxillary dental arch
+T-54160
+C0227026
+SCT
+261063000
+Buccal space 
+T-51005
+C0444575
+SCT
+7652006
+Frenulum of lip
+T-52030
+C0022861
+
+CID 4062 VL View
+Resources:	HTML | FHIR JSON | FHIR XML | IHE SVS XML
+Keyword:	VLView
+FHIR Keyword:	dicom-cid-4062-VLView
+Type:		Extensible
+Version:	20250303
+UID:		1.2.840.10008.6.1.1502
+Table CID 4062. VL View
+
+Coding Scheme Designator
+Code Value
+Code Meaning
+SNOMED-RT ID
+UMLS Concept Unique ID
+SCT
+399033003
+frontal
+R-10202
+C0442223
+SCT
+399173006
+left lateral
+R-10236
+C0442198
+SCT
+260421001
+left lateral oblique
+R-4077D
+C0442289
+SCT
+399198007
+right lateral
+R-10232
+C0442202
+SCT
+260424009
+right lateral oblique
+R-40780
+C0442292
+SCT
+399182000
+oblique
+R-102C1
+C0442287
+SCT
+260454004
+45 degree projection
+R-4079D
+C0442224
+SCT
+260427002
+lateral oblique
+R-40783
+C0442295
+SCT
+399255003
+submentovertical
+R-10256
+C0442244
+SCT
+260461000
+vertex
+R-407A4
+C0442231
+
+CID 4063 VL Dental View
+Resources:	HTML | FHIR JSON | FHIR XML | IHE SVS XML
+Keyword:	VLDentalView
+FHIR Keyword:	dicom-cid-4063-VLDentalView
+Type:		Extensible
+Version:	20250330
+UID:		1.2.840.10008.6.1.1503
+Table CID 4063. VL Dental View
+
+Coding Scheme Designator
+Code Value
+Code Meaning
+SNOMED-RT ID
+UMLS Concept Unique ID
+SCT
+260499007
+Occlusal projection
+R-40810
+C0442276
+
+CID 4064 VL View Modifier
+Resources:	HTML | FHIR JSON | FHIR XML | IHE SVS XML
+Keyword:	VLViewModifier
+FHIR Keyword:	dicom-cid-4064-VLViewModifier
+Type:		Extensible
+Version:	20250330
+UID:		1.2.840.10008.6.1.1504
+Table CID 4064. VL View Modifier
+
+Coding Scheme Designator
+Code Value
+Code Meaning
+SNOMED-RT ID
+UMLS Concept Unique ID
+SCT
+789135000
+Mirrored image uncorrected
+
+C5230360
+SCT
+789134001
+Mirrored image uncorrected flipped horizontally
+
+C5230389
+SCT
+789132002
+Mirrored image uncorrected flipped horizontally and vertically
+
+C5230358
+SCT
+789133007
+Mirrored image uncorrected flipped vertically
+
+C5230359
+
+CID 4065 VL Dental View Modifier
+Resources:	HTML | FHIR JSON | FHIR XML | IHE SVS XML
+Keyword:	VLDentalViewModifier
+FHIR Keyword:	dicom-cid-4065-VLDentalViewModifier
+Type:		Extensible
+Version:	20250330
+UID:		1.2.840.10008.6.1.1505
+Table CID 4065. VL Dental View Modifier
+
+Coding Scheme Designator
+Code Value
+Code Meaning
+SNOMED-RT ID
+UMLS Concept Unique ID
+SCT
+789131009
+Close up photographic view of teeth without magnification
+
+C5230357
+SCT
+787610003
+Mirrored photo image intraoral corrected
+
+C5192865
+SCT
+789310004
+Mirrored photo image of teeth corrected flipped horizontally
+
+C5230459
+SCT
+789311000
+Mirrored photo image of teeth corrected flipped vertically
+
+C5230460
+SCT
+789312007
+Mirrored photo image of teeth corrected rotated 180 deg
+
+C5230461
+SCT
+787612006
+Photo image extraoral with 45 degree view
+
+
+SCT
+787611004
+Photo image extraoral with mandible postured forward
+
+
+SCT
+789313002
+Photo image of anterior teeth
+
+
+SCT
+789314008
+Photo image of face with lips in relaxed position
+
+
+SCT
+787607005
+Photo image with lips closed
+
+
+SCT
+789130005
+Photo image with mouth partially opened and teeth apart
+
+
+
+CID 4066 Orthognathic Functional Condition
+Resources:	HTML | FHIR JSON | FHIR XML | IHE SVS XML
+Keyword:	OrthognathicFunctionalCondition
+FHIR Keyword:	dicom-cid- 4066-OrthognathicFunctionalCondition
+Type:		Extensible
+Version:	20250330
+UID:		1.2.840.10008.6.1.1506
+Table CID 4066. Orthognathic Functional Condition
+
+Coding Scheme Designator
+Code Value
+Code Meaning
+SNOMED-RT ID
+UMLS Concept Unique ID
+SCT
+1336028006
+Upper and lower lips in relaxed position
+
+C5924347
+SCT
+1332210001
+Mouth in partially open position 
+
+C5923645
+SCT
+1336026005
+Mandible postured forwards
+
+C5924346
+SCT
+1336029003
+Upper and lower lips in closed position
+
+C5924348
+SCT
+225583004
+Smiles
+ F-A08FC
+C0517048
+SCT
+262016004
+Open mouth
+R-4136A 
+C0240379
+
+CID 4067 Orthodontic Finding by Inspection
+Resources:	HTML | FHIR JSON | FHIR XML | IHE SVS XML
+Keyword:	OrthodonticFindingByInspection
+FHIR Keyword:	dicom-cid-4067-OrthodonticFindingByInspection
+Type:		Extensible
+Version:	20250330
+UID:		1.2.840.10008.6.1.1507
+Table CID 4067. Orthodontic Finding by Inspection
+
+Coding Scheme Designator
+Code Value
+Code Meaning
+SNOMED-RT ID
+UMLS Concept Unique ID
+SCT
+276470008
+Skin mark
+D0-00173
+C0455957
+SCT
+341000119102
+Tattoo of skin
+F-F0227
+C1366940
+SCT
+4356008
+Gingival recession
+D5-10830
+C0017572
+SCT
+710793000
+Cant of occlusal plane
+F-DD58F
+C4038832
+SCT
+1264188003
+Tattoo of left buccal mucosa
+
+C5788322
+SCT
+1264193000
+Tattoo of right buccal mucosa
+
+C5788327
+SCT
+1260043007
+Tattoo of mucosa of soft palate
+
+C5770182
+SCT
+1260047008
+Tattoo of labial mucosa of lower lip
+
+C5770184
+SCT
+1260049006
+Tattoo of labial mucosa of upper lip
+
+C5770185
+CID 4068  Orthodontic Observable Entity
+Resources:	HTML | FHIR JSON | FHIR XML | IHE SVS XML
+Keyword:	OrthodonticObservableEntity
+FHIR Keyword:	dicom-cid-4068-OrthodonticObservableEntity
+Type:		Extensible
+Version:	20250330
+UID:		1.2.840.10008.6.1.1508
+Table CID 4068. Orthodontic Observable Entity
+
+Coding Scheme Designator
+Code Value
+Code Meaning
+SNOMED-RT ID
+UMLS Concept Unique ID
+SCT
+193093009
+Bell's palsy
+DA-41033
+C0376175
+SCT
+110343009 
+Tongue thrust
+F-51716
+C1829460
+
+CID 4069 Dental Occlusion
+Resources:	HTML | FHIR JSON | FHIR XML | IHE SVS XML
+Keyword:	DentalOcclusion
+FHIR Keyword:	dicom-cid-4069-DentalOcclusion
+Type:		Extensible
+Version:	20250330
+UID:		1.2.840.10008.6.1.1509
+Table CID 4069. Dental Occlusion
+
+Coding Scheme Designator
+Code Value
+Code Meaning
+SNOMED-RT ID
+UMLS Concept Unique ID
+SCT
+110320000 
+Centric occlusion
+F-51154
+C1268896
+SCT
+736783005
+Centric relation
+
+C0007702
+
+CID 4070 Orthodontic Treatment Progress
+Resources:	HTML | FHIR JSON | FHIR XML | IHE SVS XML
+Keyword:	OrthodonticTreatmentProgress
+FHIR Keyword:	dicom-cid-4070-OrthodonticTreatmentProgress
+Type:		Extensible
+Version:	20250330
+UID:		1.2.840.10008.6.1.1510
+Table CID 4070. Orthodontic Treatment Progress
+
+Coding Scheme Designator
+Code Value
+Code Meaning
+SNOMED-RT ID
+UMLS Concept Unique ID
+Include CID 280 “Longitudinal Temporal Event Type”
+SCT
+184047000
+Patient registration
+P0-0081C
+C0421512
+SCT
+1332161000
+Orthodontic Treatment started
+
+C5923499
+SCT
+1340210007
+Orthodontic Treatment stopped
+
+C5924807
+
+CID 4071 General Photography Device
+Resources:	HTML | FHIR JSON | FHIR XML | IHE SVS XML
+Keyword:	GeneralPhotographyDevice
+FHIR Keyword:	dicom-cid-4071-GeneralPhotographyDevice
+Type:		Extensible
+Version:	20250330
+UID:		1.2.840.10008.6.1.1511
+Table CID 4071. General Photography Device
+
+Coding Scheme Designator
+Code Value
+Code Meaning
+SNOMED-RT ID
+UMLS Concept Unique ID
+Include CID 4202 “Ophthalmic Photography Acquisition Device”
+Include CID 4072 “Devices for the Purpose of Dental Photography”
+
+CID 4072 Devices for the Purpose of Dental Photography
+Resources:	HTML | FHIR JSON | FHIR XML | IHE SVS XML
+Keyword:	DevicesForThePurposeOfDentalPhotography
+FHIR Keyword:	dicom-cid-4072-DevicesForThePurposeOfDentalPhotography
+Type:		Extensible
+Version:	20250330
+UID:		1.2.840.10008.6.1.1512
+Table CID 4072. Devices for the Purpose of Dental Photography
+
+Coding Scheme Designator
+Code Value
+Code Meaning
+SNOMED-RT ID
+UMLS Concept Unique ID
+SCT
+462735007
+Periodontal probe
+R-FEF0F
+C1882337
+SCT
+102304005
+Measuring Ruler
+A-10141
+C0522637
+SCT
+39802000
+Tongue blade
+A-10146
+C0183967
+SCT
+53535004
+Retractor
+A-14040
+C0183014
+SCT
+1332162007
+Intraoral photography mirror
+
+C5923500
+SCT
+1332163002
+Dental photography black contraster
+
+C5923501
+SCT
+1332164008
+Photographic image fiducial marker
+
+C5923502
+
+D DICOM Controlled Terminology Definitions (Normative)
+Table D-1. DICOM Controlled Terminology Definitions (Coding Scheme Designator "DCM" Coding Scheme Version "01")
+Code Value
+Code Meaning
+Definition
+Notes
+130324
+Functional condition present during acquisition
+A functional condition present during acquisition, such as phonation, weight bearing, voiding of the bladder or hemodynamic physiological challenges.
+
+130325
+Orthognathic Functional Condition
+A functional condition present during acquisition that is related to the jaw, such as the position of the lips, mouth, or mandible.
+
+
+Add the following to PS3.16 O SNOMED Concept ID to SNOMED ID Mapping.
+Editorial Note: This content is automatically generated by the DICOM publication tooling. However, for this CP, it is provided to establish a list of SNOMED codes added to DICOM (CRS Request ID # 968000)
+O SNOMED Concept ID to SNOMED ID Mapping
+Table O-1. SNOMED Concept ID to SNOMED ID Mapping
+
+Concept ID (SCT)
+SNOMED ID (SRT)
+SNOMED Fully Specified Name
+…
+363787002
+
+Observable entity (observable entity)
+25272006
+
+Dental occlusion, function (observable entity)
+462735007
+
+Periodontal probe (physical object)
+39802000
+
+Tongue blade, device (physical object)
+53535004
+
+Retractor, device (physical object)
+1332162007
+
+Intraoral photography mirror (physical object)
+1332163002
+
+Dental photography black contraster (physical object)
+1332164008
+
+Photographic image fiducial marker (physical object)
+1340210007
+
+Orthodontic treatment stopped (situation)
+1332161000
+
+Orthodontic treatment started (situation)
+184047000
+
+Patient registration (procedure)
+736783005
+
+Centric relation (observable entity)
+110320000
+
+Centric occlusion (observable entity)
+110343009
+
+Tongue thrust (observable entity)
+193093009
+
+Bell's palsy (disorder)
+1260049006
+
+Local exogenous pigmentation of mucous membrane of upper lip (disorder)
+1260047008
+
+Local exogenous pigmentation of mucous membrane of lower lip (disorder)
+1260043007
+
+Local exogenous pigmentation of mucosa of soft palate (disorder)
+1264193000
+
+Local exogenous pigmentation of right buccal mucosa (disorder)
+1264188003
+
+Local exogenous pigmentation of left buccal mucosa (disorder)
+710793000
+
+Cant of occlusal plane (observable entity)
+4356008
+
+Gingival recession (disorder)
+341000119102
+
+Tattoo of skin (finding)
+276470008
+
+Skin mark (disorder)
+262016004
+
+Open mouth (finding)
+225583004
+
+Smiles (finding)
+1336029003
+
+Upper and lower lips in closed position (finding)
+1336026005
+
+Mandible postured forward (finding)
+1332210001
+
+Mouth in partially open position (finding)
+1336028006
+
+Upper and lower lips in relaxed position (finding)
+789130005
+
+Photographic image with mouth partially opened position and teeth apart (record artifact)
+787607005
+
+Photographic image with lips closed (record artifact)
+789314008
+
+Photographic image of face with lips in relaxed position (record artifact)
+789313002
+
+Photographic image of anterior teeth (record artifact)
+787611004
+
+Photographic image extraoral with mandible postured forward (record artifact)
+787612006
+
+Photographic image extraoral with 45 degree view (record artifact)
+789312007
+
+Mirrored photographic image of teeth corrected flipped vertically and horizontally (record artifact)
+789311000
+
+Mirrored photographic image of teeth corrected flipped vertically (record artifact)
+789310004
+
+Mirrored photographic image of teeth corrected flipped horizontally (record artifact)
+787610003
+
+Mirrored photographic image of teeth corrected flipped horizontally (record artifact)
+789131009
+
+Close up photographic view of teeth with no set magnification or distance (record artifact)
+789133007
+
+Mirrored visible image uncorrected flipped vertically (record artifact)
+789132002
+
+Mirrored visible image uncorrected flipped horizontally and vertically (record artifact)
+789134001
+
+Mirrored visible image uncorrected flipped horizontally (record artifact)
+789135000
+
+Mirrored visible image uncorrected (record artifact)
+260461000
+
+Vertex projection (qualifier value)
+260454004
+
+45 degree projection (qualifier value)
+260424009
+
+Right lateral oblique (qualifier value)
+260421001
+
+Left lateral oblique (qualifier value)
+7652006
+
+Structure of frenulum labii (body structure)
+261063000
+
+Structure of buccal space (body structure)
+
+Modify PS3.6 Table A-3. Context Group UID Values as follows:
+Table A-3. Context Group UID Values
+
+Context Group UID
+Context Group Identifier
+Context Group Name
+Comment
+1.2.840.10008.6.1.1501
+CID 4061
+Head and Neck Primary Anatomic Structure
+
+1.2.840.10008.6.1.1502
+CID 4062
+VL View
+
+1.2.840.10008.6.1.1503
+CID 4063
+VL Dental View
+
+1.2.840.10008.6.1.1504
+CID 4064
+VL View Modifier
+
+1.2.840.10008.6.1.1505
+CID 4065
+VL Dental View Modifier
+
+1.2.840.10008.6.1.1506
+CID 4066
+Orthognathic Functional Conditions
+
+1.2.840.10008.6.1.1507
+CID 4067
+Orthodontic Finding by Inspection
+
+1.2.840.10008.6.1.1508
+CID 4068
+Orthodontic Observable Entity
+
+1.2.840.10008.6.1.1509
+CID 4069
+Dental Occlusion
+
+1.2.840.10008.6.1.1510
+CID 4070
+Orthodontic Treatment Progress
+
+1.2.840.10008.6.1.1511
+CID 4071
+General Photography Device
+
+1.2.840.10008.6.1.1512
+CID 4072
+Devices for the Purpose of Dental Photography
+
+

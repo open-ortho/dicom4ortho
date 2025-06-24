@@ -218,7 +218,7 @@ class PhotoTests(unittest.TestCase):
         o = OrthodonticPhotograph(**metadata)
         o.copy_mwl_tags(dicom_mwl=mwl)
         # Set the instance number
-        o.instance_number = '100'
+        o.instance_number = '200'
         o.save()
         # Test the get_scheduled_protocol_code method
         scheduled_protocol_code = get_scheduled_protocol_code(o._ds)

@@ -4,6 +4,9 @@ services:
     container_name: orthanc-mock
     image: jodogne/orthanc-plugins
     hostname: orthanc
+    # The 'platform: linux/amd64' directive forces the container to use the AMD64 architecture.
+    # This is useful because if not specified, and the host has an ARM architecture, that versions may encounter compatibility issues with some dependencies or binaries.
+    platform: linux/amd64
     ports: ["127.0.0.1:8202:8042", "127.0.0.1:4242:4242"]
     volumes:
       - ./orthanc.json:/etc/orthanc/orthanc.json

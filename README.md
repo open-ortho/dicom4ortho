@@ -73,31 +73,89 @@ acknowledgements.
 ### Built With
 
 * [pydicom](https://pydicom.github.io/)
+* [pynetdicom](https://pydicom.github.io/pynetdicom/)
 * [pillow](https://python-pillow.org/)
+* [fastapi](https://fastapi.tiangolo.com/)
+* [fhir.resources](https://pypi.org/project/fhir.resources/)
 * [dicom3tools](https://www.dclunie.com/dicom3tools.html)
 
 <!-- GETTING STARTED -->
 ## Getting Started
 
-Like any other Python module, install the module than use it. There is a CLI
+Like any other Python module, install the module and use it. There is a CLI
 interface as well.
 
 ### Prerequisites
 
-- An installation of Python 3+.
+- An installation of Python 3.10+.
 - optional: [dicom3tools](https://www.dclunie.com/dicom3tools.html)
 
 ### Installation
 
-Install unsing pipenv by running
-
-    $ pipenv install dicom4ortho
-
-Install using pip by running
+Install using pip by running:
 
     $ pip install dicom4ortho
 
-Only Python 3+ is supported
+If you're a developer working on the project, you can install with dev dependencies:
+
+    $ pip install dicom4ortho[dev]
+
+The project uses pyproject.toml for package configuration and build settings.
+
+### Creating a Virtual Environment
+
+It's recommended to use a virtual environment for development:
+
+    $ python -m venv venv
+    $ source venv/bin/activate  # On Windows use: venv\Scripts\activate
+    
+    # Install the package in development mode
+    $ pip install -e .
+    
+    # To install with development dependencies
+    $ pip install -e ".[dev]"
+
+### Building from source
+
+To build the package from source:
+
+    $ python -m build
+
+This will create distribution packages in the `dist/` directory.
+
+### Running Tests
+
+To run all tests in the project:
+
+    $ pytest
+
+To run tests with coverage report:
+
+    $ pytest --cov=dicom4ortho tests/
+
+To run a specific test file:
+
+    $ pytest test/test_cli.py
+
+All tests are located in the `test/` directory and can be executed after installing the development dependencies.
+
+#### Docker for Integration Tests
+
+Some tests require Docker to run integration tests with an Orthanc DICOM server. 
+A docker-compose file is provided in the `test/` directory.
+
+To start the Docker containers required for testing:
+
+    $ cd test
+    $ docker-compose up -d
+
+This will start an Orthanc DICOM server container that tests can connect to.
+
+To stop the containers after testing:
+
+    $ docker-compose down
+
+Make sure Docker is installed and running before executing integration tests.
 
 ### Validation with dicom3tools
 

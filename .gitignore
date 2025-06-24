@@ -11,3 +11,4 @@ docs/.buildinfo
 *.sqlite
 
 .DS_Store
+venv

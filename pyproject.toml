@@ -25,10 +25,29 @@ classifiers = [
 dependencies = [
     "argparse",
     "pydicom",
-    "pynetdicom",
-    "pillow",
+    "pynetdicom>=2,<3",
+    "pillow>=9.2.0",
     "prettytable",
     "numpy",
+    "urllib3>=1.26.5",
+    "sphinx",
+    "fastapi",
+    "fhir.resources",
+    "pydantic",
+    "uvicorn",
+    "apscheduler",
+]
+
+[project.optional-dependencies]
+dev = [
+    "wrapt",
+    "pylint",
+    "twine",
+    "autopep8",
+    "bumpversion",
+    "pytest",
+    "build",
+    "prettytable",
 ]
 
 [project.urls]

@@ -1,3 +1,4 @@
+from typing import Optional
 import uuid
 from pydicom.dataset import Dataset
 from dicom4ortho.config import DICOM4ORTHO_ROOT_UID
@@ -21,7 +22,7 @@ def generate_dicom_uid(root=None, hash=None):
     logger.debug("Generated new Instance UID {}".format(dicom_uid))
     return dicom_uid
 
-def get_scheduled_protocol_code(ds:Dataset) -> Dataset:
+def get_scheduled_protocol_code(ds:Dataset) -> Optional[Dataset]:
     """ Returns the code for the scheduled protocol pertaining to the passed Dataset.
 
     Was initially inside the OrthodonticPhotograph. However, better suited as a standalone function, since the OrthodonticPhotograph is not yet capable of being used to decode (kind of like loading an existing DICOM with a validate() method) and is not the only object that can have a ScheduledProtocolCode.

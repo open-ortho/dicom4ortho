@@ -82,13 +82,13 @@ class PhotoTests(unittest.TestCase):
         """ Test setting date and times with different formats and time zones.
         """
         o = OrthodonticPhotograph()
-        
+
         # Test default date/time attributes
         self.assertEqual(o._ds.StudyDate, '')
         self.assertEqual(o._ds.StudyTime, '')
         self.assertFalse(hasattr(o._ds, 'SeriesDate'))
         self.assertFalse(hasattr(o._ds, 'SeriesTime'))
-        
+
         o.study_datetime = datetime(1592, 2, 3, 12, 14, 11)
         self.assertEqual(o._ds.StudyDate, "15920203")
         self.assertEqual(o._ds.StudyTime, "121411.000000")
@@ -186,18 +186,25 @@ class PhotoTests(unittest.TestCase):
         o.prepare()
 
         # Assert that date/time tags were properly set from EXIF
-        self.assertIsNotNone(o._ds.ContentDate, "ContentDate should be set from EXIF DateTime")
-        self.assertIsNotNone(o._ds.ContentTime, "ContentTime should be set from EXIF DateTime")
-        self.assertIsNotNone(o._ds.AcquisitionDateTime, "AcquisitionDateTime should be set from EXIF DateTime")
-        
+        self.assertIsNotNone(
+            o._ds.ContentDate, "ContentDate should be set from EXIF DateTime")
+        self.assertIsNotNone(
+            o._ds.ContentTime, "ContentTime should be set from EXIF DateTime")
+        self.assertIsNotNone(o._ds.AcquisitionDateTime,
+                             "AcquisitionDateTime should be set from EXIF DateTime")
+
         # Check that the dates are in proper DICOM format
-        self.assertTrue(len(o._ds.ContentDate) == 8, "ContentDate should be 8 characters YYYYMMDD")
-        self.assertTrue(len(o._ds.ContentTime) == 13, "ContentTime should be 13 characters HHMMSS.FFFFFF")
-        self.assertTrue(len(o._ds.AcquisitionDateTime) >= 19, "AcquisitionDateTime should be at least 19 characters YYYYMMDDHHMMSS.FFFFFF")
+        self.assertTrue(len(o._ds.ContentDate) == 8,
+                        "ContentDate should be 8 characters YYYYMMDD")
+        self.assertTrue(len(o._ds.ContentTime) == 13,
+                        "ContentTime should be 13 characters HHMMSS.FFFFFF")
+        self.assertTrue(len(o._ds.AcquisitionDateTime) >= 19,
+                        "AcquisitionDateTime should be at least 19 characters YYYYMMDDHHMMSS.FFFFFF")
 
     def testProtocolCode(self):
         # Generate a sample MWL
-        mwl = make_sample_MWL(modality='VL', startdate='20241209', starttime='090000')
+        mwl = make_sample_MWL(
+            modality='VL', startdate='20241209', starttime='090000')
 
         # Create an OrthodonticPhotograph using the sample MWL
         metadata = {
@@ -222,12 +229,14 @@ class PhotoTests(unittest.TestCase):
         o.save()
         # Test the get_scheduled_protocol_code method
         scheduled_protocol_code = get_scheduled_protocol_code(o._ds)
-        self.assertIsNotNone(scheduled_protocol_code, "Scheduled Protocol Code should not be None")
-        self.assertEqual(scheduled_protocol_code.CodeValue, 'EV20', "Scheduled Protocol Code Value does not match")
-        self.assertEqual(scheduled_protocol_code.CodingSchemeDesignator, '99OPOR', "Scheduled Protocol Coding Scheme Designator does not match")
-        self.assertEqual(scheduled_protocol_code.CodeMeaning, 'Extraoral, Full Face, Full Smile, Centric Relation', "Scheduled Protocol Code Meaning does not match")
-
-
+        self.assertIsNotNone(scheduled_protocol_code,
+                             "Scheduled Protocol Code should not be None")
+        self.assertEqual(scheduled_protocol_code.CodeValue,
+                         'EV20', "Scheduled Protocol Code Value does not match")
+        self.assertEqual(scheduled_protocol_code.CodingSchemeDesignator, '99OPOR',
+                         "Scheduled Protocol Coding Scheme Designator does not match")
+        self.assertEqual(scheduled_protocol_code.CodeMeaning, 'Extraoral, Full Face, Full Smile, Centric Relation',
+                         "Scheduled Protocol Code Meaning does not match")
 
     @unittest.skip("I don't think NEF is read properly by Pillow")
     def testNEF(self):

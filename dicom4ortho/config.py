@@ -6,7 +6,7 @@ import re
 from pathlib import Path
 import importlib.resources as importlib_resources
 
-VERSION = '0.4.7'
+VERSION = '0.5.0'
 PROJECT_NAME = 'dicom4ortho'
 __url__ = 'https://github.com/open-ortho/dicom4ortho'
 __author__ = 'Toni Magni'
@@ -39,6 +39,9 @@ URL_DENT_OIP_CODES = URL_DENT_OIP_CODES.as_uri()
 #  * Should always be constant, just change with version numbers. splitting out -dev or other version postfix
 #  * Max length 64. Cannot contain characters.
 DICOM4ORTHO_ROOT_UID = '1.3.6.1.4.1.61741.11.2'
+
+# VL Dental View CID we need to extend to include private codes.
+VL_DENTAL_VIEW_CID = '4063'
 
 # Schema Copied from DCMTK assignment
 stripped_version = re.sub(r'[^0-9]', '', VERSION)

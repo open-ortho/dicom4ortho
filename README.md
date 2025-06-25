@@ -12,7 +12,7 @@
     <img src="https://raw.githubusercontent.com/open-ortho/dicom4ortho/master/images/open-ortho.png" alt="Logo" width="80" height="80">
   </a>
 
-  <h3 align="center">dicom4ortho 0.4.7</h3>
+  <h3 align="center">dicom4ortho 0.5.0</h3>
 
   <p align="center">
     A Python library to create fully defined orthodontic photographs in DICOM.
@@ -73,31 +73,97 @@ acknowledgements.
 ### Built With
 
 * [pydicom](https://pydicom.github.io/)
+* [pynetdicom](https://pydicom.github.io/pynetdicom/)
 * [pillow](https://python-pillow.org/)
 * [dicom3tools](https://www.dclunie.com/dicom3tools.html)
 
 <!-- GETTING STARTED -->
 ## Getting Started
 
-Like any other Python module, install the module than use it. There is a CLI
+Like any other Python module, install the module and use it. There is a CLI
 interface as well.
 
 ### Prerequisites
 
-- An installation of Python 3+.
+- An installation of Python 3.10+.
 - optional: [dicom3tools](https://www.dclunie.com/dicom3tools.html)
 
 ### Installation
 
-Install unsing pipenv by running
-
-    $ pipenv install dicom4ortho
-
-Install using pip by running
+Install using pip by running:
 
     $ pip install dicom4ortho
 
-Only Python 3+ is supported
+If you're a developer working on the project, you can install with dev dependencies:
+
+    $ pip install dicom4ortho[dev]
+
+The project uses pyproject.toml for package configuration and build settings.
+
+### Creating a Virtual Environment
+
+It's recommended to use a virtual environment for development:
+
+    $ python -m venv venv
+    $ source venv/bin/activate  # On Windows use: venv\Scripts\activate
+    
+    # Install the package in development mode
+    $ pip install -e .
+    
+    # To install with development dependencies
+    $ pip install -e ".[dev]"
+
+### Building from source
+
+To build the package from source:
+
+    $ python -m build
+
+This will create distribution packages in the `dist/` directory.
+
+### Running Tests
+
+To run all tests in the project:
+
+    $ pytest
+
+To run tests with coverage report:
+
+    $ pytest --cov=dicom4ortho tests/
+
+To run a specific test file:
+
+    $ pytest test/test_cli.py
+
+All tests are located in the `test/` directory and can be executed after installing the development dependencies.
+
+#### Docker for Integration Tests
+
+Some tests require Docker to run integration tests with an Orthanc DICOM server. 
+A docker-compose file is provided in the `test/` directory.
+
+If you're not using the Makefile, you can manually manage the Docker containers:
+
+    $ docker compose -f ./test/docker-compose.yml up -d
+    $ # Run your tests...
+    $ docker compose -f ./test/docker-compose.yml down
+
+Make sure Docker is installed and running before executing integration tests.
+
+### Using the Makefile
+
+The project includes a Makefile that simplifies common development tasks:
+
+    $ make test              # Run all tests (automatically handles Docker)
+    $ make clean             # Clean build artifacts
+    $ make build             # Build the package (includes linting and testing)
+    $ make lint              # Run linter on the code
+    $ make all               # Clean and build
+    $ make install-dev       # Install development tools including dicom3tools
+    $ make update_resources  # Update resource files from source
+    $ make deploy            # Deploy to PyPI
+
+The Makefile handles Docker for you when running tests. It starts the required Docker containers before running tests and shuts them down afterward.
 
 ### Validation with dicom3tools
 

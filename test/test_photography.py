@@ -426,3 +426,76 @@ class PhotoTests(unittest.TestCase):
         self.assertEqual(item2.CodeValue, 'EV41')
         self.assertEqual(item2.CodingSchemeDesignator, '99OPOR')
         self.assertEqual(item2.CodeMeaning, 'Extraoral, Oblique, Resting')
+
+    def test_set_image_type_code_sequence_preserves_unrelated(self):
+        """Test set_image_type_code_sequence does not touch unrelated ViewCodeSequence items."""
+        ds = Dataset()
+        unrelated1 = Dataset()
+        unrelated1.CodeValue = 'STD01'
+        unrelated1.CodingSchemeDesignator = 'DCM'
+        unrelated1.CodeMeaning = 'Standard View 1'
+
+        unrelated2 = Dataset()
+        unrelated2.CodeValue = 'STD02'
+        unrelated2.CodingSchemeDesignator = 'DCM'
+        unrelated2.CodeMeaning = 'Standard View 2'
+        unrelated2.ContextIdentifier = '4063'
+        unrelated2.ContextGroupExtensionFlag = 'N'
+
+        ds.ViewCodeSequence = [unrelated1, unrelated2]
+
+        # Now set a proprietary code
+        code = Dataset()
+        code.CodeValue = 'EV99'
+        code.CodingSchemeDesignator = '99OPOR'
+        code.CodeMeaning = 'Proprietary View'
+        OrthodonticPhotograph.set_image_type_code_sequence(
+            ds, code, creator_uid='1.2.3.4.5.6.7.8.9')
+
+        # Ensure unrelated items are still present and unchanged
+        self.assertEqual(len(ds.ViewCodeSequence), 3)
+        self.assertEqual(ds.ViewCodeSequence[0].CodeValue, 'STD01')
+        self.assertEqual(ds.ViewCodeSequence[1].CodeValue, 'STD02')
+
+        # Ensure the proprietary code is present and correct
+        prop_item = OrthodonticPhotograph.get_image_type_code_sequence(ds)
+        self.assertIsNotNone(prop_item)
+        self.assertEqual(prop_item.CodeValue, 'EV99')
+        self.assertEqual(
+            prop_item.ContextGroupExtensionCreatorUID, '1.2.3.4.5.6.7.8.9')
+
+    def test_get_image_type_code_sequence_with_multiple_items(self):
+        """Test get_image_type_code_sequence returns the correct proprietary item among others."""
+        ds = Dataset()
+        unrelated1 = Dataset()
+        unrelated1.CodeValue = 'STD01'
+        unrelated1.CodingSchemeDesignator = 'DCM'
+        unrelated1.CodeMeaning = 'Standard View 1'
+
+        proprietary = Dataset()
+        proprietary.CodeValue = 'EV100'
+        proprietary.CodingSchemeDesignator = '99OPOR'
+        proprietary.CodeMeaning = 'Proprietary View'
+        proprietary.ContextIdentifier = '4063'
+        proprietary.ContextGroupExtensionFlag = 'Y'
+        proprietary.ContextGroupExtensionCreatorUID = '1.2.3.4.5.6.7.8.9'
+        proprietary.ContextGroupLocalVersion = '20240625'
+
+        unrelated2 = Dataset()
+        unrelated2.CodeValue = 'STD02'
+        unrelated2.CodingSchemeDesignator = 'DCM'
+        unrelated2.CodeMeaning = 'Standard View 2'
+
+        ds.ViewCodeSequence = [unrelated1, proprietary, unrelated2]
+
+        # Should return the proprietary item
+        item = OrthodonticPhotograph.get_image_type_code_sequence(ds)
+        self.assertIsNotNone(item)
+        self.assertEqual(item.CodeValue, 'EV100')
+        self.assertEqual(item.ContextGroupExtensionFlag, 'Y')
+        self.assertEqual(item.ContextGroupExtensionCreatorUID,
+                         '1.2.3.4.5.6.7.8.9')
+
+        # Ensure unrelated items are still present and unchanged
+        self.assertEqual(ds.ViewCodeSequence[0].CodeValue, 'STD01')
+        self.assertEqual(ds.ViewCodeSequence[2].CodeValue, 'STD02')

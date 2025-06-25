@@ -1,6 +1,11 @@
 Release notes
 =============
 
+0.5
+---
+
+* Implement DENT-OIP logic to encode image types using the View Code Sequence.
+
 0.2
 ---
 

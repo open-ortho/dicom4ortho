@@ -106,6 +106,8 @@ class OrthodonticPhotograph(PhotographBase):
         Returns the first code item from ViewCodeSequence with the Context
         Identifier (CID) VL_DENTAL_VIEW_CID and Context Group Extension Flag set
         to 'Y'. 
+
+        As defined in DENT-OIP. See that for more information.
         """
         view_seq = getattr(ds, 'ViewCodeSequence', None)
         if not view_seq:
@@ -132,6 +134,8 @@ class OrthodonticPhotograph(PhotographBase):
         flag is set or replaced; others are preserved.
 
         This function modifies the given Dataset in place and does not return a value.
+
+        As defined in DENT-OIP. See that for more information.
 
         :param ds: The DICOM Dataset to modify
         :param code_dataset: The code Dataset to insert/update

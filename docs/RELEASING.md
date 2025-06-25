@@ -1,7 +1,7 @@
 # Release checklist: How to release a new version.
 
 1. Check version number and decide what version to release into.
-2. Create `release`: e.g. `git flow release start 0.X.0`
+2. Create `release`: e.g. `git flow release start v0.X.0`
 3. Bump the version with major, minor or patch and then `bumpversion release` as required.
 4. `make clean`
 5. `git merge master`: merge master into here, and fix merge errors.

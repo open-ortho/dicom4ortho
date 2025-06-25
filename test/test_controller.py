@@ -25,7 +25,7 @@ from pynetdicom.sop_class import VLPhotographicImageStorage #
 SCP_PORT = 7795
 
 
-class Test(unittest.TestCase):
+class TestDIMSESend(unittest.TestCase):
     """
     Unit tests for OrthodonticController DIMSE send functionality.
     A single local DIMSE SCP is started for all tests in this class.

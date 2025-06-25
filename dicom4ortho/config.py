@@ -6,7 +6,7 @@ import re
 from pathlib import Path
 import importlib.resources as importlib_resources
 
-VERSION = '0.5.0'
+VERSION = '0.5.1'
 PROJECT_NAME = 'dicom4ortho'
 __url__ = 'https://github.com/open-ortho/dicom4ortho'
 __author__ = 'Toni Magni'

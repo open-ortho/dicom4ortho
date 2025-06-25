@@ -2,22 +2,21 @@
 #
 # End to End tests, complete processes. These are slow.
 #
+from logging import DEBUG, INFO
 import fnmatch
 import json
 import unittest
 import io
 import os
 import warnings
-warnings.simplefilter('error', UserWarning)
-from logging import DEBUG, INFO
-
-from dicom4ortho import logger
-from dicom4ortho.controller import OrthodonticController
-from dicom4ortho.__main__ import setup_logging
-from dicom4ortho.dicom import wado, dimse
 from pathlib import Path
-from pydicom import dcmread
+
 from test.test_photography import make_photo_metadata
+from pydicom import dcmread
+from dicom4ortho.__main__ import setup_logging
+from dicom4ortho.controller import OrthodonticController
+from dicom4ortho import logger
+warnings.simplefilter('error', UserWarning)
 
 
 DEBUG = False
@@ -28,7 +27,8 @@ pacs_wado_password = 'mock'
 # pacs_wado_url = 'https://ovena-dev.lan.marcorosa.it/dicom-web/studies'
 # pacs_wado_username = 'user1'
 # pacs_wado_password = '3V2VC4iBMG3UVHz6'
-ssl_certificate = None # String of SSL certificate to match. Self-signed certs OK but hostname MUST match, or it will fail.
+# String of SSL certificate to match. Self-signed certs OK but hostname MUST match, or it will fail.
+ssl_certificate = None
 ssl_verify = False
 
 
@@ -103,7 +103,7 @@ def compare_jpeg2dicom(jpeg_image_file_path, dicom_image_file_path):
     # Extract and load JPEG data from DICOM
     jpeg_bytes_from_dicom = extract_jpeg_from_dicom(dicom_image_file_path)
     logger.info(
-        f"\nExtracted {len(jpeg_bytes_from_dicom)} bytes of JPEG data from DICOM.")
+        "\nExtracted %d bytes of JPEG data from DICOM.", len(jpeg_bytes_from_dicom))
     dicom_jpeg_img = Image.open(io.BytesIO(
         jpeg_bytes_from_dicom)).convert('RGB')
     dicom_pixels = dicom_jpeg_img.getdata()
@@ -111,10 +111,10 @@ def compare_jpeg2dicom(jpeg_image_file_path, dicom_image_file_path):
     # Compare each pixel
     if len(jpeg_pixels) != len(dicom_pixels):
         logger.error(
-            "\nFAIL: JPEG size [] != DICOM size [{len(dicom_pixels)}]", len(jpeg_pixels))
+            "\nFAIL: JPEG size [%d] != DICOM size [%d]", len(jpeg_pixels), len(dicom_pixels))
         return False
     logger.info(
-        f"\nPASS size test: both JPEG and DICOM have same size of [{len(dicom_pixels)}].")
+        "\nPASS size test: both JPEG and DICOM have same size of [%d].", len(dicom_pixels))
 
     pixel_index = 0
     differences = 0
@@ -124,22 +124,22 @@ def compare_jpeg2dicom(jpeg_image_file_path, dicom_image_file_path):
             if not related:
                 if DEBUG:
                     logger.error(
-                        f"FAIL: at [{pixel_index}] JPEG pixel is [{jp}], DICOM pixel is [{dp}], ratios: [{ratios}]")
+                        "FAIL: at [%d] JPEG pixel is [%s], DICOM pixel is [%s], ratios: [%s]", pixel_index, jp, dp, ratios)
                 differences += 1
         else:
             logger.debug(
-                f"PASS: at [{pixel_index}] JPEG pixel is [{jp}], DICOM pixel is [{dp}]")
+                "PASS: at [%d] JPEG pixel is [%s], DICOM pixel is [%s]", pixel_index, jp, dp)
         pixel_index += 1
 
     if differences == 0:
         return True
     else:
-        logger.error(f"FAIL: with [{differences}] different pixels.")
+        logger.error("FAIL: with [%d] different pixels.", differences)
         return False
 
 
 class TestPacsModule(unittest.TestCase):
-    
+
     @classmethod
     def setUpClass(cls) -> None:
         setup_logging(INFO)
@@ -149,7 +149,7 @@ class TestPacsModule(unittest.TestCase):
         self.resource_path = Path(self.BASE_PATH) / 'resources'
         return super().setUp()
 
-    def test_full_flow_test_orthodontic_series(self, image_type='IV06'):
+    def test_full_flow_test_orthodontic_series(self):
         """ Full test, but don't write the DICOM to file.
 
         Generate DICOM from IMG file into memory and send to PACS. No saved DICOM.
@@ -183,8 +183,8 @@ class TestPacsModule(unittest.TestCase):
         # Test that the number of instances in the response matches the number of those sent to pacs.
         instances = j['00081199']['Value']
         self.assertEqual(len(instances), len(o_s))
-        logger.info(f"PASS: PACS returned 0008,1199 with {len(instances)}, which is the same amount we sent.")
-
+        logger.info(
+            "PASS: PACS returned 0008,1199 with %d, which is the same amount we sent.", len(instances))
 
     def full_flow_test_via_dicom_file(self, inputfile, image_type='IV06'):
         """ Test for each passed file, the entire flow, from JPEG to PACS.
@@ -202,14 +202,14 @@ class TestPacsModule(unittest.TestCase):
         metadata['output_image_filename'] = output_file
         metadata['image_type'] = image_type
 
-        logger.info(f"[1] Converting {inputfile} to a {output_file}")
+        logger.info("[1] Converting %s to a %s", inputfile, output_file)
         c = OrthodonticController()
         c.convert_image_to_dicom4orthograph_and_save(metadata=metadata)
         # Test existance
         self.assertTrue(output_file.exists())
 
         logger.info(
-            f"[2] Compare the {inputfile} with {output_file}, pixel by pixel, to make sure they are identical. This is slow")
+            "[2] Compare the %s with %s, pixel by pixel, to make sure they are identical. This is slow", inputfile, output_file)
         input_file_extension = Path(inputfile).suffix.lower()
         if input_file_extension == '.jpg' or input_file_extension == '.jpeg':
             self.assertTrue(compare_jpeg2dicom(
@@ -217,19 +217,18 @@ class TestPacsModule(unittest.TestCase):
                 dicom_image_file_path=output_file))
         else:
             logger.warning(
-                f"\nSKIPPING {inputfile} to DICOM comparison, no comparator found.")
+                "\nSKIPPING %s to DICOM comparison, no comparator found.", inputfile)
 
-        logger.info(f"[3] Verify DICOM File")
+        logger.info("[3] Verify DICOM File")
         c.validate_dicom_file(output_file)
-        
-        
-        logger.info(f"[4] Test pushing {output_file} to PACS via DIMSE")
+
+        logger.info("[4] Test pushing %s to PACS via DIMSE", output_file)
         self.send_to_pacs_dimse(output_file)
 
-        logger.info(f"[5] Test pushing {output_file} to PACS via STOW-RS")
+        logger.info("[5] Test pushing %s to PACS via STOW-RS", output_file)
         # self.send_to_pacs_wado([output_file])
 
-        logger.info(f"Delete {output_file}")
+        logger.info("Delete %s", output_file)
         try:
             output_file.unlink()
         except FileNotFoundError:
@@ -290,7 +289,8 @@ class TestPacsModule(unittest.TestCase):
             self.assertEqual(instance['00081155']['Value'][0],
                              expected_instance_uid, "Instance UID does not match")
             self.assertEqual(j['00081190']['Value'][0].split(
-                '/')[-1], expected_study_uid, "Study UID does not match")  # split cuz this in the URL
+                # split cuz this in the URL
+                '/')[-1], expected_study_uid, "Study UID does not match")
             # 8,1190 actually has everything, i could just use this.
             self.assertEqual(instance['00081190']['Value'][0].split(
                 '/')[-3], expected_series_uid, "Series UID does not match")
@@ -312,7 +312,7 @@ class TestPacsModule(unittest.TestCase):
         for sample_file in self.resource_path.glob("sample_*"):
             if Path(sample_file).suffix.lower() == ".dcm":
                 continue
-            print(f"\nTesting with {sample_file}...")
+            print("\nTesting with %s..." % sample_file)
             self.full_flow_test_via_dicom_file(sample_file)
 
     def test_send_to_dimse_simple_file(self):

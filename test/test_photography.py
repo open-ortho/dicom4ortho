@@ -284,8 +284,8 @@ class PhotoTests(unittest.TestCase):
 
         self.assertTrue(outputfilename.exists())
 
-    def test_set_image_type_code_sequence_creator_uid(self):
-        """Test ContextGroupExtensionCreatorUID logic in set_image_type_code_sequence."""
+    def test_set_image_type_code_dataset_creator_uid(self):
+        """Test ContextGroupExtensionCreatorUID logic in set_image_type_code_dataset."""
 
         ds = Dataset()
         code = Dataset()
@@ -294,7 +294,7 @@ class PhotoTests(unittest.TestCase):
         code.CodeMeaning = 'Extraoral, Full Face, Full Smile, Centric Relation'
 
         # 1. Explicit creator_uid argument
-        OrthodonticPhotograph.set_image_type_code_sequence(
+        OrthodonticPhotograph.set_image_type_code_dataset(
             ds, code, creator_uid='1.2.3.4.5.6.7.8.9')
         item = ds.ViewCodeSequence[0]
         self.assertEqual(item.ContextGroupExtensionCreatorUID,
@@ -310,7 +310,7 @@ class PhotoTests(unittest.TestCase):
         code2.CodingSchemeDesignator = '99OPOR'
         code2.CodeMeaning = 'Extraoral, Full Face, Resting'
         code2.ContextGroupExtensionCreatorUID = '9.8.7.6.5.4.3.2.1'
-        OrthodonticPhotograph.set_image_type_code_sequence(ds2, code2)
+        OrthodonticPhotograph.set_image_type_code_dataset(ds2, code2)
         item2 = ds2.ViewCodeSequence[0]
         self.assertEqual(item2.ContextGroupExtensionCreatorUID,
                          '9.8.7.6.5.4.3.2.1')
@@ -325,7 +325,7 @@ class PhotoTests(unittest.TestCase):
         code3.CodingSchemeDesignator = '99OPOR'
         code3.CodeMeaning = 'Extraoral, Full Face, Open Mouth'
         with self.assertLogs('dicom4ortho.m_orthodontic_photograph', level='WARNING') as cm:
-            OrthodonticPhotograph.set_image_type_code_sequence(ds3, code3)
+            OrthodonticPhotograph.set_image_type_code_dataset(ds3, code3)
         item3 = ds3.ViewCodeSequence[0]
         self.assertEqual(item3.ContextGroupExtensionCreatorUID,
                          DICOM4ORTHO_ROOT_UID)
@@ -334,17 +334,17 @@ class PhotoTests(unittest.TestCase):
         self.assertTrue(
             any('using dicom4ortho UID' in msg for msg in cm.output))
 
-    def test_get_image_type_code_sequence(self):
-        """Test get_image_type_code_sequence returns the correct item after set_image_type_code_sequence."""
+    def test_get_image_type_code_dataset(self):
+        """Test get_image_type_code_dataset returns the correct item after set_image_type_code_dataset."""
         ds = Dataset()
         code = Dataset()
         code.CodeValue = 'EV30'
         code.CodingSchemeDesignator = '99OPOR'
         code.CodeMeaning = 'Extraoral, Profile, Smile'
         # Set with explicit creator_uid
-        OrthodonticPhotograph.set_image_type_code_sequence(
+        OrthodonticPhotograph.set_image_type_code_dataset(
             ds, code, creator_uid='1.2.3.4.5.6.7.8.9')
-        item = OrthodonticPhotograph.get_image_type_code_sequence(ds)
+        item = OrthodonticPhotograph.get_image_type_code_dataset(ds)
         self.assertIsNotNone(item)
         self.assertEqual(item.ContextGroupExtensionCreatorUID,
                          '1.2.3.4.5.6.7.8.9')
@@ -361,8 +361,8 @@ class PhotoTests(unittest.TestCase):
         code2.CodingSchemeDesignator = '99OPOR'
         code2.CodeMeaning = 'Extraoral, Profile, Resting'
         code2.ContextGroupExtensionCreatorUID = '9.8.7.6.5.4.3.2.1'
-        OrthodonticPhotograph.set_image_type_code_sequence(ds2, code2)
-        item2 = OrthodonticPhotograph.get_image_type_code_sequence(ds2)
+        OrthodonticPhotograph.set_image_type_code_dataset(ds2, code2)
+        item2 = OrthodonticPhotograph.get_image_type_code_dataset(ds2)
         self.assertIsNotNone(item2)
         self.assertEqual(item2.ContextGroupExtensionCreatorUID,
                          '9.8.7.6.5.4.3.2.1')
@@ -378,8 +378,8 @@ class PhotoTests(unittest.TestCase):
         code3.CodeValue = 'EV32'
         code3.CodingSchemeDesignator = '99OPOR'
         code3.CodeMeaning = 'Extraoral, Profile, Open Mouth'
-        OrthodonticPhotograph.set_image_type_code_sequence(ds3, code3)
-        item3 = OrthodonticPhotograph.get_image_type_code_sequence(ds3)
+        OrthodonticPhotograph.set_image_type_code_dataset(ds3, code3)
+        item3 = OrthodonticPhotograph.get_image_type_code_dataset(ds3)
         self.assertIsNotNone(item3)
         self.assertEqual(item3.ContextGroupExtensionCreatorUID,
                          DICOM4ORTHO_ROOT_UID)
@@ -427,8 +427,8 @@ class PhotoTests(unittest.TestCase):
         self.assertEqual(item2.CodingSchemeDesignator, '99OPOR')
         self.assertEqual(item2.CodeMeaning, 'Extraoral, Oblique, Resting')
 
-    def test_set_image_type_code_sequence_preserves_unrelated(self):
-        """Test set_image_type_code_sequence does not touch unrelated ViewCodeSequence items."""
+    def test_set_image_type_code_dataset_preserves_unrelated(self):
+        """Test set_image_type_code_dataset does not touch unrelated ViewCodeSequence items."""
         ds = Dataset()
         unrelated1 = Dataset()
         unrelated1.CodeValue = 'STD01'
@@ -449,7 +449,7 @@ class PhotoTests(unittest.TestCase):
         code.CodeValue = 'EV99'
         code.CodingSchemeDesignator = '99OPOR'
         code.CodeMeaning = 'Proprietary View'
-        OrthodonticPhotograph.set_image_type_code_sequence(
+        OrthodonticPhotograph.set_image_type_code_dataset(
             ds, code, creator_uid='1.2.3.4.5.6.7.8.9')
 
         # Ensure unrelated items are still present and unchanged
@@ -458,14 +458,14 @@ class PhotoTests(unittest.TestCase):
         self.assertEqual(ds.ViewCodeSequence[1].CodeValue, 'STD02')
 
         # Ensure the proprietary code is present and correct
-        prop_item = OrthodonticPhotograph.get_image_type_code_sequence(ds)
+        prop_item = OrthodonticPhotograph.get_image_type_code_dataset(ds)
         self.assertIsNotNone(prop_item)
         self.assertEqual(prop_item.CodeValue, 'EV99')
         self.assertEqual(
             prop_item.ContextGroupExtensionCreatorUID, '1.2.3.4.5.6.7.8.9')
 
-    def test_get_image_type_code_sequence_with_multiple_items(self):
-        """Test get_image_type_code_sequence returns the correct proprietary item among others."""
+    def test_get_image_type_code_dataset_with_multiple_items(self):
+        """Test get_image_type_code_dataset returns the correct proprietary item among others."""
         ds = Dataset()
         unrelated1 = Dataset()
         unrelated1.CodeValue = 'STD01'
@@ -489,7 +489,7 @@ class PhotoTests(unittest.TestCase):
         ds.ViewCodeSequence = [unrelated1, proprietary, unrelated2]
 
         # Should return the proprietary item
-        item = OrthodonticPhotograph.get_image_type_code_sequence(ds)
+        item = OrthodonticPhotograph.get_image_type_code_dataset(ds)
         self.assertIsNotNone(item)
         self.assertEqual(item.CodeValue, 'EV100')
         self.assertEqual(item.ContextGroupExtensionFlag, 'Y')

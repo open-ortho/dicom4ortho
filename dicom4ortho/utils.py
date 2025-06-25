@@ -26,11 +26,11 @@ def generate_dicom_uid(root=None, hash=None):
 
 def get_scheduled_protocol_code(ds: Dataset) -> Optional[Dataset]:
     """
-    Deprecated. Use get_image_type_code_sequence instead.
+    Deprecated. Use get_image_type_code_dataset instead.
     """
     # Avoid circular import by importing here
     import warnings
     from dicom4ortho.m_orthodontic_photograph import OrthodonticPhotograph
-    warnings.warn("get_scheduled_protocol_code is deprecated. Use get_image_type_code_sequence instead.",
+    warnings.warn("get_scheduled_protocol_code is deprecated. Use get_image_type_code_dataset instead.",
                   DeprecationWarning, stacklevel=2)
-    return OrthodonticPhotograph.get_image_type_code_sequence(ds)
+    return OrthodonticPhotograph.get_image_type_code_dataset(ds)

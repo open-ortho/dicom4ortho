@@ -89,7 +89,7 @@ class TestDIMSESend(unittest.TestCase):
         code.CodeValue = 'EV99'
         code.CodingSchemeDesignator = '99OPOR'
         code.CodeMeaning = 'Custom Ortho View'
-        OrthodonticPhotograph.set_image_type_code_sequence(
+        OrthodonticPhotograph.set_image_type_code_dataset(
             photo._ds, code, creator_uid='1.2.3.4.5.6.7.8.9')
         photo.save()
         controller.send(
@@ -153,7 +153,7 @@ class TestDIMSESend(unittest.TestCase):
         code1.CodeValue = 'EV99A'
         code1.CodingSchemeDesignator = '99OPOR'
         code1.CodeMeaning = 'Custom Ortho View 1'
-        OrthodonticPhotograph.set_image_type_code_sequence(
+        OrthodonticPhotograph.set_image_type_code_dataset(
             photo1._ds, code1, creator_uid='1.2.3.4.5.6.7.8.10')
         photo1.save()
         photo2 = OrthodonticPhotograph(**meta2)
@@ -161,7 +161,7 @@ class TestDIMSESend(unittest.TestCase):
         code2.CodeValue = 'EV99B'
         code2.CodingSchemeDesignator = '99OPOR'
         code2.CodeMeaning = 'Custom Ortho View 2'
-        OrthodonticPhotograph.set_image_type_code_sequence(
+        OrthodonticPhotograph.set_image_type_code_dataset(
             photo2._ds, code2, creator_uid='1.2.3.4.5.6.7.8.11')
         photo2.save()
         # Build OrthodonticSeries
@@ -240,7 +240,7 @@ class TestDIMSESend(unittest.TestCase):
         code1.CodeValue = 'EV99A'
         code1.CodingSchemeDesignator = '99OPOR'
         code1.CodeMeaning = 'Custom Ortho View 1'
-        OrthodonticPhotograph.set_image_type_code_sequence(
+        OrthodonticPhotograph.set_image_type_code_dataset(
             photo1._ds, code1, creator_uid='1.2.3.4.5.6.7.8.10')
         photo1.save()
         photo2 = OrthodonticPhotograph(**meta2)
@@ -248,7 +248,7 @@ class TestDIMSESend(unittest.TestCase):
         code2.CodeValue = 'EV99B'
         code2.CodingSchemeDesignator = '99OPOR'
         code2.CodeMeaning = 'Custom Ortho View 2'
-        OrthodonticPhotograph.set_image_type_code_sequence(
+        OrthodonticPhotograph.set_image_type_code_dataset(
             photo2._ds, code2, creator_uid='1.2.3.4.5.6.7.8.11')
         photo2.save()
         # Prepare dicom_datasets list

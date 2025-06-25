@@ -37,14 +37,14 @@ class OrthodonticPhotograph(PhotographBase):
         """
         The code Dataset that defines this image type.
         """
-        return self.get_image_type_code_sequence(self._ds)
+        return self.get_image_type_code_dataset(self._ds)
 
     @image_type_code_dataset.setter
     def image_type_code_dataset(self, code_dataset: Dataset):
         """
         The code Dataset that defines this image type.
         """
-        self.set_image_type_code_sequence(self._ds, code_dataset)
+        self.set_image_type_code_dataset(self._ds, code_dataset)
 
     def __init__(self, **metadata):
         super().__init__(**metadata)
@@ -99,7 +99,7 @@ class OrthodonticPhotograph(PhotographBase):
         self._ds.QualityControlImage = 'NO'
 
     @staticmethod
-    def get_image_type_code_sequence(ds: Dataset) -> Optional[Dataset]:
+    def get_image_type_code_dataset(ds: Dataset) -> Optional[Dataset]:
         """
         Get the code that defines this image type.
 
@@ -125,7 +125,7 @@ class OrthodonticPhotograph(PhotographBase):
         return None
 
     @staticmethod
-    def set_image_type_code_sequence(ds: Dataset, code_dataset: Dataset, creator_uid: str = None) -> None:
+    def set_image_type_code_dataset(ds: Dataset, code_dataset: Dataset, creator_uid: str = None) -> None:
         """
         Set the code that defines this image type.
 

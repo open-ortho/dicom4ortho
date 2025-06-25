@@ -25,10 +25,23 @@ classifiers = [
 dependencies = [
     "argparse",
     "pydicom",
-    "pynetdicom",
-    "pillow",
+    "pynetdicom>=2,<3",
+    "pillow>=9.2.0",
     "prettytable",
     "numpy",
+    "urllib3>=1.26.5",
+    "requests (>=2.32.4,<3.0.0)"
+]
+
+[project.optional-dependencies]
+dev = [
+    "wrapt",
+    "pylint",
+    "twine",
+    "autopep8",
+    "bumpversion",
+    "pytest",
+    "build"
 ]
 
 [project.urls]
@@ -37,11 +50,10 @@ homepage = 'https://github.com/open-ortho/dicom4ortho'
 [project.scripts]
 dicom4ortho = "dicom4ortho.__main__:main"
 d4o_generate = "dicom4ortho.__main__:generate_uid"
-fhir2dicom4ortho = "fhir2dicom4ortho.entry_points:fhir_api"
 
 [tool.setuptools.package-data]
 "*" = ["LICENSE"]
 "dicom4ortho" = ["resources/image_types.csv", "resources/codes.csv", "resources/views.csv"]
 
 [tool.setuptools.packages.find]
-include = ["dicom4ortho*", "fhir2dicom4ortho*"]
+include = ["dicom4ortho*"]

@@ -40,6 +40,9 @@ URL_DENT_OIP_CODES = URL_DENT_OIP_CODES.as_uri()
 #  * Max length 64. Cannot contain characters.
 DICOM4ORTHO_ROOT_UID = '1.3.6.1.4.1.61741.11.2'
 
+# VL Dental View CID we need to extend to include private codes.
+VL_DENTAL_VIEW_CID = '4063'
+
 # Schema Copied from DCMTK assignment
 stripped_version = re.sub(r'[^0-9]', '', VERSION)
 version_2 = re.sub(r'[^0-9\.]', '', VERSION)

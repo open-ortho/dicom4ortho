@@ -5,14 +5,15 @@ Adds SNOMED CT codes in DICOM object for Orthodontic Views.
 
 '''
 
-from typing import List
+from typing import List, Optional
 from datetime import datetime
 from pydicom.sequence import Sequence
 from pydicom.dataset import Dataset
+from dicom4ortho.config import VL_DENTAL_VIEW_CID, DICOM4ORTHO_ROOT_UID, DATE_FORMAT
 
 from dicom4ortho.model import PhotographBase
 from dicom4ortho.config import IMPORT_DATE_FORMAT, SeriesInstanceUID_ROOT, StudyInstanceUID_ROOT
-from dicom4ortho.utils import generate_dicom_uid, get_scheduled_protocol_code
+from dicom4ortho.utils import generate_dicom_uid
 from dicom4ortho.m_dent_oip import DENT_OIP
 
 import logging
@@ -30,6 +31,20 @@ class OrthodonticPhotograph(PhotographBase):
 
         output_image_filename: name of output image file
     """
+
+    @property
+    def image_type_code_dataset(self) -> Optional[Dataset]:
+        """
+        The code Dataset that defines this image type.
+        """
+        return self.get_image_type_code_sequence(self._ds)
+
+    @image_type_code_dataset.setter
+    def image_type_code_dataset(self, code_dataset: Dataset):
+        """
+        The code Dataset that defines this image type.
+        """
+        self.set_image_type_code_sequence(self._ds, code_dataset)
 
     def __init__(self, **metadata):
         super().__init__(**metadata)
@@ -83,6 +98,83 @@ class OrthodonticPhotograph(PhotographBase):
         # See https://github.com/open-ortho/dicom4ortho/issues/15
         self._ds.QualityControlImage = 'NO'
 
+    @staticmethod
+    def get_image_type_code_sequence(ds: Dataset) -> Optional[Dataset]:
+        """
+        Get the code that defines this image type.
+
+        Returns the first code item from ViewCodeSequence with the Context
+        Identifier (CID) VL_DENTAL_VIEW_CID and Context Group Extension Flag set
+        to 'Y'. 
+
+        As defined in DENT-OIP. See that for more information.
+        """
+        view_seq = getattr(ds, 'ViewCodeSequence', None)
+        if not view_seq:
+            logger.warning(
+                "Cannot identify this image: ViewCodeSequence not present.")
+            return None
+        for item in view_seq:
+            if (
+                getattr(item, 'ContextIdentifier', None) == VL_DENTAL_VIEW_CID and
+                getattr(item, 'ContextGroupExtensionFlag', None) == 'Y'
+            ):
+                return item
+        logger.warning(
+            "No ViewCodeSequence item with proprietary ContextIdentifier and extension flag found.")
+        return None
+
+    @staticmethod
+    def set_image_type_code_sequence(ds: Dataset, code_dataset: Dataset, creator_uid: str = None) -> None:
+        """
+        Set the code that defines this image type.
+
+        Adds Context Group Extension attributes as required by DICOM for private
+        codes.  Only the code Dataset with the proprietary CID and extension
+        flag is set or replaced; others are preserved.
+
+        This function modifies the given Dataset in place and does not return a value.
+
+        As defined in DENT-OIP. See that for more information.
+
+        :param ds: The DICOM Dataset to modify
+        :param code_dataset: The code Dataset to insert/update
+        :param creator_uid: (optional) The ContextGroupExtensionCreatorUID to use. If not provided, will use code_dataset's value if set, else fallback to DICOM4ORTHO_ROOT_UID with a warning.
+        """
+        if code_dataset is None:
+            return
+        code_dataset.ContextIdentifier = VL_DENTAL_VIEW_CID
+        code_dataset.ContextGroupExtensionFlag = 'Y'
+
+        # set the version to the current date, as this code is private and could
+        # be different for each invocation.
+        code_dataset.ContextGroupLocalVersion = datetime.now().strftime(DATE_FORMAT)
+        # Determine which Creator UID to use
+        if creator_uid is not None:
+            code_dataset.ContextGroupExtensionCreatorUID = creator_uid
+        elif getattr(code_dataset, 'ContextGroupExtensionCreatorUID', None):
+            pass  # already set by caller
+        else:
+            logger.warning(
+                "No ContextGroupExtensionCreatorUID provided by caller or in code_dataset; using dicom4ortho UID. This is probably NOT what you want.")
+            code_dataset.ContextGroupExtensionCreatorUID = DICOM4ORTHO_ROOT_UID
+        view_seq = getattr(ds, 'ViewCodeSequence', None)
+        if not view_seq:
+            ds.ViewCodeSequence = Sequence([code_dataset])
+            return
+        replaced = False
+        for idx, item in enumerate(view_seq):
+            if (
+                getattr(item, 'ContextIdentifier', None) == VL_DENTAL_VIEW_CID and
+                getattr(item, 'ContextGroupExtensionFlag', None) == 'Y'
+            ):
+                view_seq[idx] = code_dataset
+                replaced = True
+                break
+        if not replaced:
+            view_seq.append(code_dataset)
+        ds.ViewCodeSequence = view_seq
+
     def _get_code_dataset(self, dent_oip_code_keyword) -> Dataset:
         """ Construct a DICOM Dataset from a row in the codes.csv of DENT_OIP 
 
@@ -118,10 +210,9 @@ class OrthodonticPhotograph(PhotographBase):
             self.type_keyword = type_keyword.replace('-', '')
 
         if not self.type_keyword:
-            scheduled_protocol_code = get_scheduled_protocol_code(self._ds)
+            scheduled_protocol_code = self.image_type_code_dataset
             if scheduled_protocol_code is not None and 'CodeValue' in scheduled_protocol_code:
-                self.type_keyword = get_scheduled_protocol_code(
-                    self._ds).CodeValue
+                self.type_keyword = self.image_type_code_dataset.CodeValue
 
         if not self.type_keyword:
             logger.info("No type_keyword set for %s",

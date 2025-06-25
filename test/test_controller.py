@@ -210,3 +210,87 @@ class Test(unittest.TestCase):
                 os.remove(meta['output_image_filename'])
             except OSError:
                 pass
+
+    def test_image_type_code_dicom_datasets_send_dimse(self):
+        """
+        Test that sending a list of DICOM datasets via DIMSE results in all received DICOMs containing the expected image type codes in ViewCodeSequence.
+        """
+        controller = OrthodonticController()
+        # Create two OrthodonticPhotograph objects with different codes
+        meta1 = {
+            'input_image_filename': 'test/resources/sample_NikonD90.JPG',
+            'output_image_filename': 'test/resources/sample_NikonD90_1.dcm',
+            'image_type': 'EV01',
+            'patient_firstname': 'Test',
+            'patient_lastname': 'Patient',
+            'patient_id': '123',
+            'patient_sex': 'M',
+        }
+        meta2 = {
+            'input_image_filename': 'test/resources/sample_NikonD90.JPG',
+            'output_image_filename': 'test/resources/sample_NikonD90_2.dcm',
+            'image_type': 'EV02',
+            'patient_firstname': 'Test2',
+            'patient_lastname': 'Patient2',
+            'patient_id': '456',
+            'patient_sex': 'F',
+        }
+        photo1 = OrthodonticPhotograph(**meta1)
+        code1 = Dataset()
+        code1.CodeValue = 'EV99A'
+        code1.CodingSchemeDesignator = '99OPOR'
+        code1.CodeMeaning = 'Custom Ortho View 1'
+        OrthodonticPhotograph.set_image_type_code_sequence(
+            photo1._ds, code1, creator_uid='1.2.3.4.5.6.7.8.10')
+        photo1.save()
+        photo2 = OrthodonticPhotograph(**meta2)
+        code2 = Dataset()
+        code2.CodeValue = 'EV99B'
+        code2.CodingSchemeDesignator = '99OPOR'
+        code2.CodeMeaning = 'Custom Ortho View 2'
+        OrthodonticPhotograph.set_image_type_code_sequence(
+            photo2._ds, code2, creator_uid='1.2.3.4.5.6.7.8.11')
+        photo2.save()
+        # Prepare dicom_datasets list
+        dicom_datasets = [photo1._ds, photo2._ds]
+        # Send datasets
+        controller.send(
+            send_method='dimse',
+            dicom_datasets=dicom_datasets,
+            pacs_dimse_hostname='127.0.0.1',
+            pacs_dimse_port=SCP_PORT,
+            pacs_dimse_aet='TEST-SCP',)
+        # Wait for both files to be received
+        timeout = 5
+        waited = 0
+        while len(self.received_files) < 2 and waited < timeout:
+            time.sleep(0.2)
+            waited += 0.2
+        self.assertEqual(len(self.received_files), 2, "Did not receive both DICOMs via DIMSE.")
+        # Check both files
+        found1 = found2 = False
+        for f in self.received_files:
+            ds = dcmread(f)
+            for item in ds.ViewCodeSequence:
+                if (
+                    getattr(item, 'ContextIdentifier', None) == VL_DENTAL_VIEW_CID and
+                    getattr(item, 'CodeValue', None) == 'EV99A' and
+                    getattr(item, 'CodingSchemeDesignator', None) == '99OPOR' and
+                    getattr(item, 'CodeMeaning', None) == 'Custom Ortho View 1'
+                ):
+                    found1 = True
+                if (
+                    getattr(item, 'ContextIdentifier', None) == VL_DENTAL_VIEW_CID and
+                    getattr(item, 'CodeValue', None) == 'EV99B' and
+                    getattr(item, 'CodingSchemeDesignator', None) == '99OPOR' and
+                    getattr(item, 'CodeMeaning', None) == 'Custom Ortho View 2'
+                ):
+                    found2 = True
+        self.assertTrue(found1, "Custom image type code 1 not found in ViewCodeSequence after DIMSE send.")
+        self.assertTrue(found2, "Custom image type code 2 not found in ViewCodeSequence after DIMSE send.")
+        # Cleanup
+        for meta in (meta1, meta2):
+            try:
+                os.remove(meta['output_image_filename'])
+            except OSError:
+                pass

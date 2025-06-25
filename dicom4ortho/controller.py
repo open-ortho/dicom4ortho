@@ -143,6 +143,7 @@ class OrthodonticController(object):
         Parameters:
         orthodontic_series (OrthodonticSeries): a dicom4ortho.m_orthodontic_photograph.OrthodonticSeries
         dicom_files (str): Array of paths to the DICOM files to send.
+        dicom_datasets (List[Dataset]): List of pydicom Dataset objects to send.
         send_method (str): Method to send DICOM. Must be 'dimse' or 'wado'.
         **kwargs: Additional keyword arguments depending on the send method:
 
@@ -174,6 +175,14 @@ class OrthodonticController(object):
             pacs_wado_url='http://dicomweb-server.com/dicomweb/studies',
             pacs_wado_username='user',
             pacs_wado_password='pass'
+        )
+
+        send(
+            dicom_datasets=[ds1, ds2],
+            send_method='dimse',
+            pacs_dimse_hostname='127.0.0.1',
+            pacs_dimse_port=104,
+            pacs_dimse_aet='PACS_AET'
         )
 
         Returns either a DICOM Dateset or a response containing the response.

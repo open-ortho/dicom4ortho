@@ -9,7 +9,7 @@
 7. Check that README.md is still current.
 8. `pipenv --rm` Delete pipenv environment
 9. `rm Pipfile.lock`
-10. `pipenv install --dev` rebuild, to make sure there are no `Pipfile` errors or lock errors.
+10. `pipenv install --dev`, (or `pip install '.[dev]` from inside virtual env) rebuild, to make sure there are no `Pipfile` errors or lock errors.
 11. Outside pipenv environment: `make install-dev`: make sure `dicom3tools` target works as expected.
 12. `pipenv run make build`: make sure all tests pass. Build will run test first.
 13. If all goes well, then merge branch into master: `git flow release finish`. The github actions will take care of deploying to PyPi.

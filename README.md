@@ -29,6 +29,7 @@
 </p>
 
 <!-- TABLE OF CONTENTS -->
+
 - [About The Project](#about-the-project)
   - [Built With](#built-with)
 - [Getting Started](#getting-started)
@@ -43,8 +44,8 @@
 - [Contact](#contact)
 - [Acknowledgements](#acknowledgements)
 
-
 <!-- ABOUT THE PROJECT -->
+
 ## About The Project
 
 The DICOM standard is ready for any developer in the orthodontic community to
@@ -56,10 +57,10 @@ type) are in the proper place.
 
 Here's why:
 
-* Your time should be focused on creating something amazing.
-* Being able to import and export DICOM images to and from your orthodontic
+- Your time should be focused on creating something amazing.
+- Being able to import and export DICOM images to and from your orthodontic
   software will open doors to you and the orthodontic provider.
-* No one software will serve all orthodontic providers completely. Adding
+- No one software will serve all orthodontic providers completely. Adding
   interoperability will allow your product to integrate with others, giving
   additional value to your solution.
 
@@ -72,12 +73,13 @@ acknowledgements.
 
 ### Built With
 
-* [pydicom](https://pydicom.github.io/)
-* [pynetdicom](https://pydicom.github.io/pynetdicom/)
-* [pillow](https://python-pillow.org/)
-* [dicom3tools](https://www.dclunie.com/dicom3tools.html)
+- [pydicom](https://pydicom.github.io/)
+- [pynetdicom](https://pydicom.github.io/pynetdicom/)
+- [pillow](https://python-pillow.org/)
+- [dicom3tools](https://www.dclunie.com/dicom3tools.html)
 
 <!-- GETTING STARTED -->
+
 ## Getting Started
 
 Like any other Python module, install the module and use it. There is a CLI
@@ -106,10 +108,10 @@ It's recommended to use a virtual environment for development:
 
     $ python -m venv venv
     $ source venv/bin/activate  # On Windows use: venv\Scripts\activate
-    
+
     # Install the package in development mode
     $ pip install -e .
-    
+
     # To install with development dependencies
     $ pip install -e ".[dev]"
 
@@ -139,7 +141,7 @@ All tests are located in the `test/` directory and can be executed after install
 
 #### Docker for Integration Tests
 
-Some tests require Docker to run integration tests with an Orthanc DICOM server. 
+Some tests require Docker to run integration tests with an Orthanc DICOM server.
 A docker-compose file is provided in the `test/` directory.
 
 If you're not using the Makefile, you can manually manage the Docker containers:
@@ -178,6 +180,7 @@ Once installed, point `DICOM3TOOLS_PATH` in `config.py` to the installation
 of the dicom3tools.
 
 <!-- USAGE EXAMPLES -->
+
 ## Usage
 
 The official documentation of this project is available on line
@@ -213,11 +216,13 @@ Please check the [Implementation Status](docs/IMPLEMENTATION_STATUS.md)
 document.
 
 <!-- ROADMAP -->
+
 ## Roadmap
 
 See the [open issues](https://github.com/open-ortho/dicom4ortho/issues) for a list of proposed features (and known issues).
 
 <!-- CONTRIBUTING -->
+
 ## Contributing
 
 Contributions are what make the open source community such an amazing place to be learn, inspire, and create. Any contributions you make are **greatly appreciated**.
@@ -229,11 +234,13 @@ Contributions are what make the open source community such an amazing place to b
 5. Open a [Pull Request](https://docs.github.com/en/github/collaborating-with-issues-and-pull-requests/creating-a-pull-request)
 
 <!-- LICENSE -->
+
 ## License
 
 Distributed under the MIT License. See [LICENSE](LICENSE) for more information.
 
 <!-- CONTACT -->
+
 ## Contact
 
 Toni Magni- [@zgypa](https://twitter.com/zgypa) - open-ortho@afm.co
@@ -241,6 +248,7 @@ Toni Magni- [@zgypa](https://twitter.com/zgypa) - open-ortho@afm.co
 Project Link: [https://github.com/open-ortho/dicom4ortho](https://github.com/open-ortho/dicom4ortho)
 
 <!-- ACKNOWLEDGEMENTS -->
+
 ## Acknowledgements
 
 - [DICOM](https://www.webpagefx.com/tools/emoji-cheat-sheet)
@@ -248,6 +256,7 @@ Project Link: [https://github.com/open-ortho/dicom4ortho](https://github.com/ope
 
 <!-- MARKDOWN LINKS & IMAGES -->
 <!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
+
 [contributors-shield]: https://img.shields.io/github/contributors/open-ortho/dicom4ortho.svg?style=for-the-badge
 [contributors-url]: https://github.com/open-ortho/dicom4ortho/graphs/contributors
 [forks-shield]: https://img.shields.io/github/forks/open-ortho/dicom4ortho.svg?style=for-the-badge

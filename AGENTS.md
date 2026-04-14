@@ -2,6 +2,8 @@
 
 Guidance for coding agents working in `dicom4ortho`.
 
+Get background of project and what it should do from [Introduction](./README.md#introduction).
+
 ## 1) Repository Snapshot
 
 - Language: Python (`>=3.10`).

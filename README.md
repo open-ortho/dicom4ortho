@@ -44,16 +44,38 @@
 - [Contact](#contact)
 - [Acknowledgements](#acknowledgements)
 
+## Introduction
+
+The orthodontic provider takes different types of photographs of patients,
+each of which needs to be properly described and distinguished using proper
+DICOM attributes. The dental community publised standarad ADA-1114 which defines
+the requirements for dental images to be in DICOM, which refers to ADA-1100 for
+orthodntic images: it defines 73 different possible types of photographs most
+commonly used, each of which with a linedrawing as example. [DICOM CP
+1570](./docs/cp1570.pdf) was published to add the necessary codes and attributes
+in order to fulfill the requirements defined in ADA-1100.
+
+`dicom4ortho` is a library to automatically generate DICOM IODs that fulfill the
+requirements of ADA1100, using the additions of CP1570 where necessary. with all
+anatomic and clinical attributes pre-populated, based on the image type. It is
+intended to be used by software developers which need to generate valid DICOM
+IODs, without having to go through the DICOM standard to figure out how to do
+it. It is a library to:
+
+- return a full valid DICOM IOD taking an image, patient demographics and an image type as input;
+- return a DICOM IOD stub taking an image type as input;
+- return an image type taking a DICOM IOD as input;
+
 <!-- ABOUT THE PROJECT -->
 
 ## About The Project
 
 The DICOM standard is ready for any developer in the orthodontic community to
 implement. However, it can be complicated and implementation can be time
-consuming. We want to create a proof of concept to demonstrate how to
-properly store orthodontic visible light images (aka photographs) using
-DICOM, while ensuring all codes (necessary to uniquely identify each image
-type) are in the proper place.
+consuming. We want to create a proof of concept to demonstrate how to properly
+store orthodontic visible light images (aka photographs) using DICOM, while
+ensuring all codes (necessary to uniquely identify each image type) are in the
+proper place.
 
 Here's why:
 

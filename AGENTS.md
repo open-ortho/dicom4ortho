@@ -4,6 +4,8 @@ Guidance for coding agents working in `dicom4ortho`.
 
 Get background of project and what it should do from [Introduction](./README.md#introduction).
 
+Get more context from [context](./docs/context/cp1570_ft_add_dental_acquisition_attributes_into_VL_IOD.txt)
+
 ## 1) Repository Snapshot
 
 - Language: Python (`>=3.10`).

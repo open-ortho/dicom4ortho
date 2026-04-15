@@ -1,6 +1,6 @@
 keyword,code,codeset,meaning,used for,notes
 FunctionalConditionPresentDuringAcquisition,130324,DCM,Functional condition present during acquisition,AcquisitionContextSequence^FunctionalConditionPresentDuringAcquisition,
-OrthognathicFunctionalConditions,130325,DCM,Orthognathic Functional Condition,AcquisitionContextSequence^OrthognathicFunctionalConditions,
+OrthognathicFunctionalConditions,ZZZZZZ,DCM,Orthognathic Functional Conditions,AcquisitionContextSequence^OrthognathicFunctionalConditions,
 mouth_open,262016004,SCT,Open mouth (finding),AcquisitionContextSequence^OrthognathicFunctionalConditions,
 mouth_partially_open,1332210001,SCT,Mouth in partially open position,AcquisitionContextSequence^OrthognathicFunctionalConditions,
 lips_relaxed,1336028006,SCT,Upper and lower lips in relaxed position,AcquisitionContextSequence^OrthognathicFunctionalConditions,
@@ -31,8 +31,6 @@ PatientRegistration,121079,DCM,Baseline,AcquisitionContextSequence^LongitudinalT
 PatientRegistration,184047000,SCT,Patient registration (procedure),AcquisitionContextSequence^LongitudinalTemporalEventType,
 OrthodonticTreatment,C37948,NCIt,Enrollment,AcquisitionContextSequence^LongitudinalTemporalEventType,
 OrthodonticTreatment,122452007,SCT,Comprehensive orthodontic treatment (procedure),AcquisitionContextSequence^LongitudinalTemporalEventType,
-OrthodonticTreatmentStarted,1332161000,SCT,Orthodontic treatment started (situation),AcquisitionContextSequence^LongitudinalTemporalEventType,
-OrthodonticTreatmentStopped,1340210007,SCT,Orthodontic treatment stopped (situation),AcquisitionContextSequence^LongitudinalTemporalEventType,
 Posttreatment,126074,DCM,Posttreatment,AcquisitionContextSequence^LongitudinalTemporalEventType,
 OffsetFromEvent,128740,DCM,Longitudinal Temporal Offset from Event,AcquisitionContextSequence^LongitudinalTemporalOffsetFromEvent,A number indicating the order of a time point relative to other time points in the same continuum.
 day,d,UCUM,day,AcquisitionContextSequence^LongitudinalTemporalOffsetFromEvent,
@@ -41,12 +39,9 @@ left,7771000,SCT,Left (qualifier value),AnatomicRegionModifierSequence^PrimaryAn
 Mouth,123851003,SCT,Mouth region structure (body structure),AnatomicRegionSequence,"Use for all IVs, because this is the shared grandparent for teeth and mouth regions."
 HeadNeck,774007,SCT,Structure of head and/or neck (body structure),AnatomicRegionSequence,"This is the lowest code that includes ear as well, which is present in both frontal and lateral Evs."
 device_periodontal_probe,462735007,SCT,Periodontal probe (physical object),DeviceSequence,
-device_mirror,1332162007,SCT,Intraoral photography mirror (physical object),DeviceSequence,
+device_mirror,47162009,SCT,"Mirror, device (physical object)",DeviceSequence,
 device_tongue_depressor,39802000,SCT,"Tongue blade, device (physical object)",DeviceSequence,
 device_ruler,102304005,SCT,"Measuring ruler, device (physical object)",DeviceSequence,
-device_retractor,53535004,SCT,"Retractor, device (physical object)",DeviceSequence,
-device_contraster,1332163002,SCT,Dental photography black contraster (physical object),DeviceSequence,
-device_fiducial_marker,1332164008,SCT,Photographic image fiducial marker (physical object),DeviceSequence,
 LateralityBoth,B,CS,Both,ImageLaterality,
 LateralityLeft,L,CS,Left,ImageLaterality,
 LateralityRight,R,CS,Right,ImageLaterality,
@@ -79,7 +74,7 @@ image_mirrored_uncorrected,789135000,SCT,Mirrored visible image uncorrected (rec
 image_mirrored_uncorrected_flipped_horizontally,789134001,SCT,Mirrored visible image uncorrected flipped horizontally,ViewModifierCodeSequence,
 image_mirrored_uncorrected_flipped_horizontally_vertically,789132002,SCT,Mirrored visible image uncorrected flipped horizontally and vertically,ViewModifierCodeSequence,
 image_mirrored_uncorrected_flipped_vertically,789133007,SCT,Mirrored visible image uncorrected flipped vertically,ViewModifierCodeSequence,
-closeup,789131009,SCT,Close up photographic view of teeth with no set magnification or distance,ViewModifierCodeSequence,
+view_closeup,789131009,SCT,Close up photographic view of teeth with no set magnification or distance,ViewModifierCodeSequence,
 image_mirrored_corrected,787610003,SCT,Photographic image corrected intraoral mirrored visible record (record artifact),ViewModifierCodeSequence,
 image_mirrored_corrected_flipped_horizontally,789310004,SCT,Mirrored photographic image of teeth corrected flipped horizontally,ViewModifierCodeSequence,
 image_mirrored_corrected_flipped_vertically,789311000,SCT,Mirrored photographic image of teeth corrected flipped vertically,ViewModifierCodeSequence,

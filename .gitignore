@@ -12,6 +12,7 @@ docs/.buildinfo
 
 .DS_Store
 venv
+.venv
 Pipfile.lock
 Pipfile
 poetry.lock

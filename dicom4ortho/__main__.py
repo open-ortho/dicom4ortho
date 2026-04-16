@@ -107,20 +107,6 @@ USAGE
             version=program_version_message,
         )
         parser.add_argument(
-            "--url-codes",
-            dest="url_codes",
-            help="URL for location of codes.csv file. Use to override internal ones.",
-            default=None,
-            metavar='<filename>',
-        )
-        parser.add_argument(
-            "--url-views",
-            dest="url_views",
-            help="URL for location of views.csv file. Use to override internal ones.",
-            default=None,
-            metavar='<filename>',
-        )
-        parser.add_argument(
             "-o", "--output-filename",
             dest="output_filename",
             help="Where to store the DICOM file. ",
@@ -170,9 +156,7 @@ USAGE
             logger.error("Cannot locate file %s:",args.input_filename)
             return 1
 
-        c = controller.OrthodonticController(
-            url_codes=args.url_codes,
-            url_views=args.url_views)
+        c = controller.OrthodonticController()
 
         if args.validate is True:
             c.validate_dicom_file(args.input_filename)

@@ -8,7 +8,6 @@ from pydicom.dataset import Dataset
 
 from dicom4ortho.config import DICOM3TOOLS_PATH
 from dicom4ortho.model import DicomBase
-from dicom4ortho.m_dent_oip import DENT_OIP
 from dicom4ortho.m_orthodontic_photograph import OrthodonticPhotograph, OrthodonticSeries
 from dicom4ortho.dicom import wado, dimse
 
@@ -20,22 +19,8 @@ class OrthodonticController(object):
 
     """
 
-    def __init__(self, **kwargs):
-        """
-            allowed arguments for constructor:
-
-            url_codes:  location of file that contains the codes used in the views.
-                        Format is a URL, so file:/// for local files, https://, etc. 
-                        If not set, the internal one (downloaded from the dent-oip profile) will be used.
-
-            url_views:  location of file that contains the views used for each keyword.
-                        Format is a URL, so file:/// for local files, https://, etc.
-                        If not set, the internal one (downloaded from the dent-oip profile) will be used.
-        """
+    def __init__(self):
         self.photo = None
-        self.dent_oip = DENT_OIP(
-            url_codes=kwargs.get('url_codes'),
-            url_views=kwargs.get('url_views'))
 
     def bulk_convert_from_csv(self, csv_input):
         with open(csv_input, mode='r') as csv_file:

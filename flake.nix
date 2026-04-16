@@ -15,10 +15,10 @@
         # Only built on x86_64-linux (the .deb is amd64-only).
         dciodvfy = pkgs.stdenv.mkDerivation {
           pname = "dciodvfy";
-          version = "1.00-20220618093127-2";
+          version = "1.00-20240118131615-1";
           src = pkgs.fetchurl {
-            url = "https://ftp.debian.org/debian/pool/main/d/dicom3tools/dicom3tools_1.00~20220618093127-2_amd64.deb";
-            sha256 = "sha256-im60Kg7L/DmQXA96rIkRSkJJzI5n31JtFzdkC/Ldcb8=";
+            url = "https://ftp.debian.org/debian/pool/main/d/dicom3tools/dicom3tools_1.00~20240118131615-1_amd64.deb";
+            sha256 = "sha256-nVQpLLpjoEEPRGajeV5hbdzz5YRGpvLf7errW4ycx2g=";
           };
           nativeBuildInputs = [ pkgs.dpkg pkgs.autoPatchelfHook ];
           buildInputs = [ pkgs.stdenv.cc.cc.lib ];  # libstdc++6, libgcc_s

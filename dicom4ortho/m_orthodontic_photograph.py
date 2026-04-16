@@ -14,7 +14,8 @@ from dicom4ortho.config import VL_DENTAL_VIEW_CID, DICOM4ORTHO_ROOT_UID, DATE_FO
 from dicom4ortho.model import PhotographBase
 from dicom4ortho.config import IMPORT_DATE_FORMAT, SeriesInstanceUID_ROOT, StudyInstanceUID_ROOT
 from dicom4ortho.utils import generate_dicom_uid
-from dicom4ortho.m_dent_oip import DENT_OIP
+from dicom4ortho.m_dent_oip import OrthoView
+from dicom4ortho._generated_codes import CODES, VIEWS
 
 import logging
 logger = logging.getLogger(__name__)
@@ -49,12 +50,10 @@ class OrthodonticPhotograph(PhotographBase):
     def __init__(self, **metadata):
         super().__init__(**metadata)
 
-        # Initialize local variables
-        self.type_keyword = ""  # Orthodontic View String, e.g. "IV03"
-        self.dent_oip_view = None  # Row in DENT-OIP views.csv for this particular view
+        self.type_keyword = ""          # Orthodontic View keyword, e.g. "IV03"
+        self._ortho_view: Optional[OrthoView] = None
         self.treatment_event_type = None
         self.days_after_event = None
-        self.dent_oip = DENT_OIP()
 
         patient_birthdate = metadata.get('patient_birthdate')
         if patient_birthdate is not None:
@@ -87,14 +86,11 @@ class OrthodonticPhotograph(PhotographBase):
         self._ds.BurnedInAnnotation = metadata.get(
             'burned_in_annotation', 'NO')
 
-        # this hardcoding might not be ideal here. But for all orthodontic photography purposes that i am aware of, this is always DSC. These could come from EXIF. See https://dicom.nema.org/medical/dicom/current/output/chtml/part17/chapter_NNNN.html but they might not. The code here should
         # Digital Still Camera (DSC): direct image capture
         self._ds.SceneType = 1
         self._ds.FileSource = 3  # Digital Still Camera (DSC)
 
         # TODO: extract this to a higher level to give the user the ability to set it when needed.
-        # Use when the staff is taking test shots. Then it is not expected for the view in question to actually show the correct view for the patient.
-        # See http://dicom.nema.org/medical/dicom/current/output/chtml/part03/sect_C.7.6.12.html#sect_C.7.6.12 . In these cases, the Phantom would have to go in the Device Sequence. For regular usage, we should safely be able to set this to 'NO'.
         # See https://github.com/open-ortho/dicom4ortho/issues/15
         self._ds.QualityControlImage = 'NO'
 
@@ -105,7 +101,7 @@ class OrthodonticPhotograph(PhotographBase):
 
         Returns the first code item from ViewCodeSequence with the Context
         Identifier (CID) VL_DENTAL_VIEW_CID and Context Group Extension Flag set
-        to 'Y'. 
+        to 'Y'.
 
         As defined in DENT-OIP. See that for more information.
         """
@@ -175,38 +171,10 @@ class OrthodonticPhotograph(PhotographBase):
             view_seq.append(code_dataset)
         ds.ViewCodeSequence = view_seq
 
-    def _get_code_dataset(self, dent_oip_code_keyword) -> Dataset:
-        """ Construct a DICOM Dataset from a row in the codes.csv of DENT_OIP 
-
-        dent_oip_code must be a dictionary with the following keys:
-        code
-        codeset
-        meaning
-        """
-        dent_oip_code = self.dent_oip.CODES.get(dent_oip_code_keyword)
-        if dent_oip_code == None:
-            logger.warning(
-                "Keyword [%s] did not match any code. Skipping.", dent_oip_code_keyword)
-            return None
-        code_dataset = Dataset()
-        code_dataset.CodeMeaning = dent_oip_code.get(
-            'meaning')[:64]  # LO only allows 64 characters
-        code_dataset.CodeValue = dent_oip_code.get('code')
-        code_dataset.CodingSchemeDesignator = dent_oip_code.get('codeset')
-        return code_dataset
-
-    def _get_code_sequence(self, dent_oip_code_keyword) -> Sequence:
-        code_dataset = self._get_code_dataset(dent_oip_code_keyword)
-        if code_dataset is None:
-            return None
-        return Sequence([code_dataset])
-
     def set_dicom_attributes_by_type_keyword(self, type_keyword=None):
-        """ Automatically set all DICOM tags, based on the image type keyword in views.csv.
-
-        """
+        """Automatically set all DICOM tags based on the image type keyword."""
         if type_keyword:
-            # Allow for both dash separated and not separated naming
+            # Allow for both dash-separated and non-separated naming
             self.type_keyword = type_keyword.replace('-', '')
 
         if not self.type_keyword:
@@ -219,138 +187,157 @@ class OrthodonticPhotograph(PhotographBase):
                         self.output_image_filename)
             return
 
-        self.dent_oip_view = self.dent_oip.VIEWS.get(self.type_keyword)
-        if self.dent_oip_view is None:
-            logger.info("No type_keyword recognized the image type %s for file: %s",
+        view = VIEWS.get(self.type_keyword)
+        if view is None:
+            logger.info("Image type keyword %r not recognised for file: %s",
                         self.type_keyword, self.output_image_filename)
             return
 
-        # Get the array of functions to set this required type.
+        self._ortho_view = view
         logger.debug('Setting DICOM attributes for %s', self.type_keyword)
+        self._apply_view(view)
 
-        # Make a nice comment from keyword and description
-        ImageComments = f"{self.type_keyword}^{self.dent_oip_view.get('ImageComments')}"
+    def _apply_view(self, view: OrthoView) -> None:
+        """Set all DICOM tags from a typed OrthoView."""
+        # ImageComments (0020,4000)
+        comments = f"{view.keyword}^{view.description}"
+        self._ds.ImageComments = comments.replace('\xa0', '\x20')
 
-        # NBSP character OxA0 is not allowed in Image Comments. Replace with a
-        # Space (0x20)
-        self._ds.ImageComments = ImageComments.replace('\xa0', '\x20')
+        # SeriesDescription (0008,103E)
+        self._ds.SeriesDescription = view.series_description
 
-        self._ds.SeriesDescription = self.dent_oip_view.get(
-            'SeriesDescription')
+        # PatientOrientation (0020,0020) — absent when orientation cannot be determined
+        if view.patient_orientation is not None:
+            self._ds.PatientOrientation = list(view.patient_orientation)
 
-        patient_orientation_code = self.dent_oip.CODES.get(
-            self.dent_oip_view.get('PatientOrientation'))
-        if patient_orientation_code is None:
-            patient_orientation_code = self.dent_oip.CODES.get(
-                'OrientationFront')
-            logger.warning(f"PatientOrientation not found for %s. Defaulting to %s",
-                           self.output_image_filename, patient_orientation_code)
-        self._ds.PatientOrientation = patient_orientation_code.get(
-            'code').split('^')
-        self._ds.ImageLaterality = self.dent_oip.CODES.get(
-            self.dent_oip_view.get('ImageLaterality')).get('code')
+        # ImageLaterality (0020,0062)
+        self._ds.ImageLaterality = view.image_laterality
 
-        self.add_device()
-        self.add_anatomic_region()
-        self.add_view_code()
-        self.add_primary_anatomic_structure()
-        self.add_acquisition_context()
+        # DeviceSequence (0050,0010)
+        if view.devices:
+            self._ds.DeviceSequence = Sequence(
+                [c.to_dataset() for c in view.devices])
 
-    def add_acquisition_context(self):
-        def add_progress():
-            if self.treatment_event_type and self.days_after_event:
-                acs_ds = Dataset()
-                acs_ds.ValueType = 'CODE'
-                acs_ds.ConceptNameCodeSequence = self._get_code_sequence(
-                    "TemporalEventType")
-                acs_ds.ConceptCodeSequence = self._get_code_sequence(
-                    self.treatment_event_type)
-                AcquisitionContextSequence.append(acs_ds)
+        # AnatomicRegionSequence (0008,2218)
+        ar_ds = view.anatomic_region.to_dataset()
+        if view.anatomic_region_modifier is not None:
+            ar_ds.AnatomicRegionModifierSequence = Sequence(
+                [view.anatomic_region_modifier.to_dataset()])
+        self._ds.AnatomicRegionSequence = Sequence([ar_ds])
 
-                acs_ds = Dataset()
-                acs_ds.ValueType = 'NUMERIC'
-                acs_ds.ConceptNameCodeSequence = self._get_code_sequence(
-                    "OffsetFromEvent")
-                acs_ds.MeasurementUnitsCodeSequence = self._get_code_sequence(
-                    "day")
-                acs_ds.NumericValue = self.days_after_event
-                AcquisitionContextSequence.append(acs_ds)
+        # ViewCodeSequence (0054,0220)
+        if view.view_code is not None:
+            vc_ds = view.view_code.to_dataset()
+            if view.view_modifiers:
+                vc_ds.ViewModifierCodeSequence = Sequence(
+                    [c.to_dataset() for c in view.view_modifiers])
+            self._ds.ViewCodeSequence = Sequence([vc_ds])
+        elif view.view_modifiers:
+            logger.warning(
+                "%s has ViewModifierCodeSequence entries %s but no ViewCodeSequence; "
+                "modifiers cannot be encoded without a parent ViewCode (CP1570 CID 4065).",
+                view.keyword, [c.value for c in view.view_modifiers]
+            )
 
-        AcquisitionContextSequence = Sequence([])
-        # Find all columns which start with AcquisitionContextSequence in dent_oip_view
-        for index, key in enumerate(self.dent_oip_view):
-            if key.startswith("AcquisitionContextSequence"):
-                concept_name = key.split("^")[1]
-                concept_name_code_sequence = self._get_code_sequence(
-                    concept_name)
-                for concept_code in self.dent_oip_view.get(key).split("^"):
-                    if concept_code != "na" and len(concept_code) > 0:
-                        acs_ds = Dataset()
-                        acs_ds.ValueType = 'CODE'
-                        acs_ds.ConceptNameCodeSequence = concept_name_code_sequence
-                        acs_ds.ConceptCodeSequence = self._get_code_sequence(
-                            concept_code)
-                        AcquisitionContextSequence.append(acs_ds)
-        add_progress()
-        self._ds.AcquisitionContextSequence = AcquisitionContextSequence
+        # PrimaryAnatomicStructureSequence (0008,2228)
+        if view.primary_anatomic_structure is not None:
+            pas_ds = view.primary_anatomic_structure.to_dataset()
+            if view.primary_anatomic_structure_modifier is not None:
+                pas_ds.PrimaryAnatomicStructureModifierSequence = Sequence(
+                    [view.primary_anatomic_structure_modifier.to_dataset()])
+            self._ds.PrimaryAnatomicStructureSequence = Sequence([pas_ds])
 
-    def add_device(self):
-        DeviceSequence = Sequence([])
-        for device in self.dent_oip_view.get('DeviceSequence').split("^"):
-            if device != "na" and len(device) > 0:
-                DeviceSequence.append(self._get_code_dataset(device))
-        # The AnatomicRegionModifierSequence must be part of AnatomicRegionSequence
-        if (len(DeviceSequence) > 0):
-            self._ds.DeviceSequence = DeviceSequence
+        # AcquisitionContextSequence (0040,0555) — TID 3465
+        self._ds.AcquisitionContextSequence = Sequence(
+            self._build_acquisition_context_items(view))
 
-    def add_anatomic_region(self):
-        # AnatomicRegionSequence allows for a single value
-        self._ds.AnatomicRegionSequence = self._get_code_sequence(
-            self.dent_oip_view.get('AnatomicRegionSequence'))
+    def _build_acquisition_context_items(self, view: OrthoView) -> list:
+        """Build TID 3465 AcquisitionContextSequence items from a typed OrthoView."""
+        items = []
 
-        # More than one AnatomicRegionModifierSequence are allowed
-        AnatomicRegionModifierSequence = Sequence([])
-        for arm in self.dent_oip_view.get('AnatomicRegionModifierSequence').split("^"):
-            if arm != "na" and len(arm) > 0:
-                AnatomicRegionModifierSequence.append(
-                    self._get_code_dataset(arm))
-        # The AnatomicRegionModifierSequence must be part of AnatomicRegionSequence
-        if (len(AnatomicRegionModifierSequence) > 0):
-            self._ds.AnatomicRegionSequence[0].AnatomicRegionModifierSequence = AnatomicRegionModifierSequence
+        def _code_item(concept_name_code, concept_code) -> Dataset:
+            ds = Dataset()
+            ds.ValueType = 'CODE'
+            ds.ConceptNameCodeSequence = concept_name_code.to_sequence()
+            ds.ConceptCodeSequence = concept_code.to_sequence()
+            return ds
 
-    def add_view_code(self):
-        """ Identical function as add_anatomic_region()
+        # TID 3465 row 1: OrthognathicFunctionalCondition (130325, DCM)
+        if view.orthognathic_functional_conditions:
+            cn = CODES['OrthognathicFunctionalConditions']
+            for code in view.orthognathic_functional_conditions:
+                items.append(_code_item(cn, code))
+
+        # TID 3465 row 2: FindingByInspection (118243007, SCT)
+        if view.findings_by_inspection:
+            cn = CODES['FindingByInspection']
+            for code in view.findings_by_inspection:
+                items.append(_code_item(cn, code))
+
+        # TID 3465 row 3: ObservableEntity (363787002, SCT)
+        if view.observable_entities:
+            cn = CODES['ObservableEntity']
+            for code in view.observable_entities:
+                items.append(_code_item(cn, code))
+
+        # TID 3465 row 4: DentalOcclusion (25272006, SCT)
+        if view.dental_occlusion is not None:
+            items.append(_code_item(CODES['DentalOcclusion'], view.dental_occlusion))
+
+        # TID 3465 rows 5-6: Treatment progress (set by library user)
+        items.extend(self._make_progress_items())
+
+        return items
+
+    def _make_progress_items(self) -> list:
+        """Build TID 3465 rows 5-6 from treatment_event_type and days_after_event."""
+        if not (self.treatment_event_type and self.days_after_event is not None):
+            return []
+
+        event_code = CODES.get(self.treatment_event_type)
+        if event_code is None:
+            logger.warning(
+                "treatment_event_type %r not found in codes; skipping progress items.",
+                self.treatment_event_type)
+            return []
+
+        items = []
+
+        # Row 5: Longitudinal Temporal Event Type
+        event_ds = Dataset()
+        event_ds.ValueType = 'CODE'
+        event_ds.ConceptNameCodeSequence = CODES['TemporalEventType'].to_sequence()
+        event_ds.ConceptCodeSequence = event_code.to_sequence()
+        items.append(event_ds)
+
+        # Row 6: Longitudinal Temporal Offset from Event
+        offset_ds = Dataset()
+        offset_ds.ValueType = 'NUMERIC'
+        offset_ds.ConceptNameCodeSequence = CODES['OffsetFromEvent'].to_sequence()
+        offset_ds.MeasurementUnitsCodeSequence = CODES['day'].to_sequence()
+        offset_ds.NumericValue = self.days_after_event
+        items.append(offset_ds)
+
+        return items
+
+    def set_treatment_progress(self, event_type: str, days: int) -> None:
+        """Set the longitudinal temporal event type and offset (TID 3465 rows 5-6).
+
+        Updates AcquisitionContextSequence in place, rebuilding it from the
+        current view plus the new progress values.
+
+        :param event_type: keyword from codes.csv (e.g. 'OrthodonticTreatment')
+        :param days: number of days after the event
         """
-        # ViewCodeSequence allows for a single value
-        self._ds.ViewCodeSequence = self._get_code_sequence(
-            self.dent_oip_view.get('ViewCodeSequence'))
-
-        # More than one AnatomicRegionModifierSequence are allowed
-        ViewModifierCodeSequence = Sequence([])
-        for vmcs in self.dent_oip_view.get('ViewModifierCodeSequence').split("^"):
-            if vmcs != "na" and len(vmcs) > 0:
-                ViewModifierCodeSequence.append(self._get_code_dataset(vmcs))
-        # The AnatomicRegionModifierSequence must be part of AnatomicRegionSequence
-        if (len(ViewModifierCodeSequence) > 0):
-            self._ds.ViewCodeSequence[0].ViewModifierCodeSequence = ViewModifierCodeSequence
-
-    def add_primary_anatomic_structure(self):
-        # PrimaryAnatomicStructureSequence allows for multiple values, but currently only one is supported by this code.
-        pas = self.dent_oip_view.get('PrimaryAnatomicStructureSequence')
-        if pas != "na" and len(pas) > 0:
-            self._ds.PrimaryAnatomicStructureSequence = self._get_code_sequence(
-                pas)
-
-            # More than one AnatomicRegionModifierSequence are allowed
-            PrimaryAnatomicStructureModifierSequence = Sequence([])
-            for pasm in self.dent_oip_view.get('PrimaryAnatomicStructureModifierSequence').split("^"):
-                if pasm != "na" and len(pasm) > 0:
-                    PrimaryAnatomicStructureModifierSequence.append(
-                        self._get_code_dataset(pasm))
-            # The AnatomicRegionModifierSequence must be part of AnatomicRegionSequence
-            if (len(PrimaryAnatomicStructureModifierSequence) > 0):
-                self._ds.PrimaryAnatomicStructureSequence[
-                    0].PrimaryAnatomicStructureModifierSequence = PrimaryAnatomicStructureModifierSequence
+        self.treatment_event_type = event_type
+        self.days_after_event = days
+        if self._ortho_view is not None:
+            self._ds.AcquisitionContextSequence = Sequence(
+                self._build_acquisition_context_items(self._ortho_view))
+        else:
+            # No view set; just write the progress items on their own
+            self._ds.AcquisitionContextSequence = Sequence(
+                self._make_progress_items())
 
     def is_extraoral(self) -> bool:
         if self.type_keyword.startswith("EV"):

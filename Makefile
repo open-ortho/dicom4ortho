@@ -61,15 +61,12 @@ update_resources:
 	curl --silent -z $(VIEWS) -o $(VIEWS) $(URL_VIEWS)
 	@# Download codes.csv only if it has changed
 	curl --silent -z $(CODES) -o $(CODES) $(URL_CODES)
-	@# Check if views.csv has "VER" and is different from the repository state
-	@if [ -f $(VIEWS) ] && grep -q "VER" $(VIEWS) && ! git diff --quiet --exit-code $(VIEWS); then \
-	    git add $(VIEWS); \
-	    git commit -m "Update views.csv"; \
-	fi
-	@# Check if codes.csv has "__version__" and is different from the repository state
-	@if [ -f $(CODES) ] && grep -q "__version__" $(CODES) && ! git diff --quiet --exit-code $(CODES); then \
-	    git add $(CODES); \
-	    git commit -m "Update codes.csv"; \
+	@# Re-generate the typed Python module from the (possibly updated) CSVs
+	python3 tools/generate_codes.py
+	@# Commit any changed resource files
+	@if ! git diff --quiet --exit-code $(VIEWS) $(CODES) $(MAIN)/_generated_codes.py 2>/dev/null; then \
+	    git add $(VIEWS) $(CODES) $(MAIN)/_generated_codes.py; \
+	    git commit -m "Update generated codes and views"; \
 	fi
 
 .PHONY: deploy

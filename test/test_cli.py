@@ -40,3 +40,18 @@ class Test(unittest.TestCase):
         with self.assertRaises(SystemExit) as systemexit:
             dicom4ortho.__main__.main(testargs)
         self.assertEqual(systemexit.exception.code, 0)
+
+    def testListImageTypes(self):
+        import io
+        from unittest.mock import patch
+        testargs = ['', 'list-image-types']
+        with patch('sys.stdout', new_callable=io.StringIO) as mock_stdout:
+            return_status = dicom4ortho.__main__.main(testargs)
+        self.assertEqual(return_status, 0)
+        output = mock_stdout.getvalue()
+        self.assertIn('Type', output)
+        self.assertIn('Abbreviated', output)
+        self.assertIn('Full Meaning', output)
+        # spot-check a known image type from image_types.csv
+        self.assertIn('EV01', output)
+        self.assertIn('EO.RP.LR.CO', output)

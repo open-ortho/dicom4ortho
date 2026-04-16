@@ -50,17 +50,17 @@ def print_image_types():
     header1 = 'Type'
     header2 = 'Abbreviated'
     header3 = 'Full Meaning'
-    with importlib_resources.as_file(image_types_filename) as image_types_csvfile:
-        reader = csv.reader(image_types_csvfile)
-        image_types_table = PrettyTable([header1, header2, header3])
-        for row in reader:
-            wrapped_meaning = textwrap.wrap(row[2], 47)
-            image_types_table.add_row([row[0],
-                                       row[1],
-                                       wrapped_meaning[0]])
-            for subseq in wrapped_meaning[1:]:
-                image_types_table.add_row(['', '', '  {}'.format(subseq)])
-        # image_types_table = from_csv(image_types_csvfile)
+    image_types_table = PrettyTable([header1, header2, header3])
+    with importlib_resources.as_file(image_types_filename) as image_types_csvpath:
+        with open(image_types_csvpath, newline='') as image_types_csvfile:
+            reader = csv.reader(image_types_csvfile)
+            for row in reader:
+                wrapped_meaning = textwrap.wrap(row[2], 47)
+                image_types_table.add_row([row[0],
+                                           row[1],
+                                           wrapped_meaning[0]])
+                for subseq in wrapped_meaning[1:]:
+                    image_types_table.add_row(['', '', '  {}'.format(subseq)])
 
     image_types_table.align[header2] = "l"
     image_types_table.align[header3] = "l"
@@ -117,7 +117,7 @@ USAGE
             "-t", "--image-type",
             dest="image_type",
             help="Type of image using the abbreviations defined in DENT-OIP. \
-            Use {} to get a list of allowed image \
+            Run 'dicom4ortho {}' to get a list of allowed image \
             types. [default: %(default)s]".format(LIST_IMAGE_TYPES),
             default='EV01',
             metavar='<image_type>',

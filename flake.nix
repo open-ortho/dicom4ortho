@@ -49,6 +49,7 @@
             pkgs.git
             pkgs.curl
             pkgs.jq
+            pkgs.dcmtk
           ];
 
           shellHook = ''

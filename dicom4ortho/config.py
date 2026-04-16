@@ -28,6 +28,8 @@ DATE_FORMAT = '%Y%m%d'
 TIME_FORMAT = '%H%M%S.%f'
 DICOM_PREAMBLE = b'\0' * 128
 
+
+# Use local files for now, but these will be swapped to the published URLs when available.
 URL_DENT_OIP_VIEWS = importlib_resources.files('dicom4ortho.resources') /'views.csv'
 URL_DENT_OIP_VIEWS = URL_DENT_OIP_VIEWS.as_uri()
 URL_DENT_OIP_CODES = importlib_resources.files('dicom4ortho.resources') /'codes.csv'

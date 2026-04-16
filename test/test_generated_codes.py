@@ -193,12 +193,17 @@ class TestApplyView(unittest.TestCase):
 
     def test_all_73_views_produce_non_none_acquisition_context(self):
         """Every view must produce a non-None AcquisitionContextSequence (catches
-        the silent keyword-mismatch failures the old string lookup had)."""
+        the silent keyword-mismatch failures the old string lookup had).
+        Incomplete views (variable ViewCode) are constructed with a view_code_keyword."""
         from dicom4ortho.m_orthodontic_photograph import OrthodonticPhotograph
         from dicom4ortho._generated_codes import VIEWS
         for kw in VIEWS:
             with self.subTest(view=kw):
-                o = OrthodonticPhotograph(image_type=kw)
+                view = VIEWS[kw]
+                kwargs = {'image_type': kw}
+                if view.view_code is None:
+                    kwargs['view_code_keyword'] = 'projection_right'
+                o = OrthodonticPhotograph(**kwargs)
                 self.assertIsNotNone(
                     getattr(o._ds, 'AcquisitionContextSequence', None),
                     f"{kw}: AcquisitionContextSequence is missing",
@@ -211,7 +216,7 @@ class TestApplyView(unittest.TestCase):
 
     def test_patient_orientation_none_for_iv28(self):
         """IV28 has <Can Vary> orientation: PatientOrientation must not be set."""
-        o = self._make_photo('IV28')
+        o = self._make_photo('IV28', view_code_keyword='projection_right')
         # PatientOrientation should be absent or empty when view.patient_orientation is None
         po = getattr(o._ds, 'PatientOrientation', None)
         self.assertTrue(
@@ -232,11 +237,44 @@ class TestApplyView(unittest.TestCase):
         vc = o._ds.ViewCodeSequence[0]
         self.assertEqual(vc.CodeValue, '260454004')  # projection_45deg
 
-    def test_view_code_absent_iv28(self):
-        """IV28 has no ViewCode (no entry in CID 4062/4063), so ViewCodeSequence must be absent.
-        The closeup modifier (CID 4065) cannot be encoded without a parent ViewCode."""
-        o = self._make_photo('IV28')
-        self.assertIsNone(getattr(o._ds, 'ViewCodeSequence', None))
+    def test_incomplete_view_raises_without_view_code(self):
+        """IV28, IV30, and EV40 have variable ViewCode: constructing without
+        view_code_keyword must raise TypeError immediately."""
+        from dicom4ortho.m_orthodontic_photograph import OrthodonticPhotograph
+        for kw in ('IV28', 'IV30', 'EV40'):
+            with self.subTest(view=kw):
+                with self.assertRaises(TypeError):
+                    OrthodonticPhotograph(image_type=kw)
+
+    def test_complete_view_needs_no_view_code(self):
+        """Complete views must construct without view_code_keyword."""
+        o = self._make_photo('EV01')
+        self.assertIsNotNone(o)
+
+    def test_view_code_keyword_sets_view_code_with_modifier(self):
+        """IV28 + view_code_keyword attaches closeup modifier to the ViewCode."""
+        o = self._make_photo('IV28', view_code_keyword='projection_right')
+        vc = o._ds.ViewCodeSequence[0]
+        self.assertEqual(vc.CodeValue, '399198007')  # projection_right
+        modifiers = vc.ViewModifierCodeSequence
+        values = [m.CodeValue for m in modifiers]
+        self.assertIn('789131009', values)  # closeup
+
+    def test_view_code_keyword_no_modifiers_iv30(self):
+        """IV30 has no view modifiers: ViewCodeSequence set, no ViewModifierCodeSequence."""
+        o = self._make_photo('IV30', view_code_keyword='projection_right')
+        vc = o._ds.ViewCodeSequence[0]
+        self.assertEqual(vc.CodeValue, '399198007')  # projection_right
+        self.assertFalse(hasattr(vc, 'ViewModifierCodeSequence'))
+
+    def test_set_view_code_replaces_existing(self):
+        """set_view_code() replaces ViewCodeSequence; modifiers re-attached for IV28."""
+        o = self._make_photo('IV28', view_code_keyword='projection_right')
+        o.set_view_code('projection_frontal')
+        vc = o._ds.ViewCodeSequence[0]
+        self.assertEqual(vc.CodeValue, '399033003')  # projection_frontal
+        values = [m.CodeValue for m in vc.ViewModifierCodeSequence]
+        self.assertIn('789131009', values)  # closeup still attached
 
     def test_device_iv02_mirror(self):
         """IV02 uses a mirror device."""

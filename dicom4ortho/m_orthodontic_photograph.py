@@ -52,6 +52,7 @@ class OrthodonticPhotograph(PhotographBase):
 
         self.type_keyword = ""          # Orthodontic View keyword, e.g. "IV03"
         self._ortho_view: Optional[OrthoView] = None
+        self._view_code_keyword: Optional[str] = metadata.get('view_code_keyword')
         self.treatment_event_type = None
         self.days_after_event = None
 
@@ -193,9 +194,19 @@ class OrthodonticPhotograph(PhotographBase):
                         self.type_keyword, self.output_image_filename)
             return
 
+        if view.view_code is None and not self._view_code_keyword:
+            raise TypeError(
+                f"View {view.keyword!r} requires a 'view_code_keyword' parameter "
+                f"(ViewCode is variable for this view — e.g. 'projection_right'). "
+                f"Pass it to the constructor or call set_view_code() after construction."
+            )
+
         self._ortho_view = view
         logger.debug('Setting DICOM attributes for %s', self.type_keyword)
         self._apply_view(view)
+
+        if view.view_code is None and self._view_code_keyword:
+            self.set_view_code(self._view_code_keyword)
 
     def _apply_view(self, view: OrthoView) -> None:
         """Set all DICOM tags from a typed OrthoView."""
@@ -232,13 +243,6 @@ class OrthodonticPhotograph(PhotographBase):
                 vc_ds.ViewModifierCodeSequence = Sequence(
                     [c.to_dataset() for c in view.view_modifiers])
             self._ds.ViewCodeSequence = Sequence([vc_ds])
-        elif view.view_modifiers:
-            logger.warning(
-                "%s has ViewModifierCodeSequence entries %s but no ViewCodeSequence; "
-                "modifiers cannot be encoded without a parent ViewCode (CP1570 CID 4065).",
-                view.keyword, [c.value for c in view.view_modifiers]
-            )
-
         # PrimaryAnatomicStructureSequence (0008,2228)
         if view.primary_anatomic_structure is not None:
             pas_ds = view.primary_anatomic_structure.to_dataset()
@@ -319,6 +323,28 @@ class OrthodonticPhotograph(PhotographBase):
         items.append(offset_ds)
 
         return items
+
+    def set_view_code(self, keyword: str) -> None:
+        """Set (or replace) ViewCodeSequence, attaching any view modifiers defined
+        for this view.
+
+        Required for incomplete views (e.g. IV28, IV30, EV40) whose ViewCode is
+        variable and must be supplied by the caller.  May also be called after
+        construction to change the ViewCode.
+
+        :param keyword: keyword from codes.csv (e.g. 'projection_right')
+        """
+        code = CODES.get(keyword)
+        if code is None:
+            logger.warning(
+                "view_code_keyword %r not found in codes; ViewCodeSequence not set.",
+                keyword)
+            return
+        vc_ds = code.to_dataset()
+        if self._ortho_view and self._ortho_view.view_modifiers:
+            vc_ds.ViewModifierCodeSequence = Sequence(
+                [c.to_dataset() for c in self._ortho_view.view_modifiers])
+        self._ds.ViewCodeSequence = Sequence([vc_ds])
 
     def set_treatment_progress(self, event_type: str, days: int) -> None:
         """Set the longitudinal temporal event type and offset (TID 3465 rows 5-6).

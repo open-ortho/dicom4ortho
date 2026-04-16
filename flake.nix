@@ -10,12 +10,35 @@
     flake-utils.lib.eachDefaultSystem (system:
       let
         pkgs = nixpkgs.legacyPackages.${system};
+
+        # dicom3tools is not in nixpkgs; extract dciodvfy from the Debian package.
+        # Only built on x86_64-linux (the .deb is amd64-only).
+        dciodvfy = pkgs.stdenv.mkDerivation {
+          pname = "dciodvfy";
+          version = "1.00-20220618093127-2";
+          src = pkgs.fetchurl {
+            url = "https://ftp.debian.org/debian/pool/main/d/dicom3tools/dicom3tools_1.00~20220618093127-2_amd64.deb";
+            sha256 = "sha256-im60Kg7L/DmQXA96rIkRSkJJzI5n31JtFzdkC/Ldcb8=";
+          };
+          nativeBuildInputs = [ pkgs.dpkg pkgs.autoPatchelfHook ];
+          buildInputs = [ pkgs.stdenv.cc.cc.lib ];  # libstdc++6, libgcc_s
+          unpackPhase = "dpkg-deb -x $src .";
+          installPhase = ''
+            mkdir -p $out/bin
+            cp usr/bin/dciodvfy $out/bin/
+          '';
+          dontBuild = true;
+          meta.platforms = [ "x86_64-linux" ];
+        };
       in
       {
         devShells.default = pkgs.mkShell {
           packages = [
             # Python interpreter — deps are managed by pip/pyproject.toml inside a venv
             pkgs.python310
+
+            # DICOM validation tool (extracted from Debian package; Linux x86_64 only)
+            dciodvfy
 
             # Docker CLI + Compose for integration tests (test/docker-compose.yml)
             pkgs.docker
@@ -52,9 +75,7 @@
             echo "  Docker     : $(docker --version 2>/dev/null || echo 'daemon not running')"
             echo "  Make       : $(make --version | head -1)"
             echo "  CLI        : $(which dicom4ortho)"
-            echo ""
-            echo "  Note: dicom3tools (dciodvfy) must be installed separately."
-            echo "        Run 'make install-dev' for platform-specific instructions."
+            echo "  dciodvfy   : $(which dciodvfy)"
             echo ""
           '';
         };

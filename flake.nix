@@ -10,52 +10,12 @@
     flake-utils.lib.eachDefaultSystem (system:
       let
         pkgs = nixpkgs.legacyPackages.${system};
-
-        # nixpkgs ships pynetdicom 3.x, but pyproject.toml requires >=2,<3.
-        # Build 2.1.1 from PyPI source.
-        pynetdicom2 = pkgs.python310Packages.buildPythonPackage rec {
-          pname = "pynetdicom";
-          version = "2.1.1";
-          format = "pyproject";
-          src = pkgs.fetchPypi {
-            inherit pname version;
-            # sha256 from: nix-prefetch-url --unpack
-            # https://files.pythonhosted.org/packages/source/p/pynetdicom/pynetdicom-2.1.1.tar.gz
-            sha256 = "sha256-lnH7ru/X7WSRuxKOBW1YhihytLIzXUu+RLvakZjNv+o=";
-          };
-          nativeBuildInputs = with pkgs.python310Packages; [ poetry-core ];
-          propagatedBuildInputs = with pkgs.python310Packages; [ pydicom ];
-          doCheck = false;
-        };
-
-        python = pkgs.python310.withPackages (ps: with ps; [
-          # Runtime dependencies (pyproject.toml [dependencies])
-          pynetdicom2
-          ps.pydicom
-          ps.pillow
-          ps.prettytable
-          ps.numpy
-          ps.urllib3
-          ps.requests
-
-          # Build system
-          ps.setuptools
-          ps.wheel
-
-          # Dev dependencies (pyproject.toml [dev])
-          ps.wrapt
-          ps.pylint
-          ps.twine
-          ps.autopep8
-          ps.pytest
-          ps.build
-          ps.bump2version
-        ]);
       in
       {
         devShells.default = pkgs.mkShell {
           packages = [
-            python
+            # Python interpreter — deps are managed by pip/pyproject.toml inside a venv
+            pkgs.python310
 
             # Docker CLI + Compose for integration tests (test/docker-compose.yml)
             pkgs.docker
@@ -69,9 +29,21 @@
           ];
 
           shellHook = ''
-            # Make the package importable directly from source (editable-install equivalent).
-            # All heavy deps are already in the Nix Python environment above.
-            export PYTHONPATH="$PWD:''${PYTHONPATH:-}"
+            # Expose libstdc++ so pip-installed native wheels (numpy, pillow, etc.) can load.
+            # This is a NixOS-specific requirement — the C++ standard library is not in the
+            # default linker search path for pip wheel binaries.
+            export LD_LIBRARY_PATH="${pkgs.stdenv.cc.cc.lib}/lib:''${LD_LIBRARY_PATH:-}"
+
+            # Create a venv on first use and install the package in editable mode.
+            # This keeps Python deps in pyproject.toml as the single source of truth
+            # and makes the dicom4ortho / d4o_generate CLI entrypoints available.
+            if [ ! -d .venv ]; then
+              echo "Creating .venv and installing dicom4ortho[dev] …"
+              python3 -m venv .venv
+              .venv/bin/pip install --quiet --upgrade pip
+              .venv/bin/pip install --quiet -e ".[dev]"
+            fi
+            source .venv/bin/activate
 
             echo ""
             echo "dicom4ortho dev shell ready"
@@ -79,6 +51,10 @@
             echo "  pynetdicom : $(python -c 'import pynetdicom; print(pynetdicom.__version__)')"
             echo "  Docker     : $(docker --version 2>/dev/null || echo 'daemon not running')"
             echo "  Make       : $(make --version | head -1)"
+            echo "  CLI        : $(which dicom4ortho)"
+            echo ""
+            echo "  Note: dicom3tools (dciodvfy) must be installed separately."
+            echo "        Run 'make install-dev' for platform-specific instructions."
             echo ""
           '';
         };

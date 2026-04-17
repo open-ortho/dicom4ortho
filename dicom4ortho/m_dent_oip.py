@@ -1,21 +1,27 @@
-""" Codes and data defined from DENT-OIP
+"""Typed data classes for DICOM codes and orthodontic views from DENT-OIP.
 
-Provides typed data classes for DICOM codes and orthodontic views, plus legacy
-CSV loading used during the transition to generated code.
+Architecture
+------------
+At build time, ``tools/generate_codes.py`` reads ``codes.csv`` and
+``views.csv`` (fetched from the dent-oip GitHub project, or overridden
+locally via ``make update_resources``) and emits
+``dicom4ortho/_generated_codes.py`` — a committed Python module containing
+all :class:`DicomCode` constants and the ``VIEWS`` dict of
+:class:`OrthoView` objects.
 
+At runtime, ``_generated_codes.py`` is imported directly; no CSV parsing
+or network I/O occurs.  See ``AGENTS.md`` and ``docs/context/`` for further
+background.
 """
 
 from __future__ import annotations
 
-import urllib.request
-import csv
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from typing import Optional
 
 from pydicom.dataset import Dataset
 from pydicom.sequence import Sequence
 
-from dicom4ortho.config import URL_DENT_OIP_CODES, URL_DENT_OIP_VIEWS
 import logging
 logger = logging.getLogger(__name__)
 
@@ -101,43 +107,3 @@ class OrthoView:
     series_description: str  # → SeriesDescription
 
 
-# ---------------------------------------------------------------------------
-# Legacy CSV loader (kept for transition; removed in Step 4 refactor)
-# ---------------------------------------------------------------------------
-
-class DENT_OIP(object):
-    CODES = {}
-    VIEWS = {}
-
-    def __init__(self, url_codes=None, url_views=None) -> None:
-        if not url_codes:
-            url_codes = URL_DENT_OIP_CODES
-        if not url_views:
-            url_views = URL_DENT_OIP_VIEWS
-
-        self._load_views(url=url_views)
-        self._load_codes(url=url_codes)
-
-    def _load_views(self, url) -> None:
-        # Override official location, if not yet published, for dev purposes
-        with urllib.request.urlopen(url) as response:
-            lines = [l.decode('utf-8').strip() for l in response.readlines()]
-            reader = csv.DictReader(lines)
-            for row in reader:
-                key = row.pop('keyword')
-                if key.startswith("VER:"):
-                    self.VIEWS["VERSION"] = key.split(":")[1]
-                else:
-                    self.VIEWS[key] = row
-
-    def _load_codes(self, url) -> None:
-        # Override official location, if not yet published, for dev purposes
-        with urllib.request.urlopen(url) as response:
-            lines = [l.decode('utf-8').strip() for l in response.readlines()]
-            reader = csv.DictReader(lines)
-            for row in reader:
-                key = row.pop('keyword')
-                if key == "__version__":
-                    self.CODES["VERSION"] = row["code"]
-                else:
-                    self.CODES[key] = row

@@ -3,10 +3,12 @@ Unit tests for command line interface.
 
 @author: Toni Magni
 '''
+import io
 import unittest
 import logging
 import os
 import importlib.resources
+from unittest.mock import patch
 import dicom4ortho.__main__
 class Test(unittest.TestCase):
 
@@ -42,8 +44,6 @@ class Test(unittest.TestCase):
         self.assertEqual(systemexit.exception.code, 0)
 
     def testListImageTypes(self):
-        import io
-        from unittest.mock import patch
         testargs = ['', 'list-image-types']
         with patch('sys.stdout', new_callable=io.StringIO) as mock_stdout:
             return_status = dicom4ortho.__main__.main(testargs)

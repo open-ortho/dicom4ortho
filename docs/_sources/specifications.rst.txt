@@ -8,12 +8,13 @@ Specifications of how the software should behave and expectations of what it sho
 
 In general, the main goal of ``dicom4ortho`` is to provide an example for the acquisition and exchange of orthodontic photographs making use of DICOM and other open standards, such as HL7 and SNOMED.
 
-Compliance
------------
+CO Compliance
+-------------
 
 - **CO-01** ``dicom4ortho`` SHALL comply to all specifications and requirements defined in ADA-1107.
 - **CO-02** ``dicom4ortho`` SHALL support each view covered in ADA-1107.
 - **CO-03** ``dicom4ortho`` SHALL support each viewset covered in ADA-1107.
+- **CO-04** ``dicom4ortho`` SHALL comply to all specifications and requirements defined in DENT-OIP.
 
 IF Image Formats
 ------------------
@@ -40,8 +41,8 @@ MR Metadata Retrieval
 ---------------------
 
 - **MR-01:** ``dicom4ortho`` SHALL be able to automatically retrieve clinical metadata in order to create complete DICOM images in accordance to well established standards, such as ADA 1107.
-- **MR-02:** ``dicom4ortho`` SHALL support retrieving metadata via FHIR Resources.
-- **MR-03:** ``dicom4ortho`` COULD support retrieving metadata via DICOM Modality Worklists (MWL).
+- **MR-02:** ``dicom4ortho`` COULD support retrieving metadata via FHIR Resources.
+- **MR-03:** ``dicom4ortho`` SHALL support retrieving metadata via DICOM Modality Worklists (MWL).
 
 SE Security
 -----------

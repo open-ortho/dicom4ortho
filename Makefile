@@ -55,13 +55,18 @@ $(DIST):
 build: lint test $(DIST) update_resources
 	python3 -m build
 
+.PHONY: fetch_resources
+fetch_resources:
+	@# Download views.csv and codes.csv from dent-oip only when upstream is known-clean.
+	@# See https://github.com/open-ortho/dent-oip/issues/11 — until that is resolved,
+	@# run this target manually and verify generate_codes.py succeeds before committing.
+	curl --silent -z $(VIEWS) -o $(VIEWS) $(URL_VIEWS)
+	curl --silent -z $(CODES) -o $(CODES) $(URL_CODES)
+
 .PHONY: update_resources
 update_resources:
-	@# Download views.csv only if it has changed
-	curl --silent -z $(VIEWS) -o $(VIEWS) $(URL_VIEWS)
-	@# Download codes.csv only if it has changed
-	curl --silent -z $(CODES) -o $(CODES) $(URL_CODES)
-	@# Re-generate the typed Python module from the (possibly updated) CSVs
+	@# Re-generate the typed Python module from the committed CSVs.
+	@# To also refresh the CSVs from upstream dent-oip first, run: make fetch_resources update_resources
 	python3 tools/generate_codes.py
 	@# Commit any changed resource files
 	@if ! git diff --quiet --exit-code $(VIEWS) $(CODES) $(MAIN)/_generated_codes.py 2>/dev/null; then \

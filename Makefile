@@ -71,11 +71,6 @@ fetch_resources: ## Download codes.csv and views.csv from upstream dent-oip (onl
 .PHONY: update_resources
 update_resources: ## Regenerate _generated_codes.py from committed CSVs (use fetch_resources first to also pull upstream)
 	python3 tools/generate_codes.py
-	@# Commit any changed resource files
-	@if ! git diff --quiet --exit-code $(VIEWS) $(CODES) $(MAIN)/_generated_codes.py 2>/dev/null; then \
-	    git add $(VIEWS) $(CODES) $(MAIN)/_generated_codes.py; \
-	    git commit -m "Update generated codes and views"; \
-	fi
 
 .PHONY: deploy
 deploy: ## Upload distribution to PyPI (requires ~/.pypirc token)

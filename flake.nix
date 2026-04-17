@@ -47,6 +47,7 @@
             # Core build / dev tools
             pkgs.gnumake
             pkgs.git
+            pkgs.gitflow
             pkgs.curl
             pkgs.jq
             pkgs.dcmtk

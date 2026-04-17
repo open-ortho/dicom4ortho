@@ -2,7 +2,7 @@
 
 1. Check version number and decide what version to release into.
 2. Create `release`: e.g. `git flow release start v0.X.0`
-3. Bump the version with major, minor or patch and then `bumpversion release` as required.
+3. Bump the version with major, minor or patch and then `bumpversion release` as required. Note: bumpversion commits the version change but does NOT create a git tag — the tag is created by `git flow release finish` in step 11.
 4. `make clean`
 5. `git merge master`: merge master into here, and fix merge errors.
 6. Update release notes in `gh-pages` with major changes of this release. You might want to compare this release branch against master to see logs.

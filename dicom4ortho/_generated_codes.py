@@ -521,12 +521,6 @@ RIGHT_AND_LEFT = DicomCode(
     meaning='Right And Left',
 )
 
-HEAD_NECK = DicomCode(
-    value='774007',
-    scheme='SCT',
-    meaning='Structure of head and/or neck (body structure)',
-)
-
 FACE_LATERAL = DicomCode(
     value='422624005',
     scheme='SCT',
@@ -1231,7 +1225,7 @@ VIEWS: dict[str, OrthoView] = {
         primary_anatomic_structure=FRENUM,
         primary_anatomic_structure_modifier=None,
         devices=(),
-        view_code=None,
+        view_code=PROJECTION_FRONTAL,
         view_modifiers=(CLOSEUP,),
         orthognathic_functional_conditions=(),
         findings_by_inspection=(),

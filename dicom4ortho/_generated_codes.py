@@ -125,7 +125,7 @@ PIGMENTATION_MUCOSA_LIP_LOWER = DicomCode(
     meaning='Local exogenous pigmentation of mucous membrane of lower lip',
 )
 
-PIGMENTATION_MUCOSA_LIP_UPPPER = DicomCode(
+PIGMENTATION_MUCOSA_LIP_UPPER = DicomCode(
     value='1260049006',
     scheme='SCT',
     meaning='Local exogenous pigmentation of mucous membrane of upper lip',
@@ -600,7 +600,7 @@ CODES: dict[str, DicomCode] = {
     'pigmentation_mucosa_right': PIGMENTATION_MUCOSA_RIGHT,
     'pigmentation_mucosa_soft_palate': PIGMENTATION_MUCOSA_SOFT_PALATE,
     'pigmentation_mucosa_lip_lower': PIGMENTATION_MUCOSA_LIP_LOWER,
-    'pigmentation_mucosa_lip_uppper': PIGMENTATION_MUCOSA_LIP_UPPPER,
+    'pigmentation_mucosa_lip_upper': PIGMENTATION_MUCOSA_LIP_UPPER,
     'ObservableEntity': OBSERVABLE_ENTITY,
     'palsy': PALSY,
     'tongue_thrust': TONGUE_THRUST,

@@ -1,4 +1,5 @@
 keyword,code,codeset,meaning,used for,notes
+__note__,,,Some meaning strings may be abbreviated at source — full meanings will be sourced from the published DICOM standard (see issue #42).,,
 FunctionalConditionPresentDuringAcquisition,130324,DCM,Functional condition present during acquisition,AcquisitionContextSequence^FunctionalConditionPresentDuringAcquisition,
 OrthognathicFunctionalConditions,130325,DCM,Orthognathic Functional Conditions,AcquisitionContextSequence^OrthognathicFunctionalConditions,
 mouth_open,262016004,SCT,Open mouth (finding),AcquisitionContextSequence^OrthognathicFunctionalConditions,
@@ -18,7 +19,7 @@ pigmentation_mucosa_left,1264188003,SCT,Local exogenous pigmentation of left buc
 pigmentation_mucosa_right,1264193000,SCT,Local exogenous pigmentation of right buccal mucosa,AcquisitionContextSequence^FindingByInspection,
 pigmentation_mucosa_soft_palate,1260043007,SCT,Local exogenous pigmentation of mucosa of soft palate,AcquisitionContextSequence^FindingByInspection,
 pigmentation_mucosa_lip_lower,1260047008,SCT,Local exogenous pigmentation of mucous membrane of lower lip,AcquisitionContextSequence^FindingByInspection,
-pigmentation_mucosa_lip_uppper,1260049006,SCT,Local exogenous pigmentation of mucous membrane of upper lip,AcquisitionContextSequence^FindingByInspection,
+pigmentation_mucosa_lip_upper,1260049006,SCT,Local exogenous pigmentation of mucous membrane of upper lip,AcquisitionContextSequence^FindingByInspection,
 ObservableEntity,363787002,SCT,Observable entity,AcquisitionContextSequence^ObservableEntity,
 palsy,193093009,SCT,Bell's palsy (disorder),AcquisitionContextSequence^ObservableEntity,
 tongue_thrust,110343009,SCT,Tongue thrust (observable entity),AcquisitionContextSequence^ObservableEntity,

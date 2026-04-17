@@ -178,7 +178,14 @@ def generate(codes: dict[str, dict], views: list[dict]) -> str:
     lines.append("# -----------------------------------------------------------------------")
     lines.append("")
 
+    emitted_consts: set[str] = set()
     for kw, info in codes.items():
+        const_name = _to_const(kw)
+        if const_name in emitted_consts:
+            # Two keywords map to the same constant name (e.g. HeadNeck / head_neck).
+            # The CODES dict below will still reference the already-emitted constant.
+            continue
+        emitted_consts.add(const_name)
         lines.append(_render_dicom_code_const(kw, info))
         lines.append("")
 

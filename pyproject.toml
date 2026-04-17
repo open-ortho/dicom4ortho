@@ -53,7 +53,7 @@ d4o_generate = "dicom4ortho.__main__:generate_uid"
 
 [tool.setuptools.package-data]
 "*" = ["LICENSE"]
-"dicom4ortho" = ["resources/image_types.csv", "resources/codes.csv", "resources/views.csv", "_generated_codes.py"]
+"dicom4ortho" = ["resources/image_types.csv", "resources/codes.csv", "resources/views.csv"]
 
 [tool.setuptools.packages.find]
 include = ["dicom4ortho*"]

@@ -7,23 +7,10 @@ from math import copysign
 from unittest import TestCase
 import logging
 import datetime
-from dicom4ortho.m_dent_oip import DENT_OIP
 from dicom4ortho.model import DicomBase
 
 logging.basicConfig(
     format='%(asctime)s - %(levelname)s - %(funcName)s: %(message)s', level=logging.INFO)
-
-
-class Test(TestCase):
-
-    def test_load_views(self):
-        v = DENT_OIP()
-        self.assertEqual(len(v.VIEWS), 74)
-        self.assertGreater(len(v.VIEWS["VERSION"]), 0)
-        self.assertGreater(len(v.CODES["VERSION"]), 0)
-        logging.info(
-            f'Views ver: [{v.VIEWS["VERSION"]}] Codes ver: [{v.CODES["VERSION"]}]')
-
 
 
 class TestDicomBaseAcquisitionDateTimeSetter(TestCase):

@@ -10,8 +10,8 @@
     <link rel="stylesheet" type="text/css" href="_static/classic.css?v=2bf1fcf8" />
     
     <script src="_static/documentation_options.js?v=b489f392"></script>
-    <script src="_static/doctools.js?v=9bcbadda"></script>
-    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
     
     <link rel="author" title="About these documents" href="about.html" />
     <link rel="index" title="Index" href="genindex.html" />
@@ -44,19 +44,70 @@
   <section id="release-notes">
 <h1>Release notes<a class="headerlink" href="#release-notes" title="Link to this heading">¶</a></h1>
 <section id="id1">
-<h2>0.4.7<a class="headerlink" href="#id1" title="Link to this heading">¶</a></h2>
+<h2>0.5.2<a class="headerlink" href="#id1" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p><strong>CP-1570 / TID 3465 compliance</strong>: <code class="docutils literal notranslate"><span class="pre">OrthodonticPhotograph</span></code> now builds
+<code class="docutils literal notranslate"><span class="pre">AcquisitionContextSequence</span></code> from typed <code class="docutils literal notranslate"><span class="pre">OrthoView</span></code> fields mapping
+directly to TID 3465 rows (OrthognathicFunctionalCondition, FindingByInspection,
+ObservableEntity, DentalOcclusion, and optional LongitudinalTemporalEventType +
+Offset via <code class="docutils literal notranslate"><span class="pre">set_treatment_progress()</span></code>).</p></li>
+<li><p><strong>Build-time code generation</strong>: replaced runtime CSV parsing with a
+code-generation pipeline (<code class="docutils literal notranslate"><span class="pre">tools/generate_codes.py</span></code>). Reads <code class="docutils literal notranslate"><span class="pre">codes.csv</span></code>
+and <code class="docutils literal notranslate"><span class="pre">views.csv</span></code> and emits <code class="docutils literal notranslate"><span class="pre">dicom4ortho/_generated_codes.py</span></code> — a committed
+lock file of typed Python constants (<code class="docutils literal notranslate"><span class="pre">DicomCode</span></code>, <code class="docutils literal notranslate"><span class="pre">OrthoView</span></code>). No network
+I/O at runtime.</p></li>
+<li><p><strong>Typed data layer</strong>: two new frozen dataclasses in <code class="docutils literal notranslate"><span class="pre">m_dent_oip.py</span></code> —
+<code class="docutils literal notranslate"><span class="pre">DicomCode</span></code> (with <code class="docutils literal notranslate"><span class="pre">to_dataset()</span></code> / <code class="docutils literal notranslate"><span class="pre">to_sequence()</span></code>) and <code class="docutils literal notranslate"><span class="pre">OrthoView</span></code>
+(all 73 view definitions with typed fields for every DICOM attribute).</p></li>
+<li><p><strong>Incomplete-view enforcement</strong>: views with a variable <code class="docutils literal notranslate"><span class="pre">ViewCodeSequence</span></code>
+(IV28, IV30, EV40) now raise <code class="docutils literal notranslate"><span class="pre">TypeError</span></code> immediately at construction unless
+<code class="docutils literal notranslate"><span class="pre">view_code_keyword</span></code> is supplied. <code class="docutils literal notranslate"><span class="pre">set_view_code()</span></code> fills the slot and
+auto-attaches any predefined <code class="docutils literal notranslate"><span class="pre">ViewModifierCodeSequence</span></code>.</p></li>
+<li><p><strong>codes.csv / views.csv corrections</strong>: <code class="docutils literal notranslate"><span class="pre">OrthognathicFunctionalConditions</span></code>
+concept-name code corrected (<code class="docutils literal notranslate"><span class="pre">ZZZZZZ</span></code> → <code class="docutils literal notranslate"><span class="pre">130325</span></code>, DCM, per CP-1570);
+<code class="docutils literal notranslate"><span class="pre">closeup</span></code> keyword mismatch fixed; IV29 given <code class="docutils literal notranslate"><span class="pre">projection_frontal</span></code> as its
+fixed ViewCode.</p></li>
+<li><p><strong>CLI fix</strong>: <code class="docutils literal notranslate"><span class="pre">dicom4ortho</span> <span class="pre">list-image-types</span></code> now works correctly (fixed
+<code class="docutils literal notranslate"><span class="pre">TypeError:</span> <span class="pre">'PosixPath'</span> <span class="pre">object</span> <span class="pre">is</span> <span class="pre">not</span> <span class="pre">iterable</span></code> in <code class="docutils literal notranslate"><span class="pre">print_image_types()</span></code>);
+help text updated to show the full command.</p></li>
+<li><p><strong>CLI cleanup</strong>: removed <code class="docutils literal notranslate"><span class="pre">--url-codes</span></code> / <code class="docutils literal notranslate"><span class="pre">--url-views</span></code> flags (broken since
+the refactor; resource updates are now a build-time operation via
+<code class="docutils literal notranslate"><span class="pre">make</span> <span class="pre">update_resources</span></code>).</p></li>
+<li><p><strong>Dev environment</strong>: <code class="docutils literal notranslate"><span class="pre">flake.nix</span></code> rewritten to use pip/pyproject.toml as the
+single source of truth for Python deps; <code class="docutils literal notranslate"><span class="pre">dciodvfy</span></code> and <code class="docutils literal notranslate"><span class="pre">dcmtk</span></code> added to
+the Nix shell.</p></li>
+<li><p><strong>Makefile</strong>: <code class="docutils literal notranslate"><span class="pre">make</span> <span class="pre">update_resources</span></code> now only regenerates
+<code class="docutils literal notranslate"><span class="pre">_generated_codes.py</span></code> from committed CSVs; new <code class="docutils literal notranslate"><span class="pre">make</span> <span class="pre">fetch_resources</span></code>
+target does the upstream curl downloads separately. New <code class="docutils literal notranslate"><span class="pre">make</span> <span class="pre">help</span></code> default
+target.</p></li>
+<li><p><strong>Tests</strong>: 29 new tests in <code class="docutils literal notranslate"><span class="pre">test/test_generated_codes.py</span></code> covering CSV
+consistency, all 73 view attribute correctness, and the <code class="docutils literal notranslate"><span class="pre">view_code_keyword</span></code>
+/ <code class="docutils literal notranslate"><span class="pre">set_view_code()</span></code> API.</p></li>
+</ul>
+</section>
+<section id="id2">
+<h2>0.5.1<a class="headerlink" href="#id2" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p>Rename <code class="docutils literal notranslate"><span class="pre">get/set_image_type_code_sequence</span></code> → <code class="docutils literal notranslate"><span class="pre">get/set_image_type_code_dataset</span></code>
+for consistency with pydicom naming conventions.</p></li>
+<li><p>Add tests for image type code dataset handling in <code class="docutils literal notranslate"><span class="pre">OrthodonticPhotograph</span></code>.</p></li>
+<li><p>Refactor test files for improved organisation and logging consistency.</p></li>
+</ul>
+</section>
+<section id="id3">
+<h2>0.4.7<a class="headerlink" href="#id3" title="Link to this heading">¶</a></h2>
 <ul class="simple">
 <li><p>Fix default Series and Study Date and Time to empty.</p></li>
 </ul>
 </section>
-<section id="id2">
-<h2>0.4.2<a class="headerlink" href="#id2" title="Link to this heading">¶</a></h2>
+<section id="id4">
+<h2>0.4.2<a class="headerlink" href="#id4" title="Link to this heading">¶</a></h2>
 <ul class="simple">
 <li><p>Add partial support for EXIF metadata: copy tags from EXIF to DICOM according to standard. Only Manufacturer related and date related tags are copied.</p></li>
 </ul>
 </section>
-<section id="id3">
-<h2>0.4<a class="headerlink" href="#id3" title="Link to this heading">¶</a></h2>
+<section id="id5">
+<h2>0.4<a class="headerlink" href="#id5" title="Link to this heading">¶</a></h2>
 <ul class="simple">
 <li><p>Add support for DICOM MWL (Modality Worklist): copy tags from MWL</p></li>
 <li><p>Add support for using InstanceNumber and ScheduledProtocolCode to define image type</p></li>
@@ -65,8 +116,8 @@
 <li><p>Add setters for Series and Instance Numbers</p></li>
 </ul>
 </section>
-<section id="id4">
-<h2>0.2<a class="headerlink" href="#id4" title="Link to this heading">¶</a></h2>
+<section id="id6">
+<h2>0.2<a class="headerlink" href="#id6" title="Link to this heading">¶</a></h2>
 <ul class="simple">
 <li><p>Add BurnedInAnnotation, Operator, Institution and Performing Physician tags</p></li>
 <li><p>Load views and codes from ADA-1107</p></li>
@@ -89,10 +140,12 @@
     <h3><a href="index.html">Table of Contents</a></h3>
     <ul>
 <li><a class="reference internal" href="#">Release notes</a><ul>
-<li><a class="reference internal" href="#id1">0.4.7</a></li>
-<li><a class="reference internal" href="#id2">0.4.2</a></li>
-<li><a class="reference internal" href="#id3">0.4</a></li>
-<li><a class="reference internal" href="#id4">0.2</a></li>
+<li><a class="reference internal" href="#id1">0.5.2</a></li>
+<li><a class="reference internal" href="#id2">0.5.1</a></li>
+<li><a class="reference internal" href="#id3">0.4.7</a></li>
+<li><a class="reference internal" href="#id4">0.4.2</a></li>
+<li><a class="reference internal" href="#id5">0.4</a></li>
+<li><a class="reference internal" href="#id6">0.2</a></li>
 </ul>
 </li>
 </ul>
@@ -147,7 +200,7 @@
     </div>
     <div class="footer" role="contentinfo">
     &#169; Copyright 2021, open-ortho.
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.1.3.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.0.
     </div>
   </body>
 </html>

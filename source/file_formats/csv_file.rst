@@ -3,6 +3,10 @@ CSV Image file format
 
 This is the documentation for the CSV file format used for bulk processing, not the one used to decide which attributes for which view.
 
+A tested, executable `example CSV <https://github.com/open-ortho/dicom4ortho/blob/develop/examples/input_from.csv>`__
+is maintained with its referenced images in the source repository. The CLI
+test executes this public example to prevent documentation drift.
+
 The CSV file should be:
 
 -  with ``,`` as separator

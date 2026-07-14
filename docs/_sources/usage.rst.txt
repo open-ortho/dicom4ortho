@@ -23,7 +23,9 @@ Once installed, use dicom4ortho like this:
    dicom4ortho --image-type EV08 input.jpg
 
 For bulk conversion, pass a CSV file using the format described in
-:doc:`file_formats/csv_file`.
+:doc:`file_formats/csv_file`. The source repository includes a tested,
+executable `CSV example <https://github.com/open-ortho/dicom4ortho/blob/develop/examples/input_from.csv>`__
+with its referenced images in the same directory.
 
 Using the library directly
 ---------------------------

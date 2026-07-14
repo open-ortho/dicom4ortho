@@ -79,6 +79,29 @@ and the available metadata:</p>
 </pre></div>
 </div>
 </section>
+<section id="practice-personnel">
+<h2>Practice personnel<a class="headerlink" href="#practice-personnel" title="Link to this heading">¶</a></h2>
+<p>Keep personnel metadata simple and describe the role each person actually had:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">dental_provider_firstname</span></code> and <code class="docutils literal notranslate"><span class="pre">dental_provider_lastname</span></code> identify the
+orthodontist or dentist responsible for treatment. They are encoded as DICOM
+Physicians of Record (0008,1048).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">operator_firstname</span></code> and <code class="docutils literal notranslate"><span class="pre">operator_lastname</span></code> identify the clinical staff
+member who acquired the photographs. They are encoded as DICOM Operators’
+Name (0008,1070).</p></li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>DICOM permits multiple Physicians of Record and Operators (value
+multiplicity <code class="docutils literal notranslate"><span class="pre">1-n</span></code>). The current <code class="docutils literal notranslate"><span class="pre">dicom4ortho</span></code> public metadata API
+supports one dental provider and one operator per photograph. Multiple
+names are not currently supported.</p>
+</div>
+<p>An actual referring physician is copied from <code class="docutils literal notranslate"><span class="pre">ReferringPhysicianName</span></code> in a
+Modality Worklist. The requesting physician remains part of the worklist order
+and is linked through the request identifiers rather than copied into the
+baseline VL Photographic Image IOD.</p>
+</section>
 <section id="orthodontic-treatment-progress">
 <h2>Orthodontic treatment progress<a class="headerlink" href="#orthodontic-treatment-progress" title="Link to this heading">¶</a></h2>
 <p>Treatment progress is encoded as one TID 3465 event and day-offset pair. Use
@@ -142,6 +165,7 @@ and update commands.</p>
 <li><a class="reference internal" href="#">Usage</a><ul>
 <li><a class="reference internal" href="#cli">CLI</a></li>
 <li><a class="reference internal" href="#using-the-library-directly">Using the library directly</a></li>
+<li><a class="reference internal" href="#practice-personnel">Practice personnel</a></li>
 <li><a class="reference internal" href="#orthodontic-treatment-progress">Orthodontic treatment progress</a></li>
 <li><a class="reference internal" href="#updating-terminology-codes">Updating terminology codes</a></li>
 </ul>

@@ -45,6 +45,30 @@ and the available metadata:
    )
    photo.save()
 
+Practice personnel
+------------------
+
+Keep personnel metadata simple and describe the role each person actually had:
+
+* ``dental_provider_firstname`` and ``dental_provider_lastname`` identify the
+  orthodontist or dentist responsible for treatment. They are encoded as DICOM
+  Physicians of Record (0008,1048).
+* ``operator_firstname`` and ``operator_lastname`` identify the clinical staff
+  member who acquired the photographs. They are encoded as DICOM Operators'
+  Name (0008,1070).
+
+.. note::
+
+   DICOM permits multiple Physicians of Record and Operators (value
+   multiplicity ``1-n``). The current ``dicom4ortho`` public metadata API
+   supports one dental provider and one operator per photograph. Multiple
+   names are not currently supported.
+
+An actual referring physician is copied from ``ReferringPhysicianName`` in a
+Modality Worklist. The requesting physician remains part of the worklist order
+and is linked through the request identifiers rather than copied into the
+baseline VL Photographic Image IOD.
+
 Orthodontic treatment progress
 ------------------------------
 

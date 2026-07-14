@@ -28,6 +28,14 @@ Release notes
 * **Resource maintenance**: ``make update_resources`` explicitly fetches FHIR
   terminology and regenerates the lock without committing it. Updating
   ``views.csv`` remains a separate ``make fetch_resources`` operation.
+* **Practice personnel**: ``dental_provider_firstname`` and
+  ``dental_provider_lastname`` now encode the orthodontist or dentist
+  responsible for treatment as DICOM Physicians of Record. Explicit operator
+  metadata encodes the clinical staff member as Operators' Name, while an
+  actual referring physician is copied from MWL without conflating it with the
+  requesting physician.
+* **MWL conversion**: the controller's image-plus-worklist conversion now copies
+  valid worklist attributes and returns the generated photograph.
 
 0.5.2
 -----

@@ -45,14 +45,30 @@ Patient’s date of birth in YYYY-MM-DD format. DICOM
 dental_provider_firstname
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
-First name of orthodontic (or dental) provider. First part of DICOM
-``(0008, 0090) Referring Physician's Name`` tag.
+First name of the orthodontist or dentist responsible for treatment. First
+part of DICOM ``(0008,1048) Physicians of Record``.
 
 dental_provider_lastname
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
-Last name of orthodontic (or dental) provider. Second part of DICOM
-``(0008, 0090) Referring Physician's Name`` tag.
+Last name of the orthodontist or dentist responsible for treatment. Second
+part of DICOM ``(0008,1048) Physicians of Record``.
+
+operator_firstname
+^^^^^^^^^^^^^^^^^^
+
+First name of the clinical staff member who acquired the photograph. First
+part of DICOM ``(0008,1070) Operators' Name``.
+
+operator_lastname
+^^^^^^^^^^^^^^^^^
+
+Last name of the clinical staff member who acquired the photograph. Second
+part of DICOM ``(0008,1070) Operators' Name``.
+
+The DICOM Physicians of Record and Operators' Name attributes permit multiple
+names, but the current ``dicom4ortho`` CSV format supports one dental provider
+and one operator per photograph.
 
 image_type
 ^^^^^^^^^^

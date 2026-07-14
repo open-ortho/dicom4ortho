@@ -78,13 +78,26 @@ test executes this public example to prevent documentation drift.</p>
 </section>
 <section id="dental-provider-firstname">
 <h2>dental_provider_firstname<a class="headerlink" href="#dental-provider-firstname" title="Link to this heading">¶</a></h2>
-<p>First name of orthodontic (or dental) provider. First part of DICOM
-<code class="docutils literal notranslate"><span class="pre">(0008,</span> <span class="pre">0090)</span> <span class="pre">Referring</span> <span class="pre">Physician's</span> <span class="pre">Name</span></code> tag.</p>
+<p>First name of the orthodontist or dentist responsible for treatment. First
+part of DICOM <code class="docutils literal notranslate"><span class="pre">(0008,1048)</span> <span class="pre">Physicians</span> <span class="pre">of</span> <span class="pre">Record</span></code>.</p>
 </section>
 <section id="dental-provider-lastname">
 <h2>dental_provider_lastname<a class="headerlink" href="#dental-provider-lastname" title="Link to this heading">¶</a></h2>
-<p>Last name of orthodontic (or dental) provider. Second part of DICOM
-<code class="docutils literal notranslate"><span class="pre">(0008,</span> <span class="pre">0090)</span> <span class="pre">Referring</span> <span class="pre">Physician's</span> <span class="pre">Name</span></code> tag.</p>
+<p>Last name of the orthodontist or dentist responsible for treatment. Second
+part of DICOM <code class="docutils literal notranslate"><span class="pre">(0008,1048)</span> <span class="pre">Physicians</span> <span class="pre">of</span> <span class="pre">Record</span></code>.</p>
+</section>
+<section id="operator-firstname">
+<h2>operator_firstname<a class="headerlink" href="#operator-firstname" title="Link to this heading">¶</a></h2>
+<p>First name of the clinical staff member who acquired the photograph. First
+part of DICOM <code class="docutils literal notranslate"><span class="pre">(0008,1070)</span> <span class="pre">Operators'</span> <span class="pre">Name</span></code>.</p>
+</section>
+<section id="operator-lastname">
+<h2>operator_lastname<a class="headerlink" href="#operator-lastname" title="Link to this heading">¶</a></h2>
+<p>Last name of the clinical staff member who acquired the photograph. Second
+part of DICOM <code class="docutils literal notranslate"><span class="pre">(0008,1070)</span> <span class="pre">Operators'</span> <span class="pre">Name</span></code>.</p>
+<p>The DICOM Physicians of Record and Operators’ Name attributes permit multiple
+names, but the current <code class="docutils literal notranslate"><span class="pre">dicom4ortho</span></code> CSV format supports one dental provider
+and one operator per photograph.</p>
 </section>
 <section id="image-type">
 <h2>image_type<a class="headerlink" href="#image-type" title="Link to this heading">¶</a></h2>
@@ -214,6 +227,8 @@ as IV28, IV30, and EV40.</p>
 <li><a class="reference internal" href="#patient-birthdate">patient_birthdate</a></li>
 <li><a class="reference internal" href="#dental-provider-firstname">dental_provider_firstname</a></li>
 <li><a class="reference internal" href="#dental-provider-lastname">dental_provider_lastname</a></li>
+<li><a class="reference internal" href="#operator-firstname">operator_firstname</a></li>
+<li><a class="reference internal" href="#operator-lastname">operator_lastname</a></li>
 <li><a class="reference internal" href="#image-type">image_type</a></li>
 <li><a class="reference internal" href="#manufacturer">manufacturer</a></li>
 <li><a class="reference internal" href="#input-image-filename">input_image_filename</a></li>

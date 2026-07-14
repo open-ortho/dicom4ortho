@@ -70,6 +70,14 @@ and <code class="docutils literal notranslate"><span class="pre">Posttreatment</
 <li><p><strong>Resource maintenance</strong>: <code class="docutils literal notranslate"><span class="pre">make</span> <span class="pre">update_resources</span></code> explicitly fetches FHIR
 terminology and regenerates the lock without committing it. Updating
 <code class="docutils literal notranslate"><span class="pre">views.csv</span></code> remains a separate <code class="docutils literal notranslate"><span class="pre">make</span> <span class="pre">fetch_resources</span></code> operation.</p></li>
+<li><p><strong>Practice personnel</strong>: <code class="docutils literal notranslate"><span class="pre">dental_provider_firstname</span></code> and
+<code class="docutils literal notranslate"><span class="pre">dental_provider_lastname</span></code> now encode the orthodontist or dentist
+responsible for treatment as DICOM Physicians of Record. Explicit operator
+metadata encodes the clinical staff member as Operators’ Name, while an
+actual referring physician is copied from MWL without conflating it with the
+requesting physician.</p></li>
+<li><p><strong>MWL conversion</strong>: the controller’s image-plus-worklist conversion now copies
+valid worklist attributes and returns the generated photograph.</p></li>
 </ul>
 </section>
 <section id="id1">

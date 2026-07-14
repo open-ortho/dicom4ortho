@@ -100,6 +100,19 @@ class TestTerminologySourceConsistency(unittest.TestCase):
                 self.assertEqual(binding.system, DCM_SYSTEM)
                 self.assertEqual(binding.code, code)
 
+    def test_known_fhir_display_error_uses_normative_dicom_meaning(self):
+        from dicom4ortho._generated_codes import CODES
+        from tools.generate_codes import CODE_BINDINGS, CODE_MEANING_OVERRIDES, SCT_SYSTEM
+        binding = CODE_BINDINGS["frenum"]
+        self.assertEqual(binding.source, "CID4061")
+        self.assertEqual(binding.system, SCT_SYSTEM)
+        self.assertEqual(binding.code, "7652006")
+        self.assertEqual(
+            CODE_MEANING_OVERRIDES[(binding.source, binding.system, binding.code)],
+            "Frenulum labii",
+        )
+        self.assertEqual(CODES["frenum"].meaning, "Frenulum labii")
+
 
 class TestFhirResolution(unittest.TestCase):
     """FHIR resolution must not confuse primary codes with mapping identifiers."""

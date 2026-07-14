@@ -187,7 +187,7 @@ STRUCTURE_OF_BUCCAL_SPACE = DicomCode(
 FRENUM = DicomCode(
     value='7652006',
     scheme='SCT',
-    meaning='Buccal space',
+    meaning='Frenulum labii',
 )
 
 FACE_STRUCTURE = DicomCode(

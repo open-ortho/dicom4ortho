@@ -262,6 +262,12 @@ CODE_BINDINGS = {
     "device_fiducial_marker": CodeBinding("CID4072", SCT_SYSTEM, "1332164008"),
 }
 
+# The pinned FHIR serialization duplicates the Buccal space display for SCT
+# 7652006. Normative DICOM PS3.16 CID 4061 defines it as Frenulum labii.
+CODE_MEANING_OVERRIDES = {
+    ("CID4061", SCT_SYSTEM, "7652006"): "Frenulum labii",
+}
+
 
 def _fetch_json(url: str) -> dict:
     """Fetch one FHIR JSON resource."""
@@ -363,7 +369,11 @@ def load_terminology(
             raise ValueError(f"Terminology source {name} has no location")
     codes = dict(LOCAL_CODES)
     for keyword, binding in CODE_BINDINGS.items():
-        codes[keyword] = resolve_code(resources[binding.source], binding)
+        resolved = resolve_code(resources[binding.source], binding)
+        resolved["meaning"] = CODE_MEANING_OVERRIDES.get(
+            (binding.source, binding.system, binding.code), resolved["meaning"]
+        )
+        codes[keyword] = resolved
 
     image_types = {}
     for source in ("ADA_INTRAORAL_2D", "ADA_EXTRAORAL_2D"):

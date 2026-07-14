@@ -6,10 +6,12 @@ Unit tests for command line interface.
 import io
 import unittest
 import logging
-import os
-import importlib.resources
+from pathlib import Path
 from unittest.mock import patch
+
 import dicom4ortho.__main__
+
+
 class Test(unittest.TestCase):
 
     def setUp(self):
@@ -21,21 +23,20 @@ class Test(unittest.TestCase):
         pass
 
     def testCli(self):
-        resource_path = None
-        with importlib.resources.path("test.resources","input_from.csv") as input_csv:
-            testargs = ['',str(input_csv)]
-            resource_path = os.path.dirname(input_csv)
+        examples_path = Path(__file__).resolve().parent.parent / 'examples'
+        input_csv = examples_path / 'input_from.csv'
+        testargs = ['', str(input_csv)]
         return_status = dicom4ortho.__main__.main(testargs)
         self.assertEqual(return_status, 0)
-        output_file1 = os.path.join(resource_path,'EV-01_EO.RP.LR.CO.dcm') 
-        output_file2 = (os.path.join(resource_path,'EV-17_EO.FF.LC.CO.dcm'))
-        output_file3 = (os.path.join(resource_path,'IV-25_IO.MX.MO.OV.WM.BC.dcm'))
-        self.assertTrue(os.path.exists(output_file1))
-        os.remove(output_file1)
-        self.assertTrue(os.path.exists(output_file2))
-        os.remove(output_file2)
-        self.assertTrue(os.path.exists(output_file3))
-        os.remove(output_file3)
+
+        output_files = [
+            examples_path / 'EV-01_EO.RP.LR.CO.dcm',
+            examples_path / 'EV-17_EO.FF.LC.CO.dcm',
+            examples_path / 'IV-25_IO.MX.MO.OV.WM.BC.dcm',
+        ]
+        for output_file in output_files:
+            self.addCleanup(output_file.unlink, missing_ok=True)
+            self.assertTrue(output_file.exists())
 
     def testHelp(self):
         testargs = ['','-h']

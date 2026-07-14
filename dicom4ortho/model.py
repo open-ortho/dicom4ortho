@@ -267,7 +267,8 @@ class DicomBase(object):
 
     def _set_request_attributes(self):
         if self.dicom_mwl is None:
-            logger.warning("No Modality Worklist to copy tags from.")
+            logger.debug(
+                "No Modality Worklist; RequestAttributesSequence omitted.")
             return
 
         ras = Dataset()
@@ -782,9 +783,6 @@ class PhotographBase(DicomBase):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.set_file_meta()
-        self.file_meta.MediaStorageSOPClassUID = VLPhotographicImageStorage
-        self._set_sop_common()
-        self._set_general_series()
         self._set_vl_image()
         input_image_filename = kwargs.get('input_image_filename', None)
         if input_image_filename:

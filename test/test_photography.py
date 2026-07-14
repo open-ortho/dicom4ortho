@@ -65,9 +65,7 @@ class PhotoTests(unittest.TestCase):
     def setUp(self):
         logging.basicConfig(format='%(asctime)s - %(levelname)s - %(funcName)s: %(message)s',
                             level=logging.INFO)
-        self.resource_path = None
-        with importlib.resources.path("test.resources", "input_from.csv") as input_csv:
-            self.resource_path = Path(input_csv).parent.absolute()
+        self.resource_path = Path(__file__).parent / 'resources'
 
     def tearDown(self):
         pass

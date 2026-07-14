@@ -203,7 +203,8 @@ usually come from the practice management software, or photo management
 software.
 
 The easiest way to feed this information to `dicom4ortho`'s CLI is using a
-CSV file. You can find an example CSV file [here](resources/example/input_from.csv)
+CSV file. You can find an executable example CSV file
+[here](examples/input_from.csv).
 
 Once installed, if necessary, start the virtual environment:
 
@@ -280,4 +281,4 @@ Project Link: [https://github.com/open-ortho/dicom4ortho](https://github.com/ope
 [linkedin-shield]: https://img.shields.io/badge/-LinkedIn-black.svg?style=for-the-badge&logo=linkedin&colorB=555
 [linkedin-url]: https://linkedin.com/in/open-ortho
 [product-screenshot]: images/screenshot.png
-[example-csv-url]: resources/example/input_from.csv
+[example-csv-url]: examples/input_from.csv

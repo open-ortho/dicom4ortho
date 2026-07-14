@@ -217,6 +217,19 @@ then use dicom4ortho like this:
 Where `filename` should be a `.csv` file. Passing a single image file with
 metadata through arguments is planned for future implementations.
 
+### Practice personnel
+
+Use `dental_provider_firstname` and `dental_provider_lastname` for the
+orthodontist or dentist responsible for treatment. They are encoded as DICOM
+`PhysiciansOfRecord`. Use `operator_firstname` and `operator_lastname` for the
+clinical staff member who acquired the photographs; they are encoded as DICOM
+`OperatorsName`.
+
+An actual referring physician is copied from `ReferringPhysicianName` in a
+Modality Worklist. The requesting physician remains part of the worklist order
+and is linked through the request identifiers rather than copied into the
+baseline VL Photographic Image IOD.
+
 generate a new UID for DICOM usage with this root:
 
     $ d4o_generate

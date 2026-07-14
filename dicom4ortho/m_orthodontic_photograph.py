@@ -24,6 +24,12 @@ logger = logging.getLogger(__name__)
 class OrthodonticPhotograph(PhotographBase):
     """ An Orthodontic Photograph as defined in WP-1100
 
+        ``dental_provider_firstname`` and ``dental_provider_lastname`` identify
+        the orthodontist or dentist responsible for treatment and are encoded
+        as DICOM Physicians of Record. ``operator_firstname`` and
+        ``operator_lastname`` identify the clinical staff member who acquired
+        the photographs and are encoded as DICOM Operators' Name.
+
         arguments:
 
         image_type: a 4 digit ortho photo type code as specified in WP-1100. Ex. EV01
@@ -72,10 +78,19 @@ class OrthodonticPhotograph(PhotographBase):
         self.patient_lastname = metadata.get('patient_lastname', '')
         self.patient_id = metadata.get('patient_id', '')
         self.patient_sex = metadata.get('patient_sex', '')
-        self.dental_provider_firstname = metadata.get(
-            'dental_provider_firstname', '')
-        self.dental_provider_lastname = metadata.get(
-            'dental_provider_lastname', '')
+        dental_provider_firstname = metadata.get('dental_provider_firstname')
+        dental_provider_lastname = metadata.get('dental_provider_lastname')
+        if dental_provider_firstname:
+            self.dental_provider_firstname = dental_provider_firstname
+        if dental_provider_lastname:
+            self.dental_provider_lastname = dental_provider_lastname
+
+        operator_firstname = metadata.get('operator_firstname')
+        operator_lastname = metadata.get('operator_lastname')
+        if operator_firstname:
+            self.operator_firstname = operator_firstname
+        if operator_lastname:
+            self.operator_lastname = operator_lastname
         self.equipment_manufacturer = metadata.get('manufacturer')
         self.treatment_event_type = metadata.get('treatment_event_type')
         self.days_after_event = metadata.get('days_after_event')

@@ -14,15 +14,38 @@ import logging
 import os
 import tempfile
 import time
+from pathlib import Path
 from pydicom.dataset import Dataset
 from pydicom import dcmread
 from pynetdicom import AE, evt, AllStoragePresentationContexts, ALL_TRANSFER_SYNTAXES
 from dicom4ortho.controller import OrthodonticController
 from dicom4ortho.m_orthodontic_photograph import OrthodonticPhotograph
 from dicom4ortho.config import VL_DENTAL_VIEW_CID
+from test.sample_data_generator import make_sample_MWL
 from pynetdicom.sop_class import VLPhotographicImageStorage # 
 
 SCP_PORT = 7795
+
+
+class TestMWLConversion(unittest.TestCase):
+    """Unit tests for constructing photographs from worklist metadata."""
+
+    def test_convert_image_plus_mwl_returns_photo_with_valid_mwl_tags(self):
+        image_bytes = Path('test/resources/sample_NikonD90.JPG').read_bytes()
+        mwl = make_sample_MWL(
+            modality='VL', startdate='20241209', starttime='090000')
+        controller = OrthodonticController()
+
+        photo = controller.convert_image_plus_mwl_to_dicom4orthograph(
+            image_bytes, mwl)
+
+        self.assertIsInstance(photo, OrthodonticPhotograph)
+        self.assertIs(controller.photo, photo)
+        self.assertEqual(photo._ds.PatientID, mwl.PatientID)
+        self.assertEqual(
+            photo._ds.ReferringPhysicianName, mwl.ReferringPhysicianName)
+        self.assertNotIn('RequestingPhysician', photo._ds)
+        self.assertNotIn('OperatorsName', photo._ds)
 
 
 class TestDIMSESend(unittest.TestCase):

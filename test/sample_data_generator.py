@@ -69,6 +69,9 @@ def make_sample_MWL(modality, startdate, starttime):
     # Requesting physician details
     ds.RequestingPhysician = "Brown^Emily^^Dr"
 
+    # The referring and requesting physicians are distinct DICOM roles.
+    ds.ReferringPhysicianName = "Taylor^Morgan^^Dr"
+
     # SOP Class and Instance UID
     ds.SOPClassUID = ModalityWorklistInformationFind
     ds.SOPInstanceUID = generate_uid()

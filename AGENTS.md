@@ -88,9 +88,10 @@ docker compose -f ./test/docker-compose.yml down
 ## 5) Makefile Caveats Agents Must Know
 
 - `make test` is not unit-only; it always touches Docker.
-- `make build` invokes `update_resources`.
-- `update_resources` may run `git add` and `git commit` automatically for resource CSV updates.
-- Avoid running `make build` if you must not create commits or touch git state.
+- `make build` uses the committed `_generated_codes.py` terminology lock and does not
+  access the network.
+- `update_resources` explicitly fetches official DICOM and ADA FHIR terminology and
+  rewrites `_generated_codes.py`; review the generated diff before committing it.
 - Safer build-only command: `python -m build`.
 
 ## 6) Code Style and Conventions

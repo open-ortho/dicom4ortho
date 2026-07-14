@@ -52,6 +52,6 @@ class Test(unittest.TestCase):
         self.assertIn('Type', output)
         self.assertIn('Abbreviated', output)
         self.assertIn('Full Meaning', output)
-        # spot-check a known image type from image_types.csv
+        # Spot-check a known image type from the generated ADA FHIR terminology.
         self.assertIn('EV01', output)
         self.assertIn('EO.RP.LR.CO', output)

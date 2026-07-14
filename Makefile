@@ -4,9 +4,7 @@ D3TOOLS_VERSION = 1.00.snapshot.20230225185712
 D3TOOLS_BASE_URL = https://www.dclunie.com/dicom3tools/workinprogress/macexe/dicom3tools_
 D3TOOLS_FILE = dicom3tools.zip
 URL_DENT_OIP_LATEST_ROOT = https://raw.githubusercontent.com/open-ortho/dent-oip/latest
-URL_CODES = $(URL_DENT_OIP_LATEST_ROOT)/source/tables/codes.csv
 URL_VIEWS = $(URL_DENT_OIP_LATEST_ROOT)/source/tables/views.csv
-CODES = $(MAIN)/resources/codes.csv
 VIEWS = $(MAIN)/resources/views.csv
 
 ifeq ($(OS),Windows_NT)
@@ -58,18 +56,17 @@ $(DIST):
 	mkdir $@
 
 .PHONY: build
-build: lint test $(DIST) update_resources ## Lint, test, and build the distribution package
+build: lint test $(DIST) ## Lint, test, and build from the committed terminology lock
 	python3 -m build
 
 .PHONY: fetch_resources
-fetch_resources: ## Download codes.csv and views.csv from upstream dent-oip (only when upstream is known-clean; see dent-oip#11)
+fetch_resources: ## Download views.csv from upstream dent-oip
 	@# See https://github.com/open-ortho/dent-oip/issues/11 — until that is resolved,
 	@# run this target manually and verify generate_codes.py succeeds before committing.
 	curl --silent -z $(VIEWS) -o $(VIEWS) $(URL_VIEWS)
-	curl --silent -z $(CODES) -o $(CODES) $(URL_CODES)
 
 .PHONY: update_resources
-update_resources: ## Regenerate _generated_codes.py from committed CSVs (use fetch_resources first to also pull upstream)
+update_resources: ## Fetch official FHIR terminology and regenerate _generated_codes.py
 	python3 tools/generate_codes.py
 
 .PHONY: deploy

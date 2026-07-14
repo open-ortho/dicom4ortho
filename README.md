@@ -46,9 +46,23 @@
 
 ## Introduction
 
-The orthodontic provider takes different types of photographs of patients, each of which needs to be properly described and distinguished using proper DICOM attributes. The dental community publised standarad ADA-1114 which defines the requirements for dental images to be in DICOM, which refers to ADA-1100 for orthodntic images: it defines 73 different possible types of photographs most commonly used, each of which with a linedrawing as example.  [DICOM CP 1570](https://dicom.nema.org/Dicom/News/March2025/docs/cpack130/cp1570.pdf) was published to add the necessary codes and attributes in order to fulfill the requirements defined in ADA-1100. The views specified in ADA-1100 have been published as their own codes set in https://terminology.open-ortho.org/; these have been used to add equivalent codes to SNOMED; https://terminology.open-ortho.org/ also contains a mapping between the ADA-1100 codes and the official SNOMED-CT codes.
+ADA 1114 defines DICOM requirements for dental images and refers to ADA 1100,
+which defines 73 commonly used orthodontic photograph types. ADA-1107 is the
+not-yet-published, IHE-style implementation profile that specifies how ADA 1100
+and ADA 1114 are applied together. `dicom4ortho` directly implements this
+draft ADA-1107 profile; its support for ADA 1100 and ADA 1114 is therefore
+indirect through ADA-1107.
 
-`dicom4ortho` is a library to automatically generate DICOM IODs that fulfill the requirements of ADA1100, using the additions of CP1570 where necessary. with all anatomic and clinical attributes pre-populated, based on the image type. It is intended to be used by software developers which need to generate valid DICOM IODs, without having to go through the DICOM standard to figure out how to do it. It is a library to:
+[DICOM CP 1570](https://dicom.nema.org/Dicom/News/March2025/docs/cpack130/cp1570.pdf)
+added the codes and attributes required by the profile. The ADA 1100 image
+types and their mappings to official SNOMED CT codes are published at
+https://terminology.open-ortho.org/.
+
+`dicom4ortho` automatically generates DICOM IODs according to the draft
+ADA-1107 implementation profile, using the additions from CP 1570. It
+pre-populates anatomic and clinical attributes based on the image type and is
+intended for software developers who need to generate valid DICOM IODs without
+deriving every requirement directly from the DICOM standard. It can:
 
 - return a full valid DICOM IOD taking an image, patient demographics and an image type as input;
 - return a DICOM IOD stub taking an image type as input;
@@ -172,10 +186,12 @@ The project includes a Makefile that simplifies common development tasks:
     $ make lint              # Run linter on the code
     $ make all               # Clean and build
     $ make install-dev       # Install development tools including dicom3tools
-    $ make update_resources  # Update resource files from source
+    $ make update_resources  # Refresh the committed terminology lock from FHIR
     $ make deploy            # Deploy to PyPI
 
 The Makefile handles Docker for you when running tests. It starts the required Docker containers before running tests and shuts them down afterward.
+Normal package builds use the committed terminology lock and do not require
+network access. `make update_resources` is an explicit maintainer operation.
 
 ### Validation with dicom3tools
 
@@ -215,6 +231,41 @@ then use dicom4ortho like this:
 
 Where `filename` should be a `.csv` file. Passing a single image file with
 metadata through arguments is planned for future implementations.
+
+### Orthodontic Treatment Progress
+
+Under the draft ADA-1107 profile, treatment progress for an ADA 1100 image is
+encoded relative to one event that applies when the photograph was acquired:
+
+- Use `PatientRegistration` before treatment and during observation.
+- Use `OrthodonticTreatmentStarted` during active treatment.
+- Use `OrthodonticTreatmentStopped` after treatment.
+
+Pass the event date and acquisition datetime to let `dicom4ortho` calculate the
+TID 3465 offset in days:
+
+```python
+from datetime import date, datetime
+
+from dicom4ortho.m_orthodontic_photograph import OrthodonticPhotograph
+
+photo = OrthodonticPhotograph(
+    image_type="EV08",
+    acquisition_datetime=datetime(2026, 7, 14, 10, 30),
+    treatment_event_type="PatientRegistration",
+    treatment_event_date=date(2026, 7, 1),
+)
+```
+
+An explicit `acquisition_datetime` overrides the image's EXIF
+`DateTimeOriginal`. If it is omitted, `dicom4ortho` uses EXIF as the acquisition
+time and as the basis for treatment-progress calculation. Date-based progress
+requires one of these acquisition-time sources.
+
+For an existing photograph with an acquisition date, progress can be updated
+with `set_treatment_progress_from_date(event_type, event_date)`. The old
+`days_after_event`, `OrthodonticTreatment`, and `Posttreatment` forms remain
+available with deprecation warnings until version 2.
 
 generate a new UID for DICOM usage with this root:
 

@@ -10,6 +10,7 @@ from pathlib import Path
 from unittest.mock import patch
 
 import dicom4ortho.__main__
+from pydicom import dcmread
 
 
 class Test(unittest.TestCase):
@@ -37,6 +38,11 @@ class Test(unittest.TestCase):
         for output_file in output_files:
             self.addCleanup(output_file.unlink, missing_ok=True)
             self.assertTrue(output_file.exists())
+
+        ds = dcmread(output_files[0])
+        self.assertEqual(ds.PhysiciansOfRecord, 'Angle^Edward')
+        self.assertEqual(ds.OperatorsName, 'Jordan^Alex')
+        self.assertEqual(ds.ReferringPhysicianName, '')
 
     def testHelp(self):
         testargs = ['','-h']

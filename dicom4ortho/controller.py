@@ -43,8 +43,14 @@ class OrthodonticController(object):
             patient_id                  :
             patient_sex                 :
             patient_birthdate           :
-            dental_provider_firstname   :
-            dental_provider_lastname    :
+            dental_provider_firstname   : orthodontist or dentist responsible
+                                          for treatment
+            dental_provider_lastname    : orthodontist or dentist responsible
+                                          for treatment
+            operator_firstname          : clinical staff member who acquired
+                                          the photograph
+            operator_lastname           : clinical staff member who acquired
+                                          the photograph
             acquisition_datetime        : optional photograph acquisition
                                           datetime; overrides EXIF
                                           DateTimeOriginal. EXIF is used when
@@ -82,6 +88,9 @@ class OrthodonticController(object):
 
         mwl (Dataset): DICOM MWL object.
 
+        Returns:
+        OrthodonticPhotograph: The photograph populated with valid MWL tags.
+
         '''
         metadata = {
             'input_image_filename': None,
@@ -89,7 +98,8 @@ class OrthodonticController(object):
             'dicom_mwl': mwl,
         }
         self.photo = OrthodonticPhotograph(**metadata)
-        pass
+        self.photo.copy_mwl_tags(dicom_mwl=mwl)
+        return self.photo
 
     def convert_image_to_dicom4orthograph_and_save(self, metadata):
         _photo = self.convert_image_to_dicom4orthograph(metadata=metadata)

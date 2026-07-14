@@ -129,16 +129,17 @@ class PhotoTests(unittest.TestCase):
     def testNames(self):
         o = OrthodonticPhotograph()
         o.dental_provider_firstname = "Toni"
-        self.assertEqual(o._ds.ReferringPhysicianName, "^Toni")
+        self.assertEqual(o._ds.PhysiciansOfRecord, "^Toni")
 
         o = OrthodonticPhotograph()
         o.dental_provider_lastname = "Magni"
-        self.assertEqual(o._ds.ReferringPhysicianName, "Magni^")
+        self.assertEqual(o._ds.PhysiciansOfRecord, "Magni^")
 
         o = OrthodonticPhotograph()
         o.dental_provider_firstname = "Toni"
         o.dental_provider_lastname = "Magni"
-        self.assertEqual(o._ds.ReferringPhysicianName, "Magni^Toni")
+        self.assertEqual(o._ds.PhysiciansOfRecord, "Magni^Toni")
+        self.assertEqual(o._ds.ReferringPhysicianName, "")
         self.assertEqual(o.dental_provider_firstname, "Toni")
         self.assertEqual(o.dental_provider_lastname, "Magni")
         myio = BytesIO()
@@ -173,6 +174,31 @@ class PhotoTests(unittest.TestCase):
         self.assertEqual(o._ds.OperatorsName, "Magni^Toni")
         self.assertEqual(o.operator_firstname, "Toni")
         self.assertEqual(o.operator_lastname, "Magni")
+
+    def test_personnel_metadata_uses_baseline_dicom_roles(self):
+        o = OrthodonticPhotograph(
+            dental_provider_firstname='Morgan',
+            dental_provider_lastname='Taylor',
+            operator_firstname='Alex',
+            operator_lastname='Jordan',
+        )
+
+        self.assertEqual(o._ds.PhysiciansOfRecord, 'Taylor^Morgan')
+        self.assertEqual(o._ds.OperatorsName, 'Jordan^Alex')
+        self.assertEqual(o._ds.ReferringPhysicianName, '')
+
+    def test_copy_mwl_tags_copies_only_valid_personnel_attributes(self):
+        mwl = make_sample_MWL(
+            modality='VL', startdate='20241209', starttime='090000')
+        o = OrthodonticPhotograph(dicom_mwl=mwl)
+        o.copy_mwl_tags(dicom_mwl=mwl)
+
+        self.assertEqual(
+            o._ds.ReferringPhysicianName, mwl.ReferringPhysicianName)
+        self.assertNotIn('RequestingPhysician', o._ds)
+        self.assertNotIn('OperatorsName', o._ds)
+        for request in o._ds.RequestAttributesSequence:
+            self.assertNotIn('ScheduledPerformingPhysicianName', request)
 
     def testExifTags(self):
         # Create an OrthodonticPhotograph using the sample MWL

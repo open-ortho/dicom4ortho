@@ -71,6 +71,9 @@ class DicomBase(object):
 
     def _set_general_study(self):
         self._ds.AccessionNumber = ''
+        # Type 2 in the General Study Module: present but empty when no
+        # referring physician was supplied by the worklist.
+        self._ds.ReferringPhysicianName = ''
         self._ds.StudyInstanceUID = generate_dicom_uid(
             root=config.StudyInstanceUID_ROOT)
         self._ds.StudyID = config.IDS_NUMBERS
@@ -126,6 +129,10 @@ class DicomBase(object):
 
         This is done according to IHE RAD TF-2x.
 
+        ReferringPhysicianName is copied because it has the same meaning in MWL
+        and the General Study Module. RequestingPhysician and the scheduled
+        performing physician remain worklist-only roles.
+
         """
         if self.dicom_mwl is None:
             self.dicom_mwl = dicom_mwl
@@ -136,6 +143,14 @@ class DicomBase(object):
 
         if 'StudyInstanceUID' in self.dicom_mwl:
             self._ds.StudyInstanceUID = self.dicom_mwl.StudyInstanceUID
+
+        if 'ReferringPhysicianName' in self.dicom_mwl:
+            self._ds.ReferringPhysicianName = (
+                self.dicom_mwl.ReferringPhysicianName)
+
+        if 'ReferringPhysicianIdentificationSequence' in self.dicom_mwl:
+            self._ds.ReferringPhysicianIdentificationSequence = (
+                self.dicom_mwl.ReferringPhysicianIdentificationSequence)
 
         if 'ReferencedStudySequence' in self.dicom_mwl:
             self._ds.ReferencedStudySequence = self.dicom_mwl.ReferencedStudySequence
@@ -519,19 +534,19 @@ class DicomBase(object):
 
     @property
     def dental_provider_firstname(self):
-        return str(self._ds.ReferringPhysicianName).split('^')[1]
+        return str(self._ds.PhysiciansOfRecord).split('^')[1]
 
     @dental_provider_firstname.setter
     def dental_provider_firstname(self, firstname):
-        self._set_name("ReferringPhysicianName", firstname, 0)
+        self._set_name("PhysiciansOfRecord", firstname, 0)
 
     @property
     def dental_provider_lastname(self):
-        return str(self._ds.ReferringPhysicianName).split('^')[0]
+        return str(self._ds.PhysiciansOfRecord).split('^')[0]
 
     @dental_provider_lastname.setter
     def dental_provider_lastname(self, lastname):
-        self._set_name("ReferringPhysicianName", lastname, 1)
+        self._set_name("PhysiciansOfRecord", lastname, 1)
 
     @property
     def timezone(self) -> datetime.timezone:

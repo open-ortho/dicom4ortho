@@ -5,11 +5,11 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Release notes &#8212; dicom4ortho docs 0.3 documentation</title>
+    <title>Release notes &#8212; dicom4ortho docs 0.5.3-dev documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
     <link rel="stylesheet" type="text/css" href="_static/classic.css?v=2bf1fcf8" />
     
-    <script src="_static/documentation_options.js?v=b489f392"></script>
+    <script src="_static/documentation_options.js?v=73d8ad1d"></script>
     <script src="_static/doctools.js?v=fd6eb6e6"></script>
     <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
     
@@ -31,7 +31,7 @@
         <li class="right" >
           <a href="roadmap.html" title="Feature Roadmap"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">dicom4ortho docs 0.3 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">dicom4ortho docs 0.5.3-dev documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">Release notes</a></li> 
       </ul>
     </div>  
@@ -43,6 +43,35 @@
             
   <section id="release-notes">
 <h1>Release notes<a class="headerlink" href="#release-notes" title="Link to this heading">¶</a></h1>
+<section id="development">
+<h2>0.5.3 (development)<a class="headerlink" href="#development" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p><strong>Official FHIR terminology</strong>: DICOM codes are resolved from the pinned
+official <code class="docutils literal notranslate"><span class="pre">fhir.dicom</span></code> package, while all 73 ADA 1100 image types are
+resolved from the CodeSystems at <code class="docutils literal notranslate"><span class="pre">terminology.open-ortho.org</span></code>.</p></li>
+<li><p><strong>Offline terminology lock</strong>: source IDs and versions are recorded in the
+committed <code class="docutils literal notranslate"><span class="pre">dicom4ortho/_generated_codes.py</span></code> module. Normal builds and
+runtime use do not access the network.</p></li>
+<li><p><strong>Retired terminology CSV files</strong>: <code class="docutils literal notranslate"><span class="pre">codes.csv</span></code> and <code class="docutils literal notranslate"><span class="pre">image_types.csv</span></code> are
+no longer packaged. <code class="docutils literal notranslate"><span class="pre">views.csv</span></code> remains the local view-layout source.</p></li>
+<li><p><strong>Correct CID 4070 events</strong>: treatment progress now uses
+<code class="docutils literal notranslate"><span class="pre">PatientRegistration</span></code> (<code class="docutils literal notranslate"><span class="pre">184047000</span></code>), <code class="docutils literal notranslate"><span class="pre">OrthodonticTreatmentStarted</span></code>
+(<code class="docutils literal notranslate"><span class="pre">1332161000</span></code>), and <code class="docutils literal notranslate"><span class="pre">OrthodonticTreatmentStopped</span></code> (<code class="docutils literal notranslate"><span class="pre">1340210007</span></code>).</p></li>
+<li><p><strong>Date-based treatment progress</strong>:
+<code class="docutils literal notranslate"><span class="pre">set_treatment_progress_from_date(event_type,</span> <span class="pre">event_date)</span></code> calculates the
+TID 3465 offset from the photograph acquisition date. Constructor metadata
+accepts <code class="docutils literal notranslate"><span class="pre">treatment_event_date</span></code> with <code class="docutils literal notranslate"><span class="pre">acquisition_datetime</span></code>.</p></li>
+<li><p><strong>Acquisition-time precedence</strong>: an explicit <code class="docutils literal notranslate"><span class="pre">acquisition_datetime</span></code>
+overrides EXIF. If it is omitted, EXIF <code class="docutils literal notranslate"><span class="pre">DateTimeOriginal</span></code> is loaded before
+treatment progress is calculated and used as the fallback acquisition time.</p></li>
+<li><p><strong>Compatibility</strong>: the days-based API and the old <code class="docutils literal notranslate"><span class="pre">OrthodonticTreatment</span></code>
+and <code class="docutils literal notranslate"><span class="pre">Posttreatment</span></code> event names remain available with
+<code class="docutils literal notranslate"><span class="pre">DeprecationWarning</span></code> until version 2.</p></li>
+<li><p><strong>Resource maintenance</strong>: <code class="docutils literal notranslate"><span class="pre">make</span> <span class="pre">update_resources</span></code> explicitly fetches FHIR
+terminology and regenerates the lock without committing it. Updating
+<code class="docutils literal notranslate"><span class="pre">views.csv</span></code> remains a separate <code class="docutils literal notranslate"><span class="pre">make</span> <span class="pre">fetch_resources</span></code> operation.</p></li>
+</ul>
+</section>
 <section id="id1">
 <h2>0.5.2<a class="headerlink" href="#id1" title="Link to this heading">¶</a></h2>
 <ul class="simple">
@@ -140,6 +169,7 @@ for consistency with pydicom naming conventions.</p></li>
     <h3><a href="index.html">Table of Contents</a></h3>
     <ul>
 <li><a class="reference internal" href="#">Release notes</a><ul>
+<li><a class="reference internal" href="#development">0.5.3 (development)</a></li>
 <li><a class="reference internal" href="#id1">0.5.2</a></li>
 <li><a class="reference internal" href="#id2">0.5.1</a></li>
 <li><a class="reference internal" href="#id3">0.4.7</a></li>
@@ -194,12 +224,12 @@ for consistency with pydicom naming conventions.</p></li>
         <li class="right" >
           <a href="roadmap.html" title="Feature Roadmap"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">dicom4ortho docs 0.3 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">dicom4ortho docs 0.5.3-dev documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">Release notes</a></li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
-    &#169; Copyright 2021, open-ortho.
+    &#169; Copyright 2021-2026, open-ortho.
       Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.0.
     </div>
   </body>

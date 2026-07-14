@@ -9,57 +9,92 @@ photo management software.
 CLI
 ----
 
-The current way to feed this information to ``dicom4ortho``\ ’s CLI is
-using a CSV file. You can find an example CSV file
-`here <resources/example/input_from.csv>`__
+The CLI accepts either a single image or a CSV file for bulk conversion. List
+the supported ADA 1100 image types with:
+
+.. code-block:: bash
+
+   dicom4ortho list-image-types
 
 Once installed, use dicom4ortho like this:
 
 .. code-block:: bash
 
-   $ dicom4ortho <filename>
+   dicom4ortho --image-type EV08 input.jpg
 
-Where ``filename`` should be a ``.csv`` file. Passing a single image
-file with metadata through arguments is planned for future
-implementations.
+For bulk conversion, pass a CSV file using the format described in
+:doc:`file_formats/csv_file`.
 
 Using the library directly
 ---------------------------
 
-Latest example of usage can be found in the ``fhir2dicome4ortho.tasks`` module.
-Also look at the main entrypoint for ``dicom4ortho``.
+Create an orthodontic photograph directly by passing an ADA 1100 image type
+and the available metadata:
+
+.. code-block:: python
+
+   from dicom4ortho.m_orthodontic_photograph import OrthodonticPhotograph
+
+   photo = OrthodonticPhotograph(
+       image_type="EV08",
+       input_image_filename="input.jpg",
+       output_image_filename="output.dcm",
+       patient_id="12345",
+   )
+   photo.save()
+
+Orthodontic treatment progress
+------------------------------
+
+Treatment progress is encoded as one TID 3465 event and day-offset pair. Use
+the event that applies when the photograph was acquired:
+
+* ``PatientRegistration`` before treatment and during observation.
+* ``OrthodonticTreatmentStarted`` during active treatment.
+* ``OrthodonticTreatmentStopped`` after treatment.
+
+Pass the event date and acquisition datetime so ``dicom4ortho`` calculates and
+validates the offset:
+
+.. code-block:: python
+
+   from datetime import date, datetime
+
+   from dicom4ortho.m_orthodontic_photograph import OrthodonticPhotograph
+
+   photo = OrthodonticPhotograph(
+       image_type="EV08",
+       acquisition_datetime=datetime(2026, 7, 14, 10, 30),
+       treatment_event_type="PatientRegistration",
+       treatment_event_date=date(2026, 7, 1),
+   )
+
+``acquisition_datetime`` is authoritative when supplied and overrides the
+image's EXIF ``DateTimeOriginal`` value. If it is omitted, ``dicom4ortho`` uses
+EXIF as the acquisition time and as the basis for calculating treatment
+progress. Date-based progress requires one of these acquisition-time sources.
+
+For an existing photograph whose dataset contains an acquisition date, use:
+
+.. code-block:: python
+
+   photo.set_treatment_progress_from_date(
+       "OrthodonticTreatmentStarted", date(2026, 7, 1)
+   )
+
+An event date after the effective acquisition date is rejected. The event type
+and event date must be supplied together.
+
+The old ``days_after_event`` metadata and
+``set_treatment_progress(event_type, days)`` method remain available with
+``DeprecationWarning`` until version 2. The old ``OrthodonticTreatment`` and
+``Posttreatment`` names map to ``OrthodonticTreatmentStarted`` and
+``OrthodonticTreatmentStopped`` respectively and are deprecated on the same
+schedule.
 
 Updating terminology codes
 --------------------------
 
-The DICOM codes and orthodontic view definitions used by ``dicom4ortho``
-are baked in at build time as a generated Python module
-(``dicom4ortho/_generated_codes.py``). This is intentional: it acts as a
-lock file that pins the exact terminology used in a release, ensures
-reproducible builds, and means end users never need network access at
-runtime.
-
-To update the codes (e.g. when DICOM publishes new CID tables or
-``dent-oip`` updates its view definitions), run the following from the
-repository root:
-
-.. code-block:: bash
-
-   $ make update_resources
-
-This will:
-
-1. Download the latest ``codes.csv`` and ``views.csv`` from the
-   ``dent-oip`` repository.
-2. Regenerate ``dicom4ortho/_generated_codes.py`` from those sources.
-3. Commit the updated files.
-
-The sources for the codes are:
-
-- **View layout** (which codes apply to each of the 73 orthodontic views):
-  ``dent-oip`` repository on GitHub
-  (``https://raw.githubusercontent.com/open-ortho/dent-oip/latest/source/tables/``)
-- **DICOM CID codes** (CID 4061–4072, added by CP-1570): published by DICOM
-  as FHIR ValueSets at
-  ``ftp://medical.nema.org/medical/dicom/resources/valuesets/fhir/json/``
-- **Orthodontic SNOMED codes**: ``terminology.open-ortho.org``
+Terminology updates are an explicit maintainer operation. See
+:doc:`terminology` for the authoritative FHIR sources, offline lock behavior,
+and update commands.

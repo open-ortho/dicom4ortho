@@ -3,11 +3,14 @@ About The Project
 
 The DICOM standard is ready for any developer in the orthodontic
 community to implement. However, it can be complicated and implementation can be
-time consuming. The DICOM standard is also does not contain an explicit
-explanation on orthodntic photographs, allowing the developer too much freedom.
+time consuming. DICOM CP 1570 added the acquisition-context attributes and
+codes needed for interoperable orthodontic photographs.
 
-This is why we decided to implement ANSI Standard ADA-1107, which defines
-exactly how to use DICOM to encode orthodontic photographs.
+``dicom4ortho`` directly implements ADA-1107. ADA-1107 is a not-yet-published,
+IHE-style implementation profile that specifies how the ADA 1100 orthodontic
+image types and ADA 1114 DICOM requirements are applied together. Support for
+ADA 1100 and ADA 1114 is therefore indirect through the draft ADA-1107 profile.
+The profile uses the additions from DICOM CP 1570.
 
 We want to create a proof of concept to demonstrate how to properly store
 orthodontic visible light images (aka photographs) using DICOM, while ensuring
@@ -83,4 +86,3 @@ Acknowledgements
 -  `DICOM <https://www.webpagefx.com/tools/emoji-cheat-sheet>`__
 -  `American Dental Association Standards Committee for Dental
    Informatics <https://www.ada.org/en/science-research/dental-standards/standards-committee-on-dental-informatics>`__
-

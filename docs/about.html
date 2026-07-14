@@ -5,11 +5,11 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>About The Project &#8212; dicom4ortho docs 0.3 documentation</title>
+    <title>About The Project &#8212; dicom4ortho docs 0.5.3-dev documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
     <link rel="stylesheet" type="text/css" href="_static/classic.css?v=2bf1fcf8" />
     
-    <script src="_static/documentation_options.js?v=b489f392"></script>
+    <script src="_static/documentation_options.js?v=73d8ad1d"></script>
     <script src="_static/doctools.js?v=fd6eb6e6"></script>
     <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
     
@@ -27,7 +27,7 @@
         <li class="right" >
           <a href="release_notes.html" title="Release notes"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">dicom4ortho docs 0.3 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">dicom4ortho docs 0.5.3-dev documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">About The Project</a></li> 
       </ul>
     </div>  
@@ -41,10 +41,13 @@
 <h1>About The Project<a class="headerlink" href="#about-the-project" title="Link to this heading">¶</a></h1>
 <p>The DICOM standard is ready for any developer in the orthodontic
 community to implement. However, it can be complicated and implementation can be
-time consuming. The DICOM standard is also does not contain an explicit
-explanation on orthodntic photographs, allowing the developer too much freedom.</p>
-<p>This is why we decided to implement ANSI Standard ADA-1107, which defines
-exactly how to use DICOM to encode orthodontic photographs.</p>
+time consuming. DICOM CP 1570 added the acquisition-context attributes and
+codes needed for interoperable orthodontic photographs.</p>
+<p><code class="docutils literal notranslate"><span class="pre">dicom4ortho</span></code> directly implements ADA-1107. ADA-1107 is a not-yet-published,
+IHE-style implementation profile that specifies how the ADA 1100 orthodontic
+image types and ADA 1114 DICOM requirements are applied together. Support for
+ADA 1100 and ADA 1114 is therefore indirect through the draft ADA-1107 profile.
+The profile uses the additions from DICOM CP 1570.</p>
 <p>We want to create a proof of concept to demonstrate how to properly store
 orthodontic visible light images (aka photographs) using DICOM, while ensuring
 all codes (necessary to uniquely identify each image type) are in the proper
@@ -174,12 +177,12 @@ Informatics</a></p></li>
         <li class="right" >
           <a href="release_notes.html" title="Release notes"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">dicom4ortho docs 0.3 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">dicom4ortho docs 0.5.3-dev documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">About The Project</a></li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
-    &#169; Copyright 2021, open-ortho.
+    &#169; Copyright 2021-2026, open-ortho.
       Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.0.
     </div>
   </body>

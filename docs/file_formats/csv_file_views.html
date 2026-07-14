@@ -5,11 +5,11 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Views CSV File Format Documentation &#8212; dicom4ortho docs 0.3 documentation</title>
+    <title>View-layout CSV file &#8212; dicom4ortho docs 0.5.3-dev documentation</title>
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
     <link rel="stylesheet" type="text/css" href="../_static/classic.css?v=2bf1fcf8" />
     
-    <script src="../_static/documentation_options.js?v=b489f392"></script>
+    <script src="../_static/documentation_options.js?v=73d8ad1d"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     
@@ -17,7 +17,7 @@
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="CSV Image file format" href="csv_file.html" />
-    <link rel="prev" title="Codes CSV File Format Documentation" href="csv_file_codes.html" /> 
+    <link rel="prev" title="Terminology sources" href="../terminology.html" />
   </head><body>
     <div class="related" role="navigation" aria-label="Related">
       <h3>Navigation</h3>
@@ -29,10 +29,10 @@
           <a href="csv_file.html" title="CSV Image file format"
              accesskey="N">next</a> |</li>
         <li class="right" >
-          <a href="csv_file_codes.html" title="Codes CSV File Format Documentation"
+          <a href="../terminology.html" title="Terminology sources"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../index.html">dicom4ortho docs 0.3 documentation</a> &#187;</li>
-        <li class="nav-item nav-item-this"><a href="">Views CSV File Format Documentation</a></li> 
+        <li class="nav-item nav-item-0"><a href="../index.html">dicom4ortho docs 0.5.3-dev documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">View-layout CSV file</a></li>
       </ul>
     </div>  
 
@@ -41,17 +41,22 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <section id="views-csv-file-format-documentation">
-<span id="csv-file-views"></span><h1>Views CSV File Format Documentation<a class="headerlink" href="#views-csv-file-format-documentation" title="Link to this heading">¶</a></h1>
+  <section id="view-layout-csv-file">
+<span id="csv-file-views"></span><h1>View-layout CSV file<a class="headerlink" href="#view-layout-csv-file" title="Link to this heading">¶</a></h1>
 <section id="introduction">
 <h2>Introduction<a class="headerlink" href="#introduction" title="Link to this heading">¶</a></h2>
-<p>This document outlines the structure and format of the CSV file used in our project. The CSV file includes various headers related to medical imaging data, specifically tailored to our needs.</p>
+<p><code class="docutils literal notranslate"><span class="pre">dicom4ortho/resources/views.csv</span></code> is a maintainer resource that defines the
+DICOM attribute layout for each of the 73 ADA 1100 image types. It is not the
+bulk-conversion input format used by the CLI.</p>
+<p>Cells that name coded concepts contain generator binding keywords. During an
+explicit terminology update, <code class="docutils literal notranslate"><span class="pre">tools/generate_codes.py</span></code> resolves those
+keywords against the official sources described in <a class="reference internal" href="../terminology.html"><span class="doc">Terminology sources</span></a>.
+There is no separate local codes table.</p>
 </section>
 <section id="file-structure">
-<h2>File Structure<a class="headerlink" href="#file-structure" title="Link to this heading">¶</a></h2>
-<p>The CSV file contains the following columns:</p>
+<h2>File structure<a class="headerlink" href="#file-structure" title="Link to this heading">¶</a></h2>
 <table class="docutils align-default" id="id1">
-<caption><span class="caption-text">CSV Header Descriptions</span><a class="headerlink" href="#id1" title="Link to this table">¶</a></caption>
+<caption><span class="caption-text">CSV header descriptions</span><a class="headerlink" href="#id1" title="Link to this table">¶</a></caption>
 <colgroup>
 <col style="width: 50.0%" />
 <col style="width: 50.0%" />
@@ -63,75 +68,74 @@
 </thead>
 <tbody>
 <tr class="row-even"><td><p>keyword</p></td>
-<td><p>The unique keyword for this view.</p></td>
+<td><p>The ADA 1100 image-type code for this view.</p></td>
 </tr>
 <tr class="row-odd"><td><p>PatientOrientation</p></td>
-<td><p>Use one of the codes defined in the codes table. Refer to <a class="reference external" href="http://open-ortho.org/dent-oip/release/">DENT-OIP</a></p></td>
+<td><p>A structural orientation keyword resolved by the generator.</p></td>
 </tr>
 <tr class="row-even"><td><p>ImageLaterality</p></td>
-<td><p>Use one of the codes defined in the codes table. Refer to <a class="reference external" href="http://open-ortho.org/dent-oip/release/">DENT-OIP</a></p></td>
+<td><p>A structural laterality keyword resolved by the generator.</p></td>
 </tr>
 <tr class="row-odd"><td><p>AnatomicRegionSequence</p></td>
-<td><p>Use one of the codes defined in the codes table. Refer to <a class="reference external" href="http://open-ortho.org/dent-oip/release/">DENT-OIP</a></p></td>
+<td><p>A terminology binding for <code class="docutils literal notranslate"><span class="pre">AnatomicRegionSequence</span></code>.</p></td>
 </tr>
 <tr class="row-even"><td><p>AnatomicRegionModifierSequence</p></td>
-<td><p>Use one of the codes defined in the codes table. Refer to <a class="reference external" href="http://open-ortho.org/dent-oip/release/">DENT-OIP</a></p></td>
+<td><p>An optional terminology binding for <code class="docutils literal notranslate"><span class="pre">AnatomicRegionModifierSequence</span></code>.</p></td>
 </tr>
 <tr class="row-odd"><td><p>PrimaryAnatomicStructureSequence</p></td>
-<td><p>Use one of the codes defined in the codes table. Refer to <a class="reference external" href="http://open-ortho.org/dent-oip/release/">DENT-OIP</a></p></td>
+<td><p>An optional terminology binding for <code class="docutils literal notranslate"><span class="pre">PrimaryAnatomicStructureSequence</span></code>.</p></td>
 </tr>
 <tr class="row-even"><td><p>PrimaryAnatomicStructureModifierSequence</p></td>
-<td><p>Use one of the codes defined in the codes table. Refer to <a class="reference external" href="http://open-ortho.org/dent-oip/release/">DENT-OIP</a></p></td>
+<td><p>An optional terminology binding for the primary structure modifier.</p></td>
 </tr>
 <tr class="row-odd"><td><p>DeviceSequence</p></td>
-<td><p>Use one of the codes defined in the codes table. Refer to <a class="reference external" href="http://open-ortho.org/dent-oip/release/">DENT-OIP</a></p></td>
+<td><p>Zero or more device bindings separated by <code class="docutils literal notranslate"><span class="pre">^</span></code>.</p></td>
 </tr>
 <tr class="row-even"><td><p>ViewCodeSequence</p></td>
-<td><p>Use one of the codes defined in the codes table. Refer to <a class="reference external" href="http://open-ortho.org/dent-oip/release/">DENT-OIP</a></p></td>
+<td><p>A view-code binding. Some views require the caller to supply this value.</p></td>
 </tr>
 <tr class="row-odd"><td><p>ViewModifierCodeSequence</p></td>
-<td><p>Use one of the codes defined in the codes table. Refer to <a class="reference external" href="http://open-ortho.org/dent-oip/release/">DENT-OIP</a></p></td>
+<td><p>Zero or more view-modifier bindings separated by <code class="docutils literal notranslate"><span class="pre">^</span></code>.</p></td>
 </tr>
-<tr class="row-even"><td><p>AcquisitionContextSequence^FunctionalConditionPresentDuringAcquisition</p></td>
-<td><p>No longer used.</p></td>
+<tr class="row-even"><td><p>AcquisitionContextSequence^OrthognathicFunctionalConditions</p></td>
+<td><p>Zero or more CID 4066 bindings separated by <code class="docutils literal notranslate"><span class="pre">^</span></code>.</p></td>
 </tr>
-<tr class="row-odd"><td><p>AcquisitionContextSequence^OrthognathicFunctionalConditions</p></td>
-<td><p>Use one of the codes defined in the codes table. Refer to <a class="reference external" href="http://open-ortho.org/dent-oip/release/">DENT-OIP</a></p></td>
+<tr class="row-odd"><td><p>AcquisitionContextSequence^FindingByInspection</p></td>
+<td><p>Zero or more CID 4067 bindings separated by <code class="docutils literal notranslate"><span class="pre">^</span></code>.</p></td>
 </tr>
-<tr class="row-even"><td><p>AcquisitionContextSequence^FindingByInspection</p></td>
-<td><p>Use one of the codes defined in the codes table. Refer to <a class="reference external" href="http://open-ortho.org/dent-oip/release/">DENT-OIP</a></p></td>
+<tr class="row-even"><td><p>AcquisitionContextSequence^ObservableEntity</p></td>
+<td><p>Zero or more CID 4068 bindings separated by <code class="docutils literal notranslate"><span class="pre">^</span></code>.</p></td>
 </tr>
-<tr class="row-odd"><td><p>AcquisitionContextSequence^ObservableEntity</p></td>
-<td><p>Use one of the codes defined in the codes table. Refer to <a class="reference external" href="http://open-ortho.org/dent-oip/release/">DENT-OIP</a></p></td>
+<tr class="row-odd"><td><p>AcquisitionContextSequence^DentalOcclusion</p></td>
+<td><p>An optional CID 4069 binding.</p></td>
 </tr>
-<tr class="row-even"><td><p>AcquisitionContextSequence^DentalOcclusion</p></td>
-<td><p>Use one of the codes defined in the codes table. Refer to <a class="reference external" href="http://open-ortho.org/dent-oip/release/">DENT-OIP</a></p></td>
+<tr class="row-even"><td><p>ImageComments</p></td>
+<td><p>Legacy source data. Runtime <code class="docutils literal notranslate"><span class="pre">ImageComments</span></code> use the ADA FHIR
+CodeSystem definition for the image type.</p></td>
 </tr>
-<tr class="row-odd"><td><p>ImageComments</p></td>
-<td><p>Use one of the codes defined in the codes table. Refer to <a class="reference external" href="http://open-ortho.org/dent-oip/release/">DENT-OIP</a></p></td>
+<tr class="row-odd"><td><p>StudyDescription</p></td>
+<td><p>Legacy source data; not read by the generator.</p></td>
 </tr>
-<tr class="row-even"><td><p>StudyDescription</p></td>
-<td><p>Use one of the codes defined in the codes table. Refer to <a class="reference external" href="http://open-ortho.org/dent-oip/release/">DENT-OIP</a></p></td>
+<tr class="row-even"><td><p>SeriesDescription</p></td>
+<td><p>The default <code class="docutils literal notranslate"><span class="pre">SeriesDescription</span></code> for the view.</p></td>
 </tr>
-<tr class="row-odd"><td><p>SeriesDescription</p></td>
-<td><p>Use one of the codes defined in the codes table. Refer to <a class="reference external" href="http://open-ortho.org/dent-oip/release/">DENT-OIP</a></p></td>
-</tr>
-<tr class="row-even"><td><p>teeth_example</p></td>
-<td><p>Not used. ISO teeth numbers of teeth that appear in the image, separated by the caret character <code class="docutils literal notranslate"><span class="pre">^</span></code>.</p></td>
+<tr class="row-odd"><td><p>teeth_example</p></td>
+<td><p>Legacy source data; not read by the generator.</p></td>
 </tr>
 </tbody>
 </table>
 </section>
-<section id="example-records">
-<h2>Example Records<a class="headerlink" href="#example-records" title="Link to this heading">¶</a></h2>
-<p>Below is an example record in the CSV format:</p>
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>IV01,OrientationRight,LateralityUnpaired,Mouth,,StructureOfBuccalSpace,right,na,projection_right,na,,,,,co,&quot;Intraoral Right Buccal Segment, Centric Occlusion, Direct View&quot;,&lt;Progress Name&gt;,Orthodontic Intraoral Series,54^55^16^84^85^46
+<section id="example-record">
+<h2>Example record<a class="headerlink" href="#example-record" title="Link to this heading">¶</a></h2>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>IV01,OrientationRight,LateralityUnpaired,Mouth,,StructureOfBuccalSpace,right,,projection_right,,,,,co,&quot;Intraoral Right Buccal Segment, Centric Occlusion, Direct View&quot;,&lt;Progress Name&gt;,Orthodontic Intraoral Series,54^55^16^84^85^46
 </pre></div>
 </div>
 </section>
-<section id="conclusion">
-<h2>Conclusion<a class="headerlink" href="#conclusion" title="Link to this heading">¶</a></h2>
-<p>This document provides a foundational understanding of the CSV file format utilized in our project, detailing each column’s expected content to ensure accurate and consistent data entry.</p>
+<section id="maintenance">
+<h2>Maintenance<a class="headerlink" href="#maintenance" title="Link to this heading">¶</a></h2>
+<p>Run <code class="docutils literal notranslate"><span class="pre">make</span> <span class="pre">fetch_resources</span></code> to refresh this file from <code class="docutils literal notranslate"><span class="pre">dent-oip</span></code>, then run
+<code class="docutils literal notranslate"><span class="pre">make</span> <span class="pre">update_resources</span></code> to resolve its bindings and regenerate the committed
+terminology lock. Review both diffs before committing.</p>
 </section>
 </section>
 
@@ -145,11 +149,11 @@
   <div>
     <h3><a href="../index.html">Table of Contents</a></h3>
     <ul>
-<li><a class="reference internal" href="#">Views CSV File Format Documentation</a><ul>
+<li><a class="reference internal" href="#">View-layout CSV file</a><ul>
 <li><a class="reference internal" href="#introduction">Introduction</a></li>
-<li><a class="reference internal" href="#file-structure">File Structure</a></li>
-<li><a class="reference internal" href="#example-records">Example Records</a></li>
-<li><a class="reference internal" href="#conclusion">Conclusion</a></li>
+<li><a class="reference internal" href="#file-structure">File structure</a></li>
+<li><a class="reference internal" href="#example-record">Example record</a></li>
+<li><a class="reference internal" href="#maintenance">Maintenance</a></li>
 </ul>
 </li>
 </ul>
@@ -157,8 +161,8 @@
   </div>
   <div>
     <h4>Previous topic</h4>
-    <p class="topless"><a href="csv_file_codes.html"
-                          title="previous chapter">Codes CSV File Format Documentation</a></p>
+    <p class="topless"><a href="../terminology.html"
+                          title="previous chapter">Terminology sources</a></p>
   </div>
   <div>
     <h4>Next topic</h4>
@@ -196,14 +200,14 @@
           <a href="csv_file.html" title="CSV Image file format"
              >next</a> |</li>
         <li class="right" >
-          <a href="csv_file_codes.html" title="Codes CSV File Format Documentation"
+          <a href="../terminology.html" title="Terminology sources"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../index.html">dicom4ortho docs 0.3 documentation</a> &#187;</li>
-        <li class="nav-item nav-item-this"><a href="">Views CSV File Format Documentation</a></li> 
+        <li class="nav-item nav-item-0"><a href="../index.html">dicom4ortho docs 0.5.3-dev documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">View-layout CSV file</a></li>
       </ul>
     </div>
     <div class="footer" role="contentinfo">
-    &#169; Copyright 2021, open-ortho.
+    &#169; Copyright 2021-2026, open-ortho.
       Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.0.
     </div>
   </body>

@@ -5,18 +5,18 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Usage &#8212; dicom4ortho docs 0.3 documentation</title>
+    <title>Usage &#8212; dicom4ortho docs 0.5.3-dev documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
     <link rel="stylesheet" type="text/css" href="_static/classic.css?v=2bf1fcf8" />
     
-    <script src="_static/documentation_options.js?v=b489f392"></script>
+    <script src="_static/documentation_options.js?v=73d8ad1d"></script>
     <script src="_static/doctools.js?v=fd6eb6e6"></script>
     <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
     
     <link rel="author" title="About these documents" href="about.html" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Codes CSV File Format Documentation" href="file_formats/csv_file_codes.html" />
+    <link rel="next" title="Terminology sources" href="terminology.html" />
     <link rel="prev" title="Installation" href="installation.html" /> 
   </head><body>
     <div class="related" role="navigation" aria-label="Related">
@@ -26,12 +26,12 @@
           <a href="genindex.html" title="General Index"
              accesskey="I">index</a></li>
         <li class="right" >
-          <a href="file_formats/csv_file_codes.html" title="Codes CSV File Format Documentation"
+          <a href="terminology.html" title="Terminology sources"
              accesskey="N">next</a> |</li>
         <li class="right" >
           <a href="installation.html" title="Installation"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">dicom4ortho docs 0.3 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">dicom4ortho docs 0.5.3-dev documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">Usage</a></li> 
       </ul>
     </div>  
@@ -49,53 +49,81 @@ environment, usually come from the practice management software, or
 photo management software.</p>
 <section id="cli">
 <h2>CLI<a class="headerlink" href="#cli" title="Link to this heading">¶</a></h2>
-<p>The current way to feed this information to <code class="docutils literal notranslate"><span class="pre">dicom4ortho</span></code>’s CLI is
-using a CSV file. You can find an example CSV file
-<a class="reference external" href="resources/example/input_from.csv">here</a></p>
-<p>Once installed, use dicom4ortho like this:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>dicom4ortho<span class="w"> </span>&lt;filename&gt;
+<p>The CLI accepts either a single image or a CSV file for bulk conversion. List
+the supported ADA 1100 image types with:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>dicom4ortho<span class="w"> </span>list-image-types
 </pre></div>
 </div>
-<p>Where <code class="docutils literal notranslate"><span class="pre">filename</span></code> should be a <code class="docutils literal notranslate"><span class="pre">.csv</span></code> file. Passing a single image
-file with metadata through arguments is planned for future
-implementations.</p>
+<p>Once installed, use dicom4ortho like this:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>dicom4ortho<span class="w"> </span>--image-type<span class="w"> </span>EV08<span class="w"> </span>input.jpg
+</pre></div>
+</div>
+<p>For bulk conversion, pass a CSV file using the format described in
+<a class="reference internal" href="file_formats/csv_file.html"><span class="doc">CSV Image file format</span></a>.</p>
 </section>
 <section id="using-the-library-directly">
 <h2>Using the library directly<a class="headerlink" href="#using-the-library-directly" title="Link to this heading">¶</a></h2>
-<p>Latest example of usage can be found in the <code class="docutils literal notranslate"><span class="pre">fhir2dicome4ortho.tasks</span></code> module.
-Also look at the main entrypoint for <code class="docutils literal notranslate"><span class="pre">dicom4ortho</span></code>.</p>
+<p>Create an orthodontic photograph directly by passing an ADA 1100 image type
+and the available metadata:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">dicom4ortho.m_orthodontic_photograph</span><span class="w"> </span><span class="kn">import</span> <span class="n">OrthodonticPhotograph</span>
+
+<span class="n">photo</span> <span class="o">=</span> <span class="n">OrthodonticPhotograph</span><span class="p">(</span>
+    <span class="n">image_type</span><span class="o">=</span><span class="s2">&quot;EV08&quot;</span><span class="p">,</span>
+    <span class="n">input_image_filename</span><span class="o">=</span><span class="s2">&quot;input.jpg&quot;</span><span class="p">,</span>
+    <span class="n">output_image_filename</span><span class="o">=</span><span class="s2">&quot;output.dcm&quot;</span><span class="p">,</span>
+    <span class="n">patient_id</span><span class="o">=</span><span class="s2">&quot;12345&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">photo</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+</pre></div>
+</div>
+</section>
+<section id="orthodontic-treatment-progress">
+<h2>Orthodontic treatment progress<a class="headerlink" href="#orthodontic-treatment-progress" title="Link to this heading">¶</a></h2>
+<p>Treatment progress is encoded as one TID 3465 event and day-offset pair. Use
+the event that applies when the photograph was acquired:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">PatientRegistration</span></code> before treatment and during observation.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">OrthodonticTreatmentStarted</span></code> during active treatment.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">OrthodonticTreatmentStopped</span></code> after treatment.</p></li>
+</ul>
+<p>Pass the event date and acquisition datetime so <code class="docutils literal notranslate"><span class="pre">dicom4ortho</span></code> calculates and
+validates the offset:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">date</span><span class="p">,</span> <span class="n">datetime</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">dicom4ortho.m_orthodontic_photograph</span><span class="w"> </span><span class="kn">import</span> <span class="n">OrthodonticPhotograph</span>
+
+<span class="n">photo</span> <span class="o">=</span> <span class="n">OrthodonticPhotograph</span><span class="p">(</span>
+    <span class="n">image_type</span><span class="o">=</span><span class="s2">&quot;EV08&quot;</span><span class="p">,</span>
+    <span class="n">acquisition_datetime</span><span class="o">=</span><span class="n">datetime</span><span class="p">(</span><span class="mi">2026</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">14</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">30</span><span class="p">),</span>
+    <span class="n">treatment_event_type</span><span class="o">=</span><span class="s2">&quot;PatientRegistration&quot;</span><span class="p">,</span>
+    <span class="n">treatment_event_date</span><span class="o">=</span><span class="n">date</span><span class="p">(</span><span class="mi">2026</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">acquisition_datetime</span></code> is authoritative when supplied and overrides the
+image’s EXIF <code class="docutils literal notranslate"><span class="pre">DateTimeOriginal</span></code> value. If it is omitted, <code class="docutils literal notranslate"><span class="pre">dicom4ortho</span></code> uses
+EXIF as the acquisition time and as the basis for calculating treatment
+progress. Date-based progress requires one of these acquisition-time sources.</p>
+<p>For an existing photograph whose dataset contains an acquisition date, use:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">photo</span><span class="o">.</span><span class="n">set_treatment_progress_from_date</span><span class="p">(</span>
+    <span class="s2">&quot;OrthodonticTreatmentStarted&quot;</span><span class="p">,</span> <span class="n">date</span><span class="p">(</span><span class="mi">2026</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>An event date after the effective acquisition date is rejected. The event type
+and event date must be supplied together.</p>
+<p>The old <code class="docutils literal notranslate"><span class="pre">days_after_event</span></code> metadata and
+<code class="docutils literal notranslate"><span class="pre">set_treatment_progress(event_type,</span> <span class="pre">days)</span></code> method remain available with
+<code class="docutils literal notranslate"><span class="pre">DeprecationWarning</span></code> until version 2. The old <code class="docutils literal notranslate"><span class="pre">OrthodonticTreatment</span></code> and
+<code class="docutils literal notranslate"><span class="pre">Posttreatment</span></code> names map to <code class="docutils literal notranslate"><span class="pre">OrthodonticTreatmentStarted</span></code> and
+<code class="docutils literal notranslate"><span class="pre">OrthodonticTreatmentStopped</span></code> respectively and are deprecated on the same
+schedule.</p>
 </section>
 <section id="updating-terminology-codes">
 <h2>Updating terminology codes<a class="headerlink" href="#updating-terminology-codes" title="Link to this heading">¶</a></h2>
-<p>The DICOM codes and orthodontic view definitions used by <code class="docutils literal notranslate"><span class="pre">dicom4ortho</span></code>
-are baked in at build time as a generated Python module
-(<code class="docutils literal notranslate"><span class="pre">dicom4ortho/_generated_codes.py</span></code>). This is intentional: it acts as a
-lock file that pins the exact terminology used in a release, ensures
-reproducible builds, and means end users never need network access at
-runtime.</p>
-<p>To update the codes (e.g. when DICOM publishes new CID tables or
-<code class="docutils literal notranslate"><span class="pre">dent-oip</span></code> updates its view definitions), run the following from the
-repository root:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>make<span class="w"> </span>update_resources
-</pre></div>
-</div>
-<p>This will:</p>
-<ol class="arabic simple">
-<li><p>Download the latest <code class="docutils literal notranslate"><span class="pre">codes.csv</span></code> and <code class="docutils literal notranslate"><span class="pre">views.csv</span></code> from the
-<code class="docutils literal notranslate"><span class="pre">dent-oip</span></code> repository.</p></li>
-<li><p>Regenerate <code class="docutils literal notranslate"><span class="pre">dicom4ortho/_generated_codes.py</span></code> from those sources.</p></li>
-<li><p>Commit the updated files.</p></li>
-</ol>
-<p>The sources for the codes are:</p>
-<ul class="simple">
-<li><p><strong>View layout</strong> (which codes apply to each of the 73 orthodontic views):
-<code class="docutils literal notranslate"><span class="pre">dent-oip</span></code> repository on GitHub
-(<code class="docutils literal notranslate"><span class="pre">https://raw.githubusercontent.com/open-ortho/dent-oip/latest/source/tables/</span></code>)</p></li>
-<li><p><strong>DICOM CID codes</strong> (CID 4061–4072, added by CP-1570): published by DICOM
-as FHIR ValueSets at
-<code class="docutils literal notranslate"><span class="pre">ftp://medical.nema.org/medical/dicom/resources/valuesets/fhir/json/</span></code></p></li>
-<li><p><strong>Orthodontic SNOMED codes</strong>: <code class="docutils literal notranslate"><span class="pre">terminology.open-ortho.org</span></code></p></li>
-</ul>
+<p>Terminology updates are an explicit maintainer operation. See
+<a class="reference internal" href="terminology.html"><span class="doc">Terminology sources</span></a> for the authoritative FHIR sources, offline lock behavior,
+and update commands.</p>
 </section>
 </section>
 
@@ -112,6 +140,7 @@ as FHIR ValueSets at
 <li><a class="reference internal" href="#">Usage</a><ul>
 <li><a class="reference internal" href="#cli">CLI</a></li>
 <li><a class="reference internal" href="#using-the-library-directly">Using the library directly</a></li>
+<li><a class="reference internal" href="#orthodontic-treatment-progress">Orthodontic treatment progress</a></li>
 <li><a class="reference internal" href="#updating-terminology-codes">Updating terminology codes</a></li>
 </ul>
 </li>
@@ -125,8 +154,8 @@ as FHIR ValueSets at
   </div>
   <div>
     <h4>Next topic</h4>
-    <p class="topless"><a href="file_formats/csv_file_codes.html"
-                          title="next chapter">Codes CSV File Format Documentation</a></p>
+    <p class="topless"><a href="terminology.html"
+                          title="next chapter">Terminology sources</a></p>
   </div>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
@@ -156,17 +185,17 @@ as FHIR ValueSets at
           <a href="genindex.html" title="General Index"
              >index</a></li>
         <li class="right" >
-          <a href="file_formats/csv_file_codes.html" title="Codes CSV File Format Documentation"
+          <a href="terminology.html" title="Terminology sources"
              >next</a> |</li>
         <li class="right" >
           <a href="installation.html" title="Installation"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">dicom4ortho docs 0.3 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">dicom4ortho docs 0.5.3-dev documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">Usage</a></li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
-    &#169; Copyright 2021, open-ortho.
+    &#169; Copyright 2021-2026, open-ortho.
       Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.0.
     </div>
   </body>

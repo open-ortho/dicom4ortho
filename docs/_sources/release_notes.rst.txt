@@ -1,6 +1,34 @@
 Release notes
 =============
 
+0.5.3 (development)
+-------------------
+
+* **Official FHIR terminology**: DICOM codes are resolved from the pinned
+  official ``fhir.dicom`` package, while all 73 ADA 1100 image types are
+  resolved from the CodeSystems at ``terminology.open-ortho.org``.
+* **Offline terminology lock**: source IDs and versions are recorded in the
+  committed ``dicom4ortho/_generated_codes.py`` module. Normal builds and
+  runtime use do not access the network.
+* **Retired terminology CSV files**: ``codes.csv`` and ``image_types.csv`` are
+  no longer packaged. ``views.csv`` remains the local view-layout source.
+* **Correct CID 4070 events**: treatment progress now uses
+  ``PatientRegistration`` (``184047000``), ``OrthodonticTreatmentStarted``
+  (``1332161000``), and ``OrthodonticTreatmentStopped`` (``1340210007``).
+* **Date-based treatment progress**:
+  ``set_treatment_progress_from_date(event_type, event_date)`` calculates the
+  TID 3465 offset from the photograph acquisition date. Constructor metadata
+  accepts ``treatment_event_date`` with ``acquisition_datetime``.
+* **Acquisition-time precedence**: an explicit ``acquisition_datetime``
+  overrides EXIF. If it is omitted, EXIF ``DateTimeOriginal`` is loaded before
+  treatment progress is calculated and used as the fallback acquisition time.
+* **Compatibility**: the days-based API and the old ``OrthodonticTreatment``
+  and ``Posttreatment`` event names remain available with
+  ``DeprecationWarning`` until version 2.
+* **Resource maintenance**: ``make update_resources`` explicitly fetches FHIR
+  terminology and regenerates the lock without committing it. Updating
+  ``views.csv`` remains a separate ``make fetch_resources`` operation.
+
 0.5.2
 -----
 

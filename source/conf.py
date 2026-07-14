@@ -18,10 +18,10 @@
 # -- Project information -----------------------------------------------------
 
 project = 'dicom4ortho docs'
-copyright = '2021, open-ortho'
+copyright = '2021-2026, open-ortho'
 author = 'open-ortho'
 
-release = '0.3'
+release = '0.5.3-dev'
 # -- General configuration ---------------------------------------------------
 
 # Add any Sphinx extension module names here, as strings. They can be
@@ -36,7 +36,7 @@ templates_path = ['_templates']
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
 # This pattern also affects html_static_path and html_extra_path.
-exclude_patterns = []
+exclude_patterns = ['to_sort.rst']
 
 
 # -- Options for HTML output -------------------------------------------------

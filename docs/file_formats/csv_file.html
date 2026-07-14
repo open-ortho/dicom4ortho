@@ -5,11 +5,11 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>CSV Image file format &#8212; dicom4ortho docs 0.3 documentation</title>
+    <title>CSV Image file format &#8212; dicom4ortho docs 0.5.3-dev documentation</title>
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
     <link rel="stylesheet" type="text/css" href="../_static/classic.css?v=2bf1fcf8" />
     
-    <script src="../_static/documentation_options.js?v=b489f392"></script>
+    <script src="../_static/documentation_options.js?v=73d8ad1d"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     
@@ -17,7 +17,7 @@
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Validation with dicom3tools" href="../validation.html" />
-    <link rel="prev" title="Views CSV File Format Documentation" href="csv_file_views.html" /> 
+    <link rel="prev" title="View-layout CSV file" href="csv_file_views.html" />
   </head><body>
     <div class="related" role="navigation" aria-label="Related">
       <h3>Navigation</h3>
@@ -29,9 +29,9 @@
           <a href="../validation.html" title="Validation with dicom3tools"
              accesskey="N">next</a> |</li>
         <li class="right" >
-          <a href="csv_file_views.html" title="Views CSV File Format Documentation"
+          <a href="csv_file_views.html" title="View-layout CSV file"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../index.html">dicom4ortho docs 0.3 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">dicom4ortho docs 0.5.3-dev documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">CSV Image file format</a></li> 
       </ul>
     </div>  
@@ -140,6 +140,56 @@ value could be something like ‘Orthodontic Intraoral Series’.</p>
 <code class="docutils literal notranslate"><span class="pre">(0008,</span> <span class="pre">103e)</span> <span class="pre">Series</span> <span class="pre">Description</span></code>. Maximum 64 characters are allowed,
 as defined the <a class="reference external" href="http://dicom.nema.org/medical/dicom/current/output/html/part05.html#sect_6.2">DICOM LO
 VR</a></p>
+<section id="optional-treatment-progress-columns">
+<h3>Optional treatment-progress columns<a class="headerlink" href="#optional-treatment-progress-columns" title="Link to this heading">¶</a></h3>
+<p>Blank optional values are ignored. When treatment progress is supplied, the
+event type and one offset source must be provided together.</p>
+</section>
+</section>
+<section id="acquisition-datetime">
+<h2>acquisition_datetime<a class="headerlink" href="#acquisition-datetime" title="Link to this heading">¶</a></h2>
+<p>The photograph acquisition date and time as an ISO 8601 value, for example
+<code class="docutils literal notranslate"><span class="pre">2026-07-14T10:30:00</span></code>. It is written to the DICOM acquisition and content
+date/time attributes and is used to calculate the treatment-progress offset.
+When supplied, it overrides EXIF <code class="docutils literal notranslate"><span class="pre">DateTimeOriginal</span></code>. When omitted,
+<code class="docutils literal notranslate"><span class="pre">dicom4ortho</span></code> uses the EXIF timestamp if one is available.</p>
+</section>
+<section id="treatment-event-type">
+<h2>treatment_event_type<a class="headerlink" href="#treatment-event-type" title="Link to this heading">¶</a></h2>
+<p>The applicable CID 4070 event. Allowed values are
+<code class="docutils literal notranslate"><span class="pre">PatientRegistration</span></code>, <code class="docutils literal notranslate"><span class="pre">OrthodonticTreatmentStarted</span></code>, and
+<code class="docutils literal notranslate"><span class="pre">OrthodonticTreatmentStopped</span></code>.</p>
+</section>
+<section id="treatment-event-date">
+<h2>treatment_event_date<a class="headerlink" href="#treatment-event-date" title="Link to this heading">¶</a></h2>
+<p>The event date in <code class="docutils literal notranslate"><span class="pre">YYYY-MM-DD</span></code> format. <code class="docutils literal notranslate"><span class="pre">dicom4ortho</span></code> subtracts this date
+from the effective acquisition date, whether explicit or from EXIF, and writes
+the resulting non-negative day offset to TID 3465. An event date after the
+acquisition date is rejected.</p>
+</section>
+<section id="days-after-event">
+<h2>days_after_event<a class="headerlink" href="#days-after-event" title="Link to this heading">¶</a></h2>
+<p>A caller-calculated non-negative day offset. This field is retained for
+compatibility but is deprecated; use <code class="docutils literal notranslate"><span class="pre">treatment_event_date</span></code> with
+<code class="docutils literal notranslate"><span class="pre">acquisition_datetime</span></code> instead. Do not provide both offset forms.</p>
+<section id="other-optional-columns">
+<h3>Other optional columns<a class="headerlink" href="#other-optional-columns" title="Link to this heading">¶</a></h3>
+</section>
+</section>
+<section id="output-image-filename">
+<h2>output_image_filename<a class="headerlink" href="#output-image-filename" title="Link to this heading">¶</a></h2>
+<p>The destination DICOM filename. If omitted, the input filename is used with a
+<code class="docutils literal notranslate"><span class="pre">.dcm</span></code> extension.</p>
+</section>
+<section id="burned-in-annotation">
+<h2>burned_in_annotation<a class="headerlink" href="#burned-in-annotation" title="Link to this heading">¶</a></h2>
+<p>Set DICOM <code class="docutils literal notranslate"><span class="pre">BurnedInAnnotation</span></code> to <code class="docutils literal notranslate"><span class="pre">YES</span></code> or <code class="docutils literal notranslate"><span class="pre">NO</span></code>. The default is <code class="docutils literal notranslate"><span class="pre">NO</span></code>.</p>
+</section>
+<section id="view-code-keyword">
+<h2>view_code_keyword<a class="headerlink" href="#view-code-keyword" title="Link to this heading">¶</a></h2>
+<p>The generated terminology keyword for a view code that cannot be determined
+from the image type alone. This is required for variable-view image types such
+as IV28, IV30, and EV40.</p>
 </section>
 </section>
 
@@ -167,7 +217,20 @@ VR</a></p>
 <li><a class="reference internal" href="#study-instance-uid">study_instance_uid</a></li>
 <li><a class="reference internal" href="#study-description">study_description</a></li>
 <li><a class="reference internal" href="#series-instance-uid">series_instance_uid</a></li>
-<li><a class="reference internal" href="#series-description">series_description</a></li>
+<li><a class="reference internal" href="#series-description">series_description</a><ul>
+<li><a class="reference internal" href="#optional-treatment-progress-columns">Optional treatment-progress columns</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#acquisition-datetime">acquisition_datetime</a></li>
+<li><a class="reference internal" href="#treatment-event-type">treatment_event_type</a></li>
+<li><a class="reference internal" href="#treatment-event-date">treatment_event_date</a></li>
+<li><a class="reference internal" href="#days-after-event">days_after_event</a><ul>
+<li><a class="reference internal" href="#other-optional-columns">Other optional columns</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#output-image-filename">output_image_filename</a></li>
+<li><a class="reference internal" href="#burned-in-annotation">burned_in_annotation</a></li>
+<li><a class="reference internal" href="#view-code-keyword">view_code_keyword</a></li>
 </ul>
 </li>
 </ul>
@@ -176,7 +239,7 @@ VR</a></p>
   <div>
     <h4>Previous topic</h4>
     <p class="topless"><a href="csv_file_views.html"
-                          title="previous chapter">Views CSV File Format Documentation</a></p>
+                          title="previous chapter">View-layout CSV file</a></p>
   </div>
   <div>
     <h4>Next topic</h4>
@@ -214,14 +277,14 @@ VR</a></p>
           <a href="../validation.html" title="Validation with dicom3tools"
              >next</a> |</li>
         <li class="right" >
-          <a href="csv_file_views.html" title="Views CSV File Format Documentation"
+          <a href="csv_file_views.html" title="View-layout CSV file"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../index.html">dicom4ortho docs 0.3 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">dicom4ortho docs 0.5.3-dev documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">CSV Image file format</a></li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
-    &#169; Copyright 2021, open-ortho.
+    &#169; Copyright 2021-2026, open-ortho.
       Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.0.
     </div>
   </body>

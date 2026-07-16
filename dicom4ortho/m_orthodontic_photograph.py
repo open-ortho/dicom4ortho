@@ -6,7 +6,8 @@ Adds SNOMED CT codes in DICOM object for Orthodontic Views.
 '''
 
 from typing import List, Optional
-from datetime import datetime
+from datetime import date, datetime
+import warnings
 from pydicom.sequence import Sequence
 from pydicom.dataset import Dataset
 from dicom4ortho.config import VL_DENTAL_VIEW_CID, DICOM4ORTHO_ROOT_UID, DATE_FORMAT
@@ -21,8 +22,25 @@ import logging
 logger = logging.getLogger(__name__)
 
 
+TREATMENT_EVENT_TYPES = frozenset({
+    'PatientRegistration',
+    'OrthodonticTreatmentStarted',
+    'OrthodonticTreatmentStopped',
+})
+
+# TODO(v2): Remove these aliases when support for deprecated APIs is removed in version >= 2.
+_DEPRECATED_TREATMENT_EVENT_ALIASES = {
+    'OrthodonticTreatment': 'OrthodonticTreatmentStarted',
+    'Posttreatment': 'OrthodonticTreatmentStopped',
+}
+
+
 class OrthodonticPhotograph(PhotographBase):
     """ An Orthodontic Photograph as defined in WP-1100
+
+        EXIF ``DateTimeOriginal`` is used as the acquisition time when present.
+        Passing ``acquisition_datetime`` overrides EXIF and supplies the date
+        used to calculate treatment progress.
 
         ``dental_provider_firstname`` and ``dental_provider_lastname`` identify
         the orthodontist or dentist responsible for treatment and are encoded
@@ -60,7 +78,14 @@ class OrthodonticPhotograph(PhotographBase):
         self._ortho_view: Optional[OrthoView] = None
         self._view_code_keyword: Optional[str] = metadata.get('view_code_keyword')
         self.treatment_event_type = None
+        self.treatment_event_date = None
         self.days_after_event = None
+
+        # PhotographBase has already loaded EXIF as fallback metadata. An
+        # explicit value intentionally overrides it before progress is calculated.
+        acquisition_datetime = self._optional_metadata(metadata, 'acquisition_datetime')
+        if acquisition_datetime is not None:
+            self.set_time_captured(self._coerce_datetime(acquisition_datetime))
 
         patient_birthdate = metadata.get('patient_birthdate')
         if patient_birthdate is not None:
@@ -92,8 +117,33 @@ class OrthodonticPhotograph(PhotographBase):
         if operator_lastname:
             self.operator_lastname = operator_lastname
         self.equipment_manufacturer = metadata.get('manufacturer')
-        self.treatment_event_type = metadata.get('treatment_event_type')
-        self.days_after_event = metadata.get('days_after_event')
+        event_type = self._optional_metadata(metadata, 'treatment_event_type')
+        event_date = self._optional_metadata(metadata, 'treatment_event_date')
+        days_after_event = self._optional_metadata(metadata, 'days_after_event')
+        if event_date is not None and days_after_event is not None:
+            raise ValueError(
+                "Specify either treatment_event_date or days_after_event, not both.")
+        if event_type is None and (event_date is not None or days_after_event is not None):
+            raise ValueError(
+                "treatment_event_type is required with treatment progress metadata.")
+        if event_type is not None and event_date is None and days_after_event is None:
+            raise ValueError(
+                "treatment_event_date or days_after_event is required with "
+                "treatment_event_type.")
+        if event_type is not None:
+            self.treatment_event_type = self._canonical_treatment_event(event_type)
+        if event_date is not None:
+            self.treatment_event_date = self._coerce_date(event_date)
+            self.days_after_event = self._days_since_event(self.treatment_event_date)
+        elif days_after_event is not None:
+            # TODO(v2): Remove days_after_event metadata support in version >= 2.
+            warnings.warn(
+                "days_after_event is deprecated; use treatment_event_date with "
+                "acquisition_datetime instead. Support will be removed in version 2.",
+                DeprecationWarning,
+                stacklevel=2,
+            )
+            self.days_after_event = self._validate_days(days_after_event)
 
         self.set_dicom_attributes_by_type_keyword(metadata.get('image_type'))
 
@@ -313,12 +363,7 @@ class OrthodonticPhotograph(PhotographBase):
         if not (self.treatment_event_type and self.days_after_event is not None):
             return []
 
-        event_code = CODES.get(self.treatment_event_type)
-        if event_code is None:
-            logger.warning(
-                "treatment_event_type %r not found in codes; skipping progress items.",
-                self.treatment_event_type)
-            return []
+        event_code = CODES[self.treatment_event_type]
 
         items = []
 
@@ -347,7 +392,7 @@ class OrthodonticPhotograph(PhotographBase):
         variable and must be supplied by the caller.  May also be called after
         construction to change the ViewCode.
 
-        :param keyword: keyword from codes.csv (e.g. 'projection_right')
+        :param keyword: generated terminology keyword (e.g. 'projection_right')
         """
         code = CODES.get(keyword)
         if code is None:
@@ -361,24 +406,146 @@ class OrthodonticPhotograph(PhotographBase):
                 [c.to_dataset() for c in self._ortho_view.view_modifiers])
         self._ds.ViewCodeSequence = Sequence([vc_ds])
 
-    def set_treatment_progress(self, event_type: str, days: int) -> None:
-        """Set the longitudinal temporal event type and offset (TID 3465 rows 5-6).
+    @staticmethod
+    def _optional_metadata(metadata: dict, keyword: str):
+        """Return None for omitted or blank optional metadata values."""
+        value = metadata.get(keyword)
+        if isinstance(value, str) and not value.strip():
+            return None
+        return value
 
-        Updates AcquisitionContextSequence in place, rebuilding it from the
-        current view plus the new progress values.
+    @staticmethod
+    def _canonical_treatment_event(event_type: str) -> str:
+        """Validate an event type and return its canonical CID 4070 keyword."""
+        canonical_event = _DEPRECATED_TREATMENT_EVENT_ALIASES.get(event_type)
+        if canonical_event is not None:
+            warnings.warn(
+                f"{event_type!r} is deprecated; use {canonical_event!r}. "
+                "Support will be removed in version 2.",
+                DeprecationWarning,
+                stacklevel=3,
+            )
+            return canonical_event
+        if event_type not in TREATMENT_EVENT_TYPES:
+            allowed = ', '.join(sorted(TREATMENT_EVENT_TYPES))
+            raise ValueError(
+                f"Unknown treatment event type {event_type!r}; expected one of {allowed}.")
+        return event_type
 
-        :param event_type: keyword from codes.csv (e.g. 'OrthodonticTreatment')
-        :param days: number of days after the event
-        """
+    @staticmethod
+    def _validate_days(days: int) -> int:
+        """Return a non-negative integer day offset."""
+        if isinstance(days, bool):
+            raise TypeError("days must be a non-negative integer.")
+        try:
+            validated_days = int(days)
+        except (TypeError, ValueError) as error:
+            raise TypeError("days must be a non-negative integer.") from error
+        if str(validated_days) != str(days).strip() or validated_days < 0:
+            raise ValueError("days must be a non-negative integer.")
+        return validated_days
+
+    @staticmethod
+    def _coerce_date(value) -> date:
+        """Return a date from a date, datetime, or ISO date string."""
+        if isinstance(value, datetime):
+            return value.date()
+        if isinstance(value, date):
+            return value
+        if isinstance(value, str):
+            try:
+                return date.fromisoformat(value)
+            except ValueError as error:
+                raise ValueError(
+                    f"Expected an ISO date (YYYY-MM-DD), got {value!r}.") from error
+        raise TypeError("event and acquisition dates must be date values or ISO date strings.")
+
+    @staticmethod
+    def _coerce_datetime(value) -> datetime:
+        """Return a datetime from a datetime or ISO datetime string."""
+        if isinstance(value, datetime):
+            return value
+        if isinstance(value, str):
+            try:
+                return datetime.fromisoformat(value)
+            except ValueError as error:
+                raise ValueError(
+                    f"Expected an ISO datetime, got {value!r}.") from error
+        raise TypeError("acquisition_datetime must be a datetime or ISO datetime string.")
+
+    def _acquisition_date(self) -> date:
+        for keyword in ('AcquisitionDate', 'ContentDate'):
+            value = getattr(self._ds, keyword, None)
+            if value:
+                return datetime.strptime(str(value), DATE_FORMAT).date()
+        raise ValueError(
+            "An acquisition date is required to calculate treatment progress.")
+
+    def _days_since_event(self, event_date: date, acquisition_date=None) -> int:
+        acquired = (
+            self._coerce_date(acquisition_date)
+            if acquisition_date is not None
+            else self._acquisition_date()
+        )
+        days = (acquired - event_date).days
+        if days < 0:
+            raise ValueError("treatment_event_date cannot be after the acquisition date.")
+        return days
+
+    def _set_treatment_progress(self, event_type: str, days: int) -> None:
+        """Store canonical progress values and rebuild AcquisitionContextSequence."""
         self.treatment_event_type = event_type
         self.days_after_event = days
         if self._ortho_view is not None:
             self._ds.AcquisitionContextSequence = Sequence(
                 self._build_acquisition_context_items(self._ortho_view))
         else:
-            # No view set; just write the progress items on their own
             self._ds.AcquisitionContextSequence = Sequence(
                 self._make_progress_items())
+
+    def set_treatment_progress(self, event_type: str, days: int) -> None:
+        """Set treatment progress from a caller-calculated day offset.
+
+        .. deprecated:: 0.5.3
+           Use :meth:`set_treatment_progress_from_date` so dicom4ortho calculates
+           and validates the offset.
+
+        Updates AcquisitionContextSequence in place, rebuilding it from the
+        current view plus the new progress values.
+
+        :param event_type: canonical CID 4070 keyword
+        :param days: number of days after the event
+        """
+        # TODO(v2): Remove this days-based method in version >= 2.
+        warnings.warn(
+            "set_treatment_progress(event_type, days) is deprecated; use "
+            "set_treatment_progress_from_date(). Support will be removed in version 2.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        canonical_event = self._canonical_treatment_event(event_type)
+        self.treatment_event_date = None
+        self._set_treatment_progress(canonical_event, self._validate_days(days))
+
+    def set_treatment_progress_from_date(
+        self, event_type: str, event_date, acquisition_date=None
+    ) -> None:
+        """Set treatment progress from an event date and photograph date.
+
+        If ``acquisition_date`` is omitted, Acquisition Date or Content Date is
+        read from the DICOM dataset. Only the calculated day offset is encoded,
+        as required by TID 3465.
+
+        :param event_type: PatientRegistration, OrthodonticTreatmentStarted,
+                           or OrthodonticTreatmentStopped
+        :param event_date: event date as a date, datetime, or ISO date string
+        :param acquisition_date: optional photograph date override
+        """
+        canonical_event = self._canonical_treatment_event(event_type)
+        validated_event_date = self._coerce_date(event_date)
+        days = self._days_since_event(validated_event_date, acquisition_date)
+        self.treatment_event_date = validated_event_date
+        self._set_treatment_progress(canonical_event, days)
 
     def is_extraoral(self) -> bool:
         if self.type_keyword.startswith("EV"):

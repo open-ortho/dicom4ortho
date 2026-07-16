@@ -17,7 +17,8 @@
      pip install -e ".[dev]"
      ```
 9. **Non-nix users only:** `make install-dev` — installs `dicom3tools` (`dciodvfy`) required for DICOM validation. On Linux this uses `sudo apt-get install dicom3tools`; on macOS it downloads binaries. Nix users skip this — `dciodvfy` is provided by the flake.
-10. `make build`: make sure all tests pass. Build will run lint and tests first.
+10. Run `make check_codes`, then `make build`: make sure the committed terminology
+    lock is current and all tests pass. Build will run lint and tests first.
     - **Nix users:** run inside the dev shell: `nix develop --command make build`
     - **Non-nix users:** `make build` (with `.venv` activated)
 11. If all goes well, then merge branch into master: `git flow release finish`. The github actions will take care of deploying to PyPi.

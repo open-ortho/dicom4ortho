@@ -41,7 +41,8 @@ dev = [
     "autopep8",
     "bumpversion",
     "pytest",
-    "build"
+    "build",
+    "rdflib"
 ]
 
 [project.urls]
@@ -53,7 +54,7 @@ d4o_generate = "dicom4ortho.__main__:generate_uid"
 
 [tool.setuptools.package-data]
 "*" = ["LICENSE"]
-"dicom4ortho" = ["resources/image_types.csv", "resources/codes.csv", "resources/views.csv"]
+"dicom4ortho" = ["resources/views.csv"]
 
 [tool.setuptools.packages.find]
 include = ["dicom4ortho*"]

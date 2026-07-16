@@ -656,6 +656,10 @@ class DicomBase(object):
     def set_time_captured(self, time_captured):
         """ Set both AcquisitionDate/Time and ContentDate/Time to the same values.
 
+        Values set explicitly with this method take precedence over EXIF. EXIF
+        processing only fills acquisition and content date/time attributes
+        that are still absent.
+
         Sets in General Image Module:
 
         * Acquisition Date (0008,0022)
@@ -778,6 +782,10 @@ class DicomBase(object):
 class PhotographBase(DicomBase):
     """
     A.32.4 VL Photographic Image IOD
+
+    EXIF acquisition and content timestamps are loaded during construction as
+    fallback metadata. Explicit timestamps set afterward are preserved when
+    the object is prepared or saved.
     """
 
     def __init__(self, **kwargs):
@@ -789,6 +797,8 @@ class PhotographBase(DicomBase):
             self.input_image_filename = input_image_filename
 
         self.set_image()
+        if self.input_image_filename or self.input_image_bytes:
+            self.set_exif_tags()
 
     def prepare(self):
         super().prepare()
@@ -1105,7 +1115,12 @@ class PhotographBase(DicomBase):
 
     def set_exif_tags(self):
         """
-        Sets EXIF tags, if they exist, according to https://dicom.nema.org/medical/dicom/current/output/chtml/part17/chapter_NNNN.html
+        Set EXIF tags according to DICOM Part 17 Annex NNNN.
+
+        EXIF date/time values are fallbacks: they are copied only when the
+        corresponding DICOM acquisition or content date/time attributes are
+        absent. Explicit values, including ``acquisition_datetime`` metadata
+        applied by ``OrthodonticPhotograph``, therefore take precedence.
         """
         def _convert_exif_datetime(exif_dt_string: str) -> tuple[str, str]:
             """Convert EXIF DateTime string to DICOM DA and TM format
@@ -1141,13 +1156,21 @@ class PhotographBase(DicomBase):
                     # Map EXIF tags to DICOM tags based on the standard
                     if tag == 'DateTimeOriginal':
                         date, time = _convert_exif_datetime(value)
-                        if date and time:
+                        acquisition_datetime_present = any(getattr(
+                            self._ds, keyword, None
+                        ) for keyword in (
+                            'AcquisitionDateTime', 'AcquisitionDate', 'AcquisitionTime'
+                        ))
+                        if date and time and not acquisition_datetime_present:
                             self._ds.AcquisitionDateTime = f"{date}{time}"
                             self._ds.AcquisitionDate = date
                             self._ds.AcquisitionTime = time
                     elif tag in ['DateTimeDigitized', 'DateTime']:
                         date, time = _convert_exif_datetime(value)
-                        if date and time:
+                        content_datetime_present = any(getattr(
+                            self._ds, keyword, None
+                        ) for keyword in ('ContentDate', 'ContentTime'))
+                        if date and time and not content_datetime_present:
                             self._ds.ContentDate = date
                             self._ds.ContentTime = time
                     elif tag == 'GPSInfo':

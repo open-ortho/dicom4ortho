@@ -2,9 +2,9 @@
 
 Architecture
 ------------
-At maintenance time, ``tools/generate_codes.py`` resolves official DICOM
-FHIR ValueSets, ADA 1100 FHIR CodeSystems, and the local ``views.csv`` layout,
-then emits
+At maintenance time, ``tools/generate_codes.py`` resolves official NEMA DICOM
+FHIR ValueSets and DCM ontology concepts, ADA 1100 FHIR CodeSystems, and the
+DENT-OIP ``views.csv`` layout, then emits
 ``dicom4ortho/_generated_codes.py`` — a committed Python module containing
 all :class:`DicomCode` constants and the ``VIEWS`` dict of
 :class:`OrthoView` objects.
@@ -115,4 +115,3 @@ class OrthoView:
     # Human-readable labels
     description: str        # → ImageComments
     series_description: str  # → SeriesDescription
-

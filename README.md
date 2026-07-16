@@ -186,12 +186,21 @@ The project includes a Makefile that simplifies common development tasks:
     $ make lint              # Run linter on the code
     $ make all               # Clean and build
     $ make install-dev       # Install development tools including dicom3tools
-    $ make update_resources  # Refresh the committed terminology lock from FHIR
+    $ make update_codes      # Refresh the committed terminology lock
+    $ make check_codes       # Detect upstream terminology drift without writing
     $ make deploy            # Deploy to PyPI
 
 The Makefile handles Docker for you when running tests. It starts the required Docker containers before running tests and shuts them down afterward.
-Normal package builds use the committed terminology lock and do not require
-network access. `make update_resources` is an explicit maintainer operation.
+Normal package builds, tests, and runtime use the committed terminology lock
+and do not require network access. `make update_codes` is an explicit
+maintainer operation that loads DICOM CIDs from NEMA FHIR ValueSets, DCM
+concept names from NEMA's `dcm.owl` ontology, ADA image types from Open Ortho,
+and the DENT-OIP view layout. It records each observed source URL and SHA-256
+in the lock; FHIR resources additionally record their observed version and
+date. Review the generated diff before committing it. `make check_codes`
+performs the same validation in memory and fails if the committed lock differs,
+which supports scheduled terminology-drift checks without adding network I/O to
+normal builds.
 
 ### Validation with dicom3tools
 

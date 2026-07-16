@@ -65,9 +65,14 @@ fetch_resources: ## Download views.csv from upstream dent-oip
 	@# run this target manually and verify generate_codes.py succeeds before committing.
 	curl --silent -z $(VIEWS) -o $(VIEWS) $(URL_VIEWS)
 
-.PHONY: update_resources
-update_resources: ## Fetch official FHIR terminology and regenerate _generated_codes.py
+
+.PHONY: update_codes
+update_codes: ## Fetch authoritative terminology and regenerate _generated_codes.py
 	python3 tools/generate_codes.py
+
+.PHONY: check_codes
+check_codes: ## Regenerate terminology in memory and fail when the lock has drifted
+	python3 tools/generate_codes.py --check
 
 .PHONY: deploy
 deploy: ## Upload distribution to PyPI (requires ~/.pypirc token)

@@ -7,24 +7,105 @@ from __future__ import annotations
 from dicom4ortho.m_dent_oip import AdaImageType, DicomCode, OrthoView
 
 
-SOURCE_VERSIONS: dict[str, str] = {
-    'DCM_CODE_SYSTEM': '2025.3.20250714',
-    'CID247': '2025.3.20250714',
-    'CID4028': '2025.3.20250714',
-    'CID4061': '2025.3.20250714',
-    'CID4062': '2025.3.20250714',
-    'CID4063': '2025.3.20250714',
-    'CID4064': '2025.3.20250714',
-    'CID4065': '2025.3.20250714',
-    'CID4066': '2025.3.20250714',
-    'CID4067': '2025.3.20250714',
-    'CID4068': '2025.3.20250714',
-    'CID4069': '2025.3.20250714',
-    'CID4070': '2025.3.20250714',
-    'CID4072': '2025.3.20250714',
-    'ADA_INTRAORAL_2D': '2.0.0',
-    'ADA_EXTRAORAL_2D': '2.0.0',
-    'DICOM_FHIR_PACKAGE': '2025.3.20250714',
+SOURCE_PROVENANCE: dict[str, dict[str, str]] = {
+    'DCM_ONTOLOGY': {
+        'url': 'ftp://medical.nema.org/medical/dicom/resources/ontology/DCM/dcm.owl',
+        'sha256': '8692e5420c6db5ceeed53d74055aa2a1a26fc70b72fe5705a3cd9e3c3722512f',
+    },
+    'CID247': {
+        'url': 'ftp://medical.nema.org/medical/dicom/resources/valuesets/fhir/json/ValueSet-dicom-cid-247-LateralityLeftRightOnly.json',
+        'sha256': 'abe280610e46ca094505dde6ea6ef747bddc1fb5a9ca0e101eb9a5adc51bf714',
+        'version': '20190524',
+        'date': '2026-06-12',
+    },
+    'CID4028': {
+        'url': 'ftp://medical.nema.org/medical/dicom/resources/valuesets/fhir/json/ValueSet-dicom-cid-4028-CraniofacialAnatomicRegion.json',
+        'sha256': '5b4211525215b66c0d2acd9c4e2d36ad4ccc584fbe5e6e62f7b27f6564bbdd9e',
+        'version': '20250908',
+        'date': '2026-06-12',
+    },
+    'CID4061': {
+        'url': 'ftp://medical.nema.org/medical/dicom/resources/valuesets/fhir/json/ValueSet-dicom-cid-4061-HeadAndNeckPrimaryAnatomicStructure.json',
+        'sha256': 'e5b020509904861adce19a6ac4c4db30781bf8a7ef323d29f1c57405d108a165',
+        'version': '20250330',
+        'date': '2026-06-12',
+    },
+    'CID4062': {
+        'url': 'ftp://medical.nema.org/medical/dicom/resources/valuesets/fhir/json/ValueSet-dicom-cid-4062-VLView.json',
+        'sha256': 'dfa77d4a59d52531dc266cae7dd5205afed24ba02ae4ba773b6600e10fa77703',
+        'version': '20250330',
+        'date': '2026-06-12',
+    },
+    'CID4063': {
+        'url': 'ftp://medical.nema.org/medical/dicom/resources/valuesets/fhir/json/ValueSet-dicom-cid-4063-VLDentalView.json',
+        'sha256': '6d35bd0f0b5852b2aed1de9694559757fa5d26a5e98778f98a4e4f2b3cb0d659',
+        'version': '20250330',
+        'date': '2026-06-12',
+    },
+    'CID4064': {
+        'url': 'ftp://medical.nema.org/medical/dicom/resources/valuesets/fhir/json/ValueSet-dicom-cid-4064-VLViewModifier.json',
+        'sha256': '8323144db45220f02e60a50f2ecfc99d89dc5dbf07f6def8658a4e8a0180f385',
+        'version': '20250330',
+        'date': '2026-06-12',
+    },
+    'CID4065': {
+        'url': 'ftp://medical.nema.org/medical/dicom/resources/valuesets/fhir/json/ValueSet-dicom-cid-4065-VLDentalViewModifier.json',
+        'sha256': 'adc8c7104aa85799459b55a420ac1b9100c5d6a98d66a8843a1e2d1679f37a91',
+        'version': '20250330',
+        'date': '2026-06-12',
+    },
+    'CID4066': {
+        'url': 'ftp://medical.nema.org/medical/dicom/resources/valuesets/fhir/json/ValueSet-dicom-cid-4066-OrthognathicFunctionalCondition.json',
+        'sha256': '3f7c05af5c585f913ca73a6e90f40f5fb42d28bbac1dd3b78f13a6d0bb41a928',
+        'version': '20250330',
+        'date': '2026-06-12',
+    },
+    'CID4067': {
+        'url': 'ftp://medical.nema.org/medical/dicom/resources/valuesets/fhir/json/ValueSet-dicom-cid-4067-OrthodonticFindingByInspection.json',
+        'sha256': '4e20fcc5a79608c20e83358e6202ba7bce4b3f3ee2415fdb4d0d611ae8fdec6b',
+        'version': '20250330',
+        'date': '2026-06-12',
+    },
+    'CID4068': {
+        'url': 'ftp://medical.nema.org/medical/dicom/resources/valuesets/fhir/json/ValueSet-dicom-cid-4068-OrthodonticObservableEntity.json',
+        'sha256': 'da1a3895860d40ded8998fc3cb4a6b738103ae15df42ff94c7fad1ee72396c05',
+        'version': '20250330',
+        'date': '2026-06-12',
+    },
+    'CID4069': {
+        'url': 'ftp://medical.nema.org/medical/dicom/resources/valuesets/fhir/json/ValueSet-dicom-cid-4069-DentalOcclusion.json',
+        'sha256': '1b03c3ffcf7ff40cb4a6bd7fc5a36ac26666e96d26319515162bdb79ada43925',
+        'version': '20250330',
+        'date': '2026-06-12',
+    },
+    'CID4070': {
+        'url': 'ftp://medical.nema.org/medical/dicom/resources/valuesets/fhir/json/ValueSet-dicom-cid-4070-OrthodonticTreatmentProgress.json',
+        'sha256': '8b22c8133de22b1fa5ce2049fbc1e61a9bb2212a45552fe9cea15d85b39be0b0',
+        'version': '20250330',
+        'date': '2026-06-12',
+    },
+    'CID4072': {
+        'url': 'ftp://medical.nema.org/medical/dicom/resources/valuesets/fhir/json/ValueSet-dicom-cid-4072-DevicesForThePurposeOfDentalPhotography.json',
+        'sha256': 'b5e245905e63576c6c3ba4dcb71d399929a38f958dedbf77458e24f3e25b804e',
+        'version': '20250330',
+        'date': '2026-06-12',
+    },
+    'ADA_INTRAORAL_2D': {
+        'url': 'https://terminology.open-ortho.org/fhir/sid/ada1100/CodeSystem/intraoral-2d-photographic-scheduled-protocol',
+        'sha256': 'dd37fdff2c9dbe8be40d9964f795842940a0a1f2ae64cdc122d148a205dd78c0',
+        'version': '2.0.0',
+        'date': '2026-07-04',
+    },
+    'ADA_EXTRAORAL_2D': {
+        'url': 'https://terminology.open-ortho.org/fhir/sid/ada1100/CodeSystem/extraoral-2d-photographic-scheduled-protocol',
+        'sha256': '9757675a62c07ef29bf02910579b8adc65abac18805ec4dcc1c888a45fa84cf9',
+        'version': '2.0.0',
+        'date': '2026-07-04',
+    },
+    'VIEWS': {
+        'url': 'https://raw.githubusercontent.com/open-ortho/dent-oip/latest/source/tables/views.csv',
+        'sha256': '2580ec0517d9bff7804ff79f1913c9a31667d55741122aa8b4c8bce5ffe36945',
+    },
 }
 
 
@@ -122,24 +203,6 @@ ORIENTATION_PRONE_HEAD_TO_FEET = DicomCode(
     value='L^A',
     scheme='CS',
     meaning='Left, Anterior',
-)
-
-ORTHOGNATHIC_FUNCTIONAL_CONDITIONS = DicomCode(
-    value='130325',
-    scheme='DCM',
-    meaning='Orthognathic Functional Condition',
-)
-
-TEMPORAL_EVENT_TYPE = DicomCode(
-    value='128741',
-    scheme='DCM',
-    meaning='Longitudinal Temporal Event Type',
-)
-
-OFFSET_FROM_EVENT = DicomCode(
-    value='128740',
-    scheme='DCM',
-    meaning='Longitudinal Temporal Offset from Event',
 )
 
 RIGHT = DicomCode(
@@ -526,6 +589,24 @@ DEVICE_FIDUCIAL_MARKER = DicomCode(
     meaning='Photographic image fiducial marker',
 )
 
+ORTHOGNATHIC_FUNCTIONAL_CONDITIONS = DicomCode(
+    value='130325',
+    scheme='DCM',
+    meaning='Orthognathic Functional Condition',
+)
+
+TEMPORAL_EVENT_TYPE = DicomCode(
+    value='128741',
+    scheme='DCM',
+    meaning='Longitudinal Temporal Event Type',
+)
+
+OFFSET_FROM_EVENT = DicomCode(
+    value='128740',
+    scheme='DCM',
+    meaning='Longitudinal Temporal Offset from Event',
+)
+
 
 CODES: dict[str, DicomCode] = {
     'FindingByInspection': FINDING_BY_INSPECTION,
@@ -544,9 +625,6 @@ CODES: dict[str, DicomCode] = {
     'OrientationBack': ORIENTATION_BACK,
     'OrientationSupineFeetToHead': ORIENTATION_SUPINE_FEET_TO_HEAD,
     'OrientationProneHeadToFeet': ORIENTATION_PRONE_HEAD_TO_FEET,
-    'OrthognathicFunctionalConditions': ORTHOGNATHIC_FUNCTIONAL_CONDITIONS,
-    'TemporalEventType': TEMPORAL_EVENT_TYPE,
-    'OffsetFromEvent': OFFSET_FROM_EVENT,
     'right': RIGHT,
     'left': LEFT,
     'Mouth': MOUTH,
@@ -611,6 +689,9 @@ CODES: dict[str, DicomCode] = {
     'device_retractor': DEVICE_RETRACTOR,
     'device_contraster': DEVICE_CONTRASTER,
     'device_fiducial_marker': DEVICE_FIDUCIAL_MARKER,
+    'OrthognathicFunctionalConditions': ORTHOGNATHIC_FUNCTIONAL_CONDITIONS,
+    'TemporalEventType': TEMPORAL_EVENT_TYPE,
+    'OffsetFromEvent': OFFSET_FROM_EVENT,
 }
 
 
@@ -1598,7 +1679,7 @@ VIEWS: dict[str, OrthoView] = {
         primary_anatomic_structure=FRENUM,
         primary_anatomic_structure_modifier=None,
         devices=(),
-        view_code=PROJECTION_FRONTAL,
+        view_code=None,
         view_modifiers=(CLOSEUP,),
         orthognathic_functional_conditions=(),
         findings_by_inspection=(),

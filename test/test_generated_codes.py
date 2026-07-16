@@ -1,19 +1,32 @@
 """Tests for official terminology bindings and the generated codes module."""
 
 import importlib
+import hashlib
+import io
 import unittest
 import warnings
 from datetime import date, datetime
+from importlib.resources import files
 from pathlib import Path
+from unittest import mock
+
+from rdflib import Graph
 
 
 class TestTerminologySourceConsistency(unittest.TestCase):
     """Every local view binding must resolve through a declared source."""
 
     def setUp(self):
-        from tools.generate_codes import CODE_BINDINGS, LOCAL_CODES, load_views
-        self.codes = set(CODE_BINDINGS) | set(LOCAL_CODES)
-        self.views = load_views()
+        from tools.generate_codes import (
+            CODE_BINDINGS,
+            DCM_CODE_BINDINGS,
+            LOCAL_CODES,
+            _parse_views,
+        )
+        self.codes = set(CODE_BINDINGS) | set(DCM_CODE_BINDINGS) | set(LOCAL_CODES)
+        self.views = _parse_views(
+            files("dicom4ortho.resources").joinpath("views.csv").read_bytes()
+        )
 
         # Columns that reference code keywords (single or ^-delimited)
         self.code_columns = [
@@ -87,7 +100,7 @@ class TestTerminologySourceConsistency(unittest.TestCase):
                 self.assertEqual(binding.code, code)
 
     def test_dcm_concept_names_use_official_code_system(self):
-        from tools.generate_codes import CODE_BINDINGS, DCM_SYSTEM
+        from tools.generate_codes import DCM_CODE_BINDINGS
         expected = {
             "OrthognathicFunctionalConditions": "130325",
             "TemporalEventType": "128741",
@@ -95,22 +108,17 @@ class TestTerminologySourceConsistency(unittest.TestCase):
         }
         for keyword, code in expected.items():
             with self.subTest(keyword=keyword):
-                binding = CODE_BINDINGS[keyword]
-                self.assertEqual(binding.source, "DCM_CODE_SYSTEM")
-                self.assertEqual(binding.system, DCM_SYSTEM)
+                binding = DCM_CODE_BINDINGS[keyword]
+                self.assertEqual(binding.source, "DCM_ONTOLOGY")
                 self.assertEqual(binding.code, code)
 
-    def test_known_fhir_display_error_uses_normative_dicom_meaning(self):
+    def test_frenum_uses_current_official_dicom_meaning(self):
         from dicom4ortho._generated_codes import CODES
-        from tools.generate_codes import CODE_BINDINGS, CODE_MEANING_OVERRIDES, SCT_SYSTEM
+        from tools.generate_codes import CODE_BINDINGS, SCT_SYSTEM
         binding = CODE_BINDINGS["frenum"]
         self.assertEqual(binding.source, "CID4061")
         self.assertEqual(binding.system, SCT_SYSTEM)
         self.assertEqual(binding.code, "7652006")
-        self.assertEqual(
-            CODE_MEANING_OVERRIDES[(binding.source, binding.system, binding.code)],
-            "Frenulum labii",
-        )
         self.assertEqual(CODES["frenum"].meaning, "Frenulum labii")
 
 
@@ -158,6 +166,117 @@ class TestFhirResolution(unittest.TestCase):
             resolve_code(resource, CodeBinding("CID4070", SCT_SYSTEM, "123"))
 
 
+class TestDcmOntologyResolution(unittest.TestCase):
+    """DCM concept names are resolved strictly from NEMA RDF fixtures."""
+
+    def _graph(self, fixture: str) -> Graph:
+        graph = Graph()
+        graph.parse(
+            data=(Path(__file__).parent / "resources" / fixture).read_bytes(),
+            format="xml",
+        )
+        return graph
+
+    def test_resolves_canonical_uri_notation_and_english_label(self):
+        from tools.generate_codes import DcmCodeBinding, resolve_dcm_code
+        self.assertEqual(
+            resolve_dcm_code(
+                self._graph("dcm_ontology_valid.rdf"),
+                DcmCodeBinding("DCM_ONTOLOGY", "130325"),
+            ),
+            {
+                "code": "130325",
+                "scheme": "DCM",
+                "meaning": "Orthognathic Functional Condition",
+            },
+        )
+
+    def test_rejects_missing_concept(self):
+        from tools.generate_codes import DcmCodeBinding, resolve_dcm_code
+        with self.assertRaisesRegex(ValueError, "found 0 matching concepts"):
+            resolve_dcm_code(
+                self._graph("dcm_ontology_missing_concept.rdf"),
+                DcmCodeBinding("DCM_ONTOLOGY", "130325"),
+            )
+
+    def test_rejects_duplicate_english_labels(self):
+        from tools.generate_codes import DcmCodeBinding, resolve_dcm_code
+        with self.assertRaisesRegex(ValueError, "found 2"):
+            resolve_dcm_code(
+                self._graph("dcm_ontology_duplicate_english_label.rdf"),
+                DcmCodeBinding("DCM_ONTOLOGY", "130325"),
+            )
+
+    def test_rejects_missing_english_label(self):
+        from tools.generate_codes import DcmCodeBinding, resolve_dcm_code
+        with self.assertRaisesRegex(ValueError, "found 0"):
+            resolve_dcm_code(
+                self._graph("dcm_ontology_missing_english_label.rdf"),
+                DcmCodeBinding("DCM_ONTOLOGY", "130325"),
+            )
+
+
+class TestSourceProvenance(unittest.TestCase):
+    """Source validation and rendered provenance remain explicit and deterministic."""
+
+    def test_sources_use_dicom_native_urls_without_fhir_org(self):
+        from tools.generate_codes import NEMA_DCM_ONTOLOGY_URL, SOURCES
+        removed_host = "fhir" + ".org"
+        self.assertIn("medical.nema.org", NEMA_DCM_ONTOLOGY_URL)
+        self.assertNotIn(removed_host, NEMA_DCM_ONTOLOGY_URL)
+        for name, spec in SOURCES.items():
+            with self.subTest(source=name):
+                self.assertNotIn(removed_host, spec.url)
+
+    def test_source_validation_rejects_unknown_format(self):
+        from tools.generate_codes import SourceSpec, validate_sources
+        with self.assertRaisesRegex(ValueError, "unknown format"):
+            validate_sources({"BAD": SourceSpec("https://example.invalid", "csv")})
+
+    def test_observed_fhir_provenance_records_url_hash_and_metadata(self):
+        from tools.generate_codes import _provenance
+        raw = b'{"resourceType":"ValueSet","version":"1","date":"2026-07-15"}'
+        resource = {"resourceType": "ValueSet", "version": "1", "date": "2026-07-15"}
+        self.assertEqual(
+            _provenance("https://example.invalid/cid", raw, resource),
+            {
+                "url": "https://example.invalid/cid",
+                "sha256": hashlib.sha256(raw).hexdigest(),
+                "version": "1",
+                "date": "2026-07-15",
+            },
+        )
+
+    def test_views_loader_logs_url_and_observes_provenance(self):
+        from tools.generate_codes import DENT_OIP_VIEWS_URL, load_views
+        raw = b"keyword\nVER:1\nEV01\n"
+        output = io.StringIO()
+        with mock.patch("sys.stdout", output):
+            views, provenance = load_views(fetch_url=lambda _url: raw)
+        self.assertEqual(views, [{"keyword": "EV01"}])
+        self.assertIn(f"Loading {DENT_OIP_VIEWS_URL}", output.getvalue())
+        self.assertEqual(provenance["sha256"], hashlib.sha256(raw).hexdigest())
+
+    def test_check_mode_detects_lock_drift_without_network(self):
+        from tools import generate_codes
+        with self.subTest("current"):
+            with mock.patch.object(generate_codes, "build_lock", return_value="current"):
+                with mock.patch.object(generate_codes, "OUTPUT") as output:
+                    output.exists.return_value = True
+                    output.read_text.return_value = "current"
+                    with mock.patch.object(generate_codes.sys, "argv", ["generate_codes.py", "--check"]):
+                        generate_codes.main()
+        with self.subTest("drift"):
+            with mock.patch.object(generate_codes, "build_lock", return_value="new"):
+                with mock.patch.object(generate_codes, "OUTPUT") as output:
+                    output.exists.return_value = True
+                    output.read_text.return_value = "old"
+                    output.relative_to.return_value = Path("_generated_codes.py")
+                    with mock.patch.object(generate_codes.sys, "argv", ["generate_codes.py", "--check"]):
+                        with self.assertRaisesRegex(SystemExit, "differs"):
+                            generate_codes.main()
+
+
 class TestGeneratedCodesModule(unittest.TestCase):
     """Tests against the generated _generated_codes.py module."""
 
@@ -175,10 +294,31 @@ class TestGeneratedCodesModule(unittest.TestCase):
     def test_views_dict_present(self):
         self.assertTrue(hasattr(self._module, "VIEWS"))
 
-    def test_source_versions_present(self):
-        self.assertIn("DCM_CODE_SYSTEM", self._module.SOURCE_VERSIONS)
-        self.assertIn("CID4070", self._module.SOURCE_VERSIONS)
-        self.assertIn("ADA_INTRAORAL_2D", self._module.SOURCE_VERSIONS)
+    def test_source_provenance_present(self):
+        provenance = self._module.SOURCE_PROVENANCE
+        for name in ("DCM_ONTOLOGY", "CID4070", "ADA_INTRAORAL_2D", "VIEWS"):
+            with self.subTest(source=name):
+                self.assertIn(name, provenance)
+                self.assertIn("url", provenance[name])
+                self.assertEqual(len(provenance[name]["sha256"]), 64)
+        self.assertNotIn("version", provenance["DCM_ONTOLOGY"])
+        self.assertNotIn("date", provenance["VIEWS"])
+        self.assertIn("version", provenance["CID4070"])
+        self.assertIn("date", provenance["CID4070"])
+
+    def test_render_is_deterministic_with_source_provenance(self):
+        from tools.generate_codes import LOCAL_CODES, generate
+        provenance = {
+            "CID4061": {
+                "url": "https://example.invalid/cid",
+                "sha256": hashlib.sha256(b"fixture").hexdigest(),
+                "version": "1",
+                "date": "2026-07-15",
+            },
+        }
+        first = generate(dict(LOCAL_CODES), {}, [], provenance)
+        second = generate(dict(LOCAL_CODES), {}, [], provenance)
+        self.assertEqual(first, second)
 
     def test_all_73_ada_image_types_present(self):
         self.assertEqual(len(self._module.IMAGE_TYPES), 73)

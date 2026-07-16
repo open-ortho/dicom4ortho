@@ -41,7 +41,8 @@ dev = [
     "autopep8",
     "bumpversion",
     "pytest",
-    "build"
+    "build",
+    "rdflib"
 ]
 
 [project.urls]

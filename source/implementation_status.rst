@@ -6,7 +6,8 @@ Here is a list of the status of implementation for each specification as defined
 CO-02
 -----
 
-**Specification**: ``dicom4ortho`` SHALL support each view covered in ADA-1107.
+**Specification**: ``dicom4ortho`` SHALL support each ADA 1100 image type
+profiled by the draft ADA-1107 implementation profile.
 
 **Status**: 
 
@@ -96,7 +97,8 @@ IV30        no
 CO-03
 --------
 
-**Specification**: ``dicom4ortho`` SHALL support each viewset covered in ADA-1107.
+**Specification**: ``dicom4ortho`` SHALL support each view set profiled by the
+draft ADA-1107 implementation profile.
 
 **Status**: Not Implemented
 

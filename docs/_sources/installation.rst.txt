@@ -4,7 +4,7 @@ Installation
 Getting Started
 ---------------
 
-Like any other Python module, install the module than use it. There is a
+Like any other Python module, install the module then use it. There is a
 CLI interface as well.
 
 Install using pipenv by running
@@ -22,5 +22,5 @@ Install using pip by running
 Prerequisites
 ~~~~~~~~~~~~~
 
--  An installation of Python 3+.
+-  An installation of Python 3.10 or newer.
 -  optional: `dicom3tools <https://www.dclunie.com/dicom3tools.html>`__

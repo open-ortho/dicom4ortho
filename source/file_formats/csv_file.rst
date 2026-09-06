@@ -3,6 +3,10 @@ CSV Image file format
 
 This is the documentation for the CSV file format used for bulk processing, not the one used to decide which attributes for which view.
 
+A tested, executable `example CSV <https://github.com/open-ortho/dicom4ortho/blob/develop/examples/input_from.csv>`__
+is maintained with its referenced images in the source repository. The CLI
+test executes this public example to prevent documentation drift.
+
 The CSV file should be:
 
 -  with ``,`` as separator
@@ -41,14 +45,30 @@ Patient’s date of birth in YYYY-MM-DD format. DICOM
 dental_provider_firstname
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
-First name of orthodontic (or dental) provider. First part of DICOM
-``(0008, 0090) Referring Physician's Name`` tag.
+First name of the orthodontist or dentist responsible for treatment. First
+part of DICOM ``(0008,1048) Physicians of Record``.
 
 dental_provider_lastname
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
-Last name of orthodontic (or dental) provider. Second part of DICOM
-``(0008, 0090) Referring Physician's Name`` tag.
+Last name of the orthodontist or dentist responsible for treatment. Second
+part of DICOM ``(0008,1048) Physicians of Record``.
+
+operator_firstname
+^^^^^^^^^^^^^^^^^^
+
+First name of the clinical staff member who acquired the photograph. First
+part of DICOM ``(0008,1070) Operators' Name``.
+
+operator_lastname
+^^^^^^^^^^^^^^^^^
+
+Last name of the clinical staff member who acquired the photograph. Second
+part of DICOM ``(0008,1070) Operators' Name``.
+
+The DICOM Physicians of Record and Operators' Name attributes permit multiple
+names, but the current ``dicom4ortho`` CSV format supports one dental provider
+and one operator per photograph.
 
 image_type
 ^^^^^^^^^^
@@ -120,3 +140,61 @@ This is a DICOM UID object and goes into the DICOM
 ``(0008, 103e) Series Description``. Maximum 64 characters are allowed,
 as defined the `DICOM LO
 VR <http://dicom.nema.org/medical/dicom/current/output/html/part05.html#sect_6.2>`__
+
+Optional treatment-progress columns
+-----------------------------------
+
+Blank optional values are ignored. When treatment progress is supplied, the
+event type and one offset source must be provided together.
+
+acquisition_datetime
+^^^^^^^^^^^^^^^^^^^^
+
+The photograph acquisition date and time as an ISO 8601 value, for example
+``2026-07-14T10:30:00``. It is written to the DICOM acquisition and content
+date/time attributes and is used to calculate the treatment-progress offset.
+When supplied, it overrides EXIF ``DateTimeOriginal``. When omitted,
+``dicom4ortho`` uses the EXIF timestamp if one is available.
+
+treatment_event_type
+^^^^^^^^^^^^^^^^^^^^
+
+The applicable CID 4070 event. Allowed values are
+``PatientRegistration``, ``OrthodonticTreatmentStarted``, and
+``OrthodonticTreatmentStopped``.
+
+treatment_event_date
+^^^^^^^^^^^^^^^^^^^^
+
+The event date in ``YYYY-MM-DD`` format. ``dicom4ortho`` subtracts this date
+from the effective acquisition date, whether explicit or from EXIF, and writes
+the resulting non-negative day offset to TID 3465. An event date after the
+acquisition date is rejected.
+
+days_after_event
+^^^^^^^^^^^^^^^^
+
+A caller-calculated non-negative day offset. This field is retained for
+compatibility but is deprecated; use ``treatment_event_date`` with
+``acquisition_datetime`` instead. Do not provide both offset forms.
+
+Other optional columns
+----------------------
+
+output_image_filename
+^^^^^^^^^^^^^^^^^^^^^
+
+The destination DICOM filename. If omitted, the input filename is used with a
+``.dcm`` extension.
+
+burned_in_annotation
+^^^^^^^^^^^^^^^^^^^^
+
+Set DICOM ``BurnedInAnnotation`` to ``YES`` or ``NO``. The default is ``NO``.
+
+view_code_keyword
+^^^^^^^^^^^^^^^^^
+
+The generated terminology keyword for a view code that cannot be determined
+from the image type alone. This is required for variable-view image types such
+as IV28, IV30, and EV40.

@@ -6,3 +6,8 @@ Pipfile.lock
 *.egg-info
 dist/
 modules/
+.venv/
+__pycache__/
+*.egg
+*.log
+*.dcm

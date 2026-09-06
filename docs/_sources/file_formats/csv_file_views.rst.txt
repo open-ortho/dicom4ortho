@@ -1,73 +1,77 @@
 .. _csv_file_views:
 
-Views CSV File Format Documentation
-===================================
+View-layout CSV file
+====================
 
 Introduction
 ------------
 
-This document outlines the structure and format of the CSV file used in our project. The CSV file includes various headers related to medical imaging data, specifically tailored to our needs.
+``dicom4ortho/resources/views.csv`` is a maintainer resource that defines the
+DICOM attribute layout for each of the 73 ADA 1100 image types. It is not the
+bulk-conversion input format used by the CLI.
 
-File Structure
+Cells that name coded concepts contain generator binding keywords. During an
+explicit terminology update, ``tools/generate_codes.py`` resolves those
+keywords against the official sources described in :doc:`../terminology`.
+There is no separate local codes table.
+
+File structure
 --------------
 
-The CSV file contains the following columns:
-
-.. list-table:: CSV Header Descriptions
+.. list-table:: CSV header descriptions
    :widths: 50 50
    :header-rows: 1
 
    * - Header
      - Description
    * - keyword
-     - The unique keyword for this view.
+     - The ADA 1100 image-type code for this view.
    * - PatientOrientation
-     - Use one of the codes defined in the codes table. Refer to `DENT-OIP <http://open-ortho.org/dent-oip/release/>`__
+     - A structural orientation keyword resolved by the generator.
    * - ImageLaterality
-     - Use one of the codes defined in the codes table. Refer to `DENT-OIP <http://open-ortho.org/dent-oip/release/>`__
+     - A structural laterality keyword resolved by the generator.
    * - AnatomicRegionSequence
-     - Use one of the codes defined in the codes table. Refer to `DENT-OIP <http://open-ortho.org/dent-oip/release/>`__
+     - A terminology binding for ``AnatomicRegionSequence``.
    * - AnatomicRegionModifierSequence
-     - Use one of the codes defined in the codes table. Refer to `DENT-OIP <http://open-ortho.org/dent-oip/release/>`__
+     - An optional terminology binding for ``AnatomicRegionModifierSequence``.
    * - PrimaryAnatomicStructureSequence
-     - Use one of the codes defined in the codes table. Refer to `DENT-OIP <http://open-ortho.org/dent-oip/release/>`__
+     - An optional terminology binding for ``PrimaryAnatomicStructureSequence``.
    * - PrimaryAnatomicStructureModifierSequence
-     - Use one of the codes defined in the codes table. Refer to `DENT-OIP <http://open-ortho.org/dent-oip/release/>`__
+     - An optional terminology binding for the primary structure modifier.
    * - DeviceSequence
-     - Use one of the codes defined in the codes table. Refer to `DENT-OIP <http://open-ortho.org/dent-oip/release/>`__
+     - Zero or more device bindings separated by ``^``.
    * - ViewCodeSequence
-     - Use one of the codes defined in the codes table. Refer to `DENT-OIP <http://open-ortho.org/dent-oip/release/>`__
+     - A view-code binding. Some views require the caller to supply this value.
    * - ViewModifierCodeSequence
-     - Use one of the codes defined in the codes table. Refer to `DENT-OIP <http://open-ortho.org/dent-oip/release/>`__
-   * - AcquisitionContextSequence^FunctionalConditionPresentDuringAcquisition
-     - No longer used.
+     - Zero or more view-modifier bindings separated by ``^``.
    * - AcquisitionContextSequence^OrthognathicFunctionalConditions
-     - Use one of the codes defined in the codes table. Refer to `DENT-OIP <http://open-ortho.org/dent-oip/release/>`__
+     - Zero or more CID 4066 bindings separated by ``^``.
    * - AcquisitionContextSequence^FindingByInspection
-     - Use one of the codes defined in the codes table. Refer to `DENT-OIP <http://open-ortho.org/dent-oip/release/>`__
+     - Zero or more CID 4067 bindings separated by ``^``.
    * - AcquisitionContextSequence^ObservableEntity
-     - Use one of the codes defined in the codes table. Refer to `DENT-OIP <http://open-ortho.org/dent-oip/release/>`__
+     - Zero or more CID 4068 bindings separated by ``^``.
    * - AcquisitionContextSequence^DentalOcclusion
-     - Use one of the codes defined in the codes table. Refer to `DENT-OIP <http://open-ortho.org/dent-oip/release/>`__
+     - An optional CID 4069 binding.
    * - ImageComments
-     - Use one of the codes defined in the codes table. Refer to `DENT-OIP <http://open-ortho.org/dent-oip/release/>`__
+     - Legacy source data. Runtime ``ImageComments`` use the ADA FHIR
+       CodeSystem definition for the image type.
    * - StudyDescription
-     - Use one of the codes defined in the codes table. Refer to `DENT-OIP <http://open-ortho.org/dent-oip/release/>`__
+     - Legacy source data; not read by the generator.
    * - SeriesDescription
-     - Use one of the codes defined in the codes table. Refer to `DENT-OIP <http://open-ortho.org/dent-oip/release/>`__
+     - The default ``SeriesDescription`` for the view.
    * - teeth_example
-     - Not used. ISO teeth numbers of teeth that appear in the image, separated by the caret character ``^``.
+     - Legacy source data; not read by the generator.
 
-Example Records
----------------
-
-Below is an example record in the CSV format:
+Example record
+--------------
 
 .. code-block:: none
 
-   IV01,OrientationRight,LateralityUnpaired,Mouth,,StructureOfBuccalSpace,right,na,projection_right,na,,,,,co,"Intraoral Right Buccal Segment, Centric Occlusion, Direct View",<Progress Name>,Orthodontic Intraoral Series,54^55^16^84^85^46
+   IV01,OrientationRight,LateralityUnpaired,Mouth,,StructureOfBuccalSpace,right,,projection_right,,,,,co,"Intraoral Right Buccal Segment, Centric Occlusion, Direct View",<Progress Name>,Orthodontic Intraoral Series,54^55^16^84^85^46
 
-Conclusion
-----------
+Maintenance
+-----------
 
-This document provides a foundational understanding of the CSV file format utilized in our project, detailing each column's expected content to ensure accurate and consistent data entry.
+Run ``make fetch_resources`` to refresh this file from ``dent-oip``, then run
+``make update_resources`` to resolve its bindings and regenerate the committed
+terminology lock. Review both diffs before committing.

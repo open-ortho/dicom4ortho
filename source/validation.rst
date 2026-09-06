@@ -9,6 +9,5 @@ The `dicom3tools <https://www.dclunie.com/dicom3tools.html>`__ can be
 installed from compiled binaries, which are available for macOS and
 Windows.
 
-Once installed, point ``DICOM3TOOLS_PATH`` in ``defaults.py`` to the
+Once installed, point ``DICOM3TOOLS_PATH`` in ``config.py`` to the
 installation of the dicom3tools.
-

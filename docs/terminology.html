@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="./">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Terminology sources &#8212; dicom4ortho docs 0.5.3-dev documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="_static/classic.css?v=2bf1fcf8" />
+    
+    <script src="_static/documentation_options.js?v=73d8ad1d"></script>
+    <script src="_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+    
+    <link rel="author" title="About these documents" href="about.html" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="View-layout CSV file" href="file_formats/csv_file_views.html" />
+    <link rel="prev" title="Usage" href="usage.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="Related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="file_formats/csv_file_views.html" title="View-layout CSV file"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="usage.html" title="Usage"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">dicom4ortho docs 0.5.3-dev documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Terminology sources</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section id="terminology-sources">
+<h1>Terminology sources<a class="headerlink" href="#terminology-sources" title="Link to this heading">¶</a></h1>
+<p><code class="docutils literal notranslate"><span class="pre">dicom4ortho</span></code> uses official FHIR terminology at maintenance time and a
+committed generated module at runtime. The generated
+<code class="docutils literal notranslate"><span class="pre">dicom4ortho/_generated_codes.py</span></code> module is the terminology lock for a
+release. It records the source versions and contains the resolved DICOM codes,
+all 73 ADA image types, and the complete view definitions.</p>
+<p>Normal package builds, tests, and application use read this committed lock.
+They do not download terminology or require network access.</p>
+<section id="authoritative-sources">
+<h2>Authoritative sources<a class="headerlink" href="#authoritative-sources" title="Link to this heading">¶</a></h2>
+<p>The generator resolves explicit code bindings from these sources:</p>
+<ul class="simple">
+<li><p>DICOM codes and DCM concept names come from the official <code class="docutils literal notranslate"><span class="pre">fhir.dicom</span></code>
+package published at <code class="docutils literal notranslate"><span class="pre">https://fhir.org/packages/fhir.dicom</span></code>. The package
+version is pinned in <code class="docutils literal notranslate"><span class="pre">tools/generate_codes.py</span></code>.</p></li>
+<li><p>ADA 1100 intraoral and extraoral image types come from the FHIR CodeSystems
+published by <code class="docutils literal notranslate"><span class="pre">https://terminology.open-ortho.org</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">dicom4ortho/resources/views.csv</span></code> remains the local source for the layout
+of DICOM attributes associated with each view. It is derived from the
+<code class="docutils literal notranslate"><span class="pre">dent-oip</span></code> project.</p></li>
+</ul>
+<p>The old <code class="docutils literal notranslate"><span class="pre">codes.csv</span></code> and <code class="docutils literal notranslate"><span class="pre">image_types.csv</span></code> files are no longer terminology
+sources and are not packaged.</p>
+<p>The current development lock records DICOM FHIR package version
+<code class="docutils literal notranslate"><span class="pre">2025.3.20250714</span></code> and ADA CodeSystem version <code class="docutils literal notranslate"><span class="pre">2.0.0</span></code>.</p>
+</section>
+<section id="updating-the-lock">
+<h2>Updating the lock<a class="headerlink" href="#updating-the-lock" title="Link to this heading">¶</a></h2>
+<p>To fetch the official FHIR resources and regenerate the lock, run this from
+the source repository:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>make<span class="w"> </span>update_resources
+</pre></div>
+</div>
+<p>This command rewrites <code class="docutils literal notranslate"><span class="pre">dicom4ortho/_generated_codes.py</span></code>. It does not commit
+the result. Review the generated diff and run the tests before committing it.</p>
+<p>Updating <code class="docutils literal notranslate"><span class="pre">views.csv</span></code> is a separate, explicit operation:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>make<span class="w"> </span>fetch_resources
+make<span class="w"> </span>update_resources
+</pre></div>
+</div>
+<p>This separation prevents normal package builds from changing source files or
+depending on upstream services.</p>
+</section>
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+  <div>
+    <h3><a href="index.html">Table of Contents</a></h3>
+    <ul>
+<li><a class="reference internal" href="#">Terminology sources</a><ul>
+<li><a class="reference internal" href="#authoritative-sources">Authoritative sources</a></li>
+<li><a class="reference internal" href="#updating-the-lock">Updating the lock</a></li>
+</ul>
+</li>
+</ul>
+
+  </div>
+  <div>
+    <h4>Previous topic</h4>
+    <p class="topless"><a href="usage.html"
+                          title="previous chapter">Usage</a></p>
+  </div>
+  <div>
+    <h4>Next topic</h4>
+    <p class="topless"><a href="file_formats/csv_file_views.html"
+                          title="next chapter">View-layout CSV file</a></p>
+  </div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/terminology.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<search id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="Related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="file_formats/csv_file_views.html" title="View-layout CSV file"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="usage.html" title="Usage"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">dicom4ortho docs 0.5.3-dev documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Terminology sources</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+    &#169; Copyright 2021-2026, open-ortho.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.0.
+    </div>
+  </body>
+</html>

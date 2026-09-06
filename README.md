@@ -6,7 +6,7 @@ place.
 If you are interested in editing the `dicom4ortho` source code, you will need
 to checkout the `master` or `develop` branches.
 
-The documentation is writte in in RestructuredText and build using Sphinx.
+The documentation is written in reStructuredText and built using Sphinx.
 
 ## How to make modifications
 
@@ -19,5 +19,4 @@ TODO
 * The live web site is in the `gh-pages` branch, in the folder `docs/`.
 * This is a setting that can be changed on the github.io website, under
   Settings > Pages
-
 

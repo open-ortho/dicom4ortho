@@ -68,14 +68,6 @@ attributes must describe the codestream’s actual compression.</p>
 <code class="docutils literal notranslate"><span class="pre">00</span> <span class="pre">00</span> <span class="pre">00</span> <span class="pre">0C</span> <span class="pre">6A</span> <span class="pre">50</span> <span class="pre">20</span> <span class="pre">20</span> <span class="pre">0D</span> <span class="pre">0A</span> <span class="pre">87</span> <span class="pre">0A</span></code>.</p></li>
 </ul>
 </section>
-<section id="repository-fixture">
-<h2>Repository fixture<a class="headerlink" href="#repository-fixture" title="Link to this heading">¶</a></h2>
-<p>The source repository’s <a class="reference external" href="https://github.com/open-ortho/dicom4ortho/blob/develop/test/resources/sample_topsOrtho.jp2">sample_topsOrtho.jp2</a> fixture retains the filename
-supplied by its source system. Despite its
-<code class="docutils literal notranslate"><span class="pre">.jp2</span></code> suffix, its first bytes are <code class="docutils literal notranslate"><span class="pre">FF</span> <span class="pre">4F</span> <span class="pre">FF</span> <span class="pre">51</span></code>, so its contents are a raw
-JPEG 2000 codestream rather than a JP2 container. File extensions are hints
-only; JPEG 2000 detection and DICOM handling must use the byte structure.</p>
-</section>
 </section>
 
 
@@ -90,7 +82,6 @@ only; JPEG 2000 detection and DICOM handling must use the byte structure.</p>
     <ul>
 <li><a class="reference internal" href="#">JPEG 2000 codestreams and JP2 containers</a><ul>
 <li><a class="reference internal" href="#dicom-encapsulation">DICOM encapsulation</a></li>
-<li><a class="reference internal" href="#repository-fixture">Repository fixture</a></li>
 </ul>
 </li>
 </ul>

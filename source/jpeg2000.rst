@@ -28,14 +28,3 @@ Detect the format from its byte structure rather than its filename extension:
 * A raw codestream starts with the ``FF 4F`` SOC marker.
 * A JP2 container starts with the 12-byte signature
   ``00 00 00 0C 6A 50 20 20 0D 0A 87 0A``.
-
-Repository fixture
-------------------
-
-The source repository's `sample_topsOrtho.jp2`__ fixture retains the filename
-supplied by its source system. Despite its
-``.jp2`` suffix, its first bytes are ``FF 4F FF 51``, so its contents are a raw
-JPEG 2000 codestream rather than a JP2 container. File extensions are hints
-only; JPEG 2000 detection and DICOM handling must use the byte structure.
-
-__ https://github.com/open-ortho/dicom4ortho/blob/develop/test/resources/sample_topsOrtho.jp2

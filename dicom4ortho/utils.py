@@ -24,6 +24,78 @@ def generate_dicom_uid(root=None, hash=None):
     return dicom_uid
 
 
+# A raw JPEG 2000 codestream opens with the SOC marker, ISO/IEC 15444-1 Annex A.
+_SOC_MARKER = b'\xff\x4f'
+# A JP2 file opens with the signature box, ISO/IEC 15444-1 Annex I.5.1: a length of
+# 12, the type 'jP  ', then a fixed four-byte check value.
+_JP2_SIGNATURE = b'\x00\x00\x00\x0c\x6a\x50\x20\x20\x0d\x0a\x87\x0a'
+_JP2_CODESTREAM_BOX = b'jp2c'
+_JP2_BOX_HEADER_LENGTH = 8
+
+
+def jpeg2000_codestream(image_bytes: bytes) -> bytes:
+    """
+    Return the JPEG 2000 codestream in an image, unwrapping a JP2 container.
+
+    DICOM's JPEG 2000 transfer syntaxes encapsulate the codestream in Pixel Data,
+    never the surrounding JP2 container, so container input has to be unwrapped
+    before it is stored. A file extension says nothing about which one it is: TOPS
+    exports raw codestreams from files named ``.jp2``.
+
+    Args:
+        image_bytes: A raw JPEG 2000 codestream, or a JP2 container holding one.
+
+    Returns:
+        The codestream. The argument itself when it already is one, so a caller can
+        pass anything JPEG 2000 without checking first.
+
+    Raises:
+        ValueError: If the image is neither a codestream nor a JP2 container, or if
+            it is a container with no readable ``jp2c`` box.
+    """
+    if image_bytes.startswith(_SOC_MARKER):
+        return image_bytes
+
+    if not image_bytes.startswith(_JP2_SIGNATURE):
+        raise ValueError(
+            "Not JPEG 2000: the image starts with neither the SOC marker of a "
+            "codestream nor the signature box of a JP2 container.")
+
+    position = len(_JP2_SIGNATURE)
+    while position + _JP2_BOX_HEADER_LENGTH <= len(image_bytes):
+        length = int.from_bytes(image_bytes[position:position + 4], "big")
+        box_type = image_bytes[position + 4:position + 8]
+        content = position + _JP2_BOX_HEADER_LENGTH
+
+        if length == 0:
+            # ISO/IEC 15444-1 I.4: a length of zero means the box runs to the end
+            # of the file, so there is nothing after it to skip to.
+            end = len(image_bytes)
+        elif length == 1:
+            # A length of one means the real, 64-bit length follows the type.
+            length = int.from_bytes(image_bytes[content:content + 8], "big")
+            content += 8
+            end = position + length
+        else:
+            end = position + length
+
+        if box_type == _JP2_CODESTREAM_BOX:
+            codestream = image_bytes[content:end]
+            if not codestream.startswith(_SOC_MARKER):
+                raise ValueError(
+                    "Malformed JP2 container: the jp2c box does not hold a JPEG "
+                    "2000 codestream.")
+            return codestream
+
+        if end <= position:
+            raise ValueError(
+                f"Malformed JP2 container: box at byte {position} declares a "
+                f"length of {length}.")
+        position = end
+
+    raise ValueError("Malformed JP2 container: no jp2c box found.")
+
+
 def jpeg2000_is_reversible(image_bytes: bytes) -> bool:
     """
     Return True when a JPEG 2000 codestream uses the reversible (lossless) wavelet
@@ -43,15 +115,16 @@ def jpeg2000_is_reversible(image_bytes: bytes) -> bool:
         ValueError: If no JPEG 2000 codestream with a readable COD marker is found.
     """
     # JPEG 2000 codestream markers, ISO/IEC 15444-1 Table A.2.
-    _SOC_SIZ_MARKER = b'\xff\x4f\xff\x51'   # Start of codestream, immediately followed by SIZ
     _COD_MARKER = 0x52                      # Coding style default
     _SOD_MARKER = 0x93                      # Start of data: pixel data begins, no more headers
     # Delimiting markers that carry no length field of their own.
     _MARKERS_WITHOUT_SEGMENT = frozenset({0x4F, 0xD9} | set(range(0xD0, 0xD9)))
-    
-    position = image_bytes.find(_SOC_SIZ_MARKER)
-    if position < 0:
-        raise ValueError("No JPEG 2000 codestream found: image does not contain SOC followed by SIZ.")
+
+    # Unwrap first rather than searching for the SOC marker: in a container those
+    # bytes can also occur inside a preceding metadata or thumbnail box, and
+    # parsing from there would read something that is not the image.
+    image_bytes = jpeg2000_codestream(image_bytes)
+    position = 0
 
     while position < len(image_bytes) - 3:
         if image_bytes[position] != 0xFF:

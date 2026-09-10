@@ -19,7 +19,7 @@ from PIL import Image
 from PIL.ExifTags import TAGS
 
 from dicom4ortho import config
-from dicom4ortho.utils import generate_dicom_uid, jpeg2000_is_reversible
+from dicom4ortho.utils import generate_dicom_uid, jpeg2000_codestream, jpeg2000_is_reversible
 
 logger = logging.getLogger(__name__)
 
@@ -1011,6 +1011,11 @@ class PhotographBase(DicomBase):
         _set_image_jpeg_data() keeps the original JPEG: re-encoding through PIL does
         not reproduce the image as it was loaded.
 
+        A JP2 container is unwrapped first. The JPEG 2000 Transfer Syntaxes
+        encapsulate the codestream in Pixel Data, not the boxes around it, so
+        storing a container would leave the dataset advertising a Transfer Syntax
+        that does not describe its own Pixel Data.
+
         Because the codestream is now preserved, the Transfer Syntax has to describe
         how the image was actually compressed rather than assume: reversible (5/3
         wavelet) codestreams are Lossless Only, irreversible (9/7) ones are not. A
@@ -1021,16 +1026,18 @@ class PhotographBase(DicomBase):
         self._ds.Rows = im.height
         self._ds.Columns = im.width
 
+        codestream = jpeg2000_codestream(self.image_bytes)
+
         try:
-            is_lossless = jpeg2000_is_reversible(self.image_bytes)
+            is_lossless = jpeg2000_is_reversible(codestream)
         except ValueError as error:
             logger.warning(
                 "Cannot determine JPEG 2000 compression from the codestream (%s). "
                 "Encapsulating as lossy.", error)
             is_lossless = False
 
-        # Encapsulate the image bytes
-        self._ds.PixelData = encapsulate([self.image_bytes])
+        # Encapsulate the codestream
+        self._ds.PixelData = encapsulate([codestream])
 
         self._ds['PixelData'].is_undefined_length = True
 

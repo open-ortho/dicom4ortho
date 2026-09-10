@@ -10,7 +10,7 @@ from pydicom.sequence import Sequence
 from pydicom.dataset import FileDataset, DataElement, FileMetaDataset, Dataset
 from pydicom.datadict import tag_for_keyword
 from pydicom.encaps import encapsulate
-from pydicom.uid import JPEGBaseline8Bit,  ImplicitVRLittleEndian, ExplicitVRBigEndian, ExplicitVRLittleEndian, JPEG2000, VLPhotographicImageStorage
+from pydicom.uid import JPEGBaseline8Bit,  ImplicitVRLittleEndian, ExplicitVRBigEndian, ExplicitVRLittleEndian, JPEG2000, JPEG2000Lossless, VLPhotographicImageStorage
 from pydicom import dcmread, dcmwrite
 import numpy
 
@@ -19,7 +19,7 @@ from PIL import Image
 from PIL.ExifTags import TAGS
 
 from dicom4ortho import config
-from dicom4ortho.utils import generate_dicom_uid
+from dicom4ortho.utils import generate_dicom_uid, jpeg2000_codestream, jpeg2000_is_reversible
 
 logger = logging.getLogger(__name__)
 
@@ -1006,16 +1006,38 @@ class PhotographBase(DicomBase):
         """ Set Image Data for JPEG2000 Images.
 
         Encapsulates a JPEG2000 as it is, without touching anything.
+
+        The source codestream is stored verbatim, for the same reason
+        _set_image_jpeg_data() keeps the original JPEG: re-encoding through PIL does
+        not reproduce the image as it was loaded.
+
+        A JP2 container is unwrapped first. The JPEG 2000 Transfer Syntaxes
+        encapsulate the codestream in Pixel Data, not the boxes around it, so
+        storing a container would leave the dataset advertising a Transfer Syntax
+        that does not describe its own Pixel Data.
+
+        Because the codestream is now preserved, the Transfer Syntax has to describe
+        how the image was actually compressed rather than assume: reversible (5/3
+        wavelet) codestreams are Lossless Only, irreversible (9/7) ones are not. A
+        codestream that cannot be read is treated as lossy, so that the dataset never
+        claims more fidelity than can be demonstrated.
         """
         im = Image.open(io.BytesIO(self.image_bytes))
         self._ds.Rows = im.height
         self._ds.Columns = im.width
 
-        image_bytes = io.BytesIO()
-        im.save(image_bytes, format='JPEG2000')
+        codestream = jpeg2000_codestream(self.image_bytes)
 
-        # Encapsulate the image bytes
-        self._ds.PixelData = encapsulate([image_bytes.getvalue()])
+        try:
+            is_lossless = jpeg2000_is_reversible(codestream)
+        except ValueError as error:
+            logger.warning(
+                "Cannot determine JPEG 2000 compression from the codestream (%s). "
+                "Encapsulating as lossy.", error)
+            is_lossless = False
+
+        # Encapsulate the codestream
+        self._ds.PixelData = encapsulate([codestream])
 
         self._ds['PixelData'].is_undefined_length = True
 
@@ -1029,14 +1051,17 @@ class PhotographBase(DicomBase):
         self._ds.BitsStored = 8
         self._ds.HighBit = 7
 
-        self._ds.LossyImageCompressionMethod = 'ISO_15444_1'  # The JPEG-2000 Standard
+        if is_lossless:
+            self._ds.file_meta.TransferSyntaxUID = JPEG2000Lossless
+        else:
+            # Only meaningful when Lossy Image Compression is '01'. PS3.3 C.7.6.1.1.5
+            self._ds.LossyImageCompressionMethod = 'ISO_15444_1'  # The JPEG-2000 Standard
+            self._ds.file_meta.TransferSyntaxUID = JPEG2000
 
-        self._ds.file_meta.TransferSyntaxUID = JPEG2000
         self._ds.is_little_endian = True
         self._ds.is_implicit_VR = False
 
-        self.lossy_compression(False)
-        # self._ds.compress(RLELossless)
+        self.lossy_compression(not is_lossless)
 
     def _set_image_jpeg_data(self, recompress_quality=None):
         """ Set Image Data for JPG Images.

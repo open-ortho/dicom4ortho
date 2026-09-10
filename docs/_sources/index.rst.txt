@@ -17,6 +17,7 @@ additions from DICOM CP 1570.
 
    installation
    usage
+   jpeg2000
    terminology
    file_formats/csv_file_views
    file_formats/csv_file

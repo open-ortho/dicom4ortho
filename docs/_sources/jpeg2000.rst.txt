@@ -1,0 +1,30 @@
+JPEG 2000 codestreams and JP2 containers
+=========================================
+
+JPEG 2000 refers to both an image compression standard and its codestream
+format. A raw JPEG 2000 codestream begins with the ``FF 4F`` Start of
+Codestream (SOC) marker. The ``FF 51`` Start of Image and Size (SIZ) marker
+normally follows it. Depending on the encoder settings, the codestream can use
+the reversible 5/3 wavelet transform for lossless compression or the
+irreversible 9/7 wavelet transform for lossy compression.
+
+JP2 is a container format around a JPEG 2000 codestream. A JP2 file begins with
+a JP2 signature box and consists of boxes such as ``ftyp``, ``jp2h``, and
+``jp2c``. The payload of the ``jp2c`` box must be a JPEG 2000 codestream; it is
+not an arbitrary-data box. The other boxes describe the image and container
+but do not redefine the compression format.
+
+DICOM encapsulation
+-------------------
+
+DICOM JPEG 2000 transfer syntaxes encapsulate the raw JPEG 2000 codestream in
+Pixel Data, not the complete JP2 container. Container-aware processing must
+extract the payload of the ``jp2c`` box before encapsulation when the source is
+a JP2 file. The selected lossless or lossy transfer syntax and compression
+attributes must describe the codestream's actual compression.
+
+Detect the format from its byte structure rather than its filename extension:
+
+* A raw codestream starts with the ``FF 4F`` SOC marker.
+* A JP2 container starts with the 12-byte signature
+  ``00 00 00 0C 6A 50 20 20 0D 0A 87 0A``.

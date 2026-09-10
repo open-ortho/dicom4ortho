@@ -24,15 +24,6 @@ def generate_dicom_uid(root=None, hash=None):
     return dicom_uid
 
 
-# A raw JPEG 2000 codestream opens with the SOC marker, ISO/IEC 15444-1 Annex A.
-_SOC_MARKER = b'\xff\x4f'
-# A JP2 file opens with the signature box, ISO/IEC 15444-1 Annex I.5.1: a length of
-# 12, the type 'jP  ', then a fixed four-byte check value.
-_JP2_SIGNATURE = b'\x00\x00\x00\x0c\x6a\x50\x20\x20\x0d\x0a\x87\x0a'
-_JP2_CODESTREAM_BOX = b'jp2c'
-_JP2_BOX_HEADER_LENGTH = 8
-
-
 def jpeg2000_codestream(image_bytes: bytes) -> bytes:
     """
     Return the JPEG 2000 codestream in an image, unwrapping a JP2 container.
@@ -53,6 +44,15 @@ def jpeg2000_codestream(image_bytes: bytes) -> bytes:
         ValueError: If the image is neither a codestream nor a JP2 container, or if
             it is a container with no readable ``jp2c`` box.
     """
+    # A raw codestream opens with the SOC marker, ISO/IEC 15444-1 Annex A.
+    _SOC_MARKER = b'\xff\x4f'
+    # A JP2 file opens with the signature box, ISO/IEC 15444-1 Annex I.5.1: a
+    # length of 12, the type 'jP  ', then a fixed four-byte check value.
+    _JP2_SIGNATURE = b'\x00\x00\x00\x0c\x6a\x50\x20\x20\x0d\x0a\x87\x0a'
+    _JP2_CODESTREAM_BOX = b'jp2c'
+    # Every box starts with a four-byte length and a four-byte type.
+    _JP2_BOX_HEADER_LENGTH = 8
+
     if image_bytes.startswith(_SOC_MARKER):
         return image_bytes
 

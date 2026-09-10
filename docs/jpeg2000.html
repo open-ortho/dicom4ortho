@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="./">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>JPEG 2000 codestreams and JP2 containers &#8212; dicom4ortho docs 0.5.3-dev documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="_static/classic.css?v=2bf1fcf8" />
+
+    <script src="_static/documentation_options.js?v=73d8ad1d"></script>
+    <script src="_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+
+    <link rel="author" title="About these documents" href="about.html" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Terminology sources" href="terminology.html" />
+    <link rel="prev" title="Usage" href="usage.html" />
+  </head><body>
+    <div class="related" role="navigation" aria-label="Related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="terminology.html" title="Terminology sources"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="usage.html" title="Usage"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">dicom4ortho docs 0.5.3-dev documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">JPEG 2000 codestreams and JP2 containers</a></li>
+      </ul>
+    </div>
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+
+  <section id="jpeg-2000-codestreams-and-jp2-containers">
+<h1>JPEG 2000 codestreams and JP2 containers<a class="headerlink" href="#jpeg-2000-codestreams-and-jp2-containers" title="Link to this heading">¶</a></h1>
+<p>JPEG 2000 refers to both an image compression standard and its codestream
+format. A raw JPEG 2000 codestream begins with the <code class="docutils literal notranslate"><span class="pre">FF</span> <span class="pre">4F</span></code> Start of
+Codestream (SOC) marker. The <code class="docutils literal notranslate"><span class="pre">FF</span> <span class="pre">51</span></code> Start of Image and Size (SIZ) marker
+normally follows it. Depending on the encoder settings, the codestream can use
+the reversible 5/3 wavelet transform for lossless compression or the
+irreversible 9/7 wavelet transform for lossy compression.</p>
+<p>JP2 is a container format around a JPEG 2000 codestream. A JP2 file begins with
+a JP2 signature box and consists of boxes such as <code class="docutils literal notranslate"><span class="pre">ftyp</span></code>, <code class="docutils literal notranslate"><span class="pre">jp2h</span></code>, and
+<code class="docutils literal notranslate"><span class="pre">jp2c</span></code>. The payload of the <code class="docutils literal notranslate"><span class="pre">jp2c</span></code> box must be a JPEG 2000 codestream; it is
+not an arbitrary-data box. The other boxes describe the image and container
+but do not redefine the compression format.</p>
+<section id="dicom-encapsulation">
+<h2>DICOM encapsulation<a class="headerlink" href="#dicom-encapsulation" title="Link to this heading">¶</a></h2>
+<p>DICOM JPEG 2000 transfer syntaxes encapsulate the raw JPEG 2000 codestream in
+Pixel Data, not the complete JP2 container. Container-aware processing must
+extract the payload of the <code class="docutils literal notranslate"><span class="pre">jp2c</span></code> box before encapsulation when the source is
+a JP2 file. The selected lossless or lossy transfer syntax and compression
+attributes must describe the codestream’s actual compression.</p>
+<p>Detect the format from its byte structure rather than its filename extension:</p>
+<ul class="simple">
+<li><p>A raw codestream starts with the <code class="docutils literal notranslate"><span class="pre">FF</span> <span class="pre">4F</span></code> SOC marker.</p></li>
+<li><p>A JP2 container starts with the 12-byte signature
+<code class="docutils literal notranslate"><span class="pre">00</span> <span class="pre">00</span> <span class="pre">00</span> <span class="pre">0C</span> <span class="pre">6A</span> <span class="pre">50</span> <span class="pre">20</span> <span class="pre">20</span> <span class="pre">0D</span> <span class="pre">0A</span> <span class="pre">87</span> <span class="pre">0A</span></code>.</p></li>
+</ul>
+</section>
+<section id="repository-fixture">
+<h2>Repository fixture<a class="headerlink" href="#repository-fixture" title="Link to this heading">¶</a></h2>
+<p>The source repository’s <a class="reference external" href="https://github.com/open-ortho/dicom4ortho/blob/develop/test/resources/sample_topsOrtho.jp2">sample_topsOrtho.jp2</a> fixture retains the filename
+supplied by its source system. Despite its
+<code class="docutils literal notranslate"><span class="pre">.jp2</span></code> suffix, its first bytes are <code class="docutils literal notranslate"><span class="pre">FF</span> <span class="pre">4F</span> <span class="pre">FF</span> <span class="pre">51</span></code>, so its contents are a raw
+JPEG 2000 codestream rather than a JP2 container. File extensions are hints
+only; JPEG 2000 detection and DICOM handling must use the byte structure.</p>
+</section>
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+  <div>
+    <h3><a href="index.html">Table of Contents</a></h3>
+    <ul>
+<li><a class="reference internal" href="#">JPEG 2000 codestreams and JP2 containers</a><ul>
+<li><a class="reference internal" href="#dicom-encapsulation">DICOM encapsulation</a></li>
+<li><a class="reference internal" href="#repository-fixture">Repository fixture</a></li>
+</ul>
+</li>
+</ul>
+
+  </div>
+  <div>
+    <h4>Previous topic</h4>
+    <p class="topless"><a href="usage.html"
+                          title="previous chapter">Usage</a></p>
+  </div>
+  <div>
+    <h4>Next topic</h4>
+    <p class="topless"><a href="terminology.html"
+                          title="next chapter">Terminology sources</a></p>
+  </div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/jpeg2000.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<search id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="Related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="terminology.html" title="Terminology sources"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="usage.html" title="Usage"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">dicom4ortho docs 0.5.3-dev documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">JPEG 2000 codestreams and JP2 containers</a></li>
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+    &#169; Copyright 2021-2026, open-ortho.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.0.
+    </div>
+  </body>
+</html>

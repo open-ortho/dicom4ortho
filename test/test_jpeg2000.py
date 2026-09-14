@@ -18,12 +18,11 @@ from dicom4ortho.utils import jpeg2000_codestream, jpeg2000_is_reversible
 
 logger = logging.getLogger(__name__)
 
-# Exported by TOPS, and lossy: the case that motivated preserving the codestream
-# instead of re-encoding it. TOPS names these files ".jp2" even though their
-# contents are a bare codestream, so the fixture is stored under the extension
-# that matches its bytes. test_topsortho_sample_is_a_codestream_not_a_container
-# pins that.
-TOPSORTHO_SAMPLE = Path('./test/resources/sample_topsOrtho.j2k')
+# A real, irreversibly compressed photograph: the case that motivated preserving
+# the codestream instead of re-encoding it. It holds a bare codestream and no JP2
+# boxes, so it is stored under the extension that matches its bytes;
+# test_sample_is_a_codestream_not_a_container pins that.
+LOSSY_SAMPLE = Path('./test/resources/sample_lossy_jpeg2000.j2k')
 
 # The 12-byte JP2 signature box, ISO/IEC 15444-1 Annex I.5.1.
 JP2_SIGNATURE = b'\x00\x00\x00\x0c\x6a\x50\x20\x20\x0d\x0a\x87\x0a'
@@ -68,9 +67,9 @@ class JPEG2000ReversibilityTests(unittest.TestCase):
     def test_detects_lossy_codestream(self):
         self.assertFalse(jpeg2000_is_reversible(make_jpeg2000_bytes(lossless=False)))
 
-    def test_detects_lossy_topsortho_sample(self):
+    def test_detects_lossy_sample(self):
         """The real-world sample this change was written for is lossy."""
-        self.assertFalse(jpeg2000_is_reversible(TOPSORTHO_SAMPLE.read_bytes()))
+        self.assertFalse(jpeg2000_is_reversible(LOSSY_SAMPLE.read_bytes()))
 
     def test_reads_compression_through_a_jp2_container(self):
         """The wavelet is a property of the codestream, wrapped or not."""
@@ -104,13 +103,13 @@ class JPEG2000CodestreamTests(unittest.TestCase):
                         "the container's boxes should have been dropped")
         self.assertIn(codestream, container)
 
-    def test_topsortho_sample_is_a_codestream_not_a_container(self):
+    def test_sample_is_a_codestream_not_a_container(self):
         """The fixture does not exercise container handling, and must not appear to.
 
-        TOPS exports these under a .jp2 name even though they hold no boxes, which
-        is why format has to be read from the bytes and not from the extension.
+        Files holding a bare codestream are routinely named ".jp2", which is why
+        the format has to be read from the bytes and not from the extension.
         """
-        image_bytes = TOPSORTHO_SAMPLE.read_bytes()
+        image_bytes = LOSSY_SAMPLE.read_bytes()
 
         self.assertTrue(image_bytes.startswith(SOC_MARKER))
         self.assertFalse(image_bytes.startswith(JP2_SIGNATURE))
@@ -188,9 +187,9 @@ class JPEG2000EncapsulationTests(unittest.TestCase):
         self.assertFalse(frame.startswith(JP2_SIGNATURE))
         self.assertEqual(photo._ds.file_meta.TransferSyntaxUID, JPEG2000Lossless)
 
-    def test_topsortho_sample_is_not_inflated(self):
+    def test_lossy_sample_is_not_inflated(self):
         """A lossy source used to grow several-fold by being re-encoded losslessly."""
-        image_bytes = TOPSORTHO_SAMPLE.read_bytes()
+        image_bytes = LOSSY_SAMPLE.read_bytes()
         photo = photograph_from_bytes(image_bytes)
 
         self.assertEncapsulates(photo, image_bytes)

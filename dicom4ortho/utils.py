@@ -30,8 +30,9 @@ def jpeg2000_codestream(image_bytes: bytes) -> bytes:
 
     DICOM's JPEG 2000 transfer syntaxes encapsulate the codestream in Pixel Data,
     never the surrounding JP2 container, so container input has to be unwrapped
-    before it is stored. A file extension says nothing about which one it is: TOPS
-    exports raw codestreams from files named ``.jp2``.
+    before it is stored. Which one an image holds is decided by its opening bytes
+    and not by its file name: a ``.jp2`` extension is routinely found on files that
+    contain a bare codestream.
 
     Args:
         image_bytes: A raw JPEG 2000 codestream, or a JP2 container holding one.

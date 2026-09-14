@@ -279,7 +279,6 @@ class PhotoTests(unittest.TestCase):
     @unittest.skip("Just a tool, not a test")
     def testEXIF(self):
         filename = Path(
-            # ".") / "test" / "resources" / "sample_topsOrtho.jp2"
             self.resource_path / "sample_NikonD90.JPG")
         with Image.open(filename) as img:
             exif_ifd = img.getexif().getifd

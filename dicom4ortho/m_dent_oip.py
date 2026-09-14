@@ -2,9 +2,9 @@
 
 Architecture
 ------------
-At build time, ``tools/generate_codes.py`` reads ``codes.csv`` and
-``views.csv`` (fetched from the dent-oip GitHub project, or overridden
-locally via ``make update_resources``) and emits
+At maintenance time, ``tools/generate_codes.py`` resolves official NEMA DICOM
+FHIR ValueSets and DCM ontology concepts, ADA 1100 FHIR CodeSystems, and the
+DENT-OIP ``views.csv`` layout, then emits
 ``dicom4ortho/_generated_codes.py`` — a committed Python module containing
 all :class:`DicomCode` constants and the ``VIEWS`` dict of
 :class:`OrthoView` objects.
@@ -49,6 +49,16 @@ class DicomCode:
     def to_sequence(self) -> Sequence:
         """Return a single-item pydicom Sequence wrapping this code."""
         return Sequence([self.to_dataset()])
+
+
+@dataclass(frozen=True)
+class AdaImageType:
+    """An ADA 1100 image type resolved from the published FHIR CodeSystem."""
+
+    keyword: str
+    abbreviation: str
+    meaning: str
+    code: DicomCode
 
 
 @dataclass(frozen=True)
@@ -105,5 +115,3 @@ class OrthoView:
     # Human-readable labels
     description: str        # → ImageComments
     series_description: str  # → SeriesDescription
-
-

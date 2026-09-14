@@ -1,22 +1,32 @@
-"""Tests for the code-generation tool and the generated codes module.
-
-Tests in this file run against the sources (codes.csv, views.csv) and the
-generated _generated_codes.py to ensure consistency.
-"""
+"""Tests for official terminology bindings and the generated codes module."""
 
 import importlib
+import hashlib
+import io
 import unittest
+import warnings
+from datetime import date, datetime
+from importlib.resources import files
 from pathlib import Path
+from unittest import mock
+
+from rdflib import Graph
 
 
-class TestCodesCsvConsistency(unittest.TestCase):
-    """Every keyword referenced in views.csv must exist in codes.csv."""
+class TestTerminologySourceConsistency(unittest.TestCase):
+    """Every local view binding must resolve through a declared source."""
 
     def setUp(self):
-        # Import lazily so the test can be run before generation too
-        from tools.generate_codes import load_codes, load_views
-        self.codes = load_codes()
-        self.views = load_views()
+        from tools.generate_codes import (
+            CODE_BINDINGS,
+            DCM_CODE_BINDINGS,
+            LOCAL_CODES,
+            _parse_views,
+        )
+        self.codes = set(CODE_BINDINGS) | set(DCM_CODE_BINDINGS) | set(LOCAL_CODES)
+        self.views = _parse_views(
+            files("dicom4ortho.resources").joinpath("views.csv").read_bytes()
+        )
 
         # Columns that reference code keywords (single or ^-delimited)
         self.code_columns = [
@@ -36,7 +46,7 @@ class TestCodesCsvConsistency(unittest.TestCase):
         self.cs_columns = ["PatientOrientation", "ImageLaterality"]
 
     def test_all_code_keywords_in_views_exist_in_codes(self):
-        """Every keyword referenced in views.csv must be present in codes.csv."""
+        """Every terminology keyword in views.csv must have a source binding."""
         missing = []
         for row in self.views:
             for col in self.code_columns:
@@ -46,11 +56,11 @@ class TestCodesCsvConsistency(unittest.TestCase):
                         missing.append(f"{row['keyword']}.{col}: {kw!r}")
         self.assertEqual(
             missing, [],
-            "Keywords in views.csv not found in codes.csv:\n" + "\n".join(missing),
+            "Keywords in views.csv without terminology bindings:\n" + "\n".join(missing),
         )
 
     def test_all_cs_keywords_in_views_exist_in_codes(self):
-        """PatientOrientation and ImageLaterality keywords must resolve in codes.csv."""
+        """PatientOrientation and ImageLaterality keywords must resolve locally."""
         missing = []
         for row in self.views:
             for col in self.cs_columns:
@@ -59,7 +69,7 @@ class TestCodesCsvConsistency(unittest.TestCase):
                     missing.append(f"{row['keyword']}.{col}: {kw!r}")
         self.assertEqual(
             missing, [],
-            "CS keywords in views.csv not found in codes.csv:\n" + "\n".join(missing),
+            "CS keywords in views.csv without bindings:\n" + "\n".join(missing),
         )
 
     def test_no_view_has_unknown_columns(self):
@@ -73,6 +83,198 @@ class TestCodesCsvConsistency(unittest.TestCase):
     def test_all_73_views_present(self):
         """views.csv must contain exactly 73 orthodontic views."""
         self.assertEqual(len(self.views), 73)
+
+    def test_cid_4070_bindings_use_canonical_sct_codes(self):
+        """Treatment progress bindings select only the intended SCT concepts."""
+        from tools.generate_codes import CODE_BINDINGS, SCT_SYSTEM
+        expected = {
+            "PatientRegistration": "184047000",
+            "OrthodonticTreatmentStarted": "1332161000",
+            "OrthodonticTreatmentStopped": "1340210007",
+        }
+        for keyword, code in expected.items():
+            with self.subTest(keyword=keyword):
+                binding = CODE_BINDINGS[keyword]
+                self.assertEqual(binding.source, "CID4070")
+                self.assertEqual(binding.system, SCT_SYSTEM)
+                self.assertEqual(binding.code, code)
+
+    def test_dcm_concept_names_use_official_code_system(self):
+        from tools.generate_codes import DCM_CODE_BINDINGS
+        expected = {
+            "OrthognathicFunctionalConditions": "130325",
+            "TemporalEventType": "128741",
+            "OffsetFromEvent": "128740",
+        }
+        for keyword, code in expected.items():
+            with self.subTest(keyword=keyword):
+                binding = DCM_CODE_BINDINGS[keyword]
+                self.assertEqual(binding.source, "DCM_ONTOLOGY")
+                self.assertEqual(binding.code, code)
+
+    def test_frenum_uses_current_official_dicom_meaning(self):
+        from dicom4ortho._generated_codes import CODES
+        from tools.generate_codes import CODE_BINDINGS, SCT_SYSTEM
+        binding = CODE_BINDINGS["frenum"]
+        self.assertEqual(binding.source, "CID4061")
+        self.assertEqual(binding.system, SCT_SYSTEM)
+        self.assertEqual(binding.code, "7652006")
+        self.assertEqual(CODES["frenum"].meaning, "Frenulum labii")
+
+
+class TestFhirResolution(unittest.TestCase):
+    """FHIR resolution must not confuse primary codes with mapping identifiers."""
+
+    def test_resolve_code_selects_system_and_code(self):
+        from tools.generate_codes import CodeBinding, SCT_SYSTEM, resolve_code
+        resource = {
+            "resourceType": "ValueSet",
+            "compose": {"include": [
+                {"system": "http://snomed.info/srt", "concept": [
+                    {"code": "P0-0081C", "display": "Patient registration"},
+                ]},
+                {"system": SCT_SYSTEM, "concept": [
+                    {"code": "184047000", "display": "Patient registration"},
+                ]},
+            ]},
+        }
+        code = resolve_code(
+            resource, CodeBinding("CID4070", SCT_SYSTEM, "184047000")
+        )
+        self.assertEqual(code, {
+            "code": "184047000",
+            "scheme": "SCT",
+            "meaning": "Patient registration",
+        })
+
+    def test_resolve_code_rejects_missing_code(self):
+        from tools.generate_codes import CodeBinding, SCT_SYSTEM, resolve_code
+        resource = {"resourceType": "ValueSet", "compose": {"include": []}}
+        with self.assertRaisesRegex(ValueError, "found 0"):
+            resolve_code(resource, CodeBinding("CID4070", SCT_SYSTEM, "missing"))
+
+    def test_resolve_code_rejects_filter_based_value_set(self):
+        from tools.generate_codes import CodeBinding, SCT_SYSTEM, resolve_code
+        resource = {
+            "resourceType": "ValueSet",
+            "compose": {"include": [{
+                "system": SCT_SYSTEM,
+                "filter": [{"property": "concept", "op": "is-a", "value": "123"}],
+            }]},
+        }
+        with self.assertRaisesRegex(ValueError, "Filter-based"):
+            resolve_code(resource, CodeBinding("CID4070", SCT_SYSTEM, "123"))
+
+
+class TestDcmOntologyResolution(unittest.TestCase):
+    """DCM concept names are resolved strictly from NEMA RDF fixtures."""
+
+    def _graph(self, fixture: str) -> Graph:
+        graph = Graph()
+        graph.parse(
+            data=(Path(__file__).parent / "resources" / fixture).read_bytes(),
+            format="xml",
+        )
+        return graph
+
+    def test_resolves_canonical_uri_notation_and_english_label(self):
+        from tools.generate_codes import DcmCodeBinding, resolve_dcm_code
+        self.assertEqual(
+            resolve_dcm_code(
+                self._graph("dcm_ontology_valid.rdf"),
+                DcmCodeBinding("DCM_ONTOLOGY", "130325"),
+            ),
+            {
+                "code": "130325",
+                "scheme": "DCM",
+                "meaning": "Orthognathic Functional Condition",
+            },
+        )
+
+    def test_rejects_missing_concept(self):
+        from tools.generate_codes import DcmCodeBinding, resolve_dcm_code
+        with self.assertRaisesRegex(ValueError, "found 0 matching concepts"):
+            resolve_dcm_code(
+                self._graph("dcm_ontology_missing_concept.rdf"),
+                DcmCodeBinding("DCM_ONTOLOGY", "130325"),
+            )
+
+    def test_rejects_duplicate_english_labels(self):
+        from tools.generate_codes import DcmCodeBinding, resolve_dcm_code
+        with self.assertRaisesRegex(ValueError, "found 2"):
+            resolve_dcm_code(
+                self._graph("dcm_ontology_duplicate_english_label.rdf"),
+                DcmCodeBinding("DCM_ONTOLOGY", "130325"),
+            )
+
+    def test_rejects_missing_english_label(self):
+        from tools.generate_codes import DcmCodeBinding, resolve_dcm_code
+        with self.assertRaisesRegex(ValueError, "found 0"):
+            resolve_dcm_code(
+                self._graph("dcm_ontology_missing_english_label.rdf"),
+                DcmCodeBinding("DCM_ONTOLOGY", "130325"),
+            )
+
+
+class TestSourceProvenance(unittest.TestCase):
+    """Source validation and rendered provenance remain explicit and deterministic."""
+
+    def test_sources_use_dicom_native_urls_without_fhir_org(self):
+        from tools.generate_codes import NEMA_DCM_ONTOLOGY_URL, SOURCES
+        removed_host = "fhir" + ".org"
+        self.assertIn("medical.nema.org", NEMA_DCM_ONTOLOGY_URL)
+        self.assertNotIn(removed_host, NEMA_DCM_ONTOLOGY_URL)
+        for name, spec in SOURCES.items():
+            with self.subTest(source=name):
+                self.assertNotIn(removed_host, spec.url)
+
+    def test_source_validation_rejects_unknown_format(self):
+        from tools.generate_codes import SourceSpec, validate_sources
+        with self.assertRaisesRegex(ValueError, "unknown format"):
+            validate_sources({"BAD": SourceSpec("https://example.invalid", "csv")})
+
+    def test_observed_fhir_provenance_records_url_hash_and_metadata(self):
+        from tools.generate_codes import _provenance
+        raw = b'{"resourceType":"ValueSet","version":"1","date":"2026-07-15"}'
+        resource = {"resourceType": "ValueSet", "version": "1", "date": "2026-07-15"}
+        self.assertEqual(
+            _provenance("https://example.invalid/cid", raw, resource),
+            {
+                "url": "https://example.invalid/cid",
+                "sha256": hashlib.sha256(raw).hexdigest(),
+                "version": "1",
+                "date": "2026-07-15",
+            },
+        )
+
+    def test_views_loader_logs_url_and_observes_provenance(self):
+        from tools.generate_codes import DENT_OIP_VIEWS_URL, load_views
+        raw = b"keyword\nVER:1\nEV01\n"
+        output = io.StringIO()
+        with mock.patch("sys.stdout", output):
+            views, provenance = load_views(fetch_url=lambda _url: raw)
+        self.assertEqual(views, [{"keyword": "EV01"}])
+        self.assertIn(f"Loading {DENT_OIP_VIEWS_URL}", output.getvalue())
+        self.assertEqual(provenance["sha256"], hashlib.sha256(raw).hexdigest())
+
+    def test_check_mode_detects_lock_drift_without_network(self):
+        from tools import generate_codes
+        with self.subTest("current"):
+            with mock.patch.object(generate_codes, "build_lock", return_value="current"):
+                with mock.patch.object(generate_codes, "OUTPUT") as output:
+                    output.exists.return_value = True
+                    output.read_text.return_value = "current"
+                    with mock.patch.object(generate_codes.sys, "argv", ["generate_codes.py", "--check"]):
+                        generate_codes.main()
+        with self.subTest("drift"):
+            with mock.patch.object(generate_codes, "build_lock", return_value="new"):
+                with mock.patch.object(generate_codes, "OUTPUT") as output:
+                    output.exists.return_value = True
+                    output.read_text.return_value = "old"
+                    output.relative_to.return_value = Path("_generated_codes.py")
+                    with mock.patch.object(generate_codes.sys, "argv", ["generate_codes.py", "--check"]):
+                        with self.assertRaisesRegex(SystemExit, "differs"):
+                            generate_codes.main()
 
 
 class TestGeneratedCodesModule(unittest.TestCase):
@@ -91,6 +293,36 @@ class TestGeneratedCodesModule(unittest.TestCase):
 
     def test_views_dict_present(self):
         self.assertTrue(hasattr(self._module, "VIEWS"))
+
+    def test_source_provenance_present(self):
+        provenance = self._module.SOURCE_PROVENANCE
+        for name in ("DCM_ONTOLOGY", "CID4070", "ADA_INTRAORAL_2D", "VIEWS"):
+            with self.subTest(source=name):
+                self.assertIn(name, provenance)
+                self.assertIn("url", provenance[name])
+                self.assertEqual(len(provenance[name]["sha256"]), 64)
+        self.assertNotIn("version", provenance["DCM_ONTOLOGY"])
+        self.assertNotIn("date", provenance["VIEWS"])
+        self.assertIn("version", provenance["CID4070"])
+        self.assertIn("date", provenance["CID4070"])
+
+    def test_render_is_deterministic_with_source_provenance(self):
+        from tools.generate_codes import LOCAL_CODES, generate
+        provenance = {
+            "CID4061": {
+                "url": "https://example.invalid/cid",
+                "sha256": hashlib.sha256(b"fixture").hexdigest(),
+                "version": "1",
+                "date": "2026-07-15",
+            },
+        }
+        first = generate(dict(LOCAL_CODES), {}, [], provenance)
+        second = generate(dict(LOCAL_CODES), {}, [], provenance)
+        self.assertEqual(first, second)
+
+    def test_all_73_ada_image_types_present(self):
+        self.assertEqual(len(self._module.IMAGE_TYPES), 73)
+        self.assertEqual(self._module.IMAGE_TYPES["EV01"].abbreviation, "EO.RP.LR.CO")
 
     def test_all_73_views_in_dict(self):
         self.assertEqual(len(self._module.VIEWS), 73)
@@ -277,11 +509,11 @@ class TestApplyView(unittest.TestCase):
         self.assertIn('789131009', values)  # closeup still attached
 
     def test_device_iv02_mirror(self):
-        """IV02 uses a mirror device."""
+        """IV02 uses the CID 4072 intraoral photography mirror."""
         o = self._make_photo('IV02')
         devices = o._ds.DeviceSequence
         values = [d.CodeValue for d in devices]
-        self.assertIn('47162009', values)  # device_mirror (SCT Mirror, device)
+        self.assertIn('1332162007', values)
 
     def test_orthognathic_functional_condition_iv10(self):
         """IV10 has mouth_open as orthognathic functional condition."""
@@ -310,21 +542,47 @@ class TestApplyView(unittest.TestCase):
         self.assertEqual(acs_by_cn.get('25272006'), '110320000')  # co
 
     def test_treatment_progress_ev08(self):
-        """EV08 with treatment_event_type + days_after_event produces correct ACS items."""
-        o = self._make_photo(
-            'EV08',
-            treatment_event_type='OrthodonticTreatment',
-            days_after_event=212,
-        )
-        numeric_items = [
-            item for item in o._ds.AcquisitionContextSequence
-            if item.ValueType == 'NUMERIC'
-        ]
-        self.assertEqual(len(numeric_items), 1)
-        self.assertEqual(numeric_items[0].NumericValue, 212)
+        """Each ADA 1100 phase emits its canonical CID 4070 event and offset."""
+        expected = {
+            'PatientRegistration': ('184047000', 'Patient registration'),
+            'OrthodonticTreatmentStarted': (
+                '1332161000', 'Orthodontic Treatment started'),
+            'OrthodonticTreatmentStopped': (
+                '1340210007', 'Orthodontic Treatment stopped'),
+        }
+        for event_type, (code, meaning) in expected.items():
+            with self.subTest(event_type=event_type):
+                o = self._make_photo(
+                    'EV08',
+                    acquisition_datetime=datetime(2026, 7, 14, 10, 30),
+                    treatment_event_type=event_type,
+                    treatment_event_date=date(2026, 7, 1),
+                )
+                event_items = [
+                    item for item in o._ds.AcquisitionContextSequence
+                    if item.ValueType == 'CODE'
+                    and item.ConceptNameCodeSequence[0].CodeValue == '128741'
+                ]
+                numeric_items = [
+                    item for item in o._ds.AcquisitionContextSequence
+                    if item.ValueType == 'NUMERIC'
+                ]
+                self.assertEqual(len(event_items), 1)
+                self.assertEqual(event_items[0].ConceptCodeSequence[0].CodeValue, code)
+                self.assertEqual(
+                    event_items[0].ConceptCodeSequence[0].CodingSchemeDesignator, 'SCT')
+                self.assertEqual(
+                    event_items[0].ConceptCodeSequence[0].CodeMeaning, meaning)
+                self.assertEqual(len(numeric_items), 1)
+                self.assertEqual(numeric_items[0].NumericValue, 13)
+                self.assertEqual(
+                    numeric_items[0].ConceptNameCodeSequence[0].CodeValue, '128740')
+                units = numeric_items[0].MeasurementUnitsCodeSequence[0]
+                self.assertEqual((units.CodeValue, units.CodingSchemeDesignator), ('d', 'UCUM'))
+                self.assertEqual(units.CodeMeaning, 'days')
 
     def test_set_treatment_progress_updates_acs(self):
-        """set_treatment_progress() must update AcquisitionContextSequence."""
+        """The deprecated days API remains functional and warns callers."""
         o = self._make_photo('EV08')
         # No progress initially
         numeric_before = [
@@ -333,7 +591,9 @@ class TestApplyView(unittest.TestCase):
         ]
         self.assertEqual(len(numeric_before), 0)
 
-        o.set_treatment_progress('OrthodonticTreatment', 100)
+        with warnings.catch_warnings(record=True) as caught:
+            warnings.simplefilter('always')
+            o.set_treatment_progress('OrthodonticTreatment', 100)
 
         numeric_after = [
             item for item in o._ds.AcquisitionContextSequence
@@ -341,6 +601,91 @@ class TestApplyView(unittest.TestCase):
         ]
         self.assertEqual(len(numeric_after), 1)
         self.assertEqual(numeric_after[0].NumericValue, 100)
+        messages = [str(warning.message) for warning in caught]
+        self.assertTrue(any('set_treatment_progress' in message for message in messages))
+        self.assertTrue(any('OrthodonticTreatmentStarted' in message for message in messages))
+        event_item = next(
+            item for item in o._ds.AcquisitionContextSequence
+            if item.ValueType == 'CODE'
+            and item.ConceptNameCodeSequence[0].CodeValue == '128741'
+        )
+        self.assertEqual(event_item.ConceptCodeSequence[0].CodeValue, '1332161000')
+
+    def test_legacy_posttreatment_metadata_warns_and_maps_to_stopped(self):
+        with warnings.catch_warnings(record=True) as caught:
+            warnings.simplefilter('always')
+            o = self._make_photo(
+                'EV08', treatment_event_type='Posttreatment', days_after_event='12')
+        messages = [str(warning.message) for warning in caught]
+        self.assertTrue(any('days_after_event' in message for message in messages))
+        self.assertTrue(any('OrthodonticTreatmentStopped' in message for message in messages))
+        event_item = next(
+            item for item in o._ds.AcquisitionContextSequence
+            if item.ValueType == 'CODE'
+            and item.ConceptNameCodeSequence[0].CodeValue == '128741'
+        )
+        self.assertEqual(event_item.ConceptCodeSequence[0].CodeValue, '1340210007')
+
+    def test_set_treatment_progress_from_date_uses_dataset_acquisition_date(self):
+        o = self._make_photo('EV08')
+        o.set_time_captured(datetime(2026, 7, 14, 10, 30))
+        o.set_treatment_progress_from_date('PatientRegistration', date(2026, 7, 1))
+        numeric = next(
+            item for item in o._ds.AcquisitionContextSequence
+            if item.ValueType == 'NUMERIC'
+        )
+        self.assertEqual(numeric.NumericValue, 13)
+
+    def test_zero_day_offset_is_valid(self):
+        o = self._make_photo('EV08')
+        o.set_treatment_progress_from_date(
+            'OrthodonticTreatmentStarted', '2026-07-14', '2026-07-14')
+        numeric = next(
+            item for item in o._ds.AcquisitionContextSequence
+            if item.ValueType == 'NUMERIC'
+        )
+        self.assertEqual(numeric.NumericValue, 0)
+
+    def test_event_date_after_acquisition_is_rejected(self):
+        o = self._make_photo('EV08')
+        with self.assertRaisesRegex(ValueError, 'cannot be after'):
+            o.set_treatment_progress_from_date(
+                'PatientRegistration', '2026-07-15', '2026-07-14')
+
+    def test_event_date_requires_acquisition_date(self):
+        o = self._make_photo('EV08')
+        with self.assertRaisesRegex(ValueError, 'acquisition date is required'):
+            o.set_treatment_progress_from_date('PatientRegistration', '2026-07-01')
+
+    def test_unknown_treatment_event_is_rejected(self):
+        o = self._make_photo('EV08')
+        with self.assertRaisesRegex(ValueError, 'Unknown treatment event type'):
+            o.set_treatment_progress_from_date('Unknown', '2026-07-01', '2026-07-14')
+
+    def test_blank_progress_metadata_is_ignored(self):
+        o = self._make_photo(
+            'EV08',
+            acquisition_datetime=' ',
+            treatment_event_type='',
+            treatment_event_date=' ',
+            days_after_event='',
+        )
+        progress = [
+            item for item in o._ds.AcquisitionContextSequence
+            if item.ConceptNameCodeSequence[0].CodeValue in ('128740', '128741')
+        ]
+        self.assertEqual(progress, [])
+
+    def test_partial_progress_metadata_is_rejected(self):
+        cases = [
+            {'treatment_event_type': 'PatientRegistration'},
+            {'treatment_event_date': '2026-07-01'},
+            {'days_after_event': 12},
+        ]
+        for metadata in cases:
+            with self.subTest(metadata=metadata):
+                with self.assertRaisesRegex(ValueError, 'required'):
+                    self._make_photo('EV08', **metadata)
 
 
 if __name__ == "__main__":

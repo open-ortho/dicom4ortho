@@ -5,14 +5,13 @@
 import sys
 import logging
 import textwrap
-import csv
 import os
 from argparse import ArgumentParser
 from argparse import RawDescriptionHelpFormatter
-import importlib.resources as importlib_resources
 from prettytable import PrettyTable
 
 from dicom4ortho import logger
+from dicom4ortho._generated_codes import IMAGE_TYPES
 import dicom4ortho.config as config
 import dicom4ortho.controller as controller
 from dicom4ortho.utils import generate_dicom_uid
@@ -45,22 +44,19 @@ def setup_logging(log_level):
 
 
 def print_image_types():
-    image_types_filename = importlib_resources.files('dicom4ortho.resources') / 'image_types.csv'
-    logger.debug("Image type filenames is: %s",image_types_filename)
     header1 = 'Type'
     header2 = 'Abbreviated'
     header3 = 'Full Meaning'
     image_types_table = PrettyTable([header1, header2, header3])
-    with importlib_resources.as_file(image_types_filename) as image_types_csvpath:
-        with open(image_types_csvpath, newline='') as image_types_csvfile:
-            reader = csv.reader(image_types_csvfile)
-            for row in reader:
-                wrapped_meaning = textwrap.wrap(row[2], 47)
-                image_types_table.add_row([row[0],
-                                           row[1],
-                                           wrapped_meaning[0]])
-                for subseq in wrapped_meaning[1:]:
-                    image_types_table.add_row(['', '', '  {}'.format(subseq)])
+    for image_type in IMAGE_TYPES.values():
+        wrapped_meaning = textwrap.wrap(image_type.meaning, 47)
+        image_types_table.add_row([
+            image_type.keyword,
+            image_type.abbreviation,
+            wrapped_meaning[0],
+        ])
+        for subsequent_line in wrapped_meaning[1:]:
+            image_types_table.add_row(['', '', f'  {subsequent_line}'])
 
     image_types_table.align[header2] = "l"
     image_types_table.align[header3] = "l"

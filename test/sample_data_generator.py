@@ -17,7 +17,7 @@ def make_sample_MWL(modality, startdate, starttime):
     ds.SpecificCharacterSet = 'ISO_IR 100'
 
     # Sample accession number
-    ds.AccessionNumber = "TOPS-123456"
+    ds.AccessionNumber = "ACC-123456"
 
     # Sample patient data
     ds.PatientName = "Doe^John^^Mr"

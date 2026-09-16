@@ -1,8 +1,8 @@
 Release notes
 =============
 
-0.5.3 (development)
--------------------
+0.5.3
+-----
 
 * **Official FHIR terminology**: DICOM codes are resolved from the pinned
   official ``fhir.dicom`` package, while all 73 ADA 1100 image types are
@@ -36,6 +36,10 @@ Release notes
   requesting physician.
 * **MWL conversion**: the controller's image-plus-worklist conversion now copies
   valid worklist attributes and returns the generated photograph.
+* **JPEG 2000 preserved as received**: the source codestream is encapsulated
+  unchanged instead of being decoded and re-encoded, and the Transfer Syntax and
+  ``LossyImageCompression`` follow its wavelet transform. A JP2 container is
+  unwrapped to its ``jp2c`` codestream first.
 
 0.5.2
 -----

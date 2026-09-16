@@ -21,7 +21,7 @@ project = 'dicom4ortho docs'
 copyright = '2021-2026, open-ortho'
 author = 'open-ortho'
 
-release = '0.5.3-dev'
+release = '0.5.3'
 # -- General configuration ---------------------------------------------------
 
 # Add any Sphinx extension module names here, as strings. They can be

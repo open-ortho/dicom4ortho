@@ -5,11 +5,11 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Release notes &#8212; dicom4ortho docs 0.5.3-dev documentation</title>
+    <title>Release notes &#8212; dicom4ortho docs 0.5.3 documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
     <link rel="stylesheet" type="text/css" href="_static/classic.css?v=2bf1fcf8" />
     
-    <script src="_static/documentation_options.js?v=73d8ad1d"></script>
+    <script src="_static/documentation_options.js?v=2a2fe768"></script>
     <script src="_static/doctools.js?v=fd6eb6e6"></script>
     <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
     
@@ -31,7 +31,7 @@
         <li class="right" >
           <a href="roadmap.html" title="Feature Roadmap"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">dicom4ortho docs 0.5.3-dev documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">dicom4ortho docs 0.5.3 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">Release notes</a></li> 
       </ul>
     </div>  
@@ -43,8 +43,8 @@
             
   <section id="release-notes">
 <h1>Release notes<a class="headerlink" href="#release-notes" title="Link to this heading">¶</a></h1>
-<section id="development">
-<h2>0.5.3 (development)<a class="headerlink" href="#development" title="Link to this heading">¶</a></h2>
+<section id="id1">
+<h2>0.5.3<a class="headerlink" href="#id1" title="Link to this heading">¶</a></h2>
 <ul class="simple">
 <li><p><strong>Official FHIR terminology</strong>: DICOM codes are resolved from the pinned
 official <code class="docutils literal notranslate"><span class="pre">fhir.dicom</span></code> package, while all 73 ADA 1100 image types are
@@ -78,10 +78,14 @@ actual referring physician is copied from MWL without conflating it with the
 requesting physician.</p></li>
 <li><p><strong>MWL conversion</strong>: the controller’s image-plus-worklist conversion now copies
 valid worklist attributes and returns the generated photograph.</p></li>
+<li><p><strong>JPEG 2000 preserved as received</strong>: the source codestream is encapsulated
+unchanged instead of being decoded and re-encoded, and the Transfer Syntax and
+<code class="docutils literal notranslate"><span class="pre">LossyImageCompression</span></code> follow its wavelet transform. A JP2 container is
+unwrapped to its <code class="docutils literal notranslate"><span class="pre">jp2c</span></code> codestream first.</p></li>
 </ul>
 </section>
-<section id="id1">
-<h2>0.5.2<a class="headerlink" href="#id1" title="Link to this heading">¶</a></h2>
+<section id="id2">
+<h2>0.5.2<a class="headerlink" href="#id2" title="Link to this heading">¶</a></h2>
 <ul class="simple">
 <li><p><strong>CP-1570 / TID 3465 compliance</strong>: <code class="docutils literal notranslate"><span class="pre">OrthodonticPhotograph</span></code> now builds
 <code class="docutils literal notranslate"><span class="pre">AcquisitionContextSequence</span></code> from typed <code class="docutils literal notranslate"><span class="pre">OrthoView</span></code> fields mapping
@@ -122,8 +126,8 @@ consistency, all 73 view attribute correctness, and the <code class="docutils li
 / <code class="docutils literal notranslate"><span class="pre">set_view_code()</span></code> API.</p></li>
 </ul>
 </section>
-<section id="id2">
-<h2>0.5.1<a class="headerlink" href="#id2" title="Link to this heading">¶</a></h2>
+<section id="id3">
+<h2>0.5.1<a class="headerlink" href="#id3" title="Link to this heading">¶</a></h2>
 <ul class="simple">
 <li><p>Rename <code class="docutils literal notranslate"><span class="pre">get/set_image_type_code_sequence</span></code> → <code class="docutils literal notranslate"><span class="pre">get/set_image_type_code_dataset</span></code>
 for consistency with pydicom naming conventions.</p></li>
@@ -131,20 +135,20 @@ for consistency with pydicom naming conventions.</p></li>
 <li><p>Refactor test files for improved organisation and logging consistency.</p></li>
 </ul>
 </section>
-<section id="id3">
-<h2>0.4.7<a class="headerlink" href="#id3" title="Link to this heading">¶</a></h2>
+<section id="id4">
+<h2>0.4.7<a class="headerlink" href="#id4" title="Link to this heading">¶</a></h2>
 <ul class="simple">
 <li><p>Fix default Series and Study Date and Time to empty.</p></li>
 </ul>
 </section>
-<section id="id4">
-<h2>0.4.2<a class="headerlink" href="#id4" title="Link to this heading">¶</a></h2>
+<section id="id5">
+<h2>0.4.2<a class="headerlink" href="#id5" title="Link to this heading">¶</a></h2>
 <ul class="simple">
 <li><p>Add partial support for EXIF metadata: copy tags from EXIF to DICOM according to standard. Only Manufacturer related and date related tags are copied.</p></li>
 </ul>
 </section>
-<section id="id5">
-<h2>0.4<a class="headerlink" href="#id5" title="Link to this heading">¶</a></h2>
+<section id="id6">
+<h2>0.4<a class="headerlink" href="#id6" title="Link to this heading">¶</a></h2>
 <ul class="simple">
 <li><p>Add support for DICOM MWL (Modality Worklist): copy tags from MWL</p></li>
 <li><p>Add support for using InstanceNumber and ScheduledProtocolCode to define image type</p></li>
@@ -153,8 +157,8 @@ for consistency with pydicom naming conventions.</p></li>
 <li><p>Add setters for Series and Instance Numbers</p></li>
 </ul>
 </section>
-<section id="id6">
-<h2>0.2<a class="headerlink" href="#id6" title="Link to this heading">¶</a></h2>
+<section id="id7">
+<h2>0.2<a class="headerlink" href="#id7" title="Link to this heading">¶</a></h2>
 <ul class="simple">
 <li><p>Add BurnedInAnnotation, Operator, Institution and Performing Physician tags</p></li>
 <li><p>Load views and codes from ADA-1107</p></li>
@@ -177,13 +181,13 @@ for consistency with pydicom naming conventions.</p></li>
     <h3><a href="index.html">Table of Contents</a></h3>
     <ul>
 <li><a class="reference internal" href="#">Release notes</a><ul>
-<li><a class="reference internal" href="#development">0.5.3 (development)</a></li>
-<li><a class="reference internal" href="#id1">0.5.2</a></li>
-<li><a class="reference internal" href="#id2">0.5.1</a></li>
-<li><a class="reference internal" href="#id3">0.4.7</a></li>
-<li><a class="reference internal" href="#id4">0.4.2</a></li>
-<li><a class="reference internal" href="#id5">0.4</a></li>
-<li><a class="reference internal" href="#id6">0.2</a></li>
+<li><a class="reference internal" href="#id1">0.5.3</a></li>
+<li><a class="reference internal" href="#id2">0.5.2</a></li>
+<li><a class="reference internal" href="#id3">0.5.1</a></li>
+<li><a class="reference internal" href="#id4">0.4.7</a></li>
+<li><a class="reference internal" href="#id5">0.4.2</a></li>
+<li><a class="reference internal" href="#id6">0.4</a></li>
+<li><a class="reference internal" href="#id7">0.2</a></li>
 </ul>
 </li>
 </ul>
@@ -232,7 +236,7 @@ for consistency with pydicom naming conventions.</p></li>
         <li class="right" >
           <a href="roadmap.html" title="Feature Roadmap"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">dicom4ortho docs 0.5.3-dev documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">dicom4ortho docs 0.5.3 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">Release notes</a></li> 
       </ul>
     </div>

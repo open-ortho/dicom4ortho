@@ -7,10 +7,25 @@ from math import copysign
 from unittest import TestCase
 import logging
 import datetime
-from dicom4ortho.model import DicomBase
+from dicom4ortho.model import DicomBase, PhotographBase
 
 logging.basicConfig(
     format='%(asctime)s - %(levelname)s - %(funcName)s: %(message)s', level=logging.INFO)
+
+
+class TestPhotographInitialization(TestCase):
+    """Tests for optional worklist initialization behavior."""
+
+    def test_missing_mwl_is_logged_once_at_debug_level(self):
+        with self.assertLogs('dicom4ortho.model', level='DEBUG') as captured:
+            PhotographBase()
+
+        records = [
+            record for record in captured.records
+            if 'RequestAttributesSequence omitted' in record.getMessage()
+        ]
+        self.assertEqual(len(records), 1)
+        self.assertEqual(records[0].levelno, logging.DEBUG)
 
 
 class TestDicomBaseAcquisitionDateTimeSetter(TestCase):

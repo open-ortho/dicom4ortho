@@ -17,7 +17,7 @@ def make_sample_MWL(modality, startdate, starttime):
     ds.SpecificCharacterSet = 'ISO_IR 100'
 
     # Sample accession number
-    ds.AccessionNumber = "TOPS-123456"
+    ds.AccessionNumber = "ACC-123456"
 
     # Sample patient data
     ds.PatientName = "Doe^John^^Mr"
@@ -68,6 +68,9 @@ def make_sample_MWL(modality, startdate, starttime):
 
     # Requesting physician details
     ds.RequestingPhysician = "Brown^Emily^^Dr"
+
+    # The referring and requesting physicians are distinct DICOM roles.
+    ds.ReferringPhysicianName = "Taylor^Morgan^^Dr"
 
     # SOP Class and Instance UID
     ds.SOPClassUID = ModalityWorklistInformationFind

@@ -62,8 +62,13 @@ def print_image_types():
                 for subseq in wrapped_meaning[1:]:
                     image_types_table.add_row(['', '', '  {}'.format(subseq)])
 
+    # prettytable's align getter returns a dict, but pylint infers a str from the
+    # setter and reports these item assignments as errors. They are correct, and
+    # unlike assigning a dict to align they work on every prettytable version.
+    # pylint: disable=unsupported-assignment-operation
     image_types_table.align[header2] = "l"
     image_types_table.align[header3] = "l"
+    # pylint: enable=unsupported-assignment-operation
     print(image_types_table)
 
 

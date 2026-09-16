@@ -12,7 +12,7 @@
     <img src="https://raw.githubusercontent.com/open-ortho/dicom4ortho/master/images/open-ortho.png" alt="Logo" width="80" height="80">
   </a>
 
-  <h3 align="center">dicom4ortho 0.5.2</h3>
+  <h3 align="center">dicom4ortho 0.5.3</h3>
 
   <p align="center">
     A Python library to create fully defined orthodontic photographs in DICOM.
@@ -203,7 +203,8 @@ usually come from the practice management software, or photo management
 software.
 
 The easiest way to feed this information to `dicom4ortho`'s CLI is using a
-CSV file. You can find an example CSV file [here](resources/example/input_from.csv)
+CSV file. You can find an executable example CSV file
+[here](examples/input_from.csv).
 
 Once installed, if necessary, start the virtual environment:
 
@@ -215,6 +216,19 @@ then use dicom4ortho like this:
 
 Where `filename` should be a `.csv` file. Passing a single image file with
 metadata through arguments is planned for future implementations.
+
+### Practice personnel
+
+Use `dental_provider_firstname` and `dental_provider_lastname` for the
+orthodontist or dentist responsible for treatment. They are encoded as DICOM
+`PhysiciansOfRecord`. Use `operator_firstname` and `operator_lastname` for the
+clinical staff member who acquired the photographs; they are encoded as DICOM
+`OperatorsName`.
+
+An actual referring physician is copied from `ReferringPhysicianName` in a
+Modality Worklist. The requesting physician remains part of the worklist order
+and is linked through the request identifiers rather than copied into the
+baseline VL Photographic Image IOD.
 
 generate a new UID for DICOM usage with this root:
 
@@ -280,4 +294,4 @@ Project Link: [https://github.com/open-ortho/dicom4ortho](https://github.com/ope
 [linkedin-shield]: https://img.shields.io/badge/-LinkedIn-black.svg?style=for-the-badge&logo=linkedin&colorB=555
 [linkedin-url]: https://linkedin.com/in/open-ortho
 [product-screenshot]: images/screenshot.png
-[example-csv-url]: resources/example/input_from.csv
+[example-csv-url]: examples/input_from.csv

@@ -6,8 +6,6 @@
     "StorageCompression": false,
     "LimitFindResults": 100,
     "LimitFindInstances": 1000,
-    "KeepAlive": true,
-    "TcpNoDelay": true,
     "StorageAccessOnFind": "Never",
     "TranscodeDicomProtocol": true,
     "DicomAlwaysAllowEcho": true,
@@ -18,7 +16,6 @@
     "DicomAlwaysAllowMove": true,
     "RemoteAccessAllowed": true,
     "AuthenticationEnabled": true,
-    "StoreMD5ForAttachments": true,
     "RegisteredUsers": {
         "orthanc": "mock"
     },

@@ -46,7 +46,7 @@
 <p><code class="docutils literal notranslate"><span class="pre">dicom4ortho</span></code> uses official FHIR terminology at maintenance time and a
 committed generated module at runtime. The generated
 <code class="docutils literal notranslate"><span class="pre">dicom4ortho/_generated_codes.py</span></code> module is the terminology lock for a
-release. It records the source versions and contains the resolved DICOM codes,
+release. It records source provenance and contains the resolved DICOM codes,
 all 73 ADA image types, and the complete view definitions.</p>
 <p>Normal package builds, tests, and application use read this committed lock.
 They do not download terminology or require network access.</p>
@@ -54,36 +54,57 @@ They do not download terminology or require network access.</p>
 <h2>Authoritative sources<a class="headerlink" href="#authoritative-sources" title="Link to this heading">¶</a></h2>
 <p>The generator resolves explicit code bindings from these sources:</p>
 <ul class="simple">
-<li><p>DICOM codes and DCM concept names come from the official <code class="docutils literal notranslate"><span class="pre">fhir.dicom</span></code>
-package published at <code class="docutils literal notranslate"><span class="pre">https://fhir.org/packages/fhir.dicom</span></code>. The package
-version is pinned in <code class="docutils literal notranslate"><span class="pre">tools/generate_codes.py</span></code>.</p></li>
+<li><p>DICOM context-group codes come directly from NEMA FHIR ValueSets under
+<code class="docutils literal notranslate"><span class="pre">ftp://medical.nema.org/medical/dicom/resources/valuesets/fhir/json/</span></code>.</p></li>
+<li><p>DCM concept names come from NEMA’s RDF/XML ontology at
+<code class="docutils literal notranslate"><span class="pre">ftp://medical.nema.org/medical/dicom/resources/ontology/DCM/dcm.owl</span></code>.
+The generator uses the development-only <code class="docutils literal notranslate"><span class="pre">rdflib</span></code> dependency to parse it.</p></li>
 <li><p>ADA 1100 intraoral and extraoral image types come from the FHIR CodeSystems
-published by <code class="docutils literal notranslate"><span class="pre">https://terminology.open-ortho.org</span></code>.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">dicom4ortho/resources/views.csv</span></code> remains the local source for the layout
-of DICOM attributes associated with each view. It is derived from the
-<code class="docutils literal notranslate"><span class="pre">dent-oip</span></code> project.</p></li>
+published under <code class="docutils literal notranslate"><span class="pre">https://terminology.open-ortho.org/fhir/sid/ada1100/CodeSystem/</span></code>:
+<code class="docutils literal notranslate"><span class="pre">intraoral-2d-photographic-scheduled-protocol</span></code> and
+<code class="docutils literal notranslate"><span class="pre">extraoral-2d-photographic-scheduled-protocol</span></code>.</p></li>
+<li><p>The draft ANSI/ADA-1107 view layout is downloaded from its source repository at
+<code class="docutils literal notranslate"><span class="pre">https://raw.githubusercontent.com/open-ortho/dent-oip/latest/source/tables/views.csv</span></code>.
+Regeneration does not read <code class="docutils literal notranslate"><span class="pre">dicom4ortho/resources/views.csv</span></code>; that packaged
+snapshot remains available for compatibility and offline binding tests.</p></li>
 </ul>
+<p>The profile will be published as ANSI/ADA-1107. Its source repository is still
+named <code class="docutils literal notranslate"><span class="pre">dent-oip</span></code>; the existing source and issue URLs remain unchanged.</p>
 <p>The old <code class="docutils literal notranslate"><span class="pre">codes.csv</span></code> and <code class="docutils literal notranslate"><span class="pre">image_types.csv</span></code> files are no longer terminology
 sources and are not packaged.</p>
-<p>The current development lock records DICOM FHIR package version
-<code class="docutils literal notranslate"><span class="pre">2025.3.20250714</span></code> and ADA CodeSystem version <code class="docutils literal notranslate"><span class="pre">2.0.0</span></code>.</p>
+<p>The generator no longer downloads a pinned <code class="docutils literal notranslate"><span class="pre">fhir.dicom</span></code> package. These upstream
+endpoints can change: it is the reviewed, committed output that is locked.
+<code class="docutils literal notranslate"><span class="pre">SOURCE_PROVENANCE</span></code> records each observed URL and the SHA-256 of the downloaded
+bytes, plus <code class="docutils literal notranslate"><span class="pre">version</span></code> and <code class="docutils literal notranslate"><span class="pre">date</span></code> when supplied by a FHIR resource. No version
+or publication date is invented for the DCM ontology or the view-layout CSV.</p>
+<p>SCT <code class="docutils literal notranslate"><span class="pre">7652006</span></code> uses the current CID 4061 display, <code class="docutils literal notranslate"><span class="pre">Frenulum</span> <span class="pre">labii</span></code>. The generator
+does not apply the display override used by an earlier implementation.</p>
 </section>
 <section id="updating-the-lock">
 <h2>Updating the lock<a class="headerlink" href="#updating-the-lock" title="Link to this heading">¶</a></h2>
-<p>To fetch the official FHIR resources and regenerate the lock, run this from
-the source repository:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>make<span class="w"> </span>update_resources
+<p>Install the development dependencies, then fetch all terminology sources and
+the upstream view-layout CSV from the Python source repository:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </span><span class="s2">".[dev]"</span>
+make<span class="w"> </span>update_codes
 </pre></div>
 </div>
 <p>This command rewrites <code class="docutils literal notranslate"><span class="pre">dicom4ortho/_generated_codes.py</span></code>. It does not commit
 the result. Review the generated diff and run the tests before committing it.</p>
-<p>Updating <code class="docutils literal notranslate"><span class="pre">views.csv</span></code> is a separate, explicit operation:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>make<span class="w"> </span>fetch_resources
-make<span class="w"> </span>update_resources
+<p>To fetch and validate the same upstream inputs without rewriting the lock:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>make<span class="w"> </span>check_codes
 </pre></div>
 </div>
-<p>This separation prevents normal package builds from changing source files or
-depending on upstream services.</p>
+<p><code class="docutils literal notranslate"><span class="pre">make</span> <span class="pre">check_codes</span></code> regenerates in memory and exits nonzero when the result
+differs from the committed file. It can be run manually or in scheduled drift
+checks; provenance-only changes can also produce a difference. Both maintenance
+commands require network access and can fail if a source is unavailable.</p>
+<p><code class="docutils literal notranslate"><span class="pre">make</span> <span class="pre">fetch_resources</span></code> only refreshes the packaged CSV snapshot. It is not a
+prerequisite for <code class="docutils literal notranslate"><span class="pre">make</span> <span class="pre">update_codes</span></code> and does not change which CSV the generator
+downloads. The old <code class="docutils literal notranslate"><span class="pre">make</span> <span class="pre">update_resources</span></code> command has been removed.</p>
+<p>Normal package builds and runtime use the committed lock without contacting any
+of these sources. A future versioned ANSI/ADA-1107 profile package is planned in
+<a class="reference external" href="https://github.com/open-ortho/dent-oip/issues/56">ANSI/ADA-1107 issue 56</a>; consuming
+that package is not part of the current source pipeline.</p>
 </section>
 </section>
 

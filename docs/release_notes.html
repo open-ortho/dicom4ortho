@@ -46,14 +46,18 @@
 <section id="id1">
 <h2>0.5.3<a class="headerlink" href="#id1" title="Link to this heading">¶</a></h2>
 <ul class="simple">
-<li><p><strong>Official FHIR terminology</strong>: DICOM codes are resolved from the pinned
-official <code class="docutils literal notranslate"><span class="pre">fhir.dicom</span></code> package, while all 73 ADA 1100 image types are
-resolved from the CodeSystems at <code class="docutils literal notranslate"><span class="pre">terminology.open-ortho.org</span></code>.</p></li>
-<li><p><strong>Offline terminology lock</strong>: source IDs and versions are recorded in the
-committed <code class="docutils literal notranslate"><span class="pre">dicom4ortho/_generated_codes.py</span></code> module. Normal builds and
-runtime use do not access the network.</p></li>
+<li><p><strong>Authoritative terminology</strong>: DICOM codes are resolved directly from NEMA
+FHIR ValueSets and DCM concept names from NEMA <code class="docutils literal notranslate"><span class="pre">dcm.owl</span></code>, not the previously
+proposed pinned <code class="docutils literal notranslate"><span class="pre">fhir.dicom</span></code> package. All 73 ADA 1100 image types are resolved
+from the CodeSystems at <code class="docutils literal notranslate"><span class="pre">terminology.open-ortho.org</span></code>.</p></li>
+<li><p><strong>Offline terminology lock</strong>: <code class="docutils literal notranslate"><span class="pre">SOURCE_PROVENANCE</span></code> in the committed
+<code class="docutils literal notranslate"><span class="pre">dicom4ortho/_generated_codes.py</span></code> records observed source URLs, SHA-256s,
+and available FHIR version/date metadata. Normal builds and runtime do not
+access the network.</p></li>
 <li><p><strong>Retired terminology CSV files</strong>: <code class="docutils literal notranslate"><span class="pre">codes.csv</span></code> and <code class="docutils literal notranslate"><span class="pre">image_types.csv</span></code> are
-no longer packaged. <code class="docutils literal notranslate"><span class="pre">views.csv</span></code> remains the local view-layout source.</p></li>
+no longer packaged. Regeneration downloads <code class="docutils literal notranslate"><span class="pre">views.csv</span></code> directly from the
+ANSI/ADA-1107 source repository; the packaged copy is only a compatibility/test
+snapshot.</p></li>
 <li><p><strong>Correct CID 4070 events</strong>: treatment progress now uses
 <code class="docutils literal notranslate"><span class="pre">PatientRegistration</span></code> (<code class="docutils literal notranslate"><span class="pre">184047000</span></code>), <code class="docutils literal notranslate"><span class="pre">OrthodonticTreatmentStarted</span></code>
 (<code class="docutils literal notranslate"><span class="pre">1332161000</span></code>), and <code class="docutils literal notranslate"><span class="pre">OrthodonticTreatmentStopped</span></code> (<code class="docutils literal notranslate"><span class="pre">1340210007</span></code>).</p></li>
@@ -63,13 +67,27 @@ TID 3465 offset from the photograph acquisition date. Constructor metadata
 accepts <code class="docutils literal notranslate"><span class="pre">treatment_event_date</span></code> with <code class="docutils literal notranslate"><span class="pre">acquisition_datetime</span></code>.</p></li>
 <li><p><strong>Acquisition-time precedence</strong>: an explicit <code class="docutils literal notranslate"><span class="pre">acquisition_datetime</span></code>
 overrides EXIF. If it is omitted, EXIF <code class="docutils literal notranslate"><span class="pre">DateTimeOriginal</span></code> is loaded before
-treatment progress is calculated and used as the fallback acquisition time.</p></li>
+treatment progress is calculated and used as the fallback acquisition time.
+Editing/digitization timestamps are not acquisition-time sources. Supplied
+progress is encoded even when no image type is resolved.</p></li>
 <li><p><strong>Compatibility</strong>: the days-based API and the old <code class="docutils literal notranslate"><span class="pre">OrthodonticTreatment</span></code>
 and <code class="docutils literal notranslate"><span class="pre">Posttreatment</span></code> event names remain available with
 <code class="docutils literal notranslate"><span class="pre">DeprecationWarning</span></code> until version 2.</p></li>
-<li><p><strong>Resource maintenance</strong>: <code class="docutils literal notranslate"><span class="pre">make</span> <span class="pre">update_resources</span></code> explicitly fetches FHIR
-terminology and regenerates the lock without committing it. Updating
-<code class="docutils literal notranslate"><span class="pre">views.csv</span></code> remains a separate <code class="docutils literal notranslate"><span class="pre">make</span> <span class="pre">fetch_resources</span></code> operation.</p></li>
+<li><p><strong>Resource maintenance</strong>: <code class="docutils literal notranslate"><span class="pre">make</span> <span class="pre">update_codes</span></code> explicitly downloads all
+terminology sources and the view layout, then regenerates the lock without
+committing it. <code class="docutils literal notranslate"><span class="pre">make</span> <span class="pre">check_codes</span></code> performs the same fetch/validation in
+memory and fails on drift without rewriting the file. These replace the
+removed <code class="docutils literal notranslate"><span class="pre">make</span> <span class="pre">update_resources</span></code> command; <code class="docutils literal notranslate"><span class="pre">make</span> <span class="pre">fetch_resources</span></code> only
+updates the packaged CSV snapshot and is not required for regeneration.</p></li>
+<li><p><strong>Coding changes</strong>: the mirror device now uses SCT <code class="docutils literal notranslate"><span class="pre">1332162007</span></code> (intraoral
+photography mirror), replacing <code class="docutils literal notranslate"><span class="pre">47162009</span></code>. This is a code change, not only
+a display-text update. SCT <code class="docutils literal notranslate"><span class="pre">7652006</span></code> uses the current CID 4061 meaning
+<code class="docutils literal notranslate"><span class="pre">Frenulum</span> <span class="pre">labii</span></code> without a local display override.</p></li>
+<li><p><strong>IV29 direction</strong>: frenum photographs no longer assume a frontal projection.
+An unknown direction and its nested close-up modifier are omitted while
+retaining mouth/frenum anatomy. A direction can be supplied at construction
+or later. This is interim behavior pending the profile decision in
+<a class="reference external" href="https://github.com/open-ortho/dent-oip/issues/63">ANSI/ADA-1107 issue 63</a>.</p></li>
 <li><p><strong>Practice personnel</strong>: <code class="docutils literal notranslate"><span class="pre">dental_provider_firstname</span></code> and
 <code class="docutils literal notranslate"><span class="pre">dental_provider_lastname</span></code> now encode the orthodontist or dentist
 responsible for treatment as DICOM Physicians of Record. Explicit operator
@@ -161,7 +179,7 @@ for consistency with pydicom naming conventions.</p></li>
 <h2>0.2<a class="headerlink" href="#id7" title="Link to this heading">¶</a></h2>
 <ul class="simple">
 <li><p>Add BurnedInAnnotation, Operator, Institution and Performing Physician tags</p></li>
-<li><p>Load views and codes from ADA-1107</p></li>
+<li><p>Load views and codes from ANSI/ADA-1107</p></li>
 <li><p>Fix Patient, Doctor and Operator names</p></li>
 <li><p>Add support for JPEG2000</p></li>
 <li><p>UID is now generated from hashing the input file</p></li>

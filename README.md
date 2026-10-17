@@ -202,6 +202,10 @@ performs the same validation in memory and fails if the committed lock differs,
 which supports scheduled terminology-drift checks without adding network I/O to
 normal builds.
 
+See [the terminology pipeline and compatibility baseline](docs/TERMINOLOGY.md)
+for the exact source roles, reviewed lock checksum, coding changes, and the
+separate future ADA-1107 package migration.
+
 ### Validation with dicom3tools
 
 The dicom3tools are used to validate and is only used when the `--validate`

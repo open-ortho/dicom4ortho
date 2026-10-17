@@ -6,9 +6,12 @@ View-layout CSV file
 Introduction
 ------------
 
-``dicom4ortho/resources/views.csv`` is a maintainer resource that defines the
-DICOM attribute layout for each of the 73 ADA 1100 image types. It is not the
-bulk-conversion input format used by the CLI.
+The DENT-OIP ``views.csv`` defines the DICOM attribute layout for each of the 73
+ADA 1100 image types. The generator downloads it directly from
+``https://raw.githubusercontent.com/open-ortho/dent-oip/latest/source/tables/views.csv``.
+The packaged ``dicom4ortho/resources/views.csv`` is a compatibility/test snapshot,
+not the input to regeneration. Neither file is the bulk-conversion input format
+used by the CLI.
 
 Cells that name coded concepts contain generator binding keywords. During an
 explicit terminology update, ``tools/generate_codes.py`` resolves those
@@ -41,7 +44,8 @@ File structure
    * - DeviceSequence
      - Zero or more device bindings separated by ``^``.
    * - ViewCodeSequence
-     - A view-code binding. Some views require the caller to supply this value.
+     - A view-code binding. IV28, IV30, and EV40 require an explicit direction.
+       IV29 can omit an unknown direction without losing its known anatomy.
    * - ViewModifierCodeSequence
      - Zero or more view-modifier bindings separated by ``^``.
    * - AcquisitionContextSequence^OrthognathicFunctionalConditions
@@ -72,6 +76,19 @@ Example record
 Maintenance
 -----------
 
-Run ``make fetch_resources`` to refresh this file from ``dent-oip``, then run
-``make update_resources`` to resolve its bindings and regenerate the committed
-terminology lock. Review both diffs before committing.
+Run ``make update_codes`` to download the upstream CSV and the terminology
+sources, resolve their bindings, and rewrite the committed terminology lock.
+Review the generated diff and run tests before committing. Run ``make check_codes``
+to fetch and validate the same inputs in memory, failing on drift without
+rewriting the lock. Both commands require network access.
+
+``make fetch_resources`` can refresh the packaged snapshot separately, but the
+generator never reads that local copy. To change the authoritative layout,
+coordinate the change in ``dent-oip`` rather than editing the snapshot alone.
+The removed ``make update_resources`` command should not be used.
+
+For IV29, omitting the unknown direction also omits its nested close-up modifier;
+a supplied direction receives that modifier from the current mapping. This is
+interim behavior, not a finalized profile rule. The direction policy and modifier
+handling remain under discussion in
+`dent-oip issue 63 <https://github.com/open-ortho/dent-oip/issues/63>`_.

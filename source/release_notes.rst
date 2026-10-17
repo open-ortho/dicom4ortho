@@ -4,14 +4,17 @@ Release notes
 0.5.3
 -----
 
-* **Official FHIR terminology**: DICOM codes are resolved from the pinned
-  official ``fhir.dicom`` package, while all 73 ADA 1100 image types are
-  resolved from the CodeSystems at ``terminology.open-ortho.org``.
-* **Offline terminology lock**: source IDs and versions are recorded in the
-  committed ``dicom4ortho/_generated_codes.py`` module. Normal builds and
-  runtime use do not access the network.
+* **Authoritative terminology**: DICOM codes are resolved directly from NEMA
+  FHIR ValueSets and DCM concept names from NEMA ``dcm.owl``, not the previously
+  proposed pinned ``fhir.dicom`` package. All 73 ADA 1100 image types are resolved
+  from the CodeSystems at ``terminology.open-ortho.org``.
+* **Offline terminology lock**: ``SOURCE_PROVENANCE`` in the committed
+  ``dicom4ortho/_generated_codes.py`` records observed source URLs, SHA-256s,
+  and available FHIR version/date metadata. Normal builds and runtime do not
+  access the network.
 * **Retired terminology CSV files**: ``codes.csv`` and ``image_types.csv`` are
-  no longer packaged. ``views.csv`` remains the local view-layout source.
+  no longer packaged. Regeneration downloads ``views.csv`` directly from
+  ``dent-oip``; the packaged copy is only a compatibility/test snapshot.
 * **Correct CID 4070 events**: treatment progress now uses
   ``PatientRegistration`` (``184047000``), ``OrthodonticTreatmentStarted``
   (``1332161000``), and ``OrthodonticTreatmentStopped`` (``1340210007``).
@@ -22,12 +25,26 @@ Release notes
 * **Acquisition-time precedence**: an explicit ``acquisition_datetime``
   overrides EXIF. If it is omitted, EXIF ``DateTimeOriginal`` is loaded before
   treatment progress is calculated and used as the fallback acquisition time.
+  Editing/digitization timestamps are not acquisition-time sources. Supplied
+  progress is encoded even when no image type is resolved.
 * **Compatibility**: the days-based API and the old ``OrthodonticTreatment``
   and ``Posttreatment`` event names remain available with
   ``DeprecationWarning`` until version 2.
-* **Resource maintenance**: ``make update_resources`` explicitly fetches FHIR
-  terminology and regenerates the lock without committing it. Updating
-  ``views.csv`` remains a separate ``make fetch_resources`` operation.
+* **Resource maintenance**: ``make update_codes`` explicitly downloads all
+  terminology sources and the view layout, then regenerates the lock without
+  committing it. ``make check_codes`` performs the same fetch/validation in
+  memory and fails on drift without rewriting the file. These replace the
+  removed ``make update_resources`` command; ``make fetch_resources`` only
+  updates the packaged CSV snapshot and is not required for regeneration.
+* **Coding changes**: the mirror device now uses SCT ``1332162007`` (intraoral
+  photography mirror), replacing ``47162009``. This is a code change, not only
+  a display-text update. SCT ``7652006`` uses the current CID 4061 meaning
+  ``Frenulum labii`` without a local display override.
+* **IV29 direction**: frenum photographs no longer assume a frontal projection.
+  An unknown direction and its nested close-up modifier are omitted while
+  retaining mouth/frenum anatomy. A direction can be supplied at construction
+  or later. This is interim behavior pending the profile decision in
+  `dent-oip issue 63 <https://github.com/open-ortho/dent-oip/issues/63>`_.
 * **Practice personnel**: ``dental_provider_firstname`` and
   ``dental_provider_lastname`` now encode the orthodontist or dentist
   responsible for treatment as DICOM Physicians of Record. Explicit operator

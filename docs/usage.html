@@ -70,10 +70,10 @@ and the available metadata:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">dicom4ortho.m_orthodontic_photograph</span><span class="w"> </span><span class="kn">import</span> <span class="n">OrthodonticPhotograph</span>
 
 <span class="n">photo</span> <span class="o">=</span> <span class="n">OrthodonticPhotograph</span><span class="p">(</span>
-    <span class="n">image_type</span><span class="o">=</span><span class="s2">&quot;EV08&quot;</span><span class="p">,</span>
-    <span class="n">input_image_filename</span><span class="o">=</span><span class="s2">&quot;input.jpg&quot;</span><span class="p">,</span>
-    <span class="n">output_image_filename</span><span class="o">=</span><span class="s2">&quot;output.dcm&quot;</span><span class="p">,</span>
-    <span class="n">patient_id</span><span class="o">=</span><span class="s2">&quot;12345&quot;</span><span class="p">,</span>
+    <span class="n">image_type</span><span class="o">=</span><span class="s2">"EV08"</span><span class="p">,</span>
+    <span class="n">input_image_filename</span><span class="o">=</span><span class="s2">"input.jpg"</span><span class="p">,</span>
+    <span class="n">output_image_filename</span><span class="o">=</span><span class="s2">"output.dcm"</span><span class="p">,</span>
+    <span class="n">patient_id</span><span class="o">=</span><span class="s2">"12345"</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="n">photo</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
 </pre></div>
@@ -118,9 +118,9 @@ validates the offset:</p>
 <span class="kn">from</span><span class="w"> </span><span class="nn">dicom4ortho.m_orthodontic_photograph</span><span class="w"> </span><span class="kn">import</span> <span class="n">OrthodonticPhotograph</span>
 
 <span class="n">photo</span> <span class="o">=</span> <span class="n">OrthodonticPhotograph</span><span class="p">(</span>
-    <span class="n">image_type</span><span class="o">=</span><span class="s2">&quot;EV08&quot;</span><span class="p">,</span>
+    <span class="n">image_type</span><span class="o">=</span><span class="s2">"EV08"</span><span class="p">,</span>
     <span class="n">acquisition_datetime</span><span class="o">=</span><span class="n">datetime</span><span class="p">(</span><span class="mi">2026</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">14</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">30</span><span class="p">),</span>
-    <span class="n">treatment_event_type</span><span class="o">=</span><span class="s2">&quot;PatientRegistration&quot;</span><span class="p">,</span>
+    <span class="n">treatment_event_type</span><span class="o">=</span><span class="s2">"PatientRegistration"</span><span class="p">,</span>
     <span class="n">treatment_event_date</span><span class="o">=</span><span class="n">date</span><span class="p">(</span><span class="mi">2026</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
 <span class="p">)</span>
 </pre></div>
@@ -131,7 +131,7 @@ EXIF as the acquisition time and as the basis for calculating treatment
 progress. Date-based progress requires one of these acquisition-time sources.</p>
 <p>For an existing photograph whose dataset contains an acquisition date, use:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">photo</span><span class="o">.</span><span class="n">set_treatment_progress_from_date</span><span class="p">(</span>
-    <span class="s2">&quot;OrthodonticTreatmentStarted&quot;</span><span class="p">,</span> <span class="n">date</span><span class="p">(</span><span class="mi">2026</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="s2">"OrthodonticTreatmentStarted"</span><span class="p">,</span> <span class="n">date</span><span class="p">(</span><span class="mi">2026</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
 <span class="p">)</span>
 </pre></div>
 </div>

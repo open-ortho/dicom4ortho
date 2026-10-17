@@ -7,7 +7,7 @@ dicom4ortho documentation
 ============================================
 
 A Python library to create fully defined orthodontic photographs in DICOM.
-It directly implements the not-yet-published ADA-1107 implementation profile,
+It directly implements the not-yet-published ANSI/ADA-1107 implementation profile,
 an IHE-style profile for applying ADA 1100 and ADA 1114 together, using the
 additions from DICOM CP 1570.
 

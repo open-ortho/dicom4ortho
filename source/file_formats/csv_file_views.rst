@@ -6,8 +6,8 @@ View-layout CSV file
 Introduction
 ------------
 
-The DENT-OIP ``views.csv`` defines the DICOM attribute layout for each of the 73
-ADA 1100 image types. The generator downloads it directly from
+The draft ANSI/ADA-1107 profile's ``views.csv`` defines the DICOM attribute layout
+for each of the 73 ADA 1100 image types. The generator downloads it directly from
 ``https://raw.githubusercontent.com/open-ortho/dent-oip/latest/source/tables/views.csv``.
 The packaged ``dicom4ortho/resources/views.csv`` is a compatibility/test snapshot,
 not the input to regeneration. Neither file is the bulk-conversion input format
@@ -84,11 +84,12 @@ rewriting the lock. Both commands require network access.
 
 ``make fetch_resources`` can refresh the packaged snapshot separately, but the
 generator never reads that local copy. To change the authoritative layout,
-coordinate the change in ``dent-oip`` rather than editing the snapshot alone.
+coordinate the change in the ANSI/ADA-1107 source repository rather than editing
+the snapshot alone. The repository remains named ``dent-oip``.
 The removed ``make update_resources`` command should not be used.
 
 For IV29, omitting the unknown direction also omits its nested close-up modifier;
 a supplied direction receives that modifier from the current mapping. This is
 interim behavior, not a finalized profile rule. The direction policy and modifier
 handling remain under discussion in
-`dent-oip issue 63 <https://github.com/open-ortho/dent-oip/issues/63>`_.
+`ANSI/ADA-1107 issue 63 <https://github.com/open-ortho/dent-oip/issues/63>`_.

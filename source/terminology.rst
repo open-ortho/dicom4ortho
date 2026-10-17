@@ -24,10 +24,13 @@ The generator resolves explicit code bindings from these sources:
   published under ``https://terminology.open-ortho.org/fhir/sid/ada1100/CodeSystem/``:
   ``intraoral-2d-photographic-scheduled-protocol`` and
   ``extraoral-2d-photographic-scheduled-protocol``.
-* The view layout is downloaded directly from DENT-OIP at
+* The draft ANSI/ADA-1107 view layout is downloaded from its source repository at
   ``https://raw.githubusercontent.com/open-ortho/dent-oip/latest/source/tables/views.csv``.
   Regeneration does not read ``dicom4ortho/resources/views.csv``; that packaged
   snapshot remains available for compatibility and offline binding tests.
+
+The profile will be published as ANSI/ADA-1107. Its source repository is still
+named ``dent-oip``; the existing source and issue URLs remain unchanged.
 
 The old ``codes.csv`` and ``image_types.csv`` files are no longer terminology
 sources and are not packaged.
@@ -71,6 +74,6 @@ prerequisite for ``make update_codes`` and does not change which CSV the generat
 downloads. The old ``make update_resources`` command has been removed.
 
 Normal package builds and runtime use the committed lock without contacting any
-of these sources. A future versioned ADA-1107 profile package is planned in
-`dent-oip issue 56 <https://github.com/open-ortho/dent-oip/issues/56>`_; consuming
+of these sources. A future versioned ANSI/ADA-1107 profile package is planned in
+`ANSI/ADA-1107 issue 56 <https://github.com/open-ortho/dent-oip/issues/56>`_; consuming
 that package is not part of the current source pipeline.

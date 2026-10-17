@@ -7,7 +7,7 @@ CO-02
 -----
 
 **Specification**: ``dicom4ortho`` SHALL support each ADA 1100 image type
-profiled by the draft ADA-1107 implementation profile.
+profiled by the draft ANSI/ADA-1107 implementation profile.
 
 **Status**: 
 
@@ -98,7 +98,7 @@ CO-03
 --------
 
 **Specification**: ``dicom4ortho`` SHALL support each view set profiled by the
-draft ADA-1107 implementation profile.
+draft ANSI/ADA-1107 implementation profile.
 
 **Status**: Not Implemented
 

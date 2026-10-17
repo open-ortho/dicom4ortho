@@ -13,8 +13,9 @@ Release notes
   and available FHIR version/date metadata. Normal builds and runtime do not
   access the network.
 * **Retired terminology CSV files**: ``codes.csv`` and ``image_types.csv`` are
-  no longer packaged. Regeneration downloads ``views.csv`` directly from
-  ``dent-oip``; the packaged copy is only a compatibility/test snapshot.
+  no longer packaged. Regeneration downloads ``views.csv`` directly from the
+  ANSI/ADA-1107 source repository; the packaged copy is only a compatibility/test
+  snapshot.
 * **Correct CID 4070 events**: treatment progress now uses
   ``PatientRegistration`` (``184047000``), ``OrthodonticTreatmentStarted``
   (``1332161000``), and ``OrthodonticTreatmentStopped`` (``1340210007``).
@@ -44,7 +45,7 @@ Release notes
   An unknown direction and its nested close-up modifier are omitted while
   retaining mouth/frenum anatomy. A direction can be supplied at construction
   or later. This is interim behavior pending the profile decision in
-  `dent-oip issue 63 <https://github.com/open-ortho/dent-oip/issues/63>`_.
+  `ANSI/ADA-1107 issue 63 <https://github.com/open-ortho/dent-oip/issues/63>`_.
 * **Practice personnel**: ``dental_provider_firstname`` and
   ``dental_provider_lastname`` now encode the orthodontist or dentist
   responsible for treatment as DICOM Physicians of Record. Explicit operator
@@ -130,7 +131,7 @@ Release notes
 ---
 
 * Add BurnedInAnnotation, Operator, Institution and Performing Physician tags
-* Load views and codes from ADA-1107
+* Load views and codes from ANSI/ADA-1107
 * Fix Patient, Doctor and Operator names
 * Add support for JPEG2000
 * UID is now generated from hashing the input file

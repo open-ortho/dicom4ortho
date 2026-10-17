@@ -6,10 +6,11 @@ community to implement. However, it can be complicated and implementation can be
 time consuming. DICOM CP 1570 added the acquisition-context attributes and
 codes needed for interoperable orthodontic photographs.
 
-``dicom4ortho`` directly implements ADA-1107. ADA-1107 is a not-yet-published,
-IHE-style implementation profile that specifies how the ADA 1100 orthodontic
-image types and ADA 1114 DICOM requirements are applied together. Support for
-ADA 1100 and ADA 1114 is therefore indirect through the draft ADA-1107 profile.
+``dicom4ortho`` directly implements ANSI/ADA-1107. ANSI/ADA-1107 is a
+not-yet-published, IHE-style implementation profile that specifies how the ADA
+1100 orthodontic image types and ADA 1114 DICOM requirements are applied together.
+Support for ADA 1100 and ADA 1114 is therefore indirect through the draft
+ANSI/ADA-1107 profile.
 The profile uses the additions from DICOM CP 1570.
 
 We want to create a proof of concept to demonstrate how to properly store

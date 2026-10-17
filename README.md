@@ -271,6 +271,8 @@ An explicit `acquisition_datetime` overrides the image's EXIF
 `DateTimeOriginal`. If it is omitted, `dicom4ortho` uses EXIF as the acquisition
 time and as the basis for treatment-progress calculation. Date-based progress
 requires one of these acquisition-time sources.
+EXIF editing/digitization timestamps (`DateTime` and `DateTimeDigitized`) populate
+content timestamps only; they are not used to calculate treatment progress.
 
 For an existing photograph with an acquisition date, progress can be updated
 with `set_treatment_progress_from_date(event_type, event_date)`. The old

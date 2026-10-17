@@ -474,10 +474,9 @@ class OrthodonticPhotograph(PhotographBase):
         raise TypeError("acquisition_datetime must be a datetime or ISO datetime string.")
 
     def _acquisition_date(self) -> date:
-        for keyword in ('AcquisitionDate', 'ContentDate'):
-            value = getattr(self._ds, keyword, None)
-            if value:
-                return datetime.strptime(str(value), DATE_FORMAT).date()
+        value = getattr(self._ds, 'AcquisitionDate', None)
+        if value:
+            return datetime.strptime(str(value), DATE_FORMAT).date()
         raise ValueError(
             "An acquisition date is required to calculate treatment progress.")
 
@@ -532,9 +531,9 @@ class OrthodonticPhotograph(PhotographBase):
     ) -> None:
         """Set treatment progress from an event date and photograph date.
 
-        If ``acquisition_date`` is omitted, Acquisition Date or Content Date is
-        read from the DICOM dataset. Only the calculated day offset is encoded,
-        as required by TID 3465.
+        If ``acquisition_date`` is omitted, Acquisition Date is read from the
+        DICOM dataset. Content Date is not a capture-time source. Only the
+        calculated day offset is encoded, as required by TID 3465.
 
         :param event_type: PatientRegistration, OrthodonticTreatmentStarted,
                            or OrthodonticTreatmentStopped

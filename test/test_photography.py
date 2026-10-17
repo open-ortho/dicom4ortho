@@ -245,6 +245,57 @@ class PhotoTests(unittest.TestCase):
         self.assertEqual(o._ds.AcquisitionDate, '20221118')
         self.assertEqual(offset.NumericValue, 17)
 
+    @staticmethod
+    def _content_only_jpeg(exif_tag: int) -> bytes:
+        """Build an image with an editing/digitization time, but no capture time."""
+        exif = Image.Exif()
+        exif[exif_tag] = '2026:07:14 10:30:00'
+        image_bytes = BytesIO()
+        Image.new('RGB', (2, 2)).save(image_bytes, format='JPEG', exif=exif)
+        return image_bytes.getvalue()
+
+    def test_content_only_exif_cannot_supply_treatment_acquisition_date(self):
+        for exif_tag in (306, 36868):  # DateTime and DateTimeDigitized
+            with self.subTest(exif_tag=exif_tag):
+                image_bytes = self._content_only_jpeg(exif_tag)
+                photo = OrthodonticPhotograph(
+                    image_type='EV08', input_image_bytes=image_bytes)
+                self.assertEqual(photo._ds.ContentDate, '20260714')
+                self.assertNotIn('AcquisitionDate', photo._ds)
+                self.assertNotIn('AcquisitionDateTime', photo._ds)
+
+                with self.assertRaisesRegex(ValueError, 'acquisition date is required'):
+                    photo.set_treatment_progress_from_date(
+                        'PatientRegistration', '2026-07-01')
+
+                with self.assertRaisesRegex(ValueError, 'acquisition date is required'):
+                    OrthodonticPhotograph(
+                        image_type='EV08',
+                        input_image_bytes=image_bytes,
+                        treatment_event_type='PatientRegistration',
+                        treatment_event_date='2026-07-01',
+                    )
+
+    def test_explicit_acquisition_datetime_with_content_only_exif(self):
+        for exif_tag in (306, 36868):
+            with self.subTest(exif_tag=exif_tag):
+                photo = OrthodonticPhotograph(
+                    image_type='EV08',
+                    input_image_bytes=self._content_only_jpeg(exif_tag),
+                    acquisition_datetime=datetime(2026, 7, 10, 10, 30),
+                    treatment_event_type='PatientRegistration',
+                    treatment_event_date='2026-07-01',
+                )
+                offset = next(
+                    item for item in photo._ds.AcquisitionContextSequence
+                    if item.ConceptNameCodeSequence[0].CodeValue == '128740'
+                )
+                self.assertEqual(photo._ds.AcquisitionDate, '20260710')
+                self.assertEqual(offset.NumericValue, 9)
+                with self.assertRaisesRegex(ValueError, 'cannot be after'):
+                    photo.set_treatment_progress_from_date(
+                        'PatientRegistration', '2026-07-11')
+
     def test_explicit_acquisition_datetime_overrides_exif(self):
         o = OrthodonticPhotograph(
             image_type='EV08',

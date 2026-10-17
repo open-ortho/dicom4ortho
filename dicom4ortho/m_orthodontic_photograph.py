@@ -145,6 +145,9 @@ class OrthodonticPhotograph(PhotographBase):
             )
             self.days_after_event = self._validate_days(days_after_event)
 
+        if self.treatment_event_type is not None:
+            self._set_treatment_progress(self.treatment_event_type, self.days_after_event)
+
         self.set_dicom_attributes_by_type_keyword(metadata.get('image_type'))
 
         # TODO: extract this to a higher level to give the user the ability to set it when needed.

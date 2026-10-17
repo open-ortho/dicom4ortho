@@ -611,6 +611,41 @@ class TestApplyView(unittest.TestCase):
         )
         self.assertEqual(event_item.ConceptCodeSequence[0].CodeValue, '1332161000')
 
+    def test_constructor_progress_without_resolved_view_matches_setter(self):
+        """Missing/unknown image types must not silently discard supplied progress."""
+        for image_type in (None, 'unknown'):
+            for event_date in ('2026-07-01', '2026-07-14'):
+                with self.subTest(image_type=image_type, event_date=event_date):
+                    photo = self._make_photo(
+                        image_type,
+                        acquisition_datetime='2026-07-14T10:30:00',
+                        treatment_event_type='PatientRegistration',
+                        treatment_event_date=event_date,
+                    )
+                    expected = self._make_photo(image_type)
+                    expected.set_time_captured(datetime(2026, 7, 14, 10, 30))
+                    expected.set_treatment_progress_from_date(
+                        'PatientRegistration', event_date)
+
+                    self.assertEqual(len(photo._ds.AcquisitionContextSequence), 2)
+                    self.assertEqual(
+                        photo._ds.AcquisitionContextSequence,
+                        expected._ds.AcquisitionContextSequence,
+                    )
+
+    def test_legacy_constructor_progress_without_resolved_view(self):
+        for image_type in (None, 'unknown'):
+            with self.subTest(image_type=image_type):
+                with self.assertWarnsRegex(DeprecationWarning, 'days_after_event'):
+                    photo = self._make_photo(
+                        image_type,
+                        treatment_event_type='PatientRegistration',
+                        days_after_event=0,
+                    )
+                event, offset = photo._ds.AcquisitionContextSequence
+                self.assertEqual(event.ConceptCodeSequence[0].CodeValue, '184047000')
+                self.assertEqual(offset.NumericValue, 0)
+
     def test_legacy_posttreatment_metadata_warns_and_maps_to_stopped(self):
         with warnings.catch_warnings(record=True) as caught:
             warnings.simplefilter('always')

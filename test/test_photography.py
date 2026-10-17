@@ -77,7 +77,7 @@ class PhotoTests(unittest.TestCase):
         o = photo_generator(
             image_type='EV-01', filename=Path('./test/resources/sample_NikonD90.JPG'))
         for tag in o._ds:
-            print(f"{tag.tag} {tag.description()}: {tag.value}")
+            print(f"{tag.tag} {tag.name}: {tag.value}")
 
     def testDates(self):
         """ Test setting date and times with different formats and time zones.
@@ -347,8 +347,9 @@ class PhotoTests(unittest.TestCase):
         code.CodeMeaning = 'Extraoral, Full Face, Full Smile, Centric Relation'
         o.image_type_code_dataset = code
         o.save()
-        # Test the get_scheduled_protocol_code method
-        scheduled_protocol_code = get_scheduled_protocol_code(o._ds)
+        # Verify the compatibility helper still works and warns callers.
+        with self.assertWarnsRegex(DeprecationWarning, 'get_scheduled_protocol_code is deprecated'):
+            scheduled_protocol_code = get_scheduled_protocol_code(o._ds)
         self.assertIsNotNone(scheduled_protocol_code,
                              "Scheduled Protocol Code should not be None")
         self.assertEqual(scheduled_protocol_code.CodeValue,

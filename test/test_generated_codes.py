@@ -433,7 +433,7 @@ class TestApplyView(unittest.TestCase):
             with self.subTest(view=kw):
                 view = VIEWS[kw]
                 kwargs = {'image_type': kw}
-                if view.view_code is None:
+                if view.view_code is None and kw != 'IV29':
                     kwargs['view_code_keyword'] = 'projection_right'
                 o = OrthodonticPhotograph(**kwargs)
                 self.assertIsNotNone(
@@ -482,6 +482,45 @@ class TestApplyView(unittest.TestCase):
         """Complete views must construct without view_code_keyword."""
         o = self._make_photo('EV01')
         self.assertIsNotNone(o)
+
+    def test_iv29_without_direction_preserves_anatomy(self):
+        photo = self._make_photo('IV29')
+        self.assertTrue(photo._ds.ImageComments.startswith('IV29^'))
+        region = photo._ds.AnatomicRegionSequence[0]
+        structure = photo._ds.PrimaryAnatomicStructureSequence[0]
+        self.assertEqual((region.CodeValue, region.CodingSchemeDesignator),
+                         ('123851003', 'SCT'))
+        self.assertEqual((structure.CodeValue, structure.CodingSchemeDesignator),
+                         ('7652006', 'SCT'))
+        self.assertNotIn('ViewCodeSequence', photo._ds)
+        self.assertNotIn('ViewModifierCodeSequence', photo._ds)
+
+    def test_iv29_explicit_direction_has_nested_closeup_modifier(self):
+        for keyword, value in (('projection_frontal', '399033003'),
+                               ('projection_right', '399198007')):
+            with self.subTest(keyword=keyword):
+                photo = self._make_photo('IV29', view_code_keyword=keyword)
+                view_code = photo._ds.ViewCodeSequence[0]
+                self.assertEqual(view_code.CodeValue, value)
+                self.assertEqual(
+                    view_code.ViewModifierCodeSequence[0].CodeValue, '789131009')
+
+    def test_iv29_direction_can_be_supplied_after_construction(self):
+        photo = self._make_photo('IV29')
+        photo.set_view_code('projection_right')
+        self.assertEqual(photo._ds.ViewCodeSequence[0].CodeValue, '399198007')
+        self.assertEqual(
+            photo._ds.ViewCodeSequence[0].ViewModifierCodeSequence[0].CodeValue,
+            '789131009',
+        )
+
+    def test_switching_to_iv29_does_not_reuse_previous_view_direction(self):
+        photo = self._make_photo('EV01')
+        self.assertIn('ViewCodeSequence', photo._ds)
+        photo.set_dicom_attributes_by_type_keyword('IV29')
+        self.assertNotIn('ViewCodeSequence', photo._ds)
+        self.assertEqual(
+            photo._ds.PrimaryAnatomicStructureSequence[0].CodeValue, '7652006')
 
     def test_view_code_keyword_sets_view_code_with_modifier(self):
         """IV28 + view_code_keyword attaches closeup modifier to the ViewCode."""

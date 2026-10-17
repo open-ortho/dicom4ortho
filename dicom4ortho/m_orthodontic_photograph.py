@@ -262,7 +262,10 @@ class OrthodonticPhotograph(PhotographBase):
                         self.type_keyword, self.output_image_filename)
             return
 
-        if view.view_code is None and not self._view_code_keyword:
+        # IV29 retains known anatomy without inventing a direction while the
+        # profile decision is pending: open-ortho/dent-oip#63.
+        if (view.view_code is None and not self._view_code_keyword
+                and view.keyword != 'IV29'):
             raise TypeError(
                 f"View {view.keyword!r} requires a 'view_code_keyword' parameter "
                 f"(ViewCode is variable for this view — e.g. 'projection_right'). "
@@ -311,6 +314,9 @@ class OrthodonticPhotograph(PhotographBase):
                 vc_ds.ViewModifierCodeSequence = Sequence(
                     [c.to_dataset() for c in view.view_modifiers])
             self._ds.ViewCodeSequence = Sequence([vc_ds])
+        elif 'ViewCodeSequence' in self._ds:
+            # A previous image type does not establish this photograph's direction.
+            del self._ds.ViewCodeSequence
         # PrimaryAnatomicStructureSequence (0008,2228)
         if view.primary_anatomic_structure is not None:
             pas_ds = view.primary_anatomic_structure.to_dataset()
@@ -391,9 +397,10 @@ class OrthodonticPhotograph(PhotographBase):
         """Set (or replace) ViewCodeSequence, attaching any view modifiers defined
         for this view.
 
-        Required for incomplete views (e.g. IV28, IV30, EV40) whose ViewCode is
-        variable and must be supplied by the caller.  May also be called after
-        construction to change the ViewCode.
+        Required for incomplete views (IV28, IV30, EV40) whose ViewCode is
+        variable and must be supplied by the caller. Optional for IV29, whose
+        unknown direction is omitted. May also be called after construction to
+        change the ViewCode.
 
         :param keyword: generated terminology keyword (e.g. 'projection_right')
         """

@@ -242,6 +242,20 @@ then use dicom4ortho like this:
 Where `filename` should be a `.csv` file. Passing a single image file with
 metadata through arguments is planned for future implementations.
 
+### IV29 viewing direction
+
+`OrthodonticPhotograph(image_type="IV29")` preserves the known mouth and frenum
+anatomy without assuming a viewing direction. When direction is unknown,
+`ViewCodeSequence` is omitted; its nested close-up modifier is also absent.
+If the actual direction is known, callers can supply `view_code_keyword` (for
+example, `"projection_right"`) or call `set_view_code()` afterward. The current
+mapping's close-up modifier is then nested under that supplied direction.
+
+This is interim compatibility behavior, not a new profile requirement. The
+IV29 direction policy and handling of the close-up modifier remain under
+discussion in [dent-oip #63](https://github.com/open-ortho/dent-oip/issues/63).
+The existing explicit-direction requirements for IV28, IV30, and EV40 are unchanged.
+
 ### Orthodontic Treatment Progress
 
 Under the draft ADA-1107 profile, treatment progress for an ADA 1100 image is

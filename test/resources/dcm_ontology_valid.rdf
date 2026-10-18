@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:skos="http://www.w3.org/2004/02/skos/core#">
+  <rdf:Description rdf:about="http://dicom.nema.org/resources/ontology/DCM/130325">
+    <skos:notation>130325</skos:notation>
+    <skos:prefLabel xml:lang="en">Orthognathic Functional Condition</skos:prefLabel>
+  </rdf:Description>
+</rdf:RDF>

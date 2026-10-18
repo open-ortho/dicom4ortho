@@ -7,7 +7,7 @@ import unittest
 import logging
 import importlib
 from io import BytesIO
-from datetime import datetime, timezone, timedelta
+from datetime import date, datetime, timezone, timedelta
 from pathlib import Path
 
 from test.sample_data_generator import make_sample_MWL
@@ -38,8 +38,9 @@ def make_photo_metadata():
         "study_instance_uid": generate_dicom_uid(root=StudyInstanceUID_ROOT),
         "series_instance_uid": generate_dicom_uid(root=SeriesInstanceUID_ROOT),
         "series_description": "UnitTest make_photo_metadata",
-        "days_after_event": 212,
-        "treatment_event_type": "OrthodonticTreatment"
+        "acquisition_datetime": datetime(2024, 7, 31, 12, 0),
+        "treatment_event_date": date(2024, 1, 1),
+        "treatment_event_type": "OrthodonticTreatmentStarted"
     }
     return metadata
 
@@ -76,7 +77,7 @@ class PhotoTests(unittest.TestCase):
         o = photo_generator(
             image_type='EV-01', filename=Path('./test/resources/sample_NikonD90.JPG'))
         for tag in o._ds:
-            print(f"{tag.tag} {tag.description()}: {tag.value}")
+            print(f"{tag.tag} {tag.name}: {tag.value}")
 
     def testDates(self):
         """ Test setting date and times with different formats and time zones.
@@ -120,8 +121,6 @@ class PhotoTests(unittest.TestCase):
 
     def testProgress(self):
         md = make_photo_metadata()
-        md["days_after_event"] = 212
-        md["treatment_event_type"] = "OrthodonticTreatment"
         md["image_type"] = "EV08"
         o = OrthodonticPhotograph(**md)
 
@@ -209,6 +208,10 @@ class PhotoTests(unittest.TestCase):
             'manufacturer': 'Test Manufacturer'
         }
         o = OrthodonticPhotograph(**metadata)
+
+        # EXIF is available immediately so constructor metadata can depend on it.
+        self.assertEqual(o._ds.AcquisitionDate, '20221118')
+        self.assertEqual(o._ds.ContentDate, '20221118')
         o.prepare()
 
         # Assert that date/time tags were properly set from EXIF
@@ -226,6 +229,94 @@ class PhotoTests(unittest.TestCase):
                         "ContentTime should be 13 characters HHMMSS.FFFFFF")
         self.assertTrue(len(o._ds.AcquisitionDateTime) >= 19,
                         "AcquisitionDateTime should be at least 19 characters YYYYMMDDHHMMSS.FFFFFF")
+
+    def test_exif_acquisition_datetime_is_treatment_progress_fallback(self):
+        o = OrthodonticPhotograph(
+            image_type='EV08',
+            input_image_filename=self.resource_path / 'sample_NikonD90.JPG',
+            treatment_event_type='PatientRegistration',
+            treatment_event_date=date(2022, 11, 1),
+        )
+
+        offset = next(
+            item for item in o._ds.AcquisitionContextSequence
+            if item.ConceptNameCodeSequence[0].CodeValue == '128740'
+        )
+        self.assertEqual(o._ds.AcquisitionDate, '20221118')
+        self.assertEqual(offset.NumericValue, 17)
+
+    @staticmethod
+    def _content_only_jpeg(exif_tag: int) -> bytes:
+        """Build an image with an editing/digitization time, but no capture time."""
+        exif = Image.Exif()
+        exif[exif_tag] = '2026:07:14 10:30:00'
+        image_bytes = BytesIO()
+        Image.new('RGB', (2, 2)).save(image_bytes, format='JPEG', exif=exif)
+        return image_bytes.getvalue()
+
+    def test_content_only_exif_cannot_supply_treatment_acquisition_date(self):
+        for exif_tag in (306, 36868):  # DateTime and DateTimeDigitized
+            with self.subTest(exif_tag=exif_tag):
+                image_bytes = self._content_only_jpeg(exif_tag)
+                photo = OrthodonticPhotograph(
+                    image_type='EV08', input_image_bytes=image_bytes)
+                self.assertEqual(photo._ds.ContentDate, '20260714')
+                self.assertNotIn('AcquisitionDate', photo._ds)
+                self.assertNotIn('AcquisitionDateTime', photo._ds)
+
+                with self.assertRaisesRegex(ValueError, 'acquisition date is required'):
+                    photo.set_treatment_progress_from_date(
+                        'PatientRegistration', '2026-07-01')
+
+                with self.assertRaisesRegex(ValueError, 'acquisition date is required'):
+                    OrthodonticPhotograph(
+                        image_type='EV08',
+                        input_image_bytes=image_bytes,
+                        treatment_event_type='PatientRegistration',
+                        treatment_event_date='2026-07-01',
+                    )
+
+    def test_explicit_acquisition_datetime_with_content_only_exif(self):
+        for exif_tag in (306, 36868):
+            with self.subTest(exif_tag=exif_tag):
+                photo = OrthodonticPhotograph(
+                    image_type='EV08',
+                    input_image_bytes=self._content_only_jpeg(exif_tag),
+                    acquisition_datetime=datetime(2026, 7, 10, 10, 30),
+                    treatment_event_type='PatientRegistration',
+                    treatment_event_date='2026-07-01',
+                )
+                offset = next(
+                    item for item in photo._ds.AcquisitionContextSequence
+                    if item.ConceptNameCodeSequence[0].CodeValue == '128740'
+                )
+                self.assertEqual(photo._ds.AcquisitionDate, '20260710')
+                self.assertEqual(offset.NumericValue, 9)
+                with self.assertRaisesRegex(ValueError, 'cannot be after'):
+                    photo.set_treatment_progress_from_date(
+                        'PatientRegistration', '2026-07-11')
+
+    def test_explicit_acquisition_datetime_overrides_exif(self):
+        o = OrthodonticPhotograph(
+            image_type='EV08',
+            input_image_filename=self.resource_path / 'sample_NikonD90.JPG',
+            acquisition_datetime=datetime(2024, 7, 31, 12, 0),
+            treatment_event_type='OrthodonticTreatmentStarted',
+            treatment_event_date=date(2024, 7, 1),
+        )
+
+        offset = next(
+            item for item in o._ds.AcquisitionContextSequence
+            if item.ConceptNameCodeSequence[0].CodeValue == '128740'
+        )
+        self.assertEqual(o._ds.AcquisitionDate, '20240731')
+        self.assertEqual(o._ds.ContentDate, '20240731')
+        self.assertEqual(offset.NumericValue, 30)
+
+        # prepare() reads EXIF again during save; the explicit value must persist.
+        o.prepare()
+        self.assertEqual(o._ds.AcquisitionDate, '20240731')
+        self.assertEqual(o._ds.ContentDate, '20240731')
 
     def testProtocolCode(self):
         # Generate a sample MWL
@@ -256,8 +347,9 @@ class PhotoTests(unittest.TestCase):
         code.CodeMeaning = 'Extraoral, Full Face, Full Smile, Centric Relation'
         o.image_type_code_dataset = code
         o.save()
-        # Test the get_scheduled_protocol_code method
-        scheduled_protocol_code = get_scheduled_protocol_code(o._ds)
+        # Verify the compatibility helper still works and warns callers.
+        with self.assertWarnsRegex(DeprecationWarning, 'get_scheduled_protocol_code is deprecated'):
+            scheduled_protocol_code = get_scheduled_protocol_code(o._ds)
         self.assertIsNotNone(scheduled_protocol_code,
                              "Scheduled Protocol Code should not be None")
         self.assertEqual(scheduled_protocol_code.CodeValue,

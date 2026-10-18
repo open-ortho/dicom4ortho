@@ -29,11 +29,9 @@ TIME_FORMAT = '%H%M%S.%f'
 DICOM_PREAMBLE = b'\0' * 128
 
 
-# Use local files for now, but these will be swapped to the published URLs when available.
+# View layout remains local; terminology is resolved by tools/generate_codes.py.
 URL_DENT_OIP_VIEWS = importlib_resources.files('dicom4ortho.resources') /'views.csv'
 URL_DENT_OIP_VIEWS = URL_DENT_OIP_VIEWS.as_uri()
-URL_DENT_OIP_CODES = importlib_resources.files('dicom4ortho.resources') /'codes.csv'
-URL_DENT_OIP_CODES = URL_DENT_OIP_CODES.as_uri()
 
 # This is a unique ID generated for this specific software only.
 #  * Random generation using generate_dicom_uid() below
@@ -58,7 +56,3 @@ SOPInstanceUID_ROOT = f"{DICOM4ORTHO_ROOT_UID}.4"
 
 # The default IDs used for SeriesNumber StudyID and InstanceNumber
 IDS_NUMBERS = '000'
-
-# This is populated by controller.OrthodonticController._load_image_types()
-image_types = {}
-

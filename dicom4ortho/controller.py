@@ -51,11 +51,19 @@ class OrthodonticController(object):
                                           the photograph
             operator_lastname           : clinical staff member who acquired
                                           the photograph
+            acquisition_datetime        : optional photograph acquisition
+                                          datetime; overrides EXIF
+                                          DateTimeOriginal. EXIF is used when
+                                          this value is omitted.
             treatment_event_type        : Allowed values:
-                                            - "PatientRegistration"
-                                            - "OrthodonticTreatment"
-                                            - "Posttreatment"
-            days_after_event            : number of days from treatment_event_type
+                                             - "PatientRegistration"
+                                             - "OrthodonticTreatmentStarted"
+                                             - "OrthodonticTreatmentStopped"
+            treatment_event_date        : date of treatment_event_type; the
+                                          TID 3465 day offset is calculated
+                                          from the effective acquisition
+                                          datetime (explicit or EXIF)
+            days_after_event            : deprecated precomputed day offset
             burned_in_annotation        : 'YES' or 'NO'. Default = 'NO'.
             output_image_filename       : filename to write dicom image into.
                                           Default is the same name as the input file name with replaced

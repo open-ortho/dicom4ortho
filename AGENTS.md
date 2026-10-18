@@ -88,9 +88,16 @@ docker compose -f ./test/docker-compose.yml down
 ## 5) Makefile Caveats Agents Must Know
 
 - `make test` is not unit-only; it always touches Docker.
-- `make build` invokes `update_resources`.
-- `update_resources` may run `git add` and `git commit` automatically for resource CSV updates.
-- Avoid running `make build` if you must not create commits or touch git state.
+- `make build` uses the committed `_generated_codes.py` terminology lock and does not
+  access the network.
+- `make update_codes` explicitly fetches DICOM CIDs from NEMA FHIR ValueSets,
+  DCM concept names from NEMA `dcm.owl`, ADA 1100 CodeSystems from Open Ortho,
+  and DENT-OIP `views.csv`. It writes the committed terminology lock with one
+  `SOURCE_PROVENANCE` mapping of observed URLs, SHA-256s, and FHIR version/date
+  metadata. Review its generated diff before committing it.
+- `make check_codes` performs the same fetch and validation in memory and fails
+  when its output differs from the committed lock. It is suitable for manual or
+  scheduled terminology drift detection; normal builds and runtime stay offline.
 - Safer build-only command: `python -m build`.
 
 ## 6) Code Style and Conventions

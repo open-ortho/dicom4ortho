@@ -30,6 +30,7 @@
 
 <!-- TABLE OF CONTENTS -->
 
+- [Introduction](#introduction)
 - [About The Project](#about-the-project)
   - [Built With](#built-with)
 - [Getting Started](#getting-started)
@@ -46,24 +47,68 @@
 
 ## Introduction
 
-The orthodontic provider takes different types of photographs of patients, each of which needs to be properly described and distinguished using proper DICOM attributes. The dental community publised standarad ADA-1114 which defines the requirements for dental images to be in DICOM, which refers to ADA-1100 for orthodntic images: it defines 73 different possible types of photographs most commonly used, each of which with a linedrawing as example.  [DICOM CP 1570](https://dicom.nema.org/Dicom/News/March2025/docs/cpack130/cp1570.pdf) was published to add the necessary codes and attributes in order to fulfill the requirements defined in ADA-1100. The views specified in ADA-1100 have been published as their own codes set in https://terminology.open-ortho.org/; these have been used to add equivalent codes to SNOMED; https://terminology.open-ortho.org/ also contains a mapping between the ADA-1100 codes and the official SNOMED-CT codes.
+`dicom4ortho` is an open-source Python library: a reusable software component
+for developers building applications that store and exchange dental photographs.
 
-`dicom4ortho` is a library to automatically generate DICOM IODs that fulfill the requirements of ADA1100, using the additions of CP1570 where necessary. with all anatomic and clinical attributes pre-populated, based on the image type. It is intended to be used by software developers which need to generate valid DICOM IODs, without having to go through the DICOM standard to figure out how to do it. It is a library to:
+Dental providers, especially orthodontists, take different types of patient
+photographs to document anatomy and monitor treatment. These include full-face
+and profile views, photographs inside the mouth, and close-ups of particular
+structures. Each photograph needs to be distinguished by what it shows and how
+it was taken, not just by its filename. Software exchanging these images
+needs a shared way to describe them so the receiving application can identify
+the photograph type without relying on another application's naming conventions.
 
-- return a full valid DICOM IOD taking an image, patient demographics and an image type as input;
-- return a DICOM IOD stub taking an image type as input;
-- return an image type taking a DICOM IOD as input;
+[DICOM (Digital Imaging and Communications in Medicine)][dicom-overview] is the
+international standard for medical images and related information. It defines
+how to store and exchange image pixels together with structured attributes
+(metadata), such as patient identity, anatomy, viewing direction, and acquisition
+time. DICOM is not limited to X-rays and scans; it also supports ordinary
+visible-light photographs.
+
+The **American Dental Association (ADA)** is a professional organization for
+dentists that also develops dental standards. It is
+[accredited by the **American National Standards Institute (ANSI)**][ada-standards-program]
+to develop national standards for dentistry. The documents relevant to this
+library have different roles:
+
+- **ADA 1100** defines 73 commonly used orthodontic photograph types, with line
+  drawings illustrating the views.
+- **ADA 1114** defines requirements for using DICOM for dental images and refers
+  to ADA 1100 for the orthodontic photograph types.
+- **Draft ADA-1107** is an implementation profile: a set of rules explaining how
+  to apply these standards together to a particular clinical workflow. It is
+  not yet published. `dicom4ortho` directly implements this draft profile, so its
+  support for ADA 1100 and ADA 1114 is through ADA-1107.
+
+DICOM [change proposals (CPs)][dicom-change-proposals] are documents proposing
+corrections, clarifications, or small additions to the standard. Approved
+proposals are incorporated into the standard.
+[DICOM CP 1570](https://dicom.nema.org/Dicom/News/March2025/docs/cpack130/cp1570.pdf)
+added the dental acquisition attributes and codes used by the profile. These
+allow anatomy and the clinical circumstances of taking a photograph to be
+described in a standardized way. The ADA 1100 photograph types and their
+mappings to **SNOMED CT (Systematized Nomenclature of Medicine — Clinical Terms)**
+are published at https://terminology.open-ortho.org/. SNOMED CT is a clinical
+terminology that gives concepts, such as anatomical structures, shared coded
+identifiers rather than relying only on free-text descriptions.
+
+An **Information Object Definition (IOD)** specifies the required and optional
+attributes for a particular kind of DICOM object. `dicom4ortho` builds DICOM
+datasets (collections of attributes that can include image data) according to
+these definitions and the draft profile. It pre-populates the anatomic and
+clinical attributes derived from the selected image type. The library can:
+
+- create a DICOM image from a photograph, patient details, and an image type;
+- create a pre-populated DICOM dataset template from an image type;
+- identify a supported image type from a DICOM dataset.
 
 <!-- ABOUT THE PROJECT -->
 
 ## About The Project
 
-The DICOM standard is ready for any developer in the orthodontic community to
-implement. However, it can be complicated and implementation can be time
-consuming. We want to create a proof of concept to demonstrate how to properly
-store orthodontic visible light images (aka photographs) using DICOM, while
-ensuring all codes (necessary to uniquely identify each image type) are in the
-proper place.
+Implementing these standards directly can be time-consuming. The project
+provides reusable code and a proof of concept so developers can build on tested
+mappings rather than reconstructing every DICOM requirement themselves.
 
 Here's why:
 
@@ -172,10 +217,25 @@ The project includes a Makefile that simplifies common development tasks:
     $ make lint              # Run linter on the code
     $ make all               # Clean and build
     $ make install-dev       # Install development tools including dicom3tools
-    $ make update_resources  # Update resource files from source
+    $ make update_codes      # Refresh the committed terminology lock
+    $ make check_codes       # Detect upstream terminology drift without writing
     $ make deploy            # Deploy to PyPI
 
 The Makefile handles Docker for you when running tests. It starts the required Docker containers before running tests and shuts them down afterward.
+Normal package builds, tests, and runtime use the committed terminology lock
+and do not require network access. `make update_codes` is an explicit
+maintainer operation that loads DICOM CIDs from NEMA FHIR ValueSets, DCM
+concept names from NEMA's `dcm.owl` ontology, ADA image types from Open Ortho,
+and the DENT-OIP view layout. It records each observed source URL and SHA-256
+in the lock; FHIR resources additionally record their observed version and
+date. Review the generated diff before committing it. `make check_codes`
+performs the same validation in memory and fails if the committed lock differs,
+which supports scheduled terminology-drift checks without adding network I/O to
+normal builds.
+
+See [the terminology pipeline and compatibility baseline](docs/TERMINOLOGY.md)
+for the exact source roles, reviewed lock checksum, coding changes, and the
+separate future ADA-1107 package migration.
 
 ### Validation with dicom3tools
 
@@ -216,6 +276,11 @@ then use dicom4ortho like this:
 
 Where `filename` should be a `.csv` file. Passing a single image file with
 metadata through arguments is planned for future implementations.
+
+### Orthodontic Treatment Progress
+
+`dicom4ortho` records treatment progress as a day offset from a clinical event.
+See the [treatment progress documentation][treatment-progress-docs] for usage and examples.
 
 ### Practice personnel
 
@@ -295,3 +360,7 @@ Project Link: [https://github.com/open-ortho/dicom4ortho](https://github.com/ope
 [linkedin-url]: https://linkedin.com/in/open-ortho
 [product-screenshot]: images/screenshot.png
 [example-csv-url]: examples/input_from.csv
+[treatment-progress-docs]: https://open-ortho.github.io/dicom4ortho/usage.html#orthodontic-treatment-progress
+[dicom-overview]: https://www.dicomstandard.org/about
+[ada-standards-program]: https://www.ada.org/resources/practice/dental-standards/ada-standards-program-overview
+[dicom-change-proposals]: https://www.dicomstandard.org/submitcp

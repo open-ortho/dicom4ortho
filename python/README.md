@@ -18,10 +18,26 @@ python -m build           # creates the wheel and sdist in root dist/
 make build                # lint, complete tests, then build
 ```
 
+Make runs Python tools through the same interpreter (`python3` by default),
+including `python3 -m pylint`. To select an interpreter explicitly, use
+`make PYTHON="$PWD/.venv/bin/python" build`.
+
+If the checkout itself moved to a different directory, recreate its virtual
+environment: activation scripts and installed command shebangs contain absolute
+paths. The `(.venv)` prompt alone does not prove the correct environment is active.
+The Nix shell refuses stale activation paths and stops on installation errors;
+it never deletes the old environment. On the workstation, preserve it first:
+
+```sh
+deactivate
+mv .venv ".venv.old-$(date +%Y%m%d-%H%M%S)"
+nix develop               # creates and installs the new environment here
+```
+
 For explicit test discovery, or a single module:
 
 ```sh
-python -m unittest discover -s python/test -t python
+PYTHONPATH=python python -m unittest discover -s python/test -t python
 PYTHONPATH=python python -m unittest test.test_models
 pytest python/test/test_cli.py
 ```

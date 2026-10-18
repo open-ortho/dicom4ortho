@@ -49,7 +49,7 @@ pip install dicom4ortho[dev]
   - `make lint`
   - Equivalent: `pylint --errors-only python/dicom4ortho`
 - Test suite:
-  - `python -m unittest discover -s python/test -t python`
+  - `PYTHONPATH=python python -m unittest discover -s python/test -t python`
   - Run commands from the repository root after editable installation.
   - `make test` (starts/stops Docker around tests)
 - Build package:

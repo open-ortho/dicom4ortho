@@ -59,17 +59,8 @@
             # default linker search path for pip wheel binaries.
             export LD_LIBRARY_PATH="${pkgs.stdenv.cc.cc.lib}/lib:''${LD_LIBRARY_PATH:-}"
 
-            # Create a venv on first use and install the package in editable mode.
-            # This keeps Python deps in pyproject.toml as the single source of truth
-            # and makes the dicom4ortho / d4o_generate CLI entrypoints available.
-            if [ ! -x .venv/bin/python ]; then
-              echo "Creating .venv and installing dicom4ortho[dev] …"
-              python3 -m venv .venv
-              .venv/bin/pip install --quiet --upgrade pip
-            fi
-            # Refresh the editable mapping after source-layout changes, too.
-            .venv/bin/pip install --quiet -e ".[dev]"
-            source .venv/bin/activate
+            # Refuse stale activation paths and stop on dependency-install errors.
+            source tools/setup-python-env.sh || exit 1
 
             echo ""
             echo "dicom4ortho dev shell ready"

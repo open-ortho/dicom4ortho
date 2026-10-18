@@ -196,7 +196,7 @@ To run a specific test file:
 Python tests are located in `python/test/`. For explicit unittest discovery from
 the repository root, run:
 
-    $ python -m unittest discover -s python/test -t python
+    $ PYTHONPATH=python python -m unittest discover -s python/test -t python
 
 #### Docker for Integration Tests
 

@@ -1,5 +1,6 @@
 PYTHON_DIR = python
 MAIN = $(PYTHON_DIR)/dicom4ortho
+PYTHON ?= python3
 COMPOSE ?= docker compose
 D3TOOLS_DIR = modules/dicom3tools
 D3TOOLS_VERSION = 1.00.snapshot.20230225185712
@@ -21,7 +22,7 @@ endif
 DIST = ./dist
 
 
-LINTER = $$(which pylint) --errors-only
+LINTER = $(PYTHON) -m pylint --errors-only
 
 .PHONY: help
 help: ## Show this help message
@@ -41,7 +42,7 @@ lint: ## Run linter (errors only)
 test: ## Run unit tests (starts/stops Docker for integration tests)
 	$(COMPOSE) -f ./$(PYTHON_DIR)/test/docker-compose.yml up -d
 	sleep 3
-	python3 -m unittest discover -s $(PYTHON_DIR)/test -t $(PYTHON_DIR)
+	PYTHONPATH="$(abspath $(PYTHON_DIR))$${PYTHONPATH:+:$$PYTHONPATH}" $(PYTHON) -m unittest discover -s $(PYTHON_DIR)/test -t $(PYTHON_DIR)
 	$(COMPOSE) -f ./$(PYTHON_DIR)/test/docker-compose.yml down
 
 .PHONY: clean
@@ -59,7 +60,7 @@ $(DIST):
 
 .PHONY: build
 build: lint test $(DIST) ## Lint, test, and build from the committed terminology lock
-	python3 -m build
+	$(PYTHON) -m build
 
 .PHONY: fetch_resources
 fetch_resources: ## Download views.csv from upstream dent-oip
@@ -70,17 +71,17 @@ fetch_resources: ## Download views.csv from upstream dent-oip
 
 .PHONY: update_codes
 update_codes: ## Fetch authoritative terminology and regenerate _generated_codes.py
-	python3 tools/generate_codes.py
+	$(PYTHON) tools/generate_codes.py
 
 .PHONY: check_codes
 check_codes: ## Regenerate terminology in memory and fail when the lock has drifted
-	python3 tools/generate_codes.py --check
+	$(PYTHON) tools/generate_codes.py --check
 
 .PHONY: deploy
 deploy: ## Upload distribution to PyPI (requires ~/.pypirc token)
 	echo "Deplyoing to PyPi."
 	echo "To deploy, make sure you have a token saved in ~/.pypirc . See https://pypi.org/manage/account/token/?selected_project=dicom4ortho"
-	python3 -m twine upload --repository pypi dist/*
+	$(PYTHON) -m twine upload --repository pypi dist/*
 
 .PHONY: all
 all: clean build ## Clean then build

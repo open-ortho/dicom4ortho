@@ -36,6 +36,25 @@ class TestRepositoryLayout(unittest.TestCase):
                 )
                 self.assertEqual(result.returncode, 0, result.stderr)
 
+    def test_make_lint_uses_the_selected_python_interpreter(self):
+        result = subprocess.run(
+            ['make', '--dry-run', 'lint', 'PYTHON=/selected/venv/bin/python'],
+            cwd=REPOSITORY_ROOT,
+            check=True,
+            capture_output=True,
+            text=True,
+        )
+        self.assertIn('/selected/venv/bin/python -m pylint --errors-only', result.stdout)
+        self.assertNotIn('which pylint', result.stdout)
+
+    def test_make_test_prioritizes_the_local_test_package(self):
+        result = subprocess.run(
+            ['make', '--dry-run', 'test'], cwd=REPOSITORY_ROOT,
+            check=True, capture_output=True, text=True,
+        )
+        self.assertIn(f'PYTHONPATH="{PYTHON_ROOT}', result.stdout)
+        self.assertIn('python3 -m unittest discover', result.stdout)
+
     def test_make_recipes_keep_root_artifacts_and_relocated_test_paths(self):
         expected_commands = {
             'lint': '--errors-only python/dicom4ortho',

@@ -42,6 +42,13 @@ Source contributors must reinstall an existing editable installation once after
 updating to this layout, so it points to `python/dicom4ortho`. The Nix shell also
 refreshes that mapping on entry. Published package consumers need no migration.
 
+Moving the checkout directory is a separate concern: existing virtual-environment
+activation and console scripts embed absolute paths. The Nix setup checks the
+activation path and refuses a moved environment rather than silently using a
+different Python; preserve it as a backup and recreate it at the new location.
+Python tool invocations in Make use one selectable `PYTHON` interpreter instead
+of independently locating console scripts such as `pylint`.
+
 ## What must remain the same
 
 - Distribution name, version, dependencies, imports, public APIs, CLI commands,
@@ -58,7 +65,9 @@ refreshes that mapping on entry. Published package consumers need no migration.
   `update_codes`, `check_codes`, `deploy`, `all`, and `install-dev` Make targets.
 
 Python test discovery is explicit now that tests are grouped by implementation:
-`python -m unittest discover -s python/test -t python`, or `make test`. Root
+`PYTHONPATH=python python -m unittest discover -s python/test -t python`, or
+`make test`. The explicit path keeps the local `test` package ahead of Python's
+standard-library package of the same name, even in a fresh editable install. Root
 `pytest` uses the same relocated suite. Fixture paths are resolved from their
 test modules, not the shell's working directory.
 

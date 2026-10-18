@@ -1,5 +1,5 @@
 include Makefile .pylintrc .bumpversion.cfg
-recursive-include tools *.py
+recursive-include tools *.py *.sh
 recursive-include python/test *.py *.yml *.json
 recursive-include python/test/resources *.rdf *.JPG *.j2k
 include python/test/resources/test.dcm

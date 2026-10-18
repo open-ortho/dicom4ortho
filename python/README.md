@@ -59,4 +59,4 @@ continues to write `python/dicom4ortho/_generated_codes.py`; its source URLs and
 provenance rules are unchanged.
 
 See [usage and installation](../README.md), [the runnable CSV example](examples/README.md),
-and [the repository layout contract](../docs/REPOSITORY_LAYOUT.md).
+and [the repository layout](../docs/REPOSITORY_LAYOUT.md).

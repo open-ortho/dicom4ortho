@@ -264,7 +264,7 @@ repository root and produce the existing package artifacts in `dist/`.
 
 This is a layout refactor only: no new functionality or shared executable core.
 Future language implementations will have independent runtime code and builds.
-See [the layout and compatibility contract](docs/REPOSITORY_LAYOUT.md).
+See [the repository layout and implementation boundaries](docs/REPOSITORY_LAYOUT.md).
 
 ## Usage
 

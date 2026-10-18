@@ -75,7 +75,7 @@ class PhotoTests(unittest.TestCase):
         """ Test that an image set as EV01 is tagged as expected.
         """
         o = photo_generator(
-            image_type='EV-01', filename=Path('./test/resources/sample_NikonD90.JPG'))
+            image_type='EV-01', filename=self.resource_path / 'sample_NikonD90.JPG')
         for tag in o._ds:
             print(f"{tag.tag} {tag.name}: {tag.value}")
 

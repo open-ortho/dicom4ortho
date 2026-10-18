@@ -5,6 +5,7 @@ build
 *.pyc
 *.egg-info
 *.dcm
+!python/test/resources/test.dcm
 modules/dicom3tools
 docs/.buildinfo
 .test*

@@ -17,11 +17,12 @@ explicit maintenance:
 | DENT-OIP view layout | `https://raw.githubusercontent.com/open-ortho/dent-oip/latest/source/tables/views.csv` |
 
 The generator **does not use a pinned `fhir.dicom` package**. It also does not
-read the packaged `dicom4ortho/resources/views.csv` for regeneration; that copy
+read the packaged `dicom4ortho/resources/views.csv` for regeneration (the source
+snapshot is now at `python/dicom4ortho/resources/views.csv`); that copy
 is a compatibility/test snapshot. `make fetch_resources` updates the snapshot
 only and is not a prerequisite for regenerating the lock.
 
-The committed `dicom4ortho/_generated_codes.py` contains 83 codes, 73 ADA image
+The committed `python/dicom4ortho/_generated_codes.py` contains 83 codes, 73 ADA image
 types, and 73 resolved views in the reviewed snapshot. Normal builds, unit tests,
 and runtime use this lock without fetching terminology. `codes.csv` and
 `image_types.csv` are no longer packaged terminology sources.

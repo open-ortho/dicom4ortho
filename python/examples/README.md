@@ -3,7 +3,7 @@
 After installing `dicom4ortho`, run the example from the repository root:
 
 ```bash
-dicom4ortho examples/input_from.csv
+dicom4ortho python/examples/input_from.csv
 ```
 
 Image paths in `input_from.csv` are resolved relative to the CSV file. The

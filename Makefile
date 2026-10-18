@@ -1,4 +1,6 @@
-MAIN = dicom4ortho
+PYTHON_DIR = python
+MAIN = $(PYTHON_DIR)/dicom4ortho
+COMPOSE ?= docker compose
 D3TOOLS_DIR = modules/dicom3tools
 D3TOOLS_VERSION = 1.00.snapshot.20230225185712
 D3TOOLS_BASE_URL = https://www.dclunie.com/dicom3tools/workinprogress/macexe/dicom3tools_
@@ -37,18 +39,18 @@ lint: ## Run linter (errors only)
 # install-dev is required here, but it cannot ruun from pipenv environment because it relies on sudo, i guess its a new security feature. So install-dev is a manual step which needs to be run before run outside of pipenv.
 .PHONY: test
 test: ## Run unit tests (starts/stops Docker for integration tests)
-	docker compose -f ./test/docker-compose.yml up -d
+	$(COMPOSE) -f ./$(PYTHON_DIR)/test/docker-compose.yml up -d
 	sleep 3
-	python3 -m unittest
-	docker compose -f ./test/docker-compose.yml down
+	python3 -m unittest discover -s $(PYTHON_DIR)/test -t $(PYTHON_DIR)
+	$(COMPOSE) -f ./$(PYTHON_DIR)/test/docker-compose.yml down
 
 .PHONY: clean
 clean: ## Remove build artifacts, caches, and egg-info
 	rm -rf $(DIST) ./build
 	echo "Cleaned up $(DIST) folder."
-	rm -rf *.egg-info
+	rm -rf *.egg-info $(PYTHON_DIR)/*.egg-info
 	echo "Removed all .egg-info files."
-	find . -path "*/__pycache*" -delete
+	find $(PYTHON_DIR) tools -depth -name '__pycache__' -exec rm -rf {} +
 	echo "Deleted all __pycache files."
 	rm -rf $(D3TOOLS_DIR)
 

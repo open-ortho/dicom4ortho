@@ -34,9 +34,9 @@ from rdflib import Graph, URIRef
 from rdflib.namespace import SKOS
 
 # Ensure the package is importable when running from the repository root.
-sys.path.insert(0, str(Path(__file__).parent.parent))
+sys.path.insert(0, str(Path(__file__).parent.parent / "python"))
 
-OUTPUT = Path(__file__).parent.parent / "dicom4ortho" / "_generated_codes.py"
+OUTPUT = Path(__file__).parent.parent / "python" / "dicom4ortho" / "_generated_codes.py"
 
 SCT_SYSTEM = "http://snomed.info/sct"
 DCM_SYSTEM = "http://dicom.nema.org/resources/ontology/DCM"

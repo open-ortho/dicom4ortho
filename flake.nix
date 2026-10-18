@@ -40,7 +40,7 @@
             # DICOM validation tool (extracted from Debian package; Linux x86_64 only)
             dciodvfy
 
-            # Docker CLI + Compose for integration tests (test/docker-compose.yml)
+            # Docker CLI + Compose for integration tests (python/test/docker-compose.yml)
             pkgs.docker
             pkgs.docker-compose
 
@@ -62,12 +62,13 @@
             # Create a venv on first use and install the package in editable mode.
             # This keeps Python deps in pyproject.toml as the single source of truth
             # and makes the dicom4ortho / d4o_generate CLI entrypoints available.
-            if [ ! -d .venv ]; then
+            if [ ! -x .venv/bin/python ]; then
               echo "Creating .venv and installing dicom4ortho[dev] …"
               python3 -m venv .venv
               .venv/bin/pip install --quiet --upgrade pip
-              .venv/bin/pip install --quiet -e ".[dev]"
             fi
+            # Refresh the editable mapping after source-layout changes, too.
+            .venv/bin/pip install --quiet -e ".[dev]"
             source .venv/bin/activate
 
             echo ""

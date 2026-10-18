@@ -13,7 +13,10 @@ Get more context from [context](./docs/context/cp1570_ft_add_dental_acquisition_
 - Test framework in practice: `unittest` (despite README examples mentioning `pytest`).
 - Primary linting tool: `pylint`.
 - DICOM dependencies: `pydicom`, `pynetdicom`, `pillow`, `requests`.
-- Some tests require Docker + Orthanc (`test/docker-compose.yml`).
+- Python implementation and tests: `python/dicom4ortho/` and `python/test/`.
+- Some tests require Docker + Orthanc (`python/test/docker-compose.yml`).
+- This is a multi-language-ready layout, not a shared executable core. Keep
+  root packaging/Make entry points compatible; see `docs/REPOSITORY_LAYOUT.md`.
 
 ## 2) Rules Files Discovered
 
@@ -44,14 +47,14 @@ pip install dicom4ortho[dev]
 
 - Lint:
   - `make lint`
-  - Equivalent: `pylint --errors-only dicom4ortho`
+  - Equivalent: `pylint --errors-only python/dicom4ortho`
 - Test suite:
-  - `python -m unittest`
-  - Preferred explicit discovery: `python -m unittest discover -s test -p "test_*.py"`
+  - `python -m unittest discover -s python/test -t python`
+  - Run commands from the repository root after editable installation.
   - `make test` (starts/stops Docker around tests)
 - Build package:
   - `python -m build`
-  - `make build` (runs lint + test + build + resource update)
+  - `make build` (runs lint + test + build, using the committed terminology lock)
 
 ### Run a single test (important)
 
@@ -59,35 +62,38 @@ Use `unittest` dotted paths:
 
 ```bash
 # Single test file/module
-python -m unittest test.test_models
+PYTHONPATH=python python -m unittest test.test_models
 
 # Single test class
-python -m unittest test.test_models.TestDicomBase
+PYTHONPATH=python python -m unittest test.test_models.TestDicomBase
 
 # Single test method
-python -m unittest test.test_models.TestDicomBase.test_patient_sex_valid
+PYTHONPATH=python python -m unittest test.test_models.TestDicomBase.test_patient_sex_valid
 ```
 
 You can also use `pytest` if installed, but repository conventions are `unittest`:
 
 ```bash
-pytest test/test_models.py::TestDicomBase::test_patient_sex_valid
+pytest python/test/test_models.py::TestDicomBase::test_patient_sex_valid
 ```
 
 ### Integration / end-to-end tests
 
-- E2E tests in `test/test_e2e.py` expect Orthanc endpoints (DIMSE/STOW-RS).
+- E2E tests in `python/test/test_e2e.py` expect Orthanc endpoints (DIMSE/STOW-RS).
 - Start dependencies manually if not using `make test`:
 
 ```bash
-docker compose -f ./test/docker-compose.yml up -d
-python -m unittest test.test_e2e
-docker compose -f ./test/docker-compose.yml down
+docker compose -f ./python/test/docker-compose.yml up -d
+PYTHONPATH=python python -m unittest test.test_e2e
+docker compose -f ./python/test/docker-compose.yml down
 ```
 
 ## 5) Makefile Caveats Agents Must Know
 
 - `make test` is not unit-only; it always touches Docker.
+- When using an existing Orthanc mock, `make test COMPOSE=true` skips only
+  Compose lifecycle commands. Tests still use localhost HTTP 8202/DIMSE 4242;
+  forward these ports to `orthanc-mock:8042`/`:4242` on the container network.
 - `make build` uses the committed `_generated_codes.py` terminology lock and does not
   access the network.
 - `make update_codes` explicitly fetches DICOM CIDs from NEMA FHIR ValueSets,
@@ -95,6 +101,8 @@ docker compose -f ./test/docker-compose.yml down
   and DENT-OIP `views.csv`. It writes the committed terminology lock with one
   `SOURCE_PROVENANCE` mapping of observed URLs, SHA-256s, and FHIR version/date
   metadata. Review its generated diff before committing it.
+- Lock source path: `python/dicom4ortho/_generated_codes.py`. The root generator
+  command remains `python tools/generate_codes.py`.
 - `make check_codes` performs the same fetch and validation in memory and fails
   when its output differs from the committed lock. It is suitable for manual or
   scheduled terminology drift detection; normal builds and runtime stay offline.
@@ -155,7 +163,7 @@ Derived from `.pylintrc`:
 ### Testing style
 
 - Existing suite uses `unittest.TestCase`; keep new tests compatible.
-- Name test modules as `test/test_*.py`.
+- Name test modules as `python/test/test_*.py`.
 - Prefer deterministic tests; isolate filesystem/network effects.
 - For network tests, use local mock/server patterns already used by project.
 
@@ -184,10 +192,10 @@ After coding:
 
 ## 9) Useful Paths
 
-- Package code: `dicom4ortho/`
-- DICOM transport modules: `dicom4ortho/dicom/`
-- Tests: `test/`
-- Docker test services: `test/docker-compose.yml`
+- Package code: `python/dicom4ortho/`
+- DICOM transport modules: `python/dicom4ortho/dicom/`
+- Tests: `python/test/`
+- Docker test services: `python/test/docker-compose.yml`
 - Lint config: `.pylintrc`
 - Build config: `pyproject.toml`
 - Supporting coding guidance: `docs/context/general_coding.md`

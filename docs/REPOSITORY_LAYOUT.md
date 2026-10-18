@@ -7,7 +7,7 @@ core, language bindings, or new SDKs.
 
 ```text
 python/
-  dicom4ortho/        # unchanged Python import/package name and runtime payload
+  dicom4ortho/        # existing Python import/package name and runtime behavior
   test/              # Python tests, fixtures, and Orthanc Compose configuration
   examples/          # Python/CLI examples
   README.md          # Python contributor instructions
@@ -51,8 +51,8 @@ of independently locating console scripts such as `pylint`.
 
 ## What must remain the same
 
-- Distribution name, version, dependencies, imports, public APIs, CLI commands,
-  package resources, and installed runtime files.
+- Distribution name, version, runtime dependencies, imports, public APIs, CLI
+  commands, package resources, and installed runtime file layout.
 - DICOM tags/sequence semantics, UID generation, image/transfer-syntax behavior,
   file/in-memory workflows, validation, and transport.
 - The current design merged through PR #70: authoritative NEMA and Open Ortho
@@ -82,3 +82,18 @@ executable Python/DICOM/image logic is not extracted into a common core.
 Moving paths must not be mixed with fixing pre-existing DICOM or transport
 behavior. Baseline validator warnings/failures must be recorded when comparing
 test runs, not hidden by weakening assertions or changing runtime code.
+
+## Warning-cleanup follow-up
+
+During validation, a separate, explicitly requested cleanup replaces deprecated
+license metadata with the equivalent SPDX `MIT` expression and keeps `LICENSE`
+packaged. This requires setuptools 77.0.3 or newer at build time; runtime
+dependencies and the package version are unchanged.
+
+The same cleanup replaces deprecated Pillow pixel access and closes image input
+files in the comparison tests. Raw pixel-byte regression cases cover bilevel,
+grayscale, and RGB images, including the minimum supported Pillow version.
+Consequently, the relocation's original source-byte identity applies to the
+mechanical move, not to this later warning cleanup. Public APIs and DICOM pixel
+encoding behavior remain unchanged; substantive DICOM validator findings are
+neither suppressed nor addressed here.

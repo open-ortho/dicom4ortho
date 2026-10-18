@@ -924,7 +924,7 @@ class PhotographBase(DicomBase):
             self._ds.PhotometricInterpretation = 'MONOCHROME2'
             # @TODO: Not sure if this works
             # Got this from https://stackoverflow.com/questions/5602155/numpy-boolean-array-with-1-bit-entries
-            npa = numpy.array(im.getdata(), dtype=numpy.bool)
+            npa = numpy.asarray(im, dtype=numpy.bool_)
             self._ds.PixelData = numpy.packbits(npa, axis=None).tobytes()
         elif im.mode == 'L':  # (8-bit pixels, black and white)
             self._ds.SamplesPerPixel = 1
@@ -936,8 +936,7 @@ class PhotographBase(DicomBase):
             self._ds.BitsStored = 8
             self._ds.HighBit = 7
             self._ds.PhotometricInterpretation = 'MONOCHROME2'
-            self._ds.PixelData = numpy.array(
-                im.getdata(), dtype=numpy.uint8).tobytes()
+            self._ds.PixelData = im.tobytes()
         # (8-bit pixels, mapped to any other mode using a color palette)
         elif im.mode == 'P':
             print(
@@ -957,8 +956,7 @@ class PhotographBase(DicomBase):
             self._ds.BitsStored = 8
             self._ds.HighBit = 7
             self._ds.PhotometricInterpretation = 'RGB'
-            self._ds.PixelData = numpy.array(im.getdata(), dtype=numpy.uint8)[
-                :, :3].tobytes()
+            self._ds.PixelData = im.tobytes()
         # (4x8-bit pixels, true color with transparency mask)
         elif im.mode == 'RGBA':
             print(

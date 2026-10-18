@@ -29,14 +29,19 @@ class TestDevelopmentEnvironment(unittest.TestCase):
     def _activate_from(self, directory: Path) -> None:
         (self.bin_directory / 'activate').write_text(
             f'export VIRTUAL_ENV="{directory}"\n'
-            'export PATH="$VIRTUAL_ENV/bin:$PATH"\n', encoding='utf-8')
+            'export PATH="$VIRTUAL_ENV/bin:$PATH"\n'
+            'hash -r 2>/dev/null\n', encoding='utf-8')
 
-    def _run_setup(self, pip_status: int = 0) -> subprocess.CompletedProcess:
+    def _run_setup(
+        self, pip_status: int = 0, hashing_enabled: bool = True
+    ) -> subprocess.CompletedProcess:
         environment = dict(os.environ)
         environment['SETUP_CALL_LOG'] = str(self.log)
         environment['SETUP_PIP_STATUS'] = str(pip_status)
+        shell_flags = 'set -h; ' if hashing_enabled else 'set +h; '
         return subprocess.run(
-            ['bash', '-c', 'source "$1" && printf "ACTIVE=%s\\n" "$VIRTUAL_ENV"',
+            ['bash', '-c', shell_flags +
+             'source "$1" && printf "ACTIVE=%s\\nFLAGS=%s\\n" "$VIRTUAL_ENV" "$-"',
              'setup-test', str(SETUP_SCRIPT)],
             cwd=self.root, env=environment, capture_output=True, text=True, check=False,
         )
@@ -65,3 +70,11 @@ class TestDevelopmentEnvironment(unittest.TestCase):
         result = self._run_setup(pip_status=7)
         self.assertNotEqual(result.returncode, 0)
         self.assertNotIn('ACTIVE=', result.stdout)
+
+    def test_activation_succeeds_with_nix_command_hashing_disabled(self):
+        self._activate_from(self.bin_directory.parent)
+        result = self._run_setup(hashing_enabled=False)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn(f'ACTIVE={self.bin_directory.parent}', result.stdout)
+        flags = next(line for line in result.stdout.splitlines() if line.startswith('FLAGS='))
+        self.assertNotIn('h', flags.removeprefix('FLAGS='))

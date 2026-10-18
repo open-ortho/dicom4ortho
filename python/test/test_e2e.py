@@ -11,11 +11,14 @@ import os
 import warnings
 from pathlib import Path
 
-from test.test_photography import make_photo_metadata
+from PIL import Image
 from pydicom import dcmread
+
 from dicom4ortho.__main__ import setup_logging
 from dicom4ortho.controller import OrthodonticController
 from dicom4ortho import logger
+from test.test_photography import make_photo_metadata
+
 warnings.simplefilter('error', UserWarning)
 
 
@@ -32,9 +35,16 @@ ssl_certificate = None
 ssl_verify = False
 
 
+def _pixel_values(image: Image.Image):
+    """Avoid deprecated pixel access while keeping support for older Pillow."""
+    if hasattr(image, 'get_flattened_data'):
+        return image.get_flattened_data()
+    return image.getdata()
+
+
 def compare_jpeg2dicom(jpeg_image_file_path, dicom_image_file_path):
     def extract_jpeg_from_dicom(dicom_path):
-        ds = pydicom.dcmread(dicom_path)
+        ds = dcmread(dicom_path)
         if 'PixelData' in ds:
             # Ensure we're handling JPEG compressed data
             transfer_syntax = ds.file_meta.TransferSyntaxUID
@@ -93,20 +103,18 @@ def compare_jpeg2dicom(jpeg_image_file_path, dicom_image_file_path):
 
     # This function should implement the pixel by pixel comparison.
     # Example placeholder logic:
-    from PIL import Image
-    import pydicom
-
     # Load JPEG image
-    jpeg_img = Image.open(jpeg_image_file_path).convert('RGB')
-    jpeg_pixels = jpeg_img.getdata()
+    with Image.open(jpeg_image_file_path) as source:
+        jpeg_img = source.convert('RGB')
+    jpeg_pixels = _pixel_values(jpeg_img)
 
     # Extract and load JPEG data from DICOM
     jpeg_bytes_from_dicom = extract_jpeg_from_dicom(dicom_image_file_path)
     logger.info(
         "\nExtracted %d bytes of JPEG data from DICOM.", len(jpeg_bytes_from_dicom))
-    dicom_jpeg_img = Image.open(io.BytesIO(
-        jpeg_bytes_from_dicom)).convert('RGB')
-    dicom_pixels = dicom_jpeg_img.getdata()
+    with Image.open(io.BytesIO(jpeg_bytes_from_dicom)) as source:
+        dicom_jpeg_img = source.convert('RGB')
+    dicom_pixels = _pixel_values(dicom_jpeg_img)
 
     # Compare each pixel
     if len(jpeg_pixels) != len(dicom_pixels):

@@ -37,6 +37,7 @@
   - [Prerequisites](#prerequisites)
   - [Installation](#installation)
   - [Validation with dicom3tools](#validation-with-dicom3tools)
+- [Repository layout](#repository-layout)
 - [Usage](#usage)
 - [Known Issues](#known-issues)
 - [Roadmap](#roadmap)
@@ -186,24 +187,27 @@ To run all tests in the project:
 
 To run tests with coverage report:
 
-    $ pytest --cov=dicom4ortho tests/
+    $ pytest --cov=dicom4ortho python/test/
 
 To run a specific test file:
 
-    $ pytest test/test_cli.py
+    $ pytest python/test/test_cli.py
 
-All tests are located in the `test/` directory and can be executed after installing the development dependencies.
+Python tests are located in `python/test/`. For explicit unittest discovery from
+the repository root, run:
+
+    $ PYTHONPATH=python python -m unittest discover -s python/test -t python
 
 #### Docker for Integration Tests
 
 Some tests require Docker to run integration tests with an Orthanc DICOM server.
-A docker-compose file is provided in the `test/` directory.
+A docker-compose file is provided in the `python/test/` directory.
 
 If you're not using the Makefile, you can manually manage the Docker containers:
 
-    $ docker compose -f ./test/docker-compose.yml up -d
+    $ docker compose -f ./python/test/docker-compose.yml up -d
     $ # Run your tests...
-    $ docker compose -f ./test/docker-compose.yml down
+    $ docker compose -f ./python/test/docker-compose.yml down
 
 Make sure Docker is installed and running before executing integration tests.
 
@@ -251,6 +255,17 @@ of the dicom3tools.
 
 <!-- USAGE EXAMPLES -->
 
+## Repository layout
+
+The Python implementation, tests, and examples live under [`python/`](python/).
+Root `pyproject.toml`, Make targets, and release tooling remain the entry points:
+`pip install -e ".[dev]"`, `python -m build`, and `make build` still run from the
+repository root and produce the existing package artifacts in `dist/`.
+
+This is a layout refactor only: no new functionality or shared executable core.
+Future language implementations will have independent runtime code and builds.
+See [the repository layout and implementation boundaries](docs/REPOSITORY_LAYOUT.md).
+
 ## Usage
 
 The official documentation of this project is available on line
@@ -264,7 +279,7 @@ software.
 
 The easiest way to feed this information to `dicom4ortho`'s CLI is using a
 CSV file. You can find an executable example CSV file
-[here](examples/input_from.csv).
+[here](python/examples/input_from.csv).
 
 Once installed, if necessary, start the virtual environment:
 
@@ -359,7 +374,7 @@ Project Link: [https://github.com/open-ortho/dicom4ortho](https://github.com/ope
 [linkedin-shield]: https://img.shields.io/badge/-LinkedIn-black.svg?style=for-the-badge&logo=linkedin&colorB=555
 [linkedin-url]: https://linkedin.com/in/open-ortho
 [product-screenshot]: images/screenshot.png
-[example-csv-url]: examples/input_from.csv
+[example-csv-url]: python/examples/input_from.csv
 [treatment-progress-docs]: https://open-ortho.github.io/dicom4ortho/usage.html#orthodontic-treatment-progress
 [dicom-overview]: https://www.dicomstandard.org/about
 [ada-standards-program]: https://www.ada.org/resources/practice/dental-standards/ada-standards-program-overview

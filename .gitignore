@@ -5,6 +5,7 @@ build
 *.pyc
 *.egg-info
 *.dcm
+!python/test/resources/test.dcm
 modules/dicom3tools
 docs/.buildinfo
 .test*
@@ -13,6 +14,7 @@ docs/.buildinfo
 .DS_Store
 venv
 .venv
+/.venv.old-*
 Pipfile.lock
 Pipfile
 poetry.lock

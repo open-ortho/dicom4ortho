@@ -6,7 +6,10 @@
 4. `make clean`
 5. `git merge master`: merge master into here, and fix merge errors.
 6. Update release notes in `gh-pages` with major changes of this release. You might want to compare this release branch against master to see logs.
-7. Check that README.md is still current.
+7. Check that README.md and python/README.md are still current. Packaging,
+   version bumping, Make targets, and the commands below run from the repository
+   root; Python sources are under `python/`. `.bumpversion.cfg` updates
+   `python/dicom4ortho/config.py` as well as root package metadata and README.
 8. Rebuild the Python environment from scratch to verify no dependency errors:
    - **Nix users:** `nix develop` — the shell hook creates/updates `.venv` and installs `dicom4ortho[dev]` automatically. `dciodvfy` is also provided by the flake; skip step 9.
    - **Non-nix users:** delete and recreate the venv:

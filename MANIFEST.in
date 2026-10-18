@@ -1,0 +1,8 @@
+include Makefile .pylintrc .bumpversion.cfg
+recursive-include tools *.py *.sh
+recursive-include python/test *.py *.yml *.json
+recursive-include python/test/resources *.rdf *.JPG *.j2k
+include python/test/resources/test.dcm
+recursive-include python/examples *.py *.md *.csv *.png
+include python/README.md
+include docs/REPOSITORY_LAYOUT.md

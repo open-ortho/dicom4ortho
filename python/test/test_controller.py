@@ -25,13 +25,14 @@ from test.sample_data_generator import make_sample_MWL
 from pynetdicom.sop_class import VLPhotographicImageStorage # 
 
 SCP_PORT = 7795
+RESOURCE_PATH = Path(__file__).resolve().parent / 'resources'
 
 
 class TestMWLConversion(unittest.TestCase):
     """Unit tests for constructing photographs from worklist metadata."""
 
     def test_convert_image_plus_mwl_returns_photo_with_valid_mwl_tags(self):
-        image_bytes = Path('test/resources/sample_NikonD90.JPG').read_bytes()
+        image_bytes = (RESOURCE_PATH / 'sample_NikonD90.JPG').read_bytes()
         mwl = make_sample_MWL(
             modality='VL', startdate='20241209', starttime='090000')
         controller = OrthodonticController()
@@ -99,8 +100,8 @@ class TestDIMSESend(unittest.TestCase):
         # Prepare a temp DICOM file
         controller = OrthodonticController()
         metadata = {
-            'input_image_filename': 'test/resources/sample_NikonD90.JPG',
-            'output_image_filename': 'test/resources/sample_NikonD90.dcm',
+            'input_image_filename': RESOURCE_PATH / 'sample_NikonD90.JPG',
+            'output_image_filename': RESOURCE_PATH / 'sample_NikonD90.dcm',
             'image_type': 'EV01',
             'patient_firstname': 'Test',
             'patient_lastname': 'Patient',
@@ -154,8 +155,8 @@ class TestDIMSESend(unittest.TestCase):
         controller = OrthodonticController()
         # Create two OrthodonticPhotograph objects with different codes
         meta1 = {
-            'input_image_filename': 'test/resources/sample_NikonD90.JPG',
-            'output_image_filename': 'test/resources/sample_NikonD90_1.dcm',
+            'input_image_filename': RESOURCE_PATH / 'sample_NikonD90.JPG',
+            'output_image_filename': RESOURCE_PATH / 'sample_NikonD90_1.dcm',
             'image_type': 'EV01',
             'patient_firstname': 'Test',
             'patient_lastname': 'Patient',
@@ -163,8 +164,8 @@ class TestDIMSESend(unittest.TestCase):
             'patient_sex': 'M',
         }
         meta2 = {
-            'input_image_filename': 'test/resources/sample_NikonD90.JPG',
-            'output_image_filename': 'test/resources/sample_NikonD90_2.dcm',
+            'input_image_filename': RESOURCE_PATH / 'sample_NikonD90.JPG',
+            'output_image_filename': RESOURCE_PATH / 'sample_NikonD90_2.dcm',
             'image_type': 'EV02',
             'patient_firstname': 'Test2',
             'patient_lastname': 'Patient2',
@@ -241,8 +242,8 @@ class TestDIMSESend(unittest.TestCase):
         controller = OrthodonticController()
         # Create two OrthodonticPhotograph objects with different codes
         meta1 = {
-            'input_image_filename': 'test/resources/sample_NikonD90.JPG',
-            'output_image_filename': 'test/resources/sample_NikonD90_1.dcm',
+            'input_image_filename': RESOURCE_PATH / 'sample_NikonD90.JPG',
+            'output_image_filename': RESOURCE_PATH / 'sample_NikonD90_1.dcm',
             'image_type': 'EV01',
             'patient_firstname': 'Test',
             'patient_lastname': 'Patient',
@@ -250,8 +251,8 @@ class TestDIMSESend(unittest.TestCase):
             'patient_sex': 'M',
         }
         meta2 = {
-            'input_image_filename': 'test/resources/sample_NikonD90.JPG',
-            'output_image_filename': 'test/resources/sample_NikonD90_2.dcm',
+            'input_image_filename': RESOURCE_PATH / 'sample_NikonD90.JPG',
+            'output_image_filename': RESOURCE_PATH / 'sample_NikonD90_2.dcm',
             'image_type': 'EV02',
             'patient_firstname': 'Test2',
             'patient_lastname': 'Patient2',

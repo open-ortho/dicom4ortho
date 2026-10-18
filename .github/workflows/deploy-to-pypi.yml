@@ -4,6 +4,13 @@ on:
   push:
     branches:
       - master
+    paths:
+      - 'python/**'
+      - 'pyproject.toml'
+      - 'MANIFEST.in'
+      - 'README.md'
+      - 'LICENSE'
+      - '.github/workflows/deploy-to-pypi.yml'
 
 jobs:
   deploy:
@@ -32,4 +39,3 @@ jobs:
         TWINE_USERNAME: __token__
         TWINE_PASSWORD: ${{ secrets.PYPI_API_TOKEN }}
       run: twine upload dist/*
-

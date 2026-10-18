@@ -22,7 +22,7 @@ logger = logging.getLogger(__name__)
 # the codestream instead of re-encoding it. It holds a bare codestream and no JP2
 # boxes, so it is stored under the extension that matches its bytes;
 # test_sample_is_a_codestream_not_a_container pins that.
-LOSSY_SAMPLE = Path('./test/resources/sample_lossy_jpeg2000.j2k')
+LOSSY_SAMPLE = Path(__file__).resolve().parent / 'resources' / 'sample_lossy_jpeg2000.j2k'
 
 # The 12-byte JP2 signature box, ISO/IEC 15444-1 Annex I.5.1.
 JP2_SIGNATURE = b'\x00\x00\x00\x0c\x6a\x50\x20\x20\x0d\x0a\x87\x0a'

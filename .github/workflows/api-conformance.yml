@@ -1,0 +1,35 @@
+name: API structural prototype
+
+permissions:
+  contents: read
+
+on:
+  pull_request:
+  push:
+    branches: [develop]
+
+jobs:
+  python-pilot:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: tools/api/package-lock.json
+      - name: Install development-only check tools and qualified Python baseline
+        run: |
+          python -m pip install -e '.[dev]' 'pydicom>=2.4,<3' -r tools/api/requirements.txt
+          npm ci --prefix tools/api --ignore-scripts
+      - name: Check selected declarations and positive/negative fixtures
+        run: |
+          make api-check-pilot PYTHON=python
+          make api-test PYTHON=python
+      - name: Test Python compatibility and lint
+        run: |
+          PYTHONPATH=python python -m unittest test.test_api_compatibility test.test_models
+          make lint PYTHON=python

@@ -77,6 +77,13 @@ update_codes: ## Fetch authoritative terminology and regenerate _generated_codes
 check_codes: ## Regenerate terminology in memory and fail when the lock has drifted
 	$(PYTHON) tools/generate_codes.py --check
 
+.PHONY: api-check-pilot api-test
+api-check-pilot: ## Check the explicitly selected Python API subset (not full conformance)
+	$(PYTHON) tools/api/check_python.py
+
+api-test: ## Test IDL generation and positive/negative structural checks
+	$(PYTHON) -m unittest discover -s tools/api -p 'test_*.py'
+
 .PHONY: deploy
 deploy: ## Upload distribution to PyPI (requires ~/.pypirc token)
 	echo "Deplyoing to PyPi."

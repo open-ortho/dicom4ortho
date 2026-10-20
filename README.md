@@ -266,6 +266,10 @@ This is a layout refactor only: no new functionality or shared executable core.
 Future language implementations will have independent runtime code and builds.
 See [the repository layout and implementation boundaries](docs/REPOSITORY_LAYOUT.md).
 
+The [draft functional requirements](docs/API_CONTRACT.md) and
+[native API/structural-conformance prototype](docs/API_DEFINITION.md) describe the
+shared contract for independent language implementations, preserving Python compatibility.
+
 ## Usage
 
 The official documentation of this project is available on line

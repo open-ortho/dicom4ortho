@@ -65,7 +65,7 @@ class OrthodonticPhotograph(PhotographBase):
         return self.get_image_type_code_dataset(self._ds)
 
     @image_type_code_dataset.setter
-    def image_type_code_dataset(self, code_dataset: Dataset):
+    def image_type_code_dataset(self, code_dataset: Optional[Dataset]) -> None:
         """
         The code Dataset that defines this image type.
         """
@@ -190,7 +190,9 @@ class OrthodonticPhotograph(PhotographBase):
         return None
 
     @staticmethod
-    def set_image_type_code_dataset(ds: Dataset, code_dataset: Dataset, creator_uid: str = None) -> None:
+    def set_image_type_code_dataset(
+        ds: Dataset, code_dataset: Optional[Dataset], creator_uid: Optional[str] = None
+    ) -> None:
         """
         Set the code that defines this image type.
 
@@ -240,7 +242,7 @@ class OrthodonticPhotograph(PhotographBase):
             view_seq.append(code_dataset)
         ds.ViewCodeSequence = view_seq
 
-    def set_dicom_attributes_by_type_keyword(self, type_keyword=None):
+    def set_dicom_attributes_by_type_keyword(self, type_keyword: Optional[str] = None) -> None:
         """Automatically set all DICOM tags based on the image type keyword."""
         if type_keyword:
             # Allow for both dash-separated and non-separated naming

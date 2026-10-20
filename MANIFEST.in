@@ -6,3 +6,8 @@ include python/test/resources/test.dcm
 recursive-include python/examples *.py *.md *.csv *.png
 include python/README.md
 include docs/REPOSITORY_LAYOUT.md
+include docs/API_CONTRACT.md docs/API_DEFINITION.md
+include python/docs/API_STRUCTURE.md python/api-bindings.json
+recursive-include api *.webidl
+include tools/api/generate.mjs tools/api/package.json tools/api/package-lock.json
+include tools/api/requirements.txt

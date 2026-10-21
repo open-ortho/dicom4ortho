@@ -1,8 +1,7 @@
-include Makefile .pylintrc .bumpversion.cfg
-recursive-include tools *.py *.sh
-recursive-include python/test *.py *.yml *.json
-recursive-include python/test/resources *.rdf *.JPG *.j2k
-include python/test/resources/test.dcm
-recursive-include python/examples *.py *.md *.csv *.png
-include python/README.md
-include docs/REPOSITORY_LAYOUT.md
+# pyproject.toml selects build metadata, package code and runtime resources.
+# Also remove checkout-only files retained in a cached egg-info/SOURCES.txt.
+exclude Makefile .pylintrc .bumpversion.cfg python/README.md
+prune docs
+prune tools
+prune python/test
+prune python/examples

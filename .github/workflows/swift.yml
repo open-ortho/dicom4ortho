@@ -1,0 +1,37 @@
+# Swift checks are independent of the existing Python packaging and publication jobs.
+name: Swift materialization
+on:
+  pull_request:
+    paths: ['Package.swift', 'Package.resolved', 'apple/**', '.github/workflows/swift.yml']
+  push:
+    branches: [develop, 'zgypa-agent/82-swift-*']
+    paths: ['Package.swift', 'Package.resolved', 'apple/**', '.github/workflows/swift.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  macos:
+    runs-on: macos-15
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: swift-actions/setup-swift@v2
+        with:
+          swift-version: '6.4.1'
+      - name: Record build environment
+        run: |
+          swift --version
+          xcodebuild -version
+      - name: Test public API and clinical behavior
+        env:
+          DICOM4ORTHO_TEST_ARTIFACTS: ${{ runner.temp }}/dicom4ortho-artifacts
+        run: swift test --jobs 4
+      - name: Cross-build iOS device library
+        run: swift build --target DICOM4Ortho --triple arm64-apple-ios18.0 --sdk "$(xcrun --sdk iphoneos --show-sdk-path)" --scratch-path .build-ios-device --jobs 4
+      - name: Cross-build iOS simulator library (not test execution)
+        run: swift build --target DICOM4Ortho --triple arm64-apple-ios18.0-simulator --sdk "$(xcrun --sdk iphonesimulator --show-sdk-path)" --scratch-path .build-ios-simulator --jobs 4
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: synthetic-dicom-fixtures
+          path: ${{ runner.temp }}/dicom4ortho-artifacts

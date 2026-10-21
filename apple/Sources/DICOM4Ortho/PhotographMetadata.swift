@@ -61,6 +61,6 @@ public struct PhotographMetadata: Sendable {
     /// it does not change imageType, acquisition time, provider, operator, or SOP UID.
     /// No worklist server is contacted. Set subsequent explicit corrections afterward.
     public func applyingWorklist(_ worklist: DataSet, scheduledStepIndex: Int) throws -> Self {
-        throw MaterializationError.notImplemented("applyingWorklist")
+        try WorklistMapping.apply(worklist, stepIndex: scheduledStepIndex, to: self)
     }
 }

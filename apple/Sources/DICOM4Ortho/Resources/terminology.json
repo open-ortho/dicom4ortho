@@ -1,0 +1,4489 @@
+{
+  "codes": {
+    "DentalOcclusion": {
+      "meaning": "Dental occlusion",
+      "scheme": "SCT",
+      "value": "25272006"
+    },
+    "FaceStructure": {
+      "meaning": "Face",
+      "scheme": "SCT",
+      "value": "89545001"
+    },
+    "FindingByInspection": {
+      "meaning": "Finding by inspection",
+      "scheme": "SCT",
+      "value": "118243007"
+    },
+    "HeadNeck": {
+      "meaning": "Head and Neck",
+      "scheme": "SCT",
+      "value": "774007"
+    },
+    "LateralityBoth": {
+      "meaning": "Both",
+      "scheme": "CS",
+      "value": "B"
+    },
+    "LateralityLeft": {
+      "meaning": "Left",
+      "scheme": "CS",
+      "value": "L"
+    },
+    "LateralityRight": {
+      "meaning": "Right",
+      "scheme": "CS",
+      "value": "R"
+    },
+    "LateralityUnpaired": {
+      "meaning": "Unpaired",
+      "scheme": "CS",
+      "value": "U"
+    },
+    "Mouth": {
+      "meaning": "Mouth",
+      "scheme": "SCT",
+      "value": "123851003"
+    },
+    "ObservableEntity": {
+      "meaning": "Observable entity",
+      "scheme": "SCT",
+      "value": "363787002"
+    },
+    "OffsetFromEvent": {
+      "meaning": "Longitudinal Temporal Offset from Event",
+      "scheme": "DCM",
+      "value": "128740"
+    },
+    "OralCavityStructure": {
+      "meaning": "oral cavity",
+      "scheme": "SCT",
+      "value": "74262004"
+    },
+    "OrientationBack": {
+      "meaning": "Right, Foot",
+      "scheme": "CS",
+      "value": "R^F"
+    },
+    "OrientationFront": {
+      "meaning": "Left, Foot",
+      "scheme": "CS",
+      "value": "L^F"
+    },
+    "OrientationLeft": {
+      "meaning": "Posterior, Foot",
+      "scheme": "CS",
+      "value": "P^F"
+    },
+    "OrientationProneFeetToHead": {
+      "meaning": "Right, Anterior",
+      "scheme": "CS",
+      "value": "R^A"
+    },
+    "OrientationProneHeadToFeet": {
+      "meaning": "Left, Anterior",
+      "scheme": "CS",
+      "value": "L^A"
+    },
+    "OrientationRight": {
+      "meaning": "Anterior, Foot",
+      "scheme": "CS",
+      "value": "A^F"
+    },
+    "OrientationSupineFeetToHead": {
+      "meaning": "Left, Posterior",
+      "scheme": "CS",
+      "value": "L^P"
+    },
+    "OrientationSupineHeadToFeet": {
+      "meaning": "Right, Posterior",
+      "scheme": "CS",
+      "value": "R^P"
+    },
+    "OrthodonticTreatmentStarted": {
+      "meaning": "Orthodontic Treatment started",
+      "scheme": "SCT",
+      "value": "1332161000"
+    },
+    "OrthodonticTreatmentStopped": {
+      "meaning": "Orthodontic Treatment stopped",
+      "scheme": "SCT",
+      "value": "1340210007"
+    },
+    "OrthognathicFunctionalConditions": {
+      "meaning": "Orthognathic Functional Condition",
+      "scheme": "DCM",
+      "value": "130325"
+    },
+    "PatientRegistration": {
+      "meaning": "Patient registration",
+      "scheme": "SCT",
+      "value": "184047000"
+    },
+    "StructureOfBuccalSpace": {
+      "meaning": "Buccal space",
+      "scheme": "SCT",
+      "value": "261063000"
+    },
+    "TemporalEventType": {
+      "meaning": "Longitudinal Temporal Event Type",
+      "scheme": "DCM",
+      "value": "128741"
+    },
+    "cant": {
+      "meaning": "Cant of occlusal plane",
+      "scheme": "SCT",
+      "value": "710793000"
+    },
+    "closeup": {
+      "meaning": "Close up photographic view of teeth without magnification",
+      "scheme": "SCT",
+      "value": "789131009"
+    },
+    "co": {
+      "meaning": "Centric occlusion",
+      "scheme": "SCT",
+      "value": "110320000"
+    },
+    "cr": {
+      "meaning": "Centric relation",
+      "scheme": "SCT",
+      "value": "736783005"
+    },
+    "day": {
+      "meaning": "days",
+      "scheme": "UCUM",
+      "value": "d"
+    },
+    "dental_arch_mandibular": {
+      "meaning": "Mandibular dental arch",
+      "scheme": "SCT",
+      "value": "88176008"
+    },
+    "dental_arch_maxillary": {
+      "meaning": "Maxillary dental arch",
+      "scheme": "SCT",
+      "value": "39481002"
+    },
+    "device_contraster": {
+      "meaning": "Dental photography black contraster",
+      "scheme": "SCT",
+      "value": "1332163002"
+    },
+    "device_fiducial_marker": {
+      "meaning": "Photographic image fiducial marker",
+      "scheme": "SCT",
+      "value": "1332164008"
+    },
+    "device_mirror": {
+      "meaning": "Intraoral photography mirror",
+      "scheme": "SCT",
+      "value": "1332162007"
+    },
+    "device_periodontal_probe": {
+      "meaning": "Periodontal probe",
+      "scheme": "SCT",
+      "value": "462735007"
+    },
+    "device_retractor": {
+      "meaning": "Retractor",
+      "scheme": "SCT",
+      "value": "53535004"
+    },
+    "device_ruler": {
+      "meaning": "Measuring Ruler",
+      "scheme": "SCT",
+      "value": "102304005"
+    },
+    "device_tongue_depressor": {
+      "meaning": "Tongue blade",
+      "scheme": "SCT",
+      "value": "39802000"
+    },
+    "frenum": {
+      "meaning": "Frenulum labii",
+      "scheme": "SCT",
+      "value": "7652006"
+    },
+    "gingival_recession": {
+      "meaning": "Gingival recession",
+      "scheme": "SCT",
+      "value": "4356008"
+    },
+    "image_anterior_teeth": {
+      "meaning": "Photo image of anterior teeth",
+      "scheme": "SCT",
+      "value": "789313002"
+    },
+    "image_extraoral_45deg": {
+      "meaning": "Photo image extraoral with 45 degree view",
+      "scheme": "SCT",
+      "value": "787612006"
+    },
+    "image_extraoral_mpf": {
+      "meaning": "Photo image extraoral with mandible postured forward",
+      "scheme": "SCT",
+      "value": "787611004"
+    },
+    "image_face_lips_relaxed": {
+      "meaning": "Photo image of face with lips in relaxed position",
+      "scheme": "SCT",
+      "value": "789314008"
+    },
+    "image_lips_closed": {
+      "meaning": "Photo image with lips closed",
+      "scheme": "SCT",
+      "value": "787607005"
+    },
+    "image_mirrored_corrected": {
+      "meaning": "Mirrored photo image intraoral corrected",
+      "scheme": "SCT",
+      "value": "787610003"
+    },
+    "image_mirrored_corrected_flipped_horizontally": {
+      "meaning": "Mirrored photo image of teeth corrected flipped horizontally",
+      "scheme": "SCT",
+      "value": "789310004"
+    },
+    "image_mirrored_corrected_flipped_horizontally_vertically": {
+      "meaning": "Mirrored photo image of teeth corrected rotated 180 deg",
+      "scheme": "SCT",
+      "value": "789312007"
+    },
+    "image_mirrored_corrected_flipped_vertically": {
+      "meaning": "Mirrored photo image of teeth corrected flipped vertically",
+      "scheme": "SCT",
+      "value": "789311000"
+    },
+    "image_mirrored_uncorrected": {
+      "meaning": "Mirrored image uncorrected",
+      "scheme": "SCT",
+      "value": "789135000"
+    },
+    "image_mirrored_uncorrected_flipped_horizontally": {
+      "meaning": "Mirrored image uncorrected flipped horizontally",
+      "scheme": "SCT",
+      "value": "789134001"
+    },
+    "image_mirrored_uncorrected_flipped_horizontally_vertically": {
+      "meaning": "Mirrored image uncorrected flipped horizontally and vertically",
+      "scheme": "SCT",
+      "value": "789132002"
+    },
+    "image_mirrored_uncorrected_flipped_vertically": {
+      "meaning": "Mirrored image uncorrected flipped vertically",
+      "scheme": "SCT",
+      "value": "789133007"
+    },
+    "image_mouth_partially_open_teeth_apart": {
+      "meaning": "Photo image with mouth partially opened and teeth apart",
+      "scheme": "SCT",
+      "value": "789130005"
+    },
+    "left": {
+      "meaning": "Left",
+      "scheme": "SCT",
+      "value": "7771000"
+    },
+    "lips_closed": {
+      "meaning": "Upper and lower lips in closed position",
+      "scheme": "SCT",
+      "value": "1336029003"
+    },
+    "lips_relaxed": {
+      "meaning": "Upper and lower lips in relaxed position",
+      "scheme": "SCT",
+      "value": "1336028006"
+    },
+    "mouth_open": {
+      "meaning": "Open mouth",
+      "scheme": "SCT",
+      "value": "262016004"
+    },
+    "mouth_partially_open": {
+      "meaning": "Mouth in partially open position",
+      "scheme": "SCT",
+      "value": "1332210001"
+    },
+    "mpf": {
+      "meaning": "Mandible postured forwards",
+      "scheme": "SCT",
+      "value": "1336026005"
+    },
+    "palsy": {
+      "meaning": "Bell's palsy",
+      "scheme": "SCT",
+      "value": "193093009"
+    },
+    "pigmentation_mucosa_left": {
+      "meaning": "Tattoo of left buccal mucosa",
+      "scheme": "SCT",
+      "value": "1264188003"
+    },
+    "pigmentation_mucosa_lip_lower": {
+      "meaning": "Tattoo of labial mucosa of lower lip",
+      "scheme": "SCT",
+      "value": "1260047008"
+    },
+    "pigmentation_mucosa_lip_upper": {
+      "meaning": "Tattoo of labial mucosa of upper lip",
+      "scheme": "SCT",
+      "value": "1260049006"
+    },
+    "pigmentation_mucosa_right": {
+      "meaning": "Tattoo of right buccal mucosa",
+      "scheme": "SCT",
+      "value": "1264193000"
+    },
+    "pigmentation_mucosa_soft_palate": {
+      "meaning": "Tattoo of mucosa of soft palate",
+      "scheme": "SCT",
+      "value": "1260043007"
+    },
+    "projection_45deg": {
+      "meaning": "45 degree projection",
+      "scheme": "SCT",
+      "value": "260454004"
+    },
+    "projection_frontal": {
+      "meaning": "frontal",
+      "scheme": "SCT",
+      "value": "399033003"
+    },
+    "projection_left": {
+      "meaning": "left lateral",
+      "scheme": "SCT",
+      "value": "399173006"
+    },
+    "projection_left_oblique": {
+      "meaning": "left lateral oblique",
+      "scheme": "SCT",
+      "value": "260421001"
+    },
+    "projection_oblique": {
+      "meaning": "oblique",
+      "scheme": "SCT",
+      "value": "399182000"
+    },
+    "projection_occlusal": {
+      "meaning": "Occlusal projection",
+      "scheme": "SCT",
+      "value": "260499007"
+    },
+    "projection_right": {
+      "meaning": "right lateral",
+      "scheme": "SCT",
+      "value": "399198007"
+    },
+    "projection_right_oblique": {
+      "meaning": "right lateral oblique",
+      "scheme": "SCT",
+      "value": "260424009"
+    },
+    "projection_submentovertical": {
+      "meaning": "submentovertical",
+      "scheme": "SCT",
+      "value": "399255003"
+    },
+    "projection_vertex": {
+      "meaning": "vertex",
+      "scheme": "SCT",
+      "value": "260461000"
+    },
+    "right": {
+      "meaning": "Right",
+      "scheme": "SCT",
+      "value": "24028007"
+    },
+    "skin_mark": {
+      "meaning": "Skin mark",
+      "scheme": "SCT",
+      "value": "276470008"
+    },
+    "smile": {
+      "meaning": "Smiles",
+      "scheme": "SCT",
+      "value": "225583004"
+    },
+    "tattoo": {
+      "meaning": "Tattoo of skin",
+      "scheme": "SCT",
+      "value": "341000119102"
+    },
+    "tongue_thrust": {
+      "meaning": "Tongue thrust",
+      "scheme": "SCT",
+      "value": "110343009"
+    }
+  },
+  "image_types": {
+    "EV01": {
+      "abbreviation": "EO.RP.LR.CO",
+      "code": {
+        "meaning": "Extraoral photo,right profile,lips relaxed,centric occlusion",
+        "scheme": "99ADA1100",
+        "value": "EV01"
+      },
+      "keyword": "EV01",
+      "meaning": "Extraoral, Right Profile (Subject is facing observer's right), Lips Relaxed, Centric Occlusion"
+    },
+    "EV02": {
+      "abbreviation": "EO.RP.LR.CR",
+      "code": {
+        "meaning": "Extraoral photo,right profile,lips relaxed,centric relation",
+        "scheme": "99ADA1100",
+        "value": "EV02"
+      },
+      "keyword": "EV02",
+      "meaning": "Extraoral, Right Profile (Subject is facing observe right), Lips Relaxed, Centric Relation"
+    },
+    "EV03": {
+      "abbreviation": "EO.RP.LC.CO",
+      "code": {
+        "meaning": "Extraoral photo,right profile,lips closed,centric occlusion",
+        "scheme": "99ADA1100",
+        "value": "EV03"
+      },
+      "keyword": "EV03",
+      "meaning": "Extraoral, Right Profile (Subject is facing observer's right), Lips Closed, Centric Occlusion"
+    },
+    "EV04": {
+      "abbreviation": "EO.RP.LC.CR",
+      "code": {
+        "meaning": "Extraoral photo,right profile,lips closed,centric relation",
+        "scheme": "99ADA1100",
+        "value": "EV04"
+      },
+      "keyword": "EV04",
+      "meaning": "Extraoral, Right Profile (Patient is facing observer's right), Lips Closed, Centric Relation"
+    },
+    "EV05": {
+      "abbreviation": "EO.RP.FS.CO",
+      "code": {
+        "meaning": "Extraoral photo,right profile,full smile,centric occlusion",
+        "scheme": "99ADA1100",
+        "value": "EV05"
+      },
+      "keyword": "EV05",
+      "meaning": "Extraoral, Right profile (Patient is facing observer's right), Full Smile, Centric Occlusion"
+    },
+    "EV06": {
+      "abbreviation": "EO.RP.FS.CR",
+      "code": {
+        "meaning": "Extraoral photo,right profile,full smile,centric relation",
+        "scheme": "99ADA1100",
+        "value": "EV06"
+      },
+      "keyword": "EV06",
+      "meaning": "Extraoral, Right Profile (Patient is facing observer's right), Full Smile, Centric Relation"
+    },
+    "EV07": {
+      "abbreviation": "EO.RP.MD.PF",
+      "code": {
+        "meaning": "Extraoral photo,right profile,mandible postured forward",
+        "scheme": "99ADA1100",
+        "value": "EV07"
+      },
+      "keyword": "EV07",
+      "meaning": "Extraoral, Right Profile (Patient is facing observer's right), Mandible Postured Forward"
+    },
+    "EV08": {
+      "abbreviation": "EO.RP.LR.CO.45",
+      "code": {
+        "meaning": "Extraoral photo,right profile 45,lips relaxed,centric occlusion",
+        "scheme": "99ADA1100",
+        "value": "EV08"
+      },
+      "keyword": "EV08",
+      "meaning": "Extraoral, 45° Right Profile (Patient turns toward observer's right), Lips Relaxed, Centric Occlusion"
+    },
+    "EV09": {
+      "abbreviation": "EO.RP.LR.CR.45",
+      "code": {
+        "meaning": "Extraoral photo,right profile 45,lips relaxed,centric relation",
+        "scheme": "99ADA1100",
+        "value": "EV09"
+      },
+      "keyword": "EV09",
+      "meaning": "Extraoral, 45° Right Profile (Patient turns toward observer's right), Lips Relaxed, Centric Relation"
+    },
+    "EV10": {
+      "abbreviation": "EO.RP.LC.CO.45",
+      "code": {
+        "meaning": "Extraoral photo,right profile 45,lips closed,centric occlusion",
+        "scheme": "99ADA1100",
+        "value": "EV10"
+      },
+      "keyword": "EV10",
+      "meaning": "Extraoral, 45° Right Profile (Patient turns toward observer's right), Lips Closed, Centric Occlusion"
+    },
+    "EV11": {
+      "abbreviation": "EO.RP.LC.CR.45",
+      "code": {
+        "meaning": "Extraoral photo,right profile 45,lips closed,centric relation",
+        "scheme": "99ADA1100",
+        "value": "EV11"
+      },
+      "keyword": "EV11",
+      "meaning": "Extraoral, 45° Right Profile (Patient turns toward observer's right), Lips Closed, Centric Relation"
+    },
+    "EV12": {
+      "abbreviation": "EO.RP.FS.CO.45",
+      "code": {
+        "meaning": "Extraoral photo,right profile 45,full smile,centric occlusion",
+        "scheme": "99ADA1100",
+        "value": "EV12"
+      },
+      "keyword": "EV12",
+      "meaning": "Extraoral, 45° Right Profile (Patient turns toward observer's right), Full Smile, Centric Occlusion"
+    },
+    "EV13": {
+      "abbreviation": "EO.RP.FS.CR.45",
+      "code": {
+        "meaning": "Extraoral photo,right profile 45,full smile,centric relation",
+        "scheme": "99ADA1100",
+        "value": "EV13"
+      },
+      "keyword": "EV13",
+      "meaning": "Extraoral, 45° Right Profile (Patient turns toward observer's right), Full Smile, Centric Relation"
+    },
+    "EV14": {
+      "abbreviation": "EO.RP.MD.PF.45",
+      "code": {
+        "meaning": "Extraoral photo,right profile 45,mandible postured forward",
+        "scheme": "99ADA1100",
+        "value": "EV14"
+      },
+      "keyword": "EV14",
+      "meaning": "Extraoral, 45° Right Profile (Patient turns toward observer's right), Mandible Postured Forward"
+    },
+    "EV15": {
+      "abbreviation": "EO.FF.LR.CO",
+      "code": {
+        "meaning": "Extraoral photo,full face,lips relaxed,centric occlusion",
+        "scheme": "99ADA1100",
+        "value": "EV15"
+      },
+      "keyword": "EV15",
+      "meaning": "Extraoral, Full Face, Lips Relaxed, Centric Occlusion"
+    },
+    "EV16": {
+      "abbreviation": "EO.FF.LR.CR",
+      "code": {
+        "meaning": "Extraoral photo,full face,lips relaxed,centric relation",
+        "scheme": "99ADA1100",
+        "value": "EV16"
+      },
+      "keyword": "EV16",
+      "meaning": "Extraoral, Full Face, Lips Relaxed, Centric Relation"
+    },
+    "EV17": {
+      "abbreviation": "EO.FF.LC.CO",
+      "code": {
+        "meaning": "Extraoral photo,full face,lips closed,centric occlusion",
+        "scheme": "99ADA1100",
+        "value": "EV17"
+      },
+      "keyword": "EV17",
+      "meaning": "Extraoral, Full Face, Lips Closed, Centric Occlusion"
+    },
+    "EV18": {
+      "abbreviation": "EO.FF.LC.CR",
+      "code": {
+        "meaning": "Extraoral photo,full face,lips closed,centric relation",
+        "scheme": "99ADA1100",
+        "value": "EV18"
+      },
+      "keyword": "EV18",
+      "meaning": "Extraoral, Full Face, Lips Closed, Centric Relation"
+    },
+    "EV19": {
+      "abbreviation": "EO.FF.FS.CO",
+      "code": {
+        "meaning": "Extraoral photo,full face,full smile,centric occlusion",
+        "scheme": "99ADA1100",
+        "value": "EV19"
+      },
+      "keyword": "EV19",
+      "meaning": "Extraoral, Full Face, Full Smile, Centric Occlusion"
+    },
+    "EV20": {
+      "abbreviation": "EO.FF.FS.CR",
+      "code": {
+        "meaning": "Extraoral photo,full face,full smile,centric relation",
+        "scheme": "99ADA1100",
+        "value": "EV20"
+      },
+      "keyword": "EV20",
+      "meaning": "Extraoral, Full Face, Full Smile, Centric Relation"
+    },
+    "EV21": {
+      "abbreviation": "EO.FF.MD.PF",
+      "code": {
+        "meaning": "Extraoral photo,full face,mandible postured forward",
+        "scheme": "99ADA1100",
+        "value": "EV21"
+      },
+      "keyword": "EV21",
+      "meaning": "Extraoral, Full Face, Mandible Postured Forward"
+    },
+    "EV22": {
+      "abbreviation": "EO.LP.LR.CO",
+      "code": {
+        "meaning": "Extraoral photo,left profile,lips relaxed,centric occlusion",
+        "scheme": "99ADA1100",
+        "value": "EV22"
+      },
+      "keyword": "EV22",
+      "meaning": "Extraoral, Left Profile (Patient is facing observer's left), Lips Relaxed, Centric Occlusion"
+    },
+    "EV23": {
+      "abbreviation": "EO.LP.LR.CR",
+      "code": {
+        "meaning": "Extraoral photo,left profile,lips relaxed,centric relation",
+        "scheme": "99ADA1100",
+        "value": "EV23"
+      },
+      "keyword": "EV23",
+      "meaning": "Extraoral, Left Profile (Patient is facing observer's left), Lips Relaxed, Centric Relation"
+    },
+    "EV24": {
+      "abbreviation": "EO.LP.LC.CO",
+      "code": {
+        "meaning": "Extraoral photo,left profile,lips closed,centric occlusion",
+        "scheme": "99ADA1100",
+        "value": "EV24"
+      },
+      "keyword": "EV24",
+      "meaning": "Extraoral, Left Profile (Patient is facing observer's left), Lips Closed, Centric Occlusion"
+    },
+    "EV25": {
+      "abbreviation": "EO.LP.LC.CR",
+      "code": {
+        "meaning": "Extraoral photo,left profile,lips closed,centric relation",
+        "scheme": "99ADA1100",
+        "value": "EV25"
+      },
+      "keyword": "EV25",
+      "meaning": "Extraoral, Left Profile (Patient is facing observer's left), Lips Closed, Centric Relation"
+    },
+    "EV26": {
+      "abbreviation": "EO.LP.FS.CO",
+      "code": {
+        "meaning": "Extraoral photo,left profile,full smile,centric occlusion",
+        "scheme": "99ADA1100",
+        "value": "EV26"
+      },
+      "keyword": "EV26",
+      "meaning": "Extraoral, Left profile (Patient is facing observer's left), Full Smile, Centric Occlusion"
+    },
+    "EV27": {
+      "abbreviation": "EO.LP.FS.CR",
+      "code": {
+        "meaning": "Extraoral photo,left profile,full smile,centric relation",
+        "scheme": "99ADA1100",
+        "value": "EV27"
+      },
+      "keyword": "EV27",
+      "meaning": "Extraoral, Left Profile (Patient is facing observer's left), Full Smile, Centric Relation"
+    },
+    "EV28": {
+      "abbreviation": "EO.LP.MD.PF",
+      "code": {
+        "meaning": "Extraoral photo,left profile,mandible postured forward",
+        "scheme": "99ADA1100",
+        "value": "EV28"
+      },
+      "keyword": "EV28",
+      "meaning": "Extraoral, Left Profile (Patient is facing observer's left), Mandible Postured Forward"
+    },
+    "EV29": {
+      "abbreviation": "EO.LP.LR.CO.45",
+      "code": {
+        "meaning": "Extraoral photo,left profile 45,lips relaxed,centric occlusion",
+        "scheme": "99ADA1100",
+        "value": "EV29"
+      },
+      "keyword": "EV29",
+      "meaning": "Extraoral, 45° Left Profile (Patient turns toward observer's left), Lips Relaxed, Centric Occlusion"
+    },
+    "EV30": {
+      "abbreviation": "EO.LP.LR.CR.45",
+      "code": {
+        "meaning": "Extraoral photo,left profile 45,lips relaxed,centric relation",
+        "scheme": "99ADA1100",
+        "value": "EV30"
+      },
+      "keyword": "EV30",
+      "meaning": "Extraoral, 45° Left Profile (Patient turns toward observer's left), Lips Relaxed, Centric Relation"
+    },
+    "EV31": {
+      "abbreviation": "EO.LP.LC.CO.45",
+      "code": {
+        "meaning": "Extraoral photo,left profile 45,lips closed,centric occlusion",
+        "scheme": "99ADA1100",
+        "value": "EV31"
+      },
+      "keyword": "EV31",
+      "meaning": "Extraoral, 45° Left Profile (Patient turns toward observer's left), Lips Closed, Centric Occlusion"
+    },
+    "EV32": {
+      "abbreviation": "EO.LP.LC.CR.45",
+      "code": {
+        "meaning": "Extraoral photo,left profile 45,lips closed,centric relation",
+        "scheme": "99ADA1100",
+        "value": "EV32"
+      },
+      "keyword": "EV32",
+      "meaning": "Extraoral, 45° Left Profile (Patient turns toward observer's left), Lips Closed, Centric Relation"
+    },
+    "EV33": {
+      "abbreviation": "EO.LP.FS.CO.45",
+      "code": {
+        "meaning": "Extraoral photo,left profile 45,full smile,centric occlusion",
+        "scheme": "99ADA1100",
+        "value": "EV33"
+      },
+      "keyword": "EV33",
+      "meaning": "Extraoral, 45° Left Profile (Patient turns toward observer's left), Full Smile, Centric Occlusion"
+    },
+    "EV34": {
+      "abbreviation": "EO.LP.FS.CR.45",
+      "code": {
+        "meaning": "Extraoral photo,left profile 45,full smile,centric relation",
+        "scheme": "99ADA1100",
+        "value": "EV34"
+      },
+      "keyword": "EV34",
+      "meaning": "Extraoral, 45° Left Profile (Patient turns toward observer's left, Full Smile, Centric Relation"
+    },
+    "EV35": {
+      "abbreviation": "EO.LP.MD.PF.45",
+      "code": {
+        "meaning": "Extraoral photo,left profile 45,mandible postured forward",
+        "scheme": "99ADA1100",
+        "value": "EV35"
+      },
+      "keyword": "EV35",
+      "meaning": "Extraoral, 45° Left Profile (Patient turns toward observer's left, Mandible Postured Forward"
+    },
+    "EV36": {
+      "abbreviation": "EO.OF.IV",
+      "code": {
+        "meaning": "Extraoral photo,other face,inferior view",
+        "scheme": "99ADA1100",
+        "value": "EV36"
+      },
+      "keyword": "EV36",
+      "meaning": "Extraoral, Other Face (head tipped back), Inferior View (showing lower border of mandible, nares, infraorbital rim contours, forehead contours)"
+    },
+    "EV37": {
+      "abbreviation": "EO.OF.SV",
+      "code": {
+        "meaning": "Extraoral photo,other face,superior view",
+        "scheme": "99ADA1100",
+        "value": "EV37"
+      },
+      "keyword": "EV37",
+      "meaning": "Extraoral, Other Face (viewed from above), Superior View (showing forehead, infraorbital rim contour, dorsum of nose, upper lip, chin)"
+    },
+    "EV38": {
+      "abbreviation": "EO.OF.CS",
+      "code": {
+        "meaning": "Extraoral photo,other face,close-up smile",
+        "scheme": "99ADA1100",
+        "value": "EV38"
+      },
+      "keyword": "EV38",
+      "meaning": "Extraoral, Other Face, Close-Up Smile (with lips)"
+    },
+    "EV39": {
+      "abbreviation": "EO.OF.OC",
+      "code": {
+        "meaning": "Extraoral photo,other face,occlusal cant",
+        "scheme": "99ADA1100",
+        "value": "EV39"
+      },
+      "keyword": "EV39",
+      "meaning": "Extraoral, Other Face, Occlusal Cant (e.g., tongue depressor between the teeth)"
+    },
+    "EV40": {
+      "abbreviation": "EO.OF.FI",
+      "code": {
+        "meaning": "Extraoral photo,other face,forensic interest",
+        "scheme": "99ADA1100",
+        "value": "EV40"
+      },
+      "keyword": "EV40",
+      "meaning": "Extraoral, Other Face, Forensic Interest (tattoos, jewelry, scars)"
+    },
+    "EV41": {
+      "abbreviation": "EO.OF.AN",
+      "code": {
+        "meaning": "Extraoral photo,other face,anomalies",
+        "scheme": "99ADA1100",
+        "value": "EV41"
+      },
+      "keyword": "EV41",
+      "meaning": "Extraoral, Other Face, Anomalies (ears, skin tags, etc.)"
+    },
+    "EV42": {
+      "abbreviation": "EO.FF.MO",
+      "code": {
+        "meaning": "Extraoral photo,full face,mouth open",
+        "scheme": "99ADA1100",
+        "value": "EV42"
+      },
+      "keyword": "EV42",
+      "meaning": "Extraoral, Full Face, Mouth Open"
+    },
+    "EV43": {
+      "abbreviation": "EO.FF.NW",
+      "code": {
+        "meaning": "Extraoral photo,full face,demonstrating nerve weakness",
+        "scheme": "99ADA1100",
+        "value": "EV43"
+      },
+      "keyword": "EV43",
+      "meaning": "Extraoral, Full Face, demonstrating Nerve Weakness"
+    },
+    "IV01": {
+      "abbreviation": "IO.RB.CO.NM",
+      "code": {
+        "meaning": "Intraoral photo,right buccal,centric occl.,no mirror",
+        "scheme": "99ADA1100",
+        "value": "IV01"
+      },
+      "keyword": "IV01",
+      "meaning": "Intraoral, Right Buccal Segment, Centric Occlusion, No Mirror (Direct View)"
+    },
+    "IV02": {
+      "abbreviation": "IO.RB.CO.WM",
+      "code": {
+        "meaning": "Intraoral photo,right buccal,centric occl.,mirror",
+        "scheme": "99ADA1100",
+        "value": "IV02"
+      },
+      "keyword": "IV02",
+      "meaning": "Intraoral, Right Buccal Segment, Centric Occlusion, With Mirror"
+    },
+    "IV03": {
+      "abbreviation": "IO.RB.CO.WM.BC",
+      "code": {
+        "meaning": "Intraoral photo,right buccal,centric occl.,mirror,corrected",
+        "scheme": "99ADA1100",
+        "value": "IV03"
+      },
+      "keyword": "IV03",
+      "meaning": "Intraoral, Right Buccal Segment, Centric Occlusion, With Mirror, But Corrected"
+    },
+    "IV04": {
+      "abbreviation": "IO.RB.CR.NM",
+      "code": {
+        "meaning": "Intraoral photo,right buccal,centric relation,no mirror",
+        "scheme": "99ADA1100",
+        "value": "IV04"
+      },
+      "keyword": "IV04",
+      "meaning": "Intraoral, Right Buccal Segment, Centric Relation, No Mirror (Direct View)"
+    },
+    "IV05": {
+      "abbreviation": "IO.RB.CR.WM",
+      "code": {
+        "meaning": "Intraoral photo,right buccal,centric relation,mirror",
+        "scheme": "99ADA1100",
+        "value": "IV05"
+      },
+      "keyword": "IV05",
+      "meaning": "Intraoral, Right Buccal Segment, Centric Relation, With Mirror"
+    },
+    "IV06": {
+      "abbreviation": "IO.RB.CR.WM.BC",
+      "code": {
+        "meaning": "Intraoral photo,right buccal,centric relation,mirror,corrected",
+        "scheme": "99ADA1100",
+        "value": "IV06"
+      },
+      "keyword": "IV06",
+      "meaning": "Intraoral, Right Buccal Segment, Centric Relation, With Mirror, But Corrected"
+    },
+    "IV07": {
+      "abbreviation": "IO.FV.CO.NM",
+      "code": {
+        "meaning": "Intraoral photo,frontal,centric occl.,no mirror",
+        "scheme": "99ADA1100",
+        "value": "IV07"
+      },
+      "keyword": "IV07",
+      "meaning": "Intraoral, Frontal View, Centric Occlusion, No Mirror (Direct View)"
+    },
+    "IV08": {
+      "abbreviation": "IO.FV.CR.NM",
+      "code": {
+        "meaning": "Intraoral photo,frontal,centric relation,no mirror",
+        "scheme": "99ADA1100",
+        "value": "IV08"
+      },
+      "keyword": "IV08",
+      "meaning": "Intraoral, Frontal View, Centric Relation, No Mirror (Direct View)"
+    },
+    "IV09": {
+      "abbreviation": "IO.FV.TA.NM",
+      "code": {
+        "meaning": "Intraoral photo,frontal,teeth apart,no mirror",
+        "scheme": "99ADA1100",
+        "value": "IV09"
+      },
+      "keyword": "IV09",
+      "meaning": "Intraoral, Frontal View, Teeth Apart, No Mirror (Direct View)"
+    },
+    "IV10": {
+      "abbreviation": "IO.FV.MO.NM",
+      "code": {
+        "meaning": "Intraoral photo,frontal,mouth open,no mirror",
+        "scheme": "99ADA1100",
+        "value": "IV10"
+      },
+      "keyword": "IV10",
+      "meaning": "Intraoral, Frontal View, Mouth Open, No Mirror (Direct View)"
+    },
+    "IV11": {
+      "abbreviation": "IO.FV.IV.CO.NM",
+      "code": {
+        "meaning": "Intraoral photo,front view inferior,centric occl.,no mirror",
+        "scheme": "99ADA1100",
+        "value": "IV11"
+      },
+      "keyword": "IV11",
+      "meaning": "Intraoral, Frontal View Inferior (showing depth of bite and overjet), Centric Occlusion, No Mirror (Direct View)"
+    },
+    "IV12": {
+      "abbreviation": "IO.FV.IV.CR.NM",
+      "code": {
+        "meaning": "Intraoral photo,front view inferior,centric relation,no mirror",
+        "scheme": "99ADA1100",
+        "value": "IV12"
+      },
+      "keyword": "IV12",
+      "meaning": "Intraoral, Frontal View Inferior (showing depth of bite and overjet), Centric Relation, No Mirror (Direct View)"
+    },
+    "IV13": {
+      "abbreviation": "IO.FV.TT.NM",
+      "code": {
+        "meaning": "Intraoral photo,frontal,tongue thrust,no mirror",
+        "scheme": "99ADA1100",
+        "value": "IV13"
+      },
+      "keyword": "IV13",
+      "meaning": "Intraoral, Frontal View, showing Tongue Thrust, No Mirror (Direct View)"
+    },
+    "IV14": {
+      "abbreviation": "IO.RL.CO.OJ.NM",
+      "code": {
+        "meaning": "Intraoral photo,right lateral,centric occl.,overjet,no mirror",
+        "scheme": "99ADA1100",
+        "value": "IV14"
+      },
+      "keyword": "IV14",
+      "meaning": "Intraoral, Right Lateral View, Centric Occlusion, showing Overjet, No Mirror (Direct View showing overjet from the side)"
+    },
+    "IV15": {
+      "abbreviation": "IO.RL.CR.OJ.NM",
+      "code": {
+        "meaning": "Intraoral photo,right lateral,centric relation,overjet,no mirror",
+        "scheme": "99ADA1100",
+        "value": "IV15"
+      },
+      "keyword": "IV15",
+      "meaning": "Intraoral, Right Lateral View, Centric Relation, showing Overjet, No Mirror (Direct View showing overjet from the side)"
+    },
+    "IV16": {
+      "abbreviation": "IO.LL.CO.OJ.NM",
+      "code": {
+        "meaning": "Intraoral photo,left lateral,centric occl.,overjet,no mirror",
+        "scheme": "99ADA1100",
+        "value": "IV16"
+      },
+      "keyword": "IV16",
+      "meaning": "Intraoral, Left Lateral View, Centric Occlusion, showing Overjet, No Mirror (Direct View showing overjet from the side)"
+    },
+    "IV17": {
+      "abbreviation": "IO.LL.CR.OJ.NM",
+      "code": {
+        "meaning": "Intraoral photo,left lateral,centric relation,overjet,no mirror",
+        "scheme": "99ADA1100",
+        "value": "IV17"
+      },
+      "keyword": "IV17",
+      "meaning": "Intraoral, Left Lateral View, Centric Relation, showing Overjet, No Mirror (Direct View showing overjet from the side)"
+    },
+    "IV18": {
+      "abbreviation": "IO.LB.CO.NM",
+      "code": {
+        "meaning": "Intraoral photo,left buccal,centric occl.,no mirror",
+        "scheme": "99ADA1100",
+        "value": "IV18"
+      },
+      "keyword": "IV18",
+      "meaning": "Intraoral, Left Buccal Segment, Centric Occlusion, No Mirror (Direct View)"
+    },
+    "IV19": {
+      "abbreviation": "IO.LB.CO.WM",
+      "code": {
+        "meaning": "Intraoral photo,left buccal,centric occl.,mirror",
+        "scheme": "99ADA1100",
+        "value": "IV19"
+      },
+      "keyword": "IV19",
+      "meaning": "Intraoral, Left Buccal Segment, Centric Occlusion, With Mirror"
+    },
+    "IV20": {
+      "abbreviation": "IO.LB.CO.WM.BC",
+      "code": {
+        "meaning": "Intraoral photo,left buccal,centric occl.,mirror,corrected",
+        "scheme": "99ADA1100",
+        "value": "IV20"
+      },
+      "keyword": "IV20",
+      "meaning": "Intraoral, Left Buccal Segment, Centric Occlusion, With Mirror, But Corrected"
+    },
+    "IV21": {
+      "abbreviation": "IO.LB.CR.NM",
+      "code": {
+        "meaning": "Intraoral photo,left buccal,centric relation,no mirror",
+        "scheme": "99ADA1100",
+        "value": "IV21"
+      },
+      "keyword": "IV21",
+      "meaning": "Intraoral, Left Buccal Segment, Centric Relation, No Mirror (Direct View)"
+    },
+    "IV22": {
+      "abbreviation": "IO.LB.CR.WM",
+      "code": {
+        "meaning": "Intraoral photo,left buccal,centric relation,mirror",
+        "scheme": "99ADA1100",
+        "value": "IV22"
+      },
+      "keyword": "IV22",
+      "meaning": "Intraoral, Left Buccal Segment, Centric Relation, With Mirror"
+    },
+    "IV23": {
+      "abbreviation": "IO.LB.CR.WM.BC",
+      "code": {
+        "meaning": "Intraoral photo,left buccal,centric relation,mirror,corrected",
+        "scheme": "99ADA1100",
+        "value": "IV23"
+      },
+      "keyword": "IV23",
+      "meaning": "Intraoral, Left Buccal Segment, Centric Relation, With Mirror, But Corrected"
+    },
+    "IV24": {
+      "abbreviation": "IO.MX.MO.OV.WM",
+      "code": {
+        "meaning": "Intraoral photo,maxillary,mouth open,occlusal,mirror",
+        "scheme": "99ADA1100",
+        "value": "IV24"
+      },
+      "keyword": "IV24",
+      "meaning": "Intraoral, Maxillary, Mouth Open, Occlusal View, With Mirror"
+    },
+    "IV25": {
+      "abbreviation": "IO.MX.MO.OV.WM.BC",
+      "code": {
+        "meaning": "Intraoral photo,maxillary,mouth open,occlusal,mirror,corrected",
+        "scheme": "99ADA1100",
+        "value": "IV25"
+      },
+      "keyword": "IV25",
+      "meaning": "Intraoral, Maxillary, Mouth Open, Occlusal View, With Mirror, But Corrected"
+    },
+    "IV26": {
+      "abbreviation": "IO.MD.MO.OV.WM",
+      "code": {
+        "meaning": "Intraoral photo,mandibular,mouth open,occlusal,mirror",
+        "scheme": "99ADA1100",
+        "value": "IV26"
+      },
+      "keyword": "IV26",
+      "meaning": "Intraoral, Mandibular, Mouth Open, Occlusal View, With Mirror"
+    },
+    "IV27": {
+      "abbreviation": "IO.MD.MO.OV.WM.BC",
+      "code": {
+        "meaning": "Intraoral photo,mandibular,mouth open,occlusal,mirror,corrected",
+        "scheme": "99ADA1100",
+        "value": "IV27"
+      },
+      "keyword": "IV27",
+      "meaning": "Intraoral, Mandibular, Mouth Open, Occlusal View, With Mirror, But Corrected"
+    },
+    "IV28": {
+      "abbreviation": "IO.GR.[tooth number]",
+      "code": {
+        "meaning": "Intraoral photo,gingival recession",
+        "scheme": "99ADA1100",
+        "value": "IV28"
+      },
+      "keyword": "IV28",
+      "meaning": "Intraoral, showing Gingival Recession. May include ISO tooth numbers of the affected teeth."
+    },
+    "IV29": {
+      "abbreviation": "IO.FR.[tooth number]",
+      "code": {
+        "meaning": "Intraoral photo,frenum",
+        "scheme": "99ADA1100",
+        "value": "IV29"
+      },
+      "keyword": "IV29",
+      "meaning": "Intraoral, showing Frenum. May include ISO tooth numbers designating frenum's location."
+    },
+    "IV30": {
+      "abbreviation": "IO.[modifier].PA",
+      "code": {
+        "meaning": "Intraoral photo,photo accessory",
+        "scheme": "99ADA1100",
+        "value": "IV30"
+      },
+      "keyword": "IV30",
+      "meaning": "Intraoral, any view using a photo accessory device such as a contraster to provide a solid background or black mirror ([modifier] is any set of IO modifier as specified above)"
+    }
+  },
+  "schema_version": 1,
+  "source_lock_sha256": "56c9887dd39831b2606a430c15a8bda3a09d357503c9a029a4c3625d59d86f9c",
+  "source_provenance": {
+    "ADA_EXTRAORAL_2D": {
+      "date": "2026-07-04",
+      "sha256": "9757675a62c07ef29bf02910579b8adc65abac18805ec4dcc1c888a45fa84cf9",
+      "url": "https://terminology.open-ortho.org/fhir/sid/ada1100/CodeSystem/extraoral-2d-photographic-scheduled-protocol",
+      "version": "2.0.0"
+    },
+    "ADA_INTRAORAL_2D": {
+      "date": "2026-07-04",
+      "sha256": "dd37fdff2c9dbe8be40d9964f795842940a0a1f2ae64cdc122d148a205dd78c0",
+      "url": "https://terminology.open-ortho.org/fhir/sid/ada1100/CodeSystem/intraoral-2d-photographic-scheduled-protocol",
+      "version": "2.0.0"
+    },
+    "CID247": {
+      "date": "2026-06-12",
+      "sha256": "abe280610e46ca094505dde6ea6ef747bddc1fb5a9ca0e101eb9a5adc51bf714",
+      "url": "ftp://medical.nema.org/medical/dicom/resources/valuesets/fhir/json/ValueSet-dicom-cid-247-LateralityLeftRightOnly.json",
+      "version": "20190524"
+    },
+    "CID4028": {
+      "date": "2026-06-12",
+      "sha256": "5b4211525215b66c0d2acd9c4e2d36ad4ccc584fbe5e6e62f7b27f6564bbdd9e",
+      "url": "ftp://medical.nema.org/medical/dicom/resources/valuesets/fhir/json/ValueSet-dicom-cid-4028-CraniofacialAnatomicRegion.json",
+      "version": "20250908"
+    },
+    "CID4061": {
+      "date": "2026-06-12",
+      "sha256": "e5b020509904861adce19a6ac4c4db30781bf8a7ef323d29f1c57405d108a165",
+      "url": "ftp://medical.nema.org/medical/dicom/resources/valuesets/fhir/json/ValueSet-dicom-cid-4061-HeadAndNeckPrimaryAnatomicStructure.json",
+      "version": "20250330"
+    },
+    "CID4062": {
+      "date": "2026-06-12",
+      "sha256": "dfa77d4a59d52531dc266cae7dd5205afed24ba02ae4ba773b6600e10fa77703",
+      "url": "ftp://medical.nema.org/medical/dicom/resources/valuesets/fhir/json/ValueSet-dicom-cid-4062-VLView.json",
+      "version": "20250330"
+    },
+    "CID4063": {
+      "date": "2026-06-12",
+      "sha256": "6d35bd0f0b5852b2aed1de9694559757fa5d26a5e98778f98a4e4f2b3cb0d659",
+      "url": "ftp://medical.nema.org/medical/dicom/resources/valuesets/fhir/json/ValueSet-dicom-cid-4063-VLDentalView.json",
+      "version": "20250330"
+    },
+    "CID4064": {
+      "date": "2026-06-12",
+      "sha256": "8323144db45220f02e60a50f2ecfc99d89dc5dbf07f6def8658a4e8a0180f385",
+      "url": "ftp://medical.nema.org/medical/dicom/resources/valuesets/fhir/json/ValueSet-dicom-cid-4064-VLViewModifier.json",
+      "version": "20250330"
+    },
+    "CID4065": {
+      "date": "2026-06-12",
+      "sha256": "adc8c7104aa85799459b55a420ac1b9100c5d6a98d66a8843a1e2d1679f37a91",
+      "url": "ftp://medical.nema.org/medical/dicom/resources/valuesets/fhir/json/ValueSet-dicom-cid-4065-VLDentalViewModifier.json",
+      "version": "20250330"
+    },
+    "CID4066": {
+      "date": "2026-06-12",
+      "sha256": "3f7c05af5c585f913ca73a6e90f40f5fb42d28bbac1dd3b78f13a6d0bb41a928",
+      "url": "ftp://medical.nema.org/medical/dicom/resources/valuesets/fhir/json/ValueSet-dicom-cid-4066-OrthognathicFunctionalCondition.json",
+      "version": "20250330"
+    },
+    "CID4067": {
+      "date": "2026-06-12",
+      "sha256": "4e20fcc5a79608c20e83358e6202ba7bce4b3f3ee2415fdb4d0d611ae8fdec6b",
+      "url": "ftp://medical.nema.org/medical/dicom/resources/valuesets/fhir/json/ValueSet-dicom-cid-4067-OrthodonticFindingByInspection.json",
+      "version": "20250330"
+    },
+    "CID4068": {
+      "date": "2026-06-12",
+      "sha256": "da1a3895860d40ded8998fc3cb4a6b738103ae15df42ff94c7fad1ee72396c05",
+      "url": "ftp://medical.nema.org/medical/dicom/resources/valuesets/fhir/json/ValueSet-dicom-cid-4068-OrthodonticObservableEntity.json",
+      "version": "20250330"
+    },
+    "CID4069": {
+      "date": "2026-06-12",
+      "sha256": "1b03c3ffcf7ff40cb4a6bd7fc5a36ac26666e96d26319515162bdb79ada43925",
+      "url": "ftp://medical.nema.org/medical/dicom/resources/valuesets/fhir/json/ValueSet-dicom-cid-4069-DentalOcclusion.json",
+      "version": "20250330"
+    },
+    "CID4070": {
+      "date": "2026-06-12",
+      "sha256": "8b22c8133de22b1fa5ce2049fbc1e61a9bb2212a45552fe9cea15d85b39be0b0",
+      "url": "ftp://medical.nema.org/medical/dicom/resources/valuesets/fhir/json/ValueSet-dicom-cid-4070-OrthodonticTreatmentProgress.json",
+      "version": "20250330"
+    },
+    "CID4072": {
+      "date": "2026-06-12",
+      "sha256": "b5e245905e63576c6c3ba4dcb71d399929a38f958dedbf77458e24f3e25b804e",
+      "url": "ftp://medical.nema.org/medical/dicom/resources/valuesets/fhir/json/ValueSet-dicom-cid-4072-DevicesForThePurposeOfDentalPhotography.json",
+      "version": "20250330"
+    },
+    "DCM_ONTOLOGY": {
+      "sha256": "8692e5420c6db5ceeed53d74055aa2a1a26fc70b72fe5705a3cd9e3c3722512f",
+      "url": "ftp://medical.nema.org/medical/dicom/resources/ontology/DCM/dcm.owl"
+    },
+    "VIEWS": {
+      "sha256": "2580ec0517d9bff7804ff79f1913c9a31667d55741122aa8b4c8bce5ffe36945",
+      "url": "https://raw.githubusercontent.com/open-ortho/dent-oip/latest/source/tables/views.csv"
+    }
+  },
+  "views": {
+    "EV01": {
+      "anatomic_region": {
+        "meaning": "Head and Neck",
+        "scheme": "SCT",
+        "value": "774007"
+      },
+      "anatomic_region_modifier": {
+        "meaning": "Right",
+        "scheme": "SCT",
+        "value": "24028007"
+      },
+      "dental_occlusion": {
+        "meaning": "Centric occlusion",
+        "scheme": "SCT",
+        "value": "110320000"
+      },
+      "description": "Extraoral, Right Profile (Subject is facing observer's right), Lips Relaxed, Centric Occlusion",
+      "devices": [],
+      "findings_by_inspection": [],
+      "image_laterality": "U",
+      "keyword": "EV01",
+      "observable_entities": [],
+      "orthognathic_functional_conditions": [
+        {
+          "meaning": "Upper and lower lips in relaxed position",
+          "scheme": "SCT",
+          "value": "1336028006"
+        }
+      ],
+      "patient_orientation": [
+        "A",
+        "F"
+      ],
+      "primary_anatomic_structure": {
+        "meaning": "Face",
+        "scheme": "SCT",
+        "value": "89545001"
+      },
+      "primary_anatomic_structure_modifier": null,
+      "series_description": "Orthodontic Extraoral Series",
+      "view_code": {
+        "meaning": "right lateral",
+        "scheme": "SCT",
+        "value": "399198007"
+      },
+      "view_modifiers": []
+    },
+    "EV02": {
+      "anatomic_region": {
+        "meaning": "Head and Neck",
+        "scheme": "SCT",
+        "value": "774007"
+      },
+      "anatomic_region_modifier": {
+        "meaning": "Right",
+        "scheme": "SCT",
+        "value": "24028007"
+      },
+      "dental_occlusion": {
+        "meaning": "Centric relation",
+        "scheme": "SCT",
+        "value": "736783005"
+      },
+      "description": "Extraoral, Right Profile (Subject is facing observe right), Lips Relaxed, Centric Relation",
+      "devices": [],
+      "findings_by_inspection": [],
+      "image_laterality": "U",
+      "keyword": "EV02",
+      "observable_entities": [],
+      "orthognathic_functional_conditions": [
+        {
+          "meaning": "Upper and lower lips in relaxed position",
+          "scheme": "SCT",
+          "value": "1336028006"
+        }
+      ],
+      "patient_orientation": [
+        "A",
+        "F"
+      ],
+      "primary_anatomic_structure": {
+        "meaning": "Face",
+        "scheme": "SCT",
+        "value": "89545001"
+      },
+      "primary_anatomic_structure_modifier": null,
+      "series_description": "Orthodontic Extraoral Series",
+      "view_code": {
+        "meaning": "right lateral",
+        "scheme": "SCT",
+        "value": "399198007"
+      },
+      "view_modifiers": []
+    },
+    "EV03": {
+      "anatomic_region": {
+        "meaning": "Head and Neck",
+        "scheme": "SCT",
+        "value": "774007"
+      },
+      "anatomic_region_modifier": {
+        "meaning": "Right",
+        "scheme": "SCT",
+        "value": "24028007"
+      },
+      "dental_occlusion": {
+        "meaning": "Centric occlusion",
+        "scheme": "SCT",
+        "value": "110320000"
+      },
+      "description": "Extraoral, Right Profile (Subject is facing observer's right), Lips Closed, Centric Occlusion",
+      "devices": [],
+      "findings_by_inspection": [],
+      "image_laterality": "U",
+      "keyword": "EV03",
+      "observable_entities": [],
+      "orthognathic_functional_conditions": [
+        {
+          "meaning": "Upper and lower lips in closed position",
+          "scheme": "SCT",
+          "value": "1336029003"
+        }
+      ],
+      "patient_orientation": [
+        "A",
+        "F"
+      ],
+      "primary_anatomic_structure": {
+        "meaning": "Face",
+        "scheme": "SCT",
+        "value": "89545001"
+      },
+      "primary_anatomic_structure_modifier": null,
+      "series_description": "Orthodontic Extraoral Series",
+      "view_code": {
+        "meaning": "right lateral",
+        "scheme": "SCT",
+        "value": "399198007"
+      },
+      "view_modifiers": []
+    },
+    "EV04": {
+      "anatomic_region": {
+        "meaning": "Head and Neck",
+        "scheme": "SCT",
+        "value": "774007"
+      },
+      "anatomic_region_modifier": {
+        "meaning": "Right",
+        "scheme": "SCT",
+        "value": "24028007"
+      },
+      "dental_occlusion": {
+        "meaning": "Centric relation",
+        "scheme": "SCT",
+        "value": "736783005"
+      },
+      "description": "Extraoral, Right Profile (Patient is facing observer's right), Lips Closed, Centric Relation",
+      "devices": [],
+      "findings_by_inspection": [],
+      "image_laterality": "U",
+      "keyword": "EV04",
+      "observable_entities": [],
+      "orthognathic_functional_conditions": [
+        {
+          "meaning": "Upper and lower lips in closed position",
+          "scheme": "SCT",
+          "value": "1336029003"
+        }
+      ],
+      "patient_orientation": [
+        "A",
+        "F"
+      ],
+      "primary_anatomic_structure": {
+        "meaning": "Face",
+        "scheme": "SCT",
+        "value": "89545001"
+      },
+      "primary_anatomic_structure_modifier": null,
+      "series_description": "Orthodontic Extraoral Series",
+      "view_code": {
+        "meaning": "right lateral",
+        "scheme": "SCT",
+        "value": "399198007"
+      },
+      "view_modifiers": []
+    },
+    "EV05": {
+      "anatomic_region": {
+        "meaning": "Head and Neck",
+        "scheme": "SCT",
+        "value": "774007"
+      },
+      "anatomic_region_modifier": {
+        "meaning": "Right",
+        "scheme": "SCT",
+        "value": "24028007"
+      },
+      "dental_occlusion": {
+        "meaning": "Centric occlusion",
+        "scheme": "SCT",
+        "value": "110320000"
+      },
+      "description": "Extraoral, Right profile (Patient is facing observer's right), Full Smile, Centric Occlusion",
+      "devices": [],
+      "findings_by_inspection": [],
+      "image_laterality": "U",
+      "keyword": "EV05",
+      "observable_entities": [],
+      "orthognathic_functional_conditions": [
+        {
+          "meaning": "Smiles",
+          "scheme": "SCT",
+          "value": "225583004"
+        }
+      ],
+      "patient_orientation": [
+        "A",
+        "F"
+      ],
+      "primary_anatomic_structure": {
+        "meaning": "Face",
+        "scheme": "SCT",
+        "value": "89545001"
+      },
+      "primary_anatomic_structure_modifier": null,
+      "series_description": "Orthodontic Extraoral Series",
+      "view_code": {
+        "meaning": "right lateral",
+        "scheme": "SCT",
+        "value": "399198007"
+      },
+      "view_modifiers": []
+    },
+    "EV06": {
+      "anatomic_region": {
+        "meaning": "Head and Neck",
+        "scheme": "SCT",
+        "value": "774007"
+      },
+      "anatomic_region_modifier": {
+        "meaning": "Right",
+        "scheme": "SCT",
+        "value": "24028007"
+      },
+      "dental_occlusion": {
+        "meaning": "Centric relation",
+        "scheme": "SCT",
+        "value": "736783005"
+      },
+      "description": "Extraoral, Right Profile (Patient is facing observer's right), Full Smile, Centric Relation",
+      "devices": [],
+      "findings_by_inspection": [],
+      "image_laterality": "U",
+      "keyword": "EV06",
+      "observable_entities": [],
+      "orthognathic_functional_conditions": [
+        {
+          "meaning": "Smiles",
+          "scheme": "SCT",
+          "value": "225583004"
+        }
+      ],
+      "patient_orientation": [
+        "A",
+        "F"
+      ],
+      "primary_anatomic_structure": {
+        "meaning": "Face",
+        "scheme": "SCT",
+        "value": "89545001"
+      },
+      "primary_anatomic_structure_modifier": null,
+      "series_description": "Orthodontic Extraoral Series",
+      "view_code": {
+        "meaning": "right lateral",
+        "scheme": "SCT",
+        "value": "399198007"
+      },
+      "view_modifiers": []
+    },
+    "EV07": {
+      "anatomic_region": {
+        "meaning": "Head and Neck",
+        "scheme": "SCT",
+        "value": "774007"
+      },
+      "anatomic_region_modifier": {
+        "meaning": "Right",
+        "scheme": "SCT",
+        "value": "24028007"
+      },
+      "dental_occlusion": null,
+      "description": "Extraoral, Right Profile (Patient is facing observer's right), Mandible Postured Forward",
+      "devices": [],
+      "findings_by_inspection": [],
+      "image_laterality": "U",
+      "keyword": "EV07",
+      "observable_entities": [],
+      "orthognathic_functional_conditions": [
+        {
+          "meaning": "Mandible postured forwards",
+          "scheme": "SCT",
+          "value": "1336026005"
+        }
+      ],
+      "patient_orientation": [
+        "A",
+        "F"
+      ],
+      "primary_anatomic_structure": {
+        "meaning": "Face",
+        "scheme": "SCT",
+        "value": "89545001"
+      },
+      "primary_anatomic_structure_modifier": null,
+      "series_description": "Orthodontic Extraoral Series",
+      "view_code": {
+        "meaning": "right lateral",
+        "scheme": "SCT",
+        "value": "399198007"
+      },
+      "view_modifiers": []
+    },
+    "EV08": {
+      "anatomic_region": {
+        "meaning": "Head and Neck",
+        "scheme": "SCT",
+        "value": "774007"
+      },
+      "anatomic_region_modifier": {
+        "meaning": "Right",
+        "scheme": "SCT",
+        "value": "24028007"
+      },
+      "dental_occlusion": {
+        "meaning": "Centric occlusion",
+        "scheme": "SCT",
+        "value": "110320000"
+      },
+      "description": "Extraoral, 45° Right Profile (Patient turns toward observer's right), Lips Relaxed, Centric Occlusion",
+      "devices": [],
+      "findings_by_inspection": [],
+      "image_laterality": "U",
+      "keyword": "EV08",
+      "observable_entities": [],
+      "orthognathic_functional_conditions": [
+        {
+          "meaning": "Upper and lower lips in relaxed position",
+          "scheme": "SCT",
+          "value": "1336028006"
+        }
+      ],
+      "patient_orientation": [
+        "A",
+        "F"
+      ],
+      "primary_anatomic_structure": {
+        "meaning": "Face",
+        "scheme": "SCT",
+        "value": "89545001"
+      },
+      "primary_anatomic_structure_modifier": null,
+      "series_description": "Orthodontic Extraoral Series",
+      "view_code": {
+        "meaning": "45 degree projection",
+        "scheme": "SCT",
+        "value": "260454004"
+      },
+      "view_modifiers": []
+    },
+    "EV09": {
+      "anatomic_region": {
+        "meaning": "Head and Neck",
+        "scheme": "SCT",
+        "value": "774007"
+      },
+      "anatomic_region_modifier": {
+        "meaning": "Right",
+        "scheme": "SCT",
+        "value": "24028007"
+      },
+      "dental_occlusion": {
+        "meaning": "Centric relation",
+        "scheme": "SCT",
+        "value": "736783005"
+      },
+      "description": "Extraoral, 45° Right Profile (Patient turns toward observer's right), Lips Relaxed, Centric Relation",
+      "devices": [],
+      "findings_by_inspection": [],
+      "image_laterality": "U",
+      "keyword": "EV09",
+      "observable_entities": [],
+      "orthognathic_functional_conditions": [
+        {
+          "meaning": "Upper and lower lips in relaxed position",
+          "scheme": "SCT",
+          "value": "1336028006"
+        }
+      ],
+      "patient_orientation": [
+        "A",
+        "F"
+      ],
+      "primary_anatomic_structure": {
+        "meaning": "Face",
+        "scheme": "SCT",
+        "value": "89545001"
+      },
+      "primary_anatomic_structure_modifier": null,
+      "series_description": "Orthodontic Extraoral Series",
+      "view_code": {
+        "meaning": "45 degree projection",
+        "scheme": "SCT",
+        "value": "260454004"
+      },
+      "view_modifiers": []
+    },
+    "EV10": {
+      "anatomic_region": {
+        "meaning": "Head and Neck",
+        "scheme": "SCT",
+        "value": "774007"
+      },
+      "anatomic_region_modifier": {
+        "meaning": "Right",
+        "scheme": "SCT",
+        "value": "24028007"
+      },
+      "dental_occlusion": {
+        "meaning": "Centric occlusion",
+        "scheme": "SCT",
+        "value": "110320000"
+      },
+      "description": "Extraoral, 45° Right Profile (Patient turns toward observer's right), Lips Closed, Centric Occlusion",
+      "devices": [],
+      "findings_by_inspection": [],
+      "image_laterality": "U",
+      "keyword": "EV10",
+      "observable_entities": [],
+      "orthognathic_functional_conditions": [
+        {
+          "meaning": "Upper and lower lips in closed position",
+          "scheme": "SCT",
+          "value": "1336029003"
+        }
+      ],
+      "patient_orientation": [
+        "A",
+        "F"
+      ],
+      "primary_anatomic_structure": {
+        "meaning": "Face",
+        "scheme": "SCT",
+        "value": "89545001"
+      },
+      "primary_anatomic_structure_modifier": null,
+      "series_description": "Orthodontic Extraoral Series",
+      "view_code": {
+        "meaning": "45 degree projection",
+        "scheme": "SCT",
+        "value": "260454004"
+      },
+      "view_modifiers": []
+    },
+    "EV11": {
+      "anatomic_region": {
+        "meaning": "Head and Neck",
+        "scheme": "SCT",
+        "value": "774007"
+      },
+      "anatomic_region_modifier": {
+        "meaning": "Right",
+        "scheme": "SCT",
+        "value": "24028007"
+      },
+      "dental_occlusion": {
+        "meaning": "Centric relation",
+        "scheme": "SCT",
+        "value": "736783005"
+      },
+      "description": "Extraoral, 45° Right Profile (Patient turns toward observer's right), Lips Closed, Centric Relation",
+      "devices": [],
+      "findings_by_inspection": [],
+      "image_laterality": "U",
+      "keyword": "EV11",
+      "observable_entities": [],
+      "orthognathic_functional_conditions": [
+        {
+          "meaning": "Upper and lower lips in closed position",
+          "scheme": "SCT",
+          "value": "1336029003"
+        }
+      ],
+      "patient_orientation": [
+        "A",
+        "F"
+      ],
+      "primary_anatomic_structure": {
+        "meaning": "Face",
+        "scheme": "SCT",
+        "value": "89545001"
+      },
+      "primary_anatomic_structure_modifier": null,
+      "series_description": "Orthodontic Extraoral Series",
+      "view_code": {
+        "meaning": "45 degree projection",
+        "scheme": "SCT",
+        "value": "260454004"
+      },
+      "view_modifiers": []
+    },
+    "EV12": {
+      "anatomic_region": {
+        "meaning": "Head and Neck",
+        "scheme": "SCT",
+        "value": "774007"
+      },
+      "anatomic_region_modifier": {
+        "meaning": "Right",
+        "scheme": "SCT",
+        "value": "24028007"
+      },
+      "dental_occlusion": {
+        "meaning": "Centric occlusion",
+        "scheme": "SCT",
+        "value": "110320000"
+      },
+      "description": "Extraoral, 45° Right Profile (Patient turns toward observer's right), Full Smile, Centric Occlusion",
+      "devices": [],
+      "findings_by_inspection": [],
+      "image_laterality": "U",
+      "keyword": "EV12",
+      "observable_entities": [],
+      "orthognathic_functional_conditions": [
+        {
+          "meaning": "Smiles",
+          "scheme": "SCT",
+          "value": "225583004"
+        }
+      ],
+      "patient_orientation": [
+        "A",
+        "F"
+      ],
+      "primary_anatomic_structure": {
+        "meaning": "Face",
+        "scheme": "SCT",
+        "value": "89545001"
+      },
+      "primary_anatomic_structure_modifier": null,
+      "series_description": "Orthodontic Extraoral Series",
+      "view_code": {
+        "meaning": "45 degree projection",
+        "scheme": "SCT",
+        "value": "260454004"
+      },
+      "view_modifiers": []
+    },
+    "EV13": {
+      "anatomic_region": {
+        "meaning": "Head and Neck",
+        "scheme": "SCT",
+        "value": "774007"
+      },
+      "anatomic_region_modifier": {
+        "meaning": "Right",
+        "scheme": "SCT",
+        "value": "24028007"
+      },
+      "dental_occlusion": {
+        "meaning": "Centric relation",
+        "scheme": "SCT",
+        "value": "736783005"
+      },
+      "description": "Extraoral, 45° Right Profile (Patient turns toward observer's right), Full Smile, Centric Relation",
+      "devices": [],
+      "findings_by_inspection": [],
+      "image_laterality": "U",
+      "keyword": "EV13",
+      "observable_entities": [],
+      "orthognathic_functional_conditions": [
+        {
+          "meaning": "Smiles",
+          "scheme": "SCT",
+          "value": "225583004"
+        }
+      ],
+      "patient_orientation": [
+        "A",
+        "F"
+      ],
+      "primary_anatomic_structure": {
+        "meaning": "Face",
+        "scheme": "SCT",
+        "value": "89545001"
+      },
+      "primary_anatomic_structure_modifier": null,
+      "series_description": "Orthodontic Extraoral Series",
+      "view_code": {
+        "meaning": "45 degree projection",
+        "scheme": "SCT",
+        "value": "260454004"
+      },
+      "view_modifiers": []
+    },
+    "EV14": {
+      "anatomic_region": {
+        "meaning": "Head and Neck",
+        "scheme": "SCT",
+        "value": "774007"
+      },
+      "anatomic_region_modifier": {
+        "meaning": "Right",
+        "scheme": "SCT",
+        "value": "24028007"
+      },
+      "dental_occlusion": null,
+      "description": "Extraoral, 45° Right Profile (Patient turns toward observer's right), Mandible Postured Forward",
+      "devices": [],
+      "findings_by_inspection": [],
+      "image_laterality": "U",
+      "keyword": "EV14",
+      "observable_entities": [],
+      "orthognathic_functional_conditions": [
+        {
+          "meaning": "Mandible postured forwards",
+          "scheme": "SCT",
+          "value": "1336026005"
+        }
+      ],
+      "patient_orientation": [
+        "A",
+        "F"
+      ],
+      "primary_anatomic_structure": {
+        "meaning": "Face",
+        "scheme": "SCT",
+        "value": "89545001"
+      },
+      "primary_anatomic_structure_modifier": null,
+      "series_description": "Orthodontic Extraoral Series",
+      "view_code": {
+        "meaning": "45 degree projection",
+        "scheme": "SCT",
+        "value": "260454004"
+      },
+      "view_modifiers": []
+    },
+    "EV15": {
+      "anatomic_region": {
+        "meaning": "Head and Neck",
+        "scheme": "SCT",
+        "value": "774007"
+      },
+      "anatomic_region_modifier": null,
+      "dental_occlusion": {
+        "meaning": "Centric occlusion",
+        "scheme": "SCT",
+        "value": "110320000"
+      },
+      "description": "Extraoral, Full Face, Lips Relaxed, Centric Occlusion",
+      "devices": [],
+      "findings_by_inspection": [],
+      "image_laterality": "U",
+      "keyword": "EV15",
+      "observable_entities": [],
+      "orthognathic_functional_conditions": [
+        {
+          "meaning": "Upper and lower lips in relaxed position",
+          "scheme": "SCT",
+          "value": "1336028006"
+        }
+      ],
+      "patient_orientation": [
+        "L",
+        "F"
+      ],
+      "primary_anatomic_structure": {
+        "meaning": "Face",
+        "scheme": "SCT",
+        "value": "89545001"
+      },
+      "primary_anatomic_structure_modifier": null,
+      "series_description": "Orthodontic Extraoral Series",
+      "view_code": {
+        "meaning": "frontal",
+        "scheme": "SCT",
+        "value": "399033003"
+      },
+      "view_modifiers": []
+    },
+    "EV16": {
+      "anatomic_region": {
+        "meaning": "Head and Neck",
+        "scheme": "SCT",
+        "value": "774007"
+      },
+      "anatomic_region_modifier": null,
+      "dental_occlusion": {
+        "meaning": "Centric relation",
+        "scheme": "SCT",
+        "value": "736783005"
+      },
+      "description": "Extraoral, Full Face, Lips Relaxed, Centric Relation",
+      "devices": [],
+      "findings_by_inspection": [],
+      "image_laterality": "U",
+      "keyword": "EV16",
+      "observable_entities": [],
+      "orthognathic_functional_conditions": [
+        {
+          "meaning": "Upper and lower lips in relaxed position",
+          "scheme": "SCT",
+          "value": "1336028006"
+        }
+      ],
+      "patient_orientation": [
+        "L",
+        "F"
+      ],
+      "primary_anatomic_structure": {
+        "meaning": "Face",
+        "scheme": "SCT",
+        "value": "89545001"
+      },
+      "primary_anatomic_structure_modifier": null,
+      "series_description": "Orthodontic Extraoral Series",
+      "view_code": {
+        "meaning": "frontal",
+        "scheme": "SCT",
+        "value": "399033003"
+      },
+      "view_modifiers": []
+    },
+    "EV17": {
+      "anatomic_region": {
+        "meaning": "Head and Neck",
+        "scheme": "SCT",
+        "value": "774007"
+      },
+      "anatomic_region_modifier": null,
+      "dental_occlusion": {
+        "meaning": "Centric occlusion",
+        "scheme": "SCT",
+        "value": "110320000"
+      },
+      "description": "Extraoral, Full Face, Lips Closed, Centric Occlusion",
+      "devices": [],
+      "findings_by_inspection": [],
+      "image_laterality": "U",
+      "keyword": "EV17",
+      "observable_entities": [],
+      "orthognathic_functional_conditions": [
+        {
+          "meaning": "Upper and lower lips in closed position",
+          "scheme": "SCT",
+          "value": "1336029003"
+        }
+      ],
+      "patient_orientation": [
+        "L",
+        "F"
+      ],
+      "primary_anatomic_structure": {
+        "meaning": "Face",
+        "scheme": "SCT",
+        "value": "89545001"
+      },
+      "primary_anatomic_structure_modifier": null,
+      "series_description": "Orthodontic Extraoral Series",
+      "view_code": {
+        "meaning": "frontal",
+        "scheme": "SCT",
+        "value": "399033003"
+      },
+      "view_modifiers": []
+    },
+    "EV18": {
+      "anatomic_region": {
+        "meaning": "Head and Neck",
+        "scheme": "SCT",
+        "value": "774007"
+      },
+      "anatomic_region_modifier": null,
+      "dental_occlusion": {
+        "meaning": "Centric relation",
+        "scheme": "SCT",
+        "value": "736783005"
+      },
+      "description": "Extraoral, Full Face, Lips Closed, Centric Relation",
+      "devices": [],
+      "findings_by_inspection": [],
+      "image_laterality": "U",
+      "keyword": "EV18",
+      "observable_entities": [],
+      "orthognathic_functional_conditions": [
+        {
+          "meaning": "Upper and lower lips in closed position",
+          "scheme": "SCT",
+          "value": "1336029003"
+        }
+      ],
+      "patient_orientation": [
+        "L",
+        "F"
+      ],
+      "primary_anatomic_structure": {
+        "meaning": "Face",
+        "scheme": "SCT",
+        "value": "89545001"
+      },
+      "primary_anatomic_structure_modifier": null,
+      "series_description": "Orthodontic Extraoral Series",
+      "view_code": {
+        "meaning": "frontal",
+        "scheme": "SCT",
+        "value": "399033003"
+      },
+      "view_modifiers": []
+    },
+    "EV19": {
+      "anatomic_region": {
+        "meaning": "Head and Neck",
+        "scheme": "SCT",
+        "value": "774007"
+      },
+      "anatomic_region_modifier": null,
+      "dental_occlusion": {
+        "meaning": "Centric occlusion",
+        "scheme": "SCT",
+        "value": "110320000"
+      },
+      "description": "Extraoral, Full Face, Full Smile, Centric Occlusion",
+      "devices": [],
+      "findings_by_inspection": [],
+      "image_laterality": "U",
+      "keyword": "EV19",
+      "observable_entities": [],
+      "orthognathic_functional_conditions": [
+        {
+          "meaning": "Smiles",
+          "scheme": "SCT",
+          "value": "225583004"
+        }
+      ],
+      "patient_orientation": [
+        "L",
+        "F"
+      ],
+      "primary_anatomic_structure": {
+        "meaning": "Face",
+        "scheme": "SCT",
+        "value": "89545001"
+      },
+      "primary_anatomic_structure_modifier": null,
+      "series_description": "Orthodontic Extraoral Series",
+      "view_code": {
+        "meaning": "frontal",
+        "scheme": "SCT",
+        "value": "399033003"
+      },
+      "view_modifiers": []
+    },
+    "EV20": {
+      "anatomic_region": {
+        "meaning": "Head and Neck",
+        "scheme": "SCT",
+        "value": "774007"
+      },
+      "anatomic_region_modifier": null,
+      "dental_occlusion": {
+        "meaning": "Centric relation",
+        "scheme": "SCT",
+        "value": "736783005"
+      },
+      "description": "Extraoral, Full Face, Full Smile, Centric Relation",
+      "devices": [],
+      "findings_by_inspection": [],
+      "image_laterality": "U",
+      "keyword": "EV20",
+      "observable_entities": [],
+      "orthognathic_functional_conditions": [
+        {
+          "meaning": "Smiles",
+          "scheme": "SCT",
+          "value": "225583004"
+        }
+      ],
+      "patient_orientation": [
+        "L",
+        "F"
+      ],
+      "primary_anatomic_structure": {
+        "meaning": "Face",
+        "scheme": "SCT",
+        "value": "89545001"
+      },
+      "primary_anatomic_structure_modifier": null,
+      "series_description": "Orthodontic Extraoral Series",
+      "view_code": {
+        "meaning": "frontal",
+        "scheme": "SCT",
+        "value": "399033003"
+      },
+      "view_modifiers": []
+    },
+    "EV21": {
+      "anatomic_region": {
+        "meaning": "Head and Neck",
+        "scheme": "SCT",
+        "value": "774007"
+      },
+      "anatomic_region_modifier": null,
+      "dental_occlusion": null,
+      "description": "Extraoral, Full Face, Mandible Postured Forward",
+      "devices": [],
+      "findings_by_inspection": [],
+      "image_laterality": "U",
+      "keyword": "EV21",
+      "observable_entities": [],
+      "orthognathic_functional_conditions": [
+        {
+          "meaning": "Mandible postured forwards",
+          "scheme": "SCT",
+          "value": "1336026005"
+        }
+      ],
+      "patient_orientation": [
+        "L",
+        "F"
+      ],
+      "primary_anatomic_structure": {
+        "meaning": "Face",
+        "scheme": "SCT",
+        "value": "89545001"
+      },
+      "primary_anatomic_structure_modifier": null,
+      "series_description": "Orthodontic Extraoral Series",
+      "view_code": {
+        "meaning": "frontal",
+        "scheme": "SCT",
+        "value": "399033003"
+      },
+      "view_modifiers": []
+    },
+    "EV22": {
+      "anatomic_region": {
+        "meaning": "Head and Neck",
+        "scheme": "SCT",
+        "value": "774007"
+      },
+      "anatomic_region_modifier": {
+        "meaning": "Left",
+        "scheme": "SCT",
+        "value": "7771000"
+      },
+      "dental_occlusion": {
+        "meaning": "Centric occlusion",
+        "scheme": "SCT",
+        "value": "110320000"
+      },
+      "description": "Extraoral, Left Profile (Patient is facing observer's left), Lips Relaxed, Centric Occlusion",
+      "devices": [],
+      "findings_by_inspection": [],
+      "image_laterality": "U",
+      "keyword": "EV22",
+      "observable_entities": [],
+      "orthognathic_functional_conditions": [],
+      "patient_orientation": [
+        "P",
+        "F"
+      ],
+      "primary_anatomic_structure": {
+        "meaning": "Face",
+        "scheme": "SCT",
+        "value": "89545001"
+      },
+      "primary_anatomic_structure_modifier": null,
+      "series_description": "Orthodontic Extraoral Series",
+      "view_code": {
+        "meaning": "left lateral",
+        "scheme": "SCT",
+        "value": "399173006"
+      },
+      "view_modifiers": []
+    },
+    "EV23": {
+      "anatomic_region": {
+        "meaning": "Head and Neck",
+        "scheme": "SCT",
+        "value": "774007"
+      },
+      "anatomic_region_modifier": {
+        "meaning": "Left",
+        "scheme": "SCT",
+        "value": "7771000"
+      },
+      "dental_occlusion": {
+        "meaning": "Centric relation",
+        "scheme": "SCT",
+        "value": "736783005"
+      },
+      "description": "Extraoral, Left Profile (Patient is facing observer's left), Lips Relaxed, Centric Relation",
+      "devices": [],
+      "findings_by_inspection": [],
+      "image_laterality": "U",
+      "keyword": "EV23",
+      "observable_entities": [],
+      "orthognathic_functional_conditions": [],
+      "patient_orientation": [
+        "P",
+        "F"
+      ],
+      "primary_anatomic_structure": {
+        "meaning": "Face",
+        "scheme": "SCT",
+        "value": "89545001"
+      },
+      "primary_anatomic_structure_modifier": null,
+      "series_description": "Orthodontic Extraoral Series",
+      "view_code": {
+        "meaning": "left lateral",
+        "scheme": "SCT",
+        "value": "399173006"
+      },
+      "view_modifiers": []
+    },
+    "EV24": {
+      "anatomic_region": {
+        "meaning": "Head and Neck",
+        "scheme": "SCT",
+        "value": "774007"
+      },
+      "anatomic_region_modifier": {
+        "meaning": "Left",
+        "scheme": "SCT",
+        "value": "7771000"
+      },
+      "dental_occlusion": {
+        "meaning": "Centric occlusion",
+        "scheme": "SCT",
+        "value": "110320000"
+      },
+      "description": "Extraoral, Left Profile (Patient is facing observer's left), Lips Closed, Centric Occlusion",
+      "devices": [],
+      "findings_by_inspection": [],
+      "image_laterality": "U",
+      "keyword": "EV24",
+      "observable_entities": [],
+      "orthognathic_functional_conditions": [],
+      "patient_orientation": [
+        "P",
+        "F"
+      ],
+      "primary_anatomic_structure": {
+        "meaning": "Face",
+        "scheme": "SCT",
+        "value": "89545001"
+      },
+      "primary_anatomic_structure_modifier": null,
+      "series_description": "Orthodontic Extraoral Series",
+      "view_code": {
+        "meaning": "left lateral",
+        "scheme": "SCT",
+        "value": "399173006"
+      },
+      "view_modifiers": []
+    },
+    "EV25": {
+      "anatomic_region": {
+        "meaning": "Head and Neck",
+        "scheme": "SCT",
+        "value": "774007"
+      },
+      "anatomic_region_modifier": {
+        "meaning": "Left",
+        "scheme": "SCT",
+        "value": "7771000"
+      },
+      "dental_occlusion": {
+        "meaning": "Centric relation",
+        "scheme": "SCT",
+        "value": "736783005"
+      },
+      "description": "Extraoral, Left Profile (Patient is facing observer's left), Lips Closed, Centric Relation",
+      "devices": [],
+      "findings_by_inspection": [],
+      "image_laterality": "U",
+      "keyword": "EV25",
+      "observable_entities": [],
+      "orthognathic_functional_conditions": [],
+      "patient_orientation": [
+        "P",
+        "F"
+      ],
+      "primary_anatomic_structure": {
+        "meaning": "Face",
+        "scheme": "SCT",
+        "value": "89545001"
+      },
+      "primary_anatomic_structure_modifier": null,
+      "series_description": "Orthodontic Extraoral Series",
+      "view_code": {
+        "meaning": "left lateral",
+        "scheme": "SCT",
+        "value": "399173006"
+      },
+      "view_modifiers": []
+    },
+    "EV26": {
+      "anatomic_region": {
+        "meaning": "Head and Neck",
+        "scheme": "SCT",
+        "value": "774007"
+      },
+      "anatomic_region_modifier": {
+        "meaning": "Left",
+        "scheme": "SCT",
+        "value": "7771000"
+      },
+      "dental_occlusion": {
+        "meaning": "Centric occlusion",
+        "scheme": "SCT",
+        "value": "110320000"
+      },
+      "description": "Extraoral, Left profile (Patient is facing observer's left), Full Smile, Centric Occlusion",
+      "devices": [],
+      "findings_by_inspection": [],
+      "image_laterality": "U",
+      "keyword": "EV26",
+      "observable_entities": [],
+      "orthognathic_functional_conditions": [
+        {
+          "meaning": "Smiles",
+          "scheme": "SCT",
+          "value": "225583004"
+        }
+      ],
+      "patient_orientation": [
+        "P",
+        "F"
+      ],
+      "primary_anatomic_structure": {
+        "meaning": "Face",
+        "scheme": "SCT",
+        "value": "89545001"
+      },
+      "primary_anatomic_structure_modifier": null,
+      "series_description": "Orthodontic Extraoral Series",
+      "view_code": {
+        "meaning": "left lateral",
+        "scheme": "SCT",
+        "value": "399173006"
+      },
+      "view_modifiers": []
+    },
+    "EV27": {
+      "anatomic_region": {
+        "meaning": "Head and Neck",
+        "scheme": "SCT",
+        "value": "774007"
+      },
+      "anatomic_region_modifier": {
+        "meaning": "Left",
+        "scheme": "SCT",
+        "value": "7771000"
+      },
+      "dental_occlusion": {
+        "meaning": "Centric relation",
+        "scheme": "SCT",
+        "value": "736783005"
+      },
+      "description": "Extraoral, Left Profile (Patient is facing observer's left), Full Smile, Centric Relation",
+      "devices": [],
+      "findings_by_inspection": [],
+      "image_laterality": "U",
+      "keyword": "EV27",
+      "observable_entities": [],
+      "orthognathic_functional_conditions": [
+        {
+          "meaning": "Smiles",
+          "scheme": "SCT",
+          "value": "225583004"
+        }
+      ],
+      "patient_orientation": [
+        "P",
+        "F"
+      ],
+      "primary_anatomic_structure": {
+        "meaning": "Face",
+        "scheme": "SCT",
+        "value": "89545001"
+      },
+      "primary_anatomic_structure_modifier": null,
+      "series_description": "Orthodontic Extraoral Series",
+      "view_code": {
+        "meaning": "left lateral",
+        "scheme": "SCT",
+        "value": "399173006"
+      },
+      "view_modifiers": []
+    },
+    "EV28": {
+      "anatomic_region": {
+        "meaning": "Head and Neck",
+        "scheme": "SCT",
+        "value": "774007"
+      },
+      "anatomic_region_modifier": {
+        "meaning": "Left",
+        "scheme": "SCT",
+        "value": "7771000"
+      },
+      "dental_occlusion": null,
+      "description": "Extraoral, Left Profile (Patient is facing observer's left), Mandible Postured Forward",
+      "devices": [],
+      "findings_by_inspection": [],
+      "image_laterality": "U",
+      "keyword": "EV28",
+      "observable_entities": [],
+      "orthognathic_functional_conditions": [
+        {
+          "meaning": "Mandible postured forwards",
+          "scheme": "SCT",
+          "value": "1336026005"
+        }
+      ],
+      "patient_orientation": [
+        "P",
+        "F"
+      ],
+      "primary_anatomic_structure": {
+        "meaning": "Face",
+        "scheme": "SCT",
+        "value": "89545001"
+      },
+      "primary_anatomic_structure_modifier": null,
+      "series_description": "Orthodontic Extraoral Series",
+      "view_code": {
+        "meaning": "left lateral",
+        "scheme": "SCT",
+        "value": "399173006"
+      },
+      "view_modifiers": []
+    },
+    "EV29": {
+      "anatomic_region": {
+        "meaning": "Head and Neck",
+        "scheme": "SCT",
+        "value": "774007"
+      },
+      "anatomic_region_modifier": {
+        "meaning": "Left",
+        "scheme": "SCT",
+        "value": "7771000"
+      },
+      "dental_occlusion": {
+        "meaning": "Centric occlusion",
+        "scheme": "SCT",
+        "value": "110320000"
+      },
+      "description": "Extraoral, 45° Left Profile (Patient turns toward observer's left), Lips Relaxed, Centric Occlusion",
+      "devices": [],
+      "findings_by_inspection": [],
+      "image_laterality": "U",
+      "keyword": "EV29",
+      "observable_entities": [],
+      "orthognathic_functional_conditions": [
+        {
+          "meaning": "Upper and lower lips in relaxed position",
+          "scheme": "SCT",
+          "value": "1336028006"
+        }
+      ],
+      "patient_orientation": [
+        "P",
+        "F"
+      ],
+      "primary_anatomic_structure": {
+        "meaning": "Face",
+        "scheme": "SCT",
+        "value": "89545001"
+      },
+      "primary_anatomic_structure_modifier": null,
+      "series_description": "Orthodontic Extraoral Series",
+      "view_code": {
+        "meaning": "45 degree projection",
+        "scheme": "SCT",
+        "value": "260454004"
+      },
+      "view_modifiers": []
+    },
+    "EV30": {
+      "anatomic_region": {
+        "meaning": "Head and Neck",
+        "scheme": "SCT",
+        "value": "774007"
+      },
+      "anatomic_region_modifier": {
+        "meaning": "Left",
+        "scheme": "SCT",
+        "value": "7771000"
+      },
+      "dental_occlusion": {
+        "meaning": "Centric relation",
+        "scheme": "SCT",
+        "value": "736783005"
+      },
+      "description": "Extraoral, 45° Left Profile (Patient turns toward observer's left), Lips Relaxed, Centric Relation",
+      "devices": [],
+      "findings_by_inspection": [],
+      "image_laterality": "U",
+      "keyword": "EV30",
+      "observable_entities": [],
+      "orthognathic_functional_conditions": [
+        {
+          "meaning": "Upper and lower lips in relaxed position",
+          "scheme": "SCT",
+          "value": "1336028006"
+        }
+      ],
+      "patient_orientation": [
+        "P",
+        "F"
+      ],
+      "primary_anatomic_structure": {
+        "meaning": "Face",
+        "scheme": "SCT",
+        "value": "89545001"
+      },
+      "primary_anatomic_structure_modifier": null,
+      "series_description": "Orthodontic Extraoral Series",
+      "view_code": {
+        "meaning": "45 degree projection",
+        "scheme": "SCT",
+        "value": "260454004"
+      },
+      "view_modifiers": []
+    },
+    "EV31": {
+      "anatomic_region": {
+        "meaning": "Head and Neck",
+        "scheme": "SCT",
+        "value": "774007"
+      },
+      "anatomic_region_modifier": {
+        "meaning": "Left",
+        "scheme": "SCT",
+        "value": "7771000"
+      },
+      "dental_occlusion": {
+        "meaning": "Centric occlusion",
+        "scheme": "SCT",
+        "value": "110320000"
+      },
+      "description": "Extraoral, 45° Left Profile (Patient turns toward observer's left), Lips Closed, Centric Occlusion",
+      "devices": [],
+      "findings_by_inspection": [],
+      "image_laterality": "U",
+      "keyword": "EV31",
+      "observable_entities": [],
+      "orthognathic_functional_conditions": [
+        {
+          "meaning": "Upper and lower lips in closed position",
+          "scheme": "SCT",
+          "value": "1336029003"
+        }
+      ],
+      "patient_orientation": [
+        "P",
+        "F"
+      ],
+      "primary_anatomic_structure": {
+        "meaning": "Face",
+        "scheme": "SCT",
+        "value": "89545001"
+      },
+      "primary_anatomic_structure_modifier": null,
+      "series_description": "Orthodontic Extraoral Series",
+      "view_code": {
+        "meaning": "45 degree projection",
+        "scheme": "SCT",
+        "value": "260454004"
+      },
+      "view_modifiers": []
+    },
+    "EV32": {
+      "anatomic_region": {
+        "meaning": "Head and Neck",
+        "scheme": "SCT",
+        "value": "774007"
+      },
+      "anatomic_region_modifier": {
+        "meaning": "Left",
+        "scheme": "SCT",
+        "value": "7771000"
+      },
+      "dental_occlusion": {
+        "meaning": "Centric relation",
+        "scheme": "SCT",
+        "value": "736783005"
+      },
+      "description": "Extraoral, 45° Left Profile (Patient turns toward observer's left), Lips Closed, Centric Relation",
+      "devices": [],
+      "findings_by_inspection": [],
+      "image_laterality": "U",
+      "keyword": "EV32",
+      "observable_entities": [],
+      "orthognathic_functional_conditions": [
+        {
+          "meaning": "Upper and lower lips in closed position",
+          "scheme": "SCT",
+          "value": "1336029003"
+        }
+      ],
+      "patient_orientation": [
+        "P",
+        "F"
+      ],
+      "primary_anatomic_structure": {
+        "meaning": "Face",
+        "scheme": "SCT",
+        "value": "89545001"
+      },
+      "primary_anatomic_structure_modifier": null,
+      "series_description": "Orthodontic Extraoral Series",
+      "view_code": {
+        "meaning": "45 degree projection",
+        "scheme": "SCT",
+        "value": "260454004"
+      },
+      "view_modifiers": []
+    },
+    "EV33": {
+      "anatomic_region": {
+        "meaning": "Head and Neck",
+        "scheme": "SCT",
+        "value": "774007"
+      },
+      "anatomic_region_modifier": {
+        "meaning": "Left",
+        "scheme": "SCT",
+        "value": "7771000"
+      },
+      "dental_occlusion": {
+        "meaning": "Centric occlusion",
+        "scheme": "SCT",
+        "value": "110320000"
+      },
+      "description": "Extraoral, 45° Left Profile (Patient turns toward observer's left), Full Smile, Centric Occlusion",
+      "devices": [],
+      "findings_by_inspection": [],
+      "image_laterality": "U",
+      "keyword": "EV33",
+      "observable_entities": [],
+      "orthognathic_functional_conditions": [
+        {
+          "meaning": "Smiles",
+          "scheme": "SCT",
+          "value": "225583004"
+        }
+      ],
+      "patient_orientation": [
+        "P",
+        "F"
+      ],
+      "primary_anatomic_structure": {
+        "meaning": "Face",
+        "scheme": "SCT",
+        "value": "89545001"
+      },
+      "primary_anatomic_structure_modifier": null,
+      "series_description": "Orthodontic Extraoral Series",
+      "view_code": {
+        "meaning": "45 degree projection",
+        "scheme": "SCT",
+        "value": "260454004"
+      },
+      "view_modifiers": []
+    },
+    "EV34": {
+      "anatomic_region": {
+        "meaning": "Head and Neck",
+        "scheme": "SCT",
+        "value": "774007"
+      },
+      "anatomic_region_modifier": {
+        "meaning": "Left",
+        "scheme": "SCT",
+        "value": "7771000"
+      },
+      "dental_occlusion": {
+        "meaning": "Centric relation",
+        "scheme": "SCT",
+        "value": "736783005"
+      },
+      "description": "Extraoral, 45° Left Profile (Patient turns toward observer's left, Full Smile, Centric Relation",
+      "devices": [],
+      "findings_by_inspection": [],
+      "image_laterality": "U",
+      "keyword": "EV34",
+      "observable_entities": [],
+      "orthognathic_functional_conditions": [
+        {
+          "meaning": "Smiles",
+          "scheme": "SCT",
+          "value": "225583004"
+        }
+      ],
+      "patient_orientation": [
+        "P",
+        "F"
+      ],
+      "primary_anatomic_structure": {
+        "meaning": "Face",
+        "scheme": "SCT",
+        "value": "89545001"
+      },
+      "primary_anatomic_structure_modifier": null,
+      "series_description": "Orthodontic Extraoral Series",
+      "view_code": {
+        "meaning": "45 degree projection",
+        "scheme": "SCT",
+        "value": "260454004"
+      },
+      "view_modifiers": []
+    },
+    "EV35": {
+      "anatomic_region": {
+        "meaning": "Head and Neck",
+        "scheme": "SCT",
+        "value": "774007"
+      },
+      "anatomic_region_modifier": {
+        "meaning": "Left",
+        "scheme": "SCT",
+        "value": "7771000"
+      },
+      "dental_occlusion": null,
+      "description": "Extraoral, 45° Left Profile (Patient turns toward observer's left, Mandible Postured Forward",
+      "devices": [],
+      "findings_by_inspection": [],
+      "image_laterality": "U",
+      "keyword": "EV35",
+      "observable_entities": [],
+      "orthognathic_functional_conditions": [
+        {
+          "meaning": "Smiles",
+          "scheme": "SCT",
+          "value": "225583004"
+        },
+        {
+          "meaning": "Mandible postured forwards",
+          "scheme": "SCT",
+          "value": "1336026005"
+        }
+      ],
+      "patient_orientation": [
+        "P",
+        "F"
+      ],
+      "primary_anatomic_structure": {
+        "meaning": "Face",
+        "scheme": "SCT",
+        "value": "89545001"
+      },
+      "primary_anatomic_structure_modifier": null,
+      "series_description": "Orthodontic Extraoral Series",
+      "view_code": {
+        "meaning": "45 degree projection",
+        "scheme": "SCT",
+        "value": "260454004"
+      },
+      "view_modifiers": []
+    },
+    "EV36": {
+      "anatomic_region": {
+        "meaning": "Head and Neck",
+        "scheme": "SCT",
+        "value": "774007"
+      },
+      "anatomic_region_modifier": null,
+      "dental_occlusion": {
+        "meaning": "Centric relation",
+        "scheme": "SCT",
+        "value": "736783005"
+      },
+      "description": "Extraoral, Other Face (head tipped back), Inferior View (showing lower border of mandible, nares, infraorbital rim contours, forehead contours)",
+      "devices": [],
+      "findings_by_inspection": [],
+      "image_laterality": "U",
+      "keyword": "EV36",
+      "observable_entities": [],
+      "orthognathic_functional_conditions": [],
+      "patient_orientation": [
+        "L",
+        "F"
+      ],
+      "primary_anatomic_structure": {
+        "meaning": "Face",
+        "scheme": "SCT",
+        "value": "89545001"
+      },
+      "primary_anatomic_structure_modifier": null,
+      "series_description": "Orthodontic Extraoral Series",
+      "view_code": {
+        "meaning": "submentovertical",
+        "scheme": "SCT",
+        "value": "399255003"
+      },
+      "view_modifiers": []
+    },
+    "EV37": {
+      "anatomic_region": {
+        "meaning": "Head and Neck",
+        "scheme": "SCT",
+        "value": "774007"
+      },
+      "anatomic_region_modifier": null,
+      "dental_occlusion": {
+        "meaning": "Centric relation",
+        "scheme": "SCT",
+        "value": "736783005"
+      },
+      "description": "Extraoral, Other Face (viewed from above), Superior View (showing forehead, infraorbital rim contour, dorsum of nose, upper lip, chin)",
+      "devices": [],
+      "findings_by_inspection": [],
+      "image_laterality": "U",
+      "keyword": "EV37",
+      "observable_entities": [],
+      "orthognathic_functional_conditions": [],
+      "patient_orientation": [
+        "L",
+        "F"
+      ],
+      "primary_anatomic_structure": {
+        "meaning": "Face",
+        "scheme": "SCT",
+        "value": "89545001"
+      },
+      "primary_anatomic_structure_modifier": null,
+      "series_description": "Orthodontic Extraoral Series",
+      "view_code": {
+        "meaning": "vertex",
+        "scheme": "SCT",
+        "value": "260461000"
+      },
+      "view_modifiers": []
+    },
+    "EV38": {
+      "anatomic_region": {
+        "meaning": "Head and Neck",
+        "scheme": "SCT",
+        "value": "774007"
+      },
+      "anatomic_region_modifier": null,
+      "dental_occlusion": {
+        "meaning": "Centric relation",
+        "scheme": "SCT",
+        "value": "736783005"
+      },
+      "description": "Extraoral, Other Face, Close-Up Smile (with lips)",
+      "devices": [],
+      "findings_by_inspection": [],
+      "image_laterality": "U",
+      "keyword": "EV38",
+      "observable_entities": [],
+      "orthognathic_functional_conditions": [
+        {
+          "meaning": "Smiles",
+          "scheme": "SCT",
+          "value": "225583004"
+        }
+      ],
+      "patient_orientation": [
+        "L",
+        "F"
+      ],
+      "primary_anatomic_structure": {
+        "meaning": "Face",
+        "scheme": "SCT",
+        "value": "89545001"
+      },
+      "primary_anatomic_structure_modifier": null,
+      "series_description": "Orthodontic Extraoral Series",
+      "view_code": {
+        "meaning": "frontal",
+        "scheme": "SCT",
+        "value": "399033003"
+      },
+      "view_modifiers": [
+        {
+          "meaning": "Close up photographic view of teeth without magnification",
+          "scheme": "SCT",
+          "value": "789131009"
+        }
+      ]
+    },
+    "EV39": {
+      "anatomic_region": {
+        "meaning": "Head and Neck",
+        "scheme": "SCT",
+        "value": "774007"
+      },
+      "anatomic_region_modifier": null,
+      "dental_occlusion": null,
+      "description": "Extraoral, Other Face, Occlusal Cant (e.g., tongue depressor between the teeth)",
+      "devices": [
+        {
+          "meaning": "Tongue blade",
+          "scheme": "SCT",
+          "value": "39802000"
+        }
+      ],
+      "findings_by_inspection": [
+        {
+          "meaning": "Cant of occlusal plane",
+          "scheme": "SCT",
+          "value": "710793000"
+        }
+      ],
+      "image_laterality": "U",
+      "keyword": "EV39",
+      "observable_entities": [],
+      "orthognathic_functional_conditions": [
+        {
+          "meaning": "Upper and lower lips in relaxed position",
+          "scheme": "SCT",
+          "value": "1336028006"
+        }
+      ],
+      "patient_orientation": [
+        "L",
+        "F"
+      ],
+      "primary_anatomic_structure": {
+        "meaning": "Face",
+        "scheme": "SCT",
+        "value": "89545001"
+      },
+      "primary_anatomic_structure_modifier": null,
+      "series_description": "Orthodontic Extraoral Series",
+      "view_code": {
+        "meaning": "frontal",
+        "scheme": "SCT",
+        "value": "399033003"
+      },
+      "view_modifiers": []
+    },
+    "EV40": {
+      "anatomic_region": {
+        "meaning": "Head and Neck",
+        "scheme": "SCT",
+        "value": "774007"
+      },
+      "anatomic_region_modifier": null,
+      "dental_occlusion": null,
+      "description": "Extraoral, Other Face, Forensic Interest (tattoos, jewelry, scars)",
+      "devices": [],
+      "findings_by_inspection": [],
+      "image_laterality": "U",
+      "keyword": "EV40",
+      "observable_entities": [],
+      "orthognathic_functional_conditions": [],
+      "patient_orientation": [
+        "L",
+        "F"
+      ],
+      "primary_anatomic_structure": {
+        "meaning": "Face",
+        "scheme": "SCT",
+        "value": "89545001"
+      },
+      "primary_anatomic_structure_modifier": null,
+      "series_description": "Orthodontic Extraoral Series",
+      "view_code": null,
+      "view_modifiers": []
+    },
+    "EV41": {
+      "anatomic_region": {
+        "meaning": "Head and Neck",
+        "scheme": "SCT",
+        "value": "774007"
+      },
+      "anatomic_region_modifier": null,
+      "dental_occlusion": null,
+      "description": "Extraoral, Other Face, Anomalies (ears, skin tags, etc.)",
+      "devices": [],
+      "findings_by_inspection": [],
+      "image_laterality": "U",
+      "keyword": "EV41",
+      "observable_entities": [],
+      "orthognathic_functional_conditions": [],
+      "patient_orientation": [
+        "P",
+        "F"
+      ],
+      "primary_anatomic_structure": {
+        "meaning": "Face",
+        "scheme": "SCT",
+        "value": "89545001"
+      },
+      "primary_anatomic_structure_modifier": null,
+      "series_description": "Orthodontic Extraoral Series",
+      "view_code": {
+        "meaning": "left lateral",
+        "scheme": "SCT",
+        "value": "399173006"
+      },
+      "view_modifiers": []
+    },
+    "EV42": {
+      "anatomic_region": {
+        "meaning": "Head and Neck",
+        "scheme": "SCT",
+        "value": "774007"
+      },
+      "anatomic_region_modifier": null,
+      "dental_occlusion": null,
+      "description": "Extraoral, Full Face, Mouth Open",
+      "devices": [],
+      "findings_by_inspection": [],
+      "image_laterality": "U",
+      "keyword": "EV42",
+      "observable_entities": [],
+      "orthognathic_functional_conditions": [
+        {
+          "meaning": "Open mouth",
+          "scheme": "SCT",
+          "value": "262016004"
+        }
+      ],
+      "patient_orientation": [
+        "L",
+        "F"
+      ],
+      "primary_anatomic_structure": {
+        "meaning": "Face",
+        "scheme": "SCT",
+        "value": "89545001"
+      },
+      "primary_anatomic_structure_modifier": null,
+      "series_description": "Orthodontic Extraoral Series",
+      "view_code": {
+        "meaning": "frontal",
+        "scheme": "SCT",
+        "value": "399033003"
+      },
+      "view_modifiers": []
+    },
+    "EV43": {
+      "anatomic_region": {
+        "meaning": "Head and Neck",
+        "scheme": "SCT",
+        "value": "774007"
+      },
+      "anatomic_region_modifier": null,
+      "dental_occlusion": null,
+      "description": "Extraoral, Full Face, demonstrating Nerve Weakness",
+      "devices": [],
+      "findings_by_inspection": [],
+      "image_laterality": "U",
+      "keyword": "EV43",
+      "observable_entities": [
+        {
+          "meaning": "Bell's palsy",
+          "scheme": "SCT",
+          "value": "193093009"
+        }
+      ],
+      "orthognathic_functional_conditions": [],
+      "patient_orientation": [
+        "L",
+        "F"
+      ],
+      "primary_anatomic_structure": {
+        "meaning": "Face",
+        "scheme": "SCT",
+        "value": "89545001"
+      },
+      "primary_anatomic_structure_modifier": null,
+      "series_description": "Orthodontic Extraoral Series",
+      "view_code": {
+        "meaning": "frontal",
+        "scheme": "SCT",
+        "value": "399033003"
+      },
+      "view_modifiers": []
+    },
+    "IV01": {
+      "anatomic_region": {
+        "meaning": "Mouth",
+        "scheme": "SCT",
+        "value": "123851003"
+      },
+      "anatomic_region_modifier": null,
+      "dental_occlusion": {
+        "meaning": "Centric occlusion",
+        "scheme": "SCT",
+        "value": "110320000"
+      },
+      "description": "Intraoral, Right Buccal Segment, Centric Occlusion, No Mirror (Direct View)",
+      "devices": [],
+      "findings_by_inspection": [],
+      "image_laterality": "U",
+      "keyword": "IV01",
+      "observable_entities": [],
+      "orthognathic_functional_conditions": [],
+      "patient_orientation": [
+        "A",
+        "F"
+      ],
+      "primary_anatomic_structure": {
+        "meaning": "Buccal space",
+        "scheme": "SCT",
+        "value": "261063000"
+      },
+      "primary_anatomic_structure_modifier": {
+        "meaning": "Right",
+        "scheme": "SCT",
+        "value": "24028007"
+      },
+      "series_description": "Orthodontic Intraoral Series",
+      "view_code": {
+        "meaning": "right lateral",
+        "scheme": "SCT",
+        "value": "399198007"
+      },
+      "view_modifiers": []
+    },
+    "IV02": {
+      "anatomic_region": {
+        "meaning": "Mouth",
+        "scheme": "SCT",
+        "value": "123851003"
+      },
+      "anatomic_region_modifier": null,
+      "dental_occlusion": {
+        "meaning": "Centric occlusion",
+        "scheme": "SCT",
+        "value": "110320000"
+      },
+      "description": "Intraoral, Right Buccal Segment, Centric Occlusion, With Mirror",
+      "devices": [
+        {
+          "meaning": "Intraoral photography mirror",
+          "scheme": "SCT",
+          "value": "1332162007"
+        }
+      ],
+      "findings_by_inspection": [],
+      "image_laterality": "U",
+      "keyword": "IV02",
+      "observable_entities": [],
+      "orthognathic_functional_conditions": [],
+      "patient_orientation": [
+        "P",
+        "F"
+      ],
+      "primary_anatomic_structure": {
+        "meaning": "Buccal space",
+        "scheme": "SCT",
+        "value": "261063000"
+      },
+      "primary_anatomic_structure_modifier": {
+        "meaning": "Right",
+        "scheme": "SCT",
+        "value": "24028007"
+      },
+      "series_description": "Orthodontic Intraoral Series",
+      "view_code": {
+        "meaning": "right lateral",
+        "scheme": "SCT",
+        "value": "399198007"
+      },
+      "view_modifiers": [
+        {
+          "meaning": "Mirrored image uncorrected",
+          "scheme": "SCT",
+          "value": "789135000"
+        }
+      ]
+    },
+    "IV03": {
+      "anatomic_region": {
+        "meaning": "Mouth",
+        "scheme": "SCT",
+        "value": "123851003"
+      },
+      "anatomic_region_modifier": null,
+      "dental_occlusion": {
+        "meaning": "Centric occlusion",
+        "scheme": "SCT",
+        "value": "110320000"
+      },
+      "description": "Intraoral, Right Buccal Segment, Centric Occlusion, With Mirror, But Corrected",
+      "devices": [
+        {
+          "meaning": "Intraoral photography mirror",
+          "scheme": "SCT",
+          "value": "1332162007"
+        }
+      ],
+      "findings_by_inspection": [],
+      "image_laterality": "U",
+      "keyword": "IV03",
+      "observable_entities": [],
+      "orthognathic_functional_conditions": [],
+      "patient_orientation": [
+        "A",
+        "F"
+      ],
+      "primary_anatomic_structure": {
+        "meaning": "Buccal space",
+        "scheme": "SCT",
+        "value": "261063000"
+      },
+      "primary_anatomic_structure_modifier": {
+        "meaning": "Right",
+        "scheme": "SCT",
+        "value": "24028007"
+      },
+      "series_description": "Orthodontic Intraoral Series",
+      "view_code": {
+        "meaning": "right lateral",
+        "scheme": "SCT",
+        "value": "399198007"
+      },
+      "view_modifiers": [
+        {
+          "meaning": "Mirrored photo image intraoral corrected",
+          "scheme": "SCT",
+          "value": "787610003"
+        }
+      ]
+    },
+    "IV04": {
+      "anatomic_region": {
+        "meaning": "Mouth",
+        "scheme": "SCT",
+        "value": "123851003"
+      },
+      "anatomic_region_modifier": null,
+      "dental_occlusion": {
+        "meaning": "Centric relation",
+        "scheme": "SCT",
+        "value": "736783005"
+      },
+      "description": "Intraoral, Right Buccal Segment, Centric Relation, No Mirror (Direct View)",
+      "devices": [],
+      "findings_by_inspection": [],
+      "image_laterality": "U",
+      "keyword": "IV04",
+      "observable_entities": [],
+      "orthognathic_functional_conditions": [],
+      "patient_orientation": [
+        "A",
+        "F"
+      ],
+      "primary_anatomic_structure": {
+        "meaning": "Buccal space",
+        "scheme": "SCT",
+        "value": "261063000"
+      },
+      "primary_anatomic_structure_modifier": {
+        "meaning": "Right",
+        "scheme": "SCT",
+        "value": "24028007"
+      },
+      "series_description": "Orthodontic Intraoral Series",
+      "view_code": {
+        "meaning": "right lateral",
+        "scheme": "SCT",
+        "value": "399198007"
+      },
+      "view_modifiers": []
+    },
+    "IV05": {
+      "anatomic_region": {
+        "meaning": "Mouth",
+        "scheme": "SCT",
+        "value": "123851003"
+      },
+      "anatomic_region_modifier": null,
+      "dental_occlusion": {
+        "meaning": "Centric relation",
+        "scheme": "SCT",
+        "value": "736783005"
+      },
+      "description": "Intraoral, Right Buccal Segment, Centric Relation, With Mirror",
+      "devices": [
+        {
+          "meaning": "Intraoral photography mirror",
+          "scheme": "SCT",
+          "value": "1332162007"
+        }
+      ],
+      "findings_by_inspection": [],
+      "image_laterality": "U",
+      "keyword": "IV05",
+      "observable_entities": [],
+      "orthognathic_functional_conditions": [],
+      "patient_orientation": [
+        "P",
+        "F"
+      ],
+      "primary_anatomic_structure": {
+        "meaning": "Buccal space",
+        "scheme": "SCT",
+        "value": "261063000"
+      },
+      "primary_anatomic_structure_modifier": {
+        "meaning": "Right",
+        "scheme": "SCT",
+        "value": "24028007"
+      },
+      "series_description": "Orthodontic Intraoral Series",
+      "view_code": {
+        "meaning": "right lateral",
+        "scheme": "SCT",
+        "value": "399198007"
+      },
+      "view_modifiers": [
+        {
+          "meaning": "Mirrored image uncorrected",
+          "scheme": "SCT",
+          "value": "789135000"
+        }
+      ]
+    },
+    "IV06": {
+      "anatomic_region": {
+        "meaning": "Mouth",
+        "scheme": "SCT",
+        "value": "123851003"
+      },
+      "anatomic_region_modifier": null,
+      "dental_occlusion": {
+        "meaning": "Centric relation",
+        "scheme": "SCT",
+        "value": "736783005"
+      },
+      "description": "Intraoral, Right Buccal Segment, Centric Relation, With Mirror, But Corrected",
+      "devices": [
+        {
+          "meaning": "Intraoral photography mirror",
+          "scheme": "SCT",
+          "value": "1332162007"
+        }
+      ],
+      "findings_by_inspection": [],
+      "image_laterality": "U",
+      "keyword": "IV06",
+      "observable_entities": [],
+      "orthognathic_functional_conditions": [],
+      "patient_orientation": [
+        "A",
+        "F"
+      ],
+      "primary_anatomic_structure": {
+        "meaning": "Buccal space",
+        "scheme": "SCT",
+        "value": "261063000"
+      },
+      "primary_anatomic_structure_modifier": {
+        "meaning": "Right",
+        "scheme": "SCT",
+        "value": "24028007"
+      },
+      "series_description": "Orthodontic Intraoral Series",
+      "view_code": {
+        "meaning": "right lateral",
+        "scheme": "SCT",
+        "value": "399198007"
+      },
+      "view_modifiers": [
+        {
+          "meaning": "Mirrored photo image intraoral corrected",
+          "scheme": "SCT",
+          "value": "787610003"
+        }
+      ]
+    },
+    "IV07": {
+      "anatomic_region": {
+        "meaning": "Mouth",
+        "scheme": "SCT",
+        "value": "123851003"
+      },
+      "anatomic_region_modifier": null,
+      "dental_occlusion": {
+        "meaning": "Centric occlusion",
+        "scheme": "SCT",
+        "value": "110320000"
+      },
+      "description": "Intraoral, Frontal View, Centric Occlusion, No Mirror (Direct View)",
+      "devices": [],
+      "findings_by_inspection": [],
+      "image_laterality": "U",
+      "keyword": "IV07",
+      "observable_entities": [],
+      "orthognathic_functional_conditions": [],
+      "patient_orientation": [
+        "L",
+        "F"
+      ],
+      "primary_anatomic_structure": {
+        "meaning": "oral cavity",
+        "scheme": "SCT",
+        "value": "74262004"
+      },
+      "primary_anatomic_structure_modifier": null,
+      "series_description": "Orthodontic Intraoral Series",
+      "view_code": {
+        "meaning": "frontal",
+        "scheme": "SCT",
+        "value": "399033003"
+      },
+      "view_modifiers": []
+    },
+    "IV08": {
+      "anatomic_region": {
+        "meaning": "Mouth",
+        "scheme": "SCT",
+        "value": "123851003"
+      },
+      "anatomic_region_modifier": null,
+      "dental_occlusion": {
+        "meaning": "Centric relation",
+        "scheme": "SCT",
+        "value": "736783005"
+      },
+      "description": "Intraoral, Frontal View, Centric Relation, No Mirror (Direct View)",
+      "devices": [],
+      "findings_by_inspection": [],
+      "image_laterality": "U",
+      "keyword": "IV08",
+      "observable_entities": [],
+      "orthognathic_functional_conditions": [],
+      "patient_orientation": [
+        "L",
+        "F"
+      ],
+      "primary_anatomic_structure": {
+        "meaning": "oral cavity",
+        "scheme": "SCT",
+        "value": "74262004"
+      },
+      "primary_anatomic_structure_modifier": null,
+      "series_description": "Orthodontic Intraoral Series",
+      "view_code": {
+        "meaning": "frontal",
+        "scheme": "SCT",
+        "value": "399033003"
+      },
+      "view_modifiers": []
+    },
+    "IV09": {
+      "anatomic_region": {
+        "meaning": "Mouth",
+        "scheme": "SCT",
+        "value": "123851003"
+      },
+      "anatomic_region_modifier": null,
+      "dental_occlusion": null,
+      "description": "Intraoral, Frontal View, Teeth Apart, No Mirror (Direct View)",
+      "devices": [],
+      "findings_by_inspection": [],
+      "image_laterality": "U",
+      "keyword": "IV09",
+      "observable_entities": [],
+      "orthognathic_functional_conditions": [],
+      "patient_orientation": [
+        "L",
+        "F"
+      ],
+      "primary_anatomic_structure": {
+        "meaning": "oral cavity",
+        "scheme": "SCT",
+        "value": "74262004"
+      },
+      "primary_anatomic_structure_modifier": null,
+      "series_description": "Orthodontic Intraoral Series",
+      "view_code": {
+        "meaning": "frontal",
+        "scheme": "SCT",
+        "value": "399033003"
+      },
+      "view_modifiers": [
+        {
+          "meaning": "Photo image with mouth partially opened and teeth apart",
+          "scheme": "SCT",
+          "value": "789130005"
+        }
+      ]
+    },
+    "IV10": {
+      "anatomic_region": {
+        "meaning": "Mouth",
+        "scheme": "SCT",
+        "value": "123851003"
+      },
+      "anatomic_region_modifier": null,
+      "dental_occlusion": null,
+      "description": "Intraoral, Frontal View, Mouth Open, No Mirror (Direct View)",
+      "devices": [],
+      "findings_by_inspection": [],
+      "image_laterality": "U",
+      "keyword": "IV10",
+      "observable_entities": [],
+      "orthognathic_functional_conditions": [
+        {
+          "meaning": "Open mouth",
+          "scheme": "SCT",
+          "value": "262016004"
+        }
+      ],
+      "patient_orientation": [
+        "L",
+        "F"
+      ],
+      "primary_anatomic_structure": {
+        "meaning": "oral cavity",
+        "scheme": "SCT",
+        "value": "74262004"
+      },
+      "primary_anatomic_structure_modifier": null,
+      "series_description": "Orthodontic Intraoral Series",
+      "view_code": {
+        "meaning": "frontal",
+        "scheme": "SCT",
+        "value": "399033003"
+      },
+      "view_modifiers": []
+    },
+    "IV11": {
+      "anatomic_region": {
+        "meaning": "Mouth",
+        "scheme": "SCT",
+        "value": "123851003"
+      },
+      "anatomic_region_modifier": null,
+      "dental_occlusion": {
+        "meaning": "Centric occlusion",
+        "scheme": "SCT",
+        "value": "110320000"
+      },
+      "description": "Intraoral, Frontal View Inferior (showing depth of bite and overjet), Centric Occlusion, No Mirror (Direct View)",
+      "devices": [],
+      "findings_by_inspection": [],
+      "image_laterality": "U",
+      "keyword": "IV11",
+      "observable_entities": [],
+      "orthognathic_functional_conditions": [],
+      "patient_orientation": [
+        "L",
+        "F"
+      ],
+      "primary_anatomic_structure": {
+        "meaning": "oral cavity",
+        "scheme": "SCT",
+        "value": "74262004"
+      },
+      "primary_anatomic_structure_modifier": null,
+      "series_description": "Orthodontic Intraoral Series",
+      "view_code": {
+        "meaning": "frontal",
+        "scheme": "SCT",
+        "value": "399033003"
+      },
+      "view_modifiers": []
+    },
+    "IV12": {
+      "anatomic_region": {
+        "meaning": "Mouth",
+        "scheme": "SCT",
+        "value": "123851003"
+      },
+      "anatomic_region_modifier": null,
+      "dental_occlusion": {
+        "meaning": "Centric relation",
+        "scheme": "SCT",
+        "value": "736783005"
+      },
+      "description": "Intraoral, Frontal View Inferior (showing depth of bite and overjet), Centric Relation, No Mirror (Direct View)",
+      "devices": [],
+      "findings_by_inspection": [],
+      "image_laterality": "U",
+      "keyword": "IV12",
+      "observable_entities": [],
+      "orthognathic_functional_conditions": [],
+      "patient_orientation": [
+        "L",
+        "F"
+      ],
+      "primary_anatomic_structure": {
+        "meaning": "oral cavity",
+        "scheme": "SCT",
+        "value": "74262004"
+      },
+      "primary_anatomic_structure_modifier": null,
+      "series_description": "Orthodontic Intraoral Series",
+      "view_code": {
+        "meaning": "frontal",
+        "scheme": "SCT",
+        "value": "399033003"
+      },
+      "view_modifiers": []
+    },
+    "IV13": {
+      "anatomic_region": {
+        "meaning": "Mouth",
+        "scheme": "SCT",
+        "value": "123851003"
+      },
+      "anatomic_region_modifier": null,
+      "dental_occlusion": {
+        "meaning": "Centric occlusion",
+        "scheme": "SCT",
+        "value": "110320000"
+      },
+      "description": "Intraoral, Frontal View, showing Tongue Thrust, No Mirror (Direct View)",
+      "devices": [],
+      "findings_by_inspection": [],
+      "image_laterality": "U",
+      "keyword": "IV13",
+      "observable_entities": [
+        {
+          "meaning": "Tongue thrust",
+          "scheme": "SCT",
+          "value": "110343009"
+        }
+      ],
+      "orthognathic_functional_conditions": [],
+      "patient_orientation": [
+        "L",
+        "F"
+      ],
+      "primary_anatomic_structure": {
+        "meaning": "oral cavity",
+        "scheme": "SCT",
+        "value": "74262004"
+      },
+      "primary_anatomic_structure_modifier": null,
+      "series_description": "Orthodontic Intraoral Series",
+      "view_code": {
+        "meaning": "frontal",
+        "scheme": "SCT",
+        "value": "399033003"
+      },
+      "view_modifiers": []
+    },
+    "IV14": {
+      "anatomic_region": {
+        "meaning": "Mouth",
+        "scheme": "SCT",
+        "value": "123851003"
+      },
+      "anatomic_region_modifier": null,
+      "dental_occlusion": {
+        "meaning": "Centric occlusion",
+        "scheme": "SCT",
+        "value": "110320000"
+      },
+      "description": "Intraoral, Right Lateral View, Centric Occlusion, showing Overjet, No Mirror (Direct View showing overjet from the side)",
+      "devices": [
+        {
+          "meaning": "Measuring Ruler",
+          "scheme": "SCT",
+          "value": "102304005"
+        }
+      ],
+      "findings_by_inspection": [],
+      "image_laterality": "U",
+      "keyword": "IV14",
+      "observable_entities": [],
+      "orthognathic_functional_conditions": [],
+      "patient_orientation": [
+        "A",
+        "F"
+      ],
+      "primary_anatomic_structure": {
+        "meaning": "oral cavity",
+        "scheme": "SCT",
+        "value": "74262004"
+      },
+      "primary_anatomic_structure_modifier": {
+        "meaning": "Right",
+        "scheme": "SCT",
+        "value": "24028007"
+      },
+      "series_description": "Orthodontic Intraoral Series",
+      "view_code": {
+        "meaning": "right lateral",
+        "scheme": "SCT",
+        "value": "399198007"
+      },
+      "view_modifiers": []
+    },
+    "IV15": {
+      "anatomic_region": {
+        "meaning": "Mouth",
+        "scheme": "SCT",
+        "value": "123851003"
+      },
+      "anatomic_region_modifier": null,
+      "dental_occlusion": {
+        "meaning": "Centric relation",
+        "scheme": "SCT",
+        "value": "736783005"
+      },
+      "description": "Intraoral, Right Lateral View, Centric Relation, showing Overjet, No Mirror (Direct View showing overjet from the side)",
+      "devices": [],
+      "findings_by_inspection": [],
+      "image_laterality": "U",
+      "keyword": "IV15",
+      "observable_entities": [],
+      "orthognathic_functional_conditions": [],
+      "patient_orientation": [
+        "A",
+        "F"
+      ],
+      "primary_anatomic_structure": {
+        "meaning": "oral cavity",
+        "scheme": "SCT",
+        "value": "74262004"
+      },
+      "primary_anatomic_structure_modifier": {
+        "meaning": "Right",
+        "scheme": "SCT",
+        "value": "24028007"
+      },
+      "series_description": "Orthodontic Intraoral Series",
+      "view_code": {
+        "meaning": "right lateral",
+        "scheme": "SCT",
+        "value": "399198007"
+      },
+      "view_modifiers": []
+    },
+    "IV16": {
+      "anatomic_region": {
+        "meaning": "Mouth",
+        "scheme": "SCT",
+        "value": "123851003"
+      },
+      "anatomic_region_modifier": null,
+      "dental_occlusion": {
+        "meaning": "Centric occlusion",
+        "scheme": "SCT",
+        "value": "110320000"
+      },
+      "description": "Intraoral, Left Lateral View, Centric Occlusion, showing Overjet, No Mirror (Direct View showing overjet from the side)",
+      "devices": [],
+      "findings_by_inspection": [],
+      "image_laterality": "U",
+      "keyword": "IV16",
+      "observable_entities": [],
+      "orthognathic_functional_conditions": [],
+      "patient_orientation": [
+        "P",
+        "F"
+      ],
+      "primary_anatomic_structure": {
+        "meaning": "oral cavity",
+        "scheme": "SCT",
+        "value": "74262004"
+      },
+      "primary_anatomic_structure_modifier": {
+        "meaning": "Left",
+        "scheme": "SCT",
+        "value": "7771000"
+      },
+      "series_description": "Orthodontic Intraoral Series",
+      "view_code": {
+        "meaning": "left lateral",
+        "scheme": "SCT",
+        "value": "399173006"
+      },
+      "view_modifiers": []
+    },
+    "IV17": {
+      "anatomic_region": {
+        "meaning": "Mouth",
+        "scheme": "SCT",
+        "value": "123851003"
+      },
+      "anatomic_region_modifier": null,
+      "dental_occlusion": {
+        "meaning": "Centric relation",
+        "scheme": "SCT",
+        "value": "736783005"
+      },
+      "description": "Intraoral, Left Lateral View, Centric Relation, showing Overjet, No Mirror (Direct View showing overjet from the side)",
+      "devices": [],
+      "findings_by_inspection": [],
+      "image_laterality": "U",
+      "keyword": "IV17",
+      "observable_entities": [],
+      "orthognathic_functional_conditions": [],
+      "patient_orientation": [
+        "P",
+        "F"
+      ],
+      "primary_anatomic_structure": {
+        "meaning": "oral cavity",
+        "scheme": "SCT",
+        "value": "74262004"
+      },
+      "primary_anatomic_structure_modifier": {
+        "meaning": "Left",
+        "scheme": "SCT",
+        "value": "7771000"
+      },
+      "series_description": "Orthodontic Intraoral Series",
+      "view_code": {
+        "meaning": "left lateral",
+        "scheme": "SCT",
+        "value": "399173006"
+      },
+      "view_modifiers": []
+    },
+    "IV18": {
+      "anatomic_region": {
+        "meaning": "Mouth",
+        "scheme": "SCT",
+        "value": "123851003"
+      },
+      "anatomic_region_modifier": null,
+      "dental_occlusion": {
+        "meaning": "Centric occlusion",
+        "scheme": "SCT",
+        "value": "110320000"
+      },
+      "description": "Intraoral, Left Buccal Segment, Centric Occlusion, No Mirror (Direct View)",
+      "devices": [],
+      "findings_by_inspection": [],
+      "image_laterality": "U",
+      "keyword": "IV18",
+      "observable_entities": [],
+      "orthognathic_functional_conditions": [],
+      "patient_orientation": [
+        "P",
+        "F"
+      ],
+      "primary_anatomic_structure": {
+        "meaning": "Buccal space",
+        "scheme": "SCT",
+        "value": "261063000"
+      },
+      "primary_anatomic_structure_modifier": {
+        "meaning": "Left",
+        "scheme": "SCT",
+        "value": "7771000"
+      },
+      "series_description": "Orthodontic Intraoral Series",
+      "view_code": {
+        "meaning": "left lateral",
+        "scheme": "SCT",
+        "value": "399173006"
+      },
+      "view_modifiers": []
+    },
+    "IV19": {
+      "anatomic_region": {
+        "meaning": "Mouth",
+        "scheme": "SCT",
+        "value": "123851003"
+      },
+      "anatomic_region_modifier": null,
+      "dental_occlusion": {
+        "meaning": "Centric occlusion",
+        "scheme": "SCT",
+        "value": "110320000"
+      },
+      "description": "Intraoral, Left Buccal Segment, Centric Occlusion, With Mirror",
+      "devices": [
+        {
+          "meaning": "Intraoral photography mirror",
+          "scheme": "SCT",
+          "value": "1332162007"
+        }
+      ],
+      "findings_by_inspection": [],
+      "image_laterality": "U",
+      "keyword": "IV19",
+      "observable_entities": [],
+      "orthognathic_functional_conditions": [],
+      "patient_orientation": [
+        "A",
+        "F"
+      ],
+      "primary_anatomic_structure": {
+        "meaning": "Buccal space",
+        "scheme": "SCT",
+        "value": "261063000"
+      },
+      "primary_anatomic_structure_modifier": {
+        "meaning": "Left",
+        "scheme": "SCT",
+        "value": "7771000"
+      },
+      "series_description": "Orthodontic Intraoral Series",
+      "view_code": {
+        "meaning": "left lateral",
+        "scheme": "SCT",
+        "value": "399173006"
+      },
+      "view_modifiers": [
+        {
+          "meaning": "Mirrored image uncorrected",
+          "scheme": "SCT",
+          "value": "789135000"
+        }
+      ]
+    },
+    "IV20": {
+      "anatomic_region": {
+        "meaning": "Mouth",
+        "scheme": "SCT",
+        "value": "123851003"
+      },
+      "anatomic_region_modifier": null,
+      "dental_occlusion": {
+        "meaning": "Centric relation",
+        "scheme": "SCT",
+        "value": "736783005"
+      },
+      "description": "Intraoral, Left Buccal Segment, Centric Occlusion, With Mirror, But Corrected",
+      "devices": [
+        {
+          "meaning": "Intraoral photography mirror",
+          "scheme": "SCT",
+          "value": "1332162007"
+        }
+      ],
+      "findings_by_inspection": [],
+      "image_laterality": "U",
+      "keyword": "IV20",
+      "observable_entities": [],
+      "orthognathic_functional_conditions": [],
+      "patient_orientation": [
+        "P",
+        "F"
+      ],
+      "primary_anatomic_structure": {
+        "meaning": "Buccal space",
+        "scheme": "SCT",
+        "value": "261063000"
+      },
+      "primary_anatomic_structure_modifier": {
+        "meaning": "Left",
+        "scheme": "SCT",
+        "value": "7771000"
+      },
+      "series_description": "Orthodontic Intraoral Series",
+      "view_code": {
+        "meaning": "left lateral",
+        "scheme": "SCT",
+        "value": "399173006"
+      },
+      "view_modifiers": [
+        {
+          "meaning": "Mirrored photo image intraoral corrected",
+          "scheme": "SCT",
+          "value": "787610003"
+        }
+      ]
+    },
+    "IV21": {
+      "anatomic_region": {
+        "meaning": "Mouth",
+        "scheme": "SCT",
+        "value": "123851003"
+      },
+      "anatomic_region_modifier": null,
+      "dental_occlusion": {
+        "meaning": "Centric relation",
+        "scheme": "SCT",
+        "value": "736783005"
+      },
+      "description": "Intraoral, Left Buccal Segment, Centric Relation, No Mirror (Direct View)",
+      "devices": [],
+      "findings_by_inspection": [],
+      "image_laterality": "U",
+      "keyword": "IV21",
+      "observable_entities": [],
+      "orthognathic_functional_conditions": [],
+      "patient_orientation": [
+        "P",
+        "F"
+      ],
+      "primary_anatomic_structure": {
+        "meaning": "Buccal space",
+        "scheme": "SCT",
+        "value": "261063000"
+      },
+      "primary_anatomic_structure_modifier": {
+        "meaning": "Left",
+        "scheme": "SCT",
+        "value": "7771000"
+      },
+      "series_description": "Orthodontic Intraoral Series",
+      "view_code": {
+        "meaning": "left lateral",
+        "scheme": "SCT",
+        "value": "399173006"
+      },
+      "view_modifiers": []
+    },
+    "IV22": {
+      "anatomic_region": {
+        "meaning": "Mouth",
+        "scheme": "SCT",
+        "value": "123851003"
+      },
+      "anatomic_region_modifier": null,
+      "dental_occlusion": {
+        "meaning": "Centric relation",
+        "scheme": "SCT",
+        "value": "736783005"
+      },
+      "description": "Intraoral, Left Buccal Segment, Centric Relation, With Mirror",
+      "devices": [
+        {
+          "meaning": "Intraoral photography mirror",
+          "scheme": "SCT",
+          "value": "1332162007"
+        }
+      ],
+      "findings_by_inspection": [],
+      "image_laterality": "U",
+      "keyword": "IV22",
+      "observable_entities": [],
+      "orthognathic_functional_conditions": [],
+      "patient_orientation": [
+        "A",
+        "F"
+      ],
+      "primary_anatomic_structure": {
+        "meaning": "Buccal space",
+        "scheme": "SCT",
+        "value": "261063000"
+      },
+      "primary_anatomic_structure_modifier": {
+        "meaning": "Left",
+        "scheme": "SCT",
+        "value": "7771000"
+      },
+      "series_description": "Orthodontic Intraoral Series",
+      "view_code": {
+        "meaning": "left lateral",
+        "scheme": "SCT",
+        "value": "399173006"
+      },
+      "view_modifiers": [
+        {
+          "meaning": "Mirrored image uncorrected",
+          "scheme": "SCT",
+          "value": "789135000"
+        }
+      ]
+    },
+    "IV23": {
+      "anatomic_region": {
+        "meaning": "Mouth",
+        "scheme": "SCT",
+        "value": "123851003"
+      },
+      "anatomic_region_modifier": null,
+      "dental_occlusion": {
+        "meaning": "Centric relation",
+        "scheme": "SCT",
+        "value": "736783005"
+      },
+      "description": "Intraoral, Left Buccal Segment, Centric Relation, With Mirror, But Corrected",
+      "devices": [
+        {
+          "meaning": "Intraoral photography mirror",
+          "scheme": "SCT",
+          "value": "1332162007"
+        }
+      ],
+      "findings_by_inspection": [],
+      "image_laterality": "U",
+      "keyword": "IV23",
+      "observable_entities": [],
+      "orthognathic_functional_conditions": [],
+      "patient_orientation": [
+        "P",
+        "F"
+      ],
+      "primary_anatomic_structure": {
+        "meaning": "Buccal space",
+        "scheme": "SCT",
+        "value": "261063000"
+      },
+      "primary_anatomic_structure_modifier": {
+        "meaning": "Left",
+        "scheme": "SCT",
+        "value": "7771000"
+      },
+      "series_description": "Orthodontic Intraoral Series",
+      "view_code": {
+        "meaning": "left lateral",
+        "scheme": "SCT",
+        "value": "399173006"
+      },
+      "view_modifiers": [
+        {
+          "meaning": "Mirrored photo image intraoral corrected",
+          "scheme": "SCT",
+          "value": "787610003"
+        }
+      ]
+    },
+    "IV24": {
+      "anatomic_region": {
+        "meaning": "Mouth",
+        "scheme": "SCT",
+        "value": "123851003"
+      },
+      "anatomic_region_modifier": null,
+      "dental_occlusion": null,
+      "description": "Intraoral, Maxillary, Mouth Open, Occlusal View, With Mirror",
+      "devices": [
+        {
+          "meaning": "Intraoral photography mirror",
+          "scheme": "SCT",
+          "value": "1332162007"
+        }
+      ],
+      "findings_by_inspection": [],
+      "image_laterality": "U",
+      "keyword": "IV24",
+      "observable_entities": [],
+      "orthognathic_functional_conditions": [
+        {
+          "meaning": "Open mouth",
+          "scheme": "SCT",
+          "value": "262016004"
+        }
+      ],
+      "patient_orientation": [
+        "R",
+        "A"
+      ],
+      "primary_anatomic_structure": {
+        "meaning": "Maxillary dental arch",
+        "scheme": "SCT",
+        "value": "39481002"
+      },
+      "primary_anatomic_structure_modifier": null,
+      "series_description": "Orthodontic Intraoral Series",
+      "view_code": {
+        "meaning": "Occlusal projection",
+        "scheme": "SCT",
+        "value": "260499007"
+      },
+      "view_modifiers": [
+        {
+          "meaning": "Mirrored image uncorrected",
+          "scheme": "SCT",
+          "value": "789135000"
+        }
+      ]
+    },
+    "IV25": {
+      "anatomic_region": {
+        "meaning": "Mouth",
+        "scheme": "SCT",
+        "value": "123851003"
+      },
+      "anatomic_region_modifier": null,
+      "dental_occlusion": null,
+      "description": "Intraoral, Maxillary, Mouth Open, Occlusal View, With Mirror, But Corrected",
+      "devices": [
+        {
+          "meaning": "Intraoral photography mirror",
+          "scheme": "SCT",
+          "value": "1332162007"
+        }
+      ],
+      "findings_by_inspection": [],
+      "image_laterality": "U",
+      "keyword": "IV25",
+      "observable_entities": [],
+      "orthognathic_functional_conditions": [
+        {
+          "meaning": "Open mouth",
+          "scheme": "SCT",
+          "value": "262016004"
+        }
+      ],
+      "patient_orientation": [
+        "L",
+        "P"
+      ],
+      "primary_anatomic_structure": {
+        "meaning": "Maxillary dental arch",
+        "scheme": "SCT",
+        "value": "39481002"
+      },
+      "primary_anatomic_structure_modifier": null,
+      "series_description": "Orthodontic Intraoral Series",
+      "view_code": {
+        "meaning": "Occlusal projection",
+        "scheme": "SCT",
+        "value": "260499007"
+      },
+      "view_modifiers": [
+        {
+          "meaning": "Mirrored photo image intraoral corrected",
+          "scheme": "SCT",
+          "value": "787610003"
+        }
+      ]
+    },
+    "IV26": {
+      "anatomic_region": {
+        "meaning": "Mouth",
+        "scheme": "SCT",
+        "value": "123851003"
+      },
+      "anatomic_region_modifier": null,
+      "dental_occlusion": null,
+      "description": "Intraoral, Mandibular, Mouth Open, Occlusal View, With Mirror",
+      "devices": [
+        {
+          "meaning": "Intraoral photography mirror",
+          "scheme": "SCT",
+          "value": "1332162007"
+        }
+      ],
+      "findings_by_inspection": [],
+      "image_laterality": "U",
+      "keyword": "IV26",
+      "observable_entities": [],
+      "orthognathic_functional_conditions": [
+        {
+          "meaning": "Open mouth",
+          "scheme": "SCT",
+          "value": "262016004"
+        }
+      ],
+      "patient_orientation": [
+        "L",
+        "P"
+      ],
+      "primary_anatomic_structure": {
+        "meaning": "Mandibular dental arch",
+        "scheme": "SCT",
+        "value": "88176008"
+      },
+      "primary_anatomic_structure_modifier": null,
+      "series_description": "Orthodontic Intraoral Series",
+      "view_code": {
+        "meaning": "Occlusal projection",
+        "scheme": "SCT",
+        "value": "260499007"
+      },
+      "view_modifiers": [
+        {
+          "meaning": "Mirrored image uncorrected",
+          "scheme": "SCT",
+          "value": "789135000"
+        }
+      ]
+    },
+    "IV27": {
+      "anatomic_region": {
+        "meaning": "Mouth",
+        "scheme": "SCT",
+        "value": "123851003"
+      },
+      "anatomic_region_modifier": null,
+      "dental_occlusion": null,
+      "description": "Intraoral, Mandibular, Mouth Open, Occlusal View, With Mirror, But Corrected",
+      "devices": [
+        {
+          "meaning": "Intraoral photography mirror",
+          "scheme": "SCT",
+          "value": "1332162007"
+        }
+      ],
+      "findings_by_inspection": [],
+      "image_laterality": "U",
+      "keyword": "IV27",
+      "observable_entities": [],
+      "orthognathic_functional_conditions": [
+        {
+          "meaning": "Open mouth",
+          "scheme": "SCT",
+          "value": "262016004"
+        }
+      ],
+      "patient_orientation": [
+        "L",
+        "A"
+      ],
+      "primary_anatomic_structure": {
+        "meaning": "Mandibular dental arch",
+        "scheme": "SCT",
+        "value": "88176008"
+      },
+      "primary_anatomic_structure_modifier": null,
+      "series_description": "Orthodontic Intraoral Series",
+      "view_code": {
+        "meaning": "Occlusal projection",
+        "scheme": "SCT",
+        "value": "260499007"
+      },
+      "view_modifiers": [
+        {
+          "meaning": "Mirrored photo image intraoral corrected",
+          "scheme": "SCT",
+          "value": "787610003"
+        }
+      ]
+    },
+    "IV28": {
+      "anatomic_region": {
+        "meaning": "Mouth",
+        "scheme": "SCT",
+        "value": "123851003"
+      },
+      "anatomic_region_modifier": null,
+      "dental_occlusion": null,
+      "description": "Intraoral, showing Gingival Recession. May include ISO tooth numbers of the affected teeth.",
+      "devices": [],
+      "findings_by_inspection": [
+        {
+          "meaning": "Gingival recession",
+          "scheme": "SCT",
+          "value": "4356008"
+        }
+      ],
+      "image_laterality": "U",
+      "keyword": "IV28",
+      "observable_entities": [],
+      "orthognathic_functional_conditions": [],
+      "patient_orientation": null,
+      "primary_anatomic_structure": {
+        "meaning": "oral cavity",
+        "scheme": "SCT",
+        "value": "74262004"
+      },
+      "primary_anatomic_structure_modifier": null,
+      "series_description": "Orthodontic Intraoral Series",
+      "view_code": null,
+      "view_modifiers": [
+        {
+          "meaning": "Close up photographic view of teeth without magnification",
+          "scheme": "SCT",
+          "value": "789131009"
+        }
+      ]
+    },
+    "IV29": {
+      "anatomic_region": {
+        "meaning": "Mouth",
+        "scheme": "SCT",
+        "value": "123851003"
+      },
+      "anatomic_region_modifier": null,
+      "dental_occlusion": null,
+      "description": "Intraoral, showing Frenum. May include ISO tooth numbers designating frenum's location.",
+      "devices": [],
+      "findings_by_inspection": [],
+      "image_laterality": "U",
+      "keyword": "IV29",
+      "observable_entities": [],
+      "orthognathic_functional_conditions": [],
+      "patient_orientation": [
+        "L",
+        "F"
+      ],
+      "primary_anatomic_structure": {
+        "meaning": "Frenulum labii",
+        "scheme": "SCT",
+        "value": "7652006"
+      },
+      "primary_anatomic_structure_modifier": null,
+      "series_description": "Orthodontic Intraoral Series",
+      "view_code": null,
+      "view_modifiers": [
+        {
+          "meaning": "Close up photographic view of teeth without magnification",
+          "scheme": "SCT",
+          "value": "789131009"
+        }
+      ]
+    },
+    "IV30": {
+      "anatomic_region": {
+        "meaning": "Mouth",
+        "scheme": "SCT",
+        "value": "123851003"
+      },
+      "anatomic_region_modifier": null,
+      "dental_occlusion": null,
+      "description": "Intraoral, any view using a photo accessory device such as a contraster to provide a solid background or black mirror ([modifier] is any set of IO modifier as specified above)",
+      "devices": [
+        {
+          "meaning": "Periodontal probe",
+          "scheme": "SCT",
+          "value": "462735007"
+        }
+      ],
+      "findings_by_inspection": [],
+      "image_laterality": "U",
+      "keyword": "IV30",
+      "observable_entities": [],
+      "orthognathic_functional_conditions": [
+        {
+          "meaning": "Open mouth",
+          "scheme": "SCT",
+          "value": "262016004"
+        }
+      ],
+      "patient_orientation": null,
+      "primary_anatomic_structure": {
+        "meaning": "oral cavity",
+        "scheme": "SCT",
+        "value": "74262004"
+      },
+      "primary_anatomic_structure_modifier": null,
+      "series_description": "Orthodontic Intraoral Series",
+      "view_code": null,
+      "view_modifiers": []
+    }
+  }
+}

@@ -169,13 +169,9 @@ Derived from `.pylintrc`:
 
 ## 7) Project-Specific Implementation Guidance
 
-- Shared native-library requirements: `docs/API_CONTRACT.md`; draft IDL and
-  binding/check rules: `api/dicom4ortho.webidl` and `docs/API_DEFINITION.md`.
-- Preserve Python production names/defaults. A necessary rename needs an
-  old-signature wrapper and tested deprecation warning, not a breaking migration.
-- Structural checks are separate from behavior tests: `make api-check-pilot` and
-  `make api-test` require the development-only tools described in the API guide.
-  The pilot checks an explicitly marked subset, not the complete draft interface.
+- Shared functionality is defined in `docs/API_CONTRACT.md`, not a shared public API.
+  Language APIs may be idiomatic; test adapters exercise real implementation behavior.
+  Shared DENT-OIP/GXV conformance tests are planned, not currently available.
 - Preserve DICOM semantics over generic refactors.
 - Do not change tag names, UID roots, transfer syntax behavior, or sequence semantics without clear requirement and tests.
 - Keep compatibility with both file-based and in-memory image workflows (`input_image_filename` and `input_image_bytes`).

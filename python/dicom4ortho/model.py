@@ -402,19 +402,19 @@ class DicomBase(object):
         self._ds.InstanceNumber = f"{int(instance_number):05d}" if instance_number else ''
 
     @property
-    def operator_firstname(self) -> str:
+    def operator_firstname(self):
         return str(self._ds.OperatorsName).split('^')[1]
 
     @operator_firstname.setter
-    def operator_firstname(self, firstname: str) -> None:
+    def operator_firstname(self, firstname):
         self._set_name("OperatorsName", firstname, 0)
 
     @property
-    def operator_lastname(self) -> str:
+    def operator_lastname(self):
         return str(self._ds.OperatorsName).split('^')[0]
 
     @operator_lastname.setter
-    def operator_lastname(self, lastname: str) -> None:
+    def operator_lastname(self, lastname):
         self._set_name("OperatorsName", lastname, 1)
 
     @property
@@ -450,19 +450,19 @@ class DicomBase(object):
         self._ds.SeriesDescription = description
 
     @property
-    def patient_firstname(self) -> str:
+    def patient_firstname(self):
         return str(self._ds.PatientName).split('^')[1]
 
     @patient_firstname.setter
-    def patient_firstname(self, firstname: str) -> None:
+    def patient_firstname(self, firstname):
         self._set_name("PatientName", firstname, 0)
 
     @property
-    def patient_lastname(self) -> str:
+    def patient_lastname(self):
         return str(self._ds.PatientName).split('^')[0]
 
     @patient_lastname.setter
-    def patient_lastname(self, lastname: str) -> None:
+    def patient_lastname(self, lastname):
         self._set_name("PatientName", lastname, 1)
 
     @property
@@ -534,19 +534,19 @@ class DicomBase(object):
         self._set_name("PerformingPhysicianName", lastname, 1)
 
     @property
-    def dental_provider_firstname(self) -> str:
+    def dental_provider_firstname(self):
         return str(self._ds.PhysiciansOfRecord).split('^')[1]
 
     @dental_provider_firstname.setter
-    def dental_provider_firstname(self, firstname: str) -> None:
+    def dental_provider_firstname(self, firstname):
         self._set_name("PhysiciansOfRecord", firstname, 0)
 
     @property
-    def dental_provider_lastname(self) -> str:
+    def dental_provider_lastname(self):
         return str(self._ds.PhysiciansOfRecord).split('^')[0]
 
     @dental_provider_lastname.setter
-    def dental_provider_lastname(self, lastname: str) -> None:
+    def dental_provider_lastname(self, lastname):
         self._set_name("PhysiciansOfRecord", lastname, 1)
 
     @property
@@ -736,7 +736,7 @@ class DicomBase(object):
             self._ds.StudyInstanceUID = generate_dicom_uid(
                 root=config.StudyInstanceUID_ROOT)
 
-    def to_dataset(self) -> Dataset:
+    def to_dataset(self):
         return self._ds
 
     def to_byte(self):
@@ -755,7 +755,7 @@ class DicomBase(object):
 
         return file_like
 
-    def prepare(self) -> None:
+    def prepare(self):
         """Prepare the image for saving.
 
         This method should be called before saving or sending the image to ensure that
@@ -800,7 +800,7 @@ class PhotographBase(DicomBase):
         if self.input_image_filename or self.input_image_bytes:
             self.set_exif_tags()
 
-    def prepare(self) -> None:
+    def prepare(self):
         super().prepare()
         self.set_exif_tags()
 

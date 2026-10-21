@@ -18,6 +18,3 @@ venv
 Pipfile.lock
 Pipfile
 poetry.lock
-/.worktrees/
-/tools/api/node_modules/
-/.mypy_cache/

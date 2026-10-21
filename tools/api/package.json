@@ -1,7 +1,0 @@
-{
-  "name": "dicom4ortho-api-prototype",
-  "private": true,
-  "type": "module",
-  "engines": {"node": ">=22"},
-  "dependencies": {"webidl2": "24.5.0"}
-}

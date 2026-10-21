@@ -11,7 +11,6 @@ python/
   examples/          # Python/CLI examples
   README.md          # Python contributor instructions
 tools/               # maintenance entry points, including the terminology generator
-api/                 # draft language-neutral IDL, not a shared executable core
 docs/                # project context, architecture, and release instructions
 .github/workflows/   # repository CI and Python publication
 pyproject.toml       # single Python packaging configuration and root build entry
@@ -71,16 +70,27 @@ code; Python/DICOM/image logic does not become a shared executable core.
 Specifications, terminology definitions, and conformance cases are suitable
 language-neutral boundaries for coordination between implementations.
 
-The [functional requirements](API_CONTRACT.md) describe mutable working records,
-templates, edits, image preservation, grouping and local output. An application's
-capture UI or **Finish and Send** action is outside this core; ports must not require
-an all-inputs-up-front conversion service. Existing Python production interfaces
-remain supported.
+For example, the existing Python implementation and the proposed iPhone MVP port:
 
-The [IDL and structural-conformance prototype](API_DEFINITION.md) keeps naming/type
-bindings in each implementation directory and generation/check tooling under
-`tools/api/`. Normal Python installation, runtime, unit tests and builds do not need
-Node or the structural-check tools. The separate `api-check-pilot`/`api-test` Make
-targets explicitly exercise that prototype. The Swift port remains separate work
-in [#82](https://github.com/open-ortho/dicom4ortho/issues/82); this branch does not
-introduce its implementation or prescribe a package-subdirectory layout.
+```text
+python/
+  dicom4ortho/
+  test/
+  examples/
+swift/                       # proposed Swift Package
+  Package.swift
+  Sources/
+    Dicom4Ortho/             # metadata validation and finalized-set materialization
+    NativeDicomBackend/      # narrow serialization/codec adapter
+  Tests/
+    Dicom4OrthoTests/
+...
+```
+
+The proposed Swift Package is independent of UIKit and AVFoundation. It validates
+metadata before capture, then materializes the finalized set into DICOM instances
+and a UID manifest after the application's **Finish and Send** action. A narrow
+native backend handles serialization and codecs without duplicating those
+components in Swift. This backend is scoped to the Swift port, not a shared
+executable core for all language implementations. Python retains the root build
+entry points described above; the Swift Package has its own `Package.swift`.

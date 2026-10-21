@@ -15,7 +15,7 @@
   <h3 align="center">dicom4ortho 0.5.4-dev</h3>
 
   <p align="center">
-    A Python library to create fully defined orthodontic photographs in DICOM.
+    DICOM functionality for orthodontic photographs.
     <br />
     <a href="https://open-ortho.github.io/dicom4ortho/"><strong>Explore the docs »</strong></a>
     <br />
@@ -48,8 +48,10 @@
 
 ## Introduction
 
-`dicom4ortho` is an open-source Python library: a reusable software component
+`dicom4ortho` is an open-source library: a reusable software component
 for developers building applications that store and exchange dental photographs.
+Python is the current implementation; other language implementations may expose
+idiomatic APIs while sharing the same functional goals.
 
 Dental providers, especially orthodontists, take different types of patient
 photographs to document anatomy and monitor treatment. These include full-face
@@ -97,11 +99,17 @@ An **Information Object Definition (IOD)** specifies the required and optional
 attributes for a particular kind of DICOM object. `dicom4ortho` builds DICOM
 datasets (collections of attributes that can include image data) according to
 these definitions and the draft profile. It pre-populates the anatomic and
-clinical attributes derived from the selected image type. The library can:
+clinical attributes derived from the selected image type. The shared functionality
+expected of each implementation is to:
 
 - create a DICOM image from a photograph, patient details, and an image type;
 - create a pre-populated DICOM dataset template from an image type;
-- identify a supported image type from a DICOM dataset.
+- extract the photograph views declared in a supplied DICOM image instance or
+  prescribed in a Modality Worklist dataset.
+
+The [shared functional contract](docs/API_CONTRACT.md) describes these capabilities
+and their test-adapter boundary. Shared conformance tests are planned; this does not
+claim that every implementation already supports every case.
 
 <!-- ABOUT THE PROJECT -->
 
@@ -265,10 +273,6 @@ repository root and produce the existing package artifacts in `dist/`.
 This is a layout refactor only: no new functionality or shared executable core.
 Future language implementations will have independent runtime code and builds.
 See [the repository layout and implementation boundaries](docs/REPOSITORY_LAYOUT.md).
-
-The [draft functional requirements](docs/API_CONTRACT.md) and
-[native API/structural-conformance prototype](docs/API_DEFINITION.md) describe the
-shared contract for independent language implementations, preserving Python compatibility.
 
 ## Usage
 

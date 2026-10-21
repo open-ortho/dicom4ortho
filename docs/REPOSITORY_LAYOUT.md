@@ -70,27 +70,25 @@ code; Python/DICOM/image logic does not become a shared executable core.
 Specifications, terminology definitions, and conformance cases are suitable
 language-neutral boundaries for coordination between implementations.
 
-For example, the existing Python implementation and the proposed iPhone MVP port:
+The Swift package introduced for #82 uses this layout:
 
 ```text
 python/
   dicom4ortho/
   test/
   examples/
-swift/                       # proposed Swift Package
-  Package.swift
+Package.swift                # SwiftPM Git-URL entry point
+apple/
   Sources/
-    Dicom4Ortho/             # metadata validation and finalized-set materialization
-    NativeDicomBackend/      # narrow serialization/codec adapter
+    DICOM4Ortho/              # dental mapping and DICOMKit integration
   Tests/
-    Dicom4OrthoTests/
+    DICOM4OrthoTests/
 ...
 ```
 
-The proposed Swift Package is independent of UIKit and AVFoundation. It validates
-metadata before capture, then materializes the finalized set into DICOM instances
-and a UID manifest after the application's **Finish and Send** action. A narrow
-native backend handles serialization and codecs without duplicating those
-components in Swift. This backend is scoped to the Swift port, not a shared
-executable core for all language implementations. Python retains the root build
-entry points described above; the Swift Package has its own `Package.swift`.
+The [Swift interface](../apple/README.md) is independent of UI/camera frameworks
+and Python. DICOMKit owns serialization and codecs. The package exposes image
+creation, view templates, and declared-view extraction; application capture/delivery
+workflows are not library lifecycle requirements. Python retains its root packaging
+and Make entry points unchanged. SwiftPM requires the root manifest when resolving
+this Git URL; explicit target paths keep Swift files under `apple/`.

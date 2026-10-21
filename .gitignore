@@ -18,3 +18,5 @@ venv
 Pipfile.lock
 Pipfile
 poetry.lock
+/.build/
+/.swiftpm/

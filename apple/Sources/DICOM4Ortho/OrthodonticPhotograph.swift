@@ -34,10 +34,12 @@ public struct OrthodonticPhotograph: Sendable {
         throw MaterializationError.notImplemented("availableViews")
     }
 
-    /// Reads explicit declarations from VL image View Code Sequence, every scheduled
+    /// Reads exact DENT-OIP structured Image Comments declarations, legacy/private
+    /// VL image View Code Sequence declarations, every scheduled
     /// step/protocol item, and copied Request Attributes protocol items. Returns a
     /// collection even for one/zero results; preserves sequence order and repetitions.
-    /// Catalog matching uses coded identity, never Code Meaning or anatomy. Unrelated
+    /// Coded matching uses identity, never Code Meaning or anatomy. Structured comments
+    /// must match the catalog declaration format, not an arbitrary EV/IV-looking substring. Unrelated
     /// projection/procedure codes and incomplete coded entries are not type declarations.
     /// Qualifying unknown private codes have a nil keyword. Input is not mutated and
     /// pixels are not decoded. Other IOD-specific locations are not exhaustively searched.

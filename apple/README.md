@@ -88,6 +88,11 @@ EXIF DateTimeOriginal and camera Make are fallback facts. Explicit acquisition a
 manufacturer values win. Acquisition timezone controls clinical day arithmetic;
 editing time is never substituted for capture time. Treatment events after capture
 are rejected; a zero-day offset is valid.
+Camera model/software/serial and aperture/shutter values are copied only when the
+corresponding supplementary attributes are absent. Digitization/editing timestamps
+populate Content Date/Time, not Acquisition Date/Time; known source offsets are
+converted to the dataset's selected timezone. Preservation is not de-identification:
+the original compressed stream can still contain embedded EXIF information.
 
 Share study/series UIDs through `PhotographMetadata` for related images, while
 keeping SOP Instance UIDs distinct. No study/series wrapper classes or Python-style
@@ -125,20 +130,6 @@ Before merge, the implementation is available from the author's public fork:
 
 After release, prefer the upstream `open-ortho/dicom4ortho` URL with a qualified tag.
 Branch references are pre-release integration aids, not stable releases.
-
-Before this PR is merged, an application package can resolve the API from the
-author's public fork (Swift tools 6.4+ is still required even for this API checkpoint):
-
-```swift
-// In the consuming Package.swift dependencies:
-.package(url: "https://github.com/zgypa-agent/dicom4ortho.git",
-         branch: "zgypa-agent/82-swift-api")
-// In the consuming target dependencies:
-.product(name: "DICOM4Ortho", package: "dicom4ortho")
-```
-
-After merge/release, use the upstream `open-ortho/dicom4ortho` URL with a qualified
-revision/tag instead. Branch references are pre-release integration aids, not stable releases.
 
 The development Mac currently has Xcode 26.3 plus an isolated official Swift 6.4.1
 toolchain. Standalone SwiftPM testing/cross-compilation can use that toolchain, but

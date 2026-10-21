@@ -9,6 +9,9 @@ The shared GXV/reference suite described in `docs/API_CONTRACT.md` is not availa
 - mainframe1: Apple Silicon, macOS 15.8.1, Xcode 26.3 (17C529), installed iOS SDK 26.2.
 - Isolated official Swift 6.4.1 toolchain; Swift 6 language mode; iOS deployment target 18.
 - DICOMKit 2.7.0 plus exact observed revisions in root `Package.resolved`.
+- An independent consumer package resolves the public fork's API branch and compiles;
+  the implementation branch also resolves by Git URL and creates/serializes/extracts
+  EV01 through public declarations without access to internal implementation types.
 - No changes to the build host's OS, Xcode selection/installation, or security settings.
 - Linux support is not claimed. Python is used only by independent validation/tooling.
 
@@ -85,8 +88,10 @@ empty Patient Orientation for IV28/IV30 rather than Python's Type 2C omission.
    A standalone simulator test-target build was also attempted: its Swift Testing
    macro expansion fails against the installed older SDK/testing support. Library
    cross-compilation remains successful; test-target compilation is not claimed.
-2. The added CI workflow needs a successful hosted run; local Apple checks are not CI evidence.
-   The setup-swift v2 action did not list 6.4.1. CI now extracts the exact official
+2. A hosted CI run at `2a152a0` passed on macos-15 with the selected Xcode 26.3 SDKs:
+   [run 39664887512](https://github.com/zgypa-agent/dicom4ortho/actions/runs/39664887512).
+   Subsequent revisions must retain green CI; this earlier success is not evidence
+   for a revision it did not test. The setup-swift v2 action did not list 6.4.1. CI extracts the exact official
    package using its qualified SHA-256 and trusted signature instead of changing a
    package manifest to accommodate an older compiler.
 3. Shared DENT-OIP/GXV conformance is not established; expand the reference corpus as it arrives.

@@ -28,6 +28,20 @@ jobs:
         env:
           DICOM4ORTHO_TEST_ARTIFACTS: ${{ runner.temp }}/dicom4ortho-artifacts
         run: swift test --jobs 4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install independent output decoders (validation only)
+        env:
+          HOMEBREW_NO_AUTO_UPDATE: '1'
+        run: |
+          python -m pip install 'pydicom>=3' numpy pillow pylibjpeg pylibjpeg-libjpeg pylibjpeg-openjpeg pyjpegls requests pynetdicom prettytable
+          brew install jpeg-xl
+          djxl --version
+      - name: Independently decode outputs and compare clinical mappings
+        env:
+          PYTHONPATH: python
+        run: python apple/Tools/validate_outputs.py "${{ runner.temp }}/dicom4ortho-artifacts" --compare-python
       - name: Cross-build iOS device library
         run: swift build --target DICOM4Ortho --triple arm64-apple-ios18.0 --sdk "$(xcrun --sdk iphoneos --show-sdk-path)" --scratch-path .build-ios-device --jobs 4
       - name: Cross-build iOS simulator library (not test execution)

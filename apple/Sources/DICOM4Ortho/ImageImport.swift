@@ -24,7 +24,7 @@ enum ImageImport {
             // Preservation cannot normalize it without changing the source codestream.
             throw MaterializationError.unsupportedImage
         }
-        let metadata = try exifFallback(properties, metadata: metadata)
+        let metadata = try EXIFMetadata.applying(properties, to: metadata)
         if encoding == .preserveSource {
             if bytes.starts(with: [0xff, 0xd8]) {
                 return try JPEGPreservation.preserve(bytes, metadata: metadata)
@@ -125,44 +125,4 @@ enum ImageImport {
         #endif
     }
 
-    #if canImport(ImageIO) && canImport(CoreGraphics)
-    private static func exifFallback(_ properties: [String: Any], metadata: PhotographMetadata) throws -> PhotographMetadata {
-        var result = metadata
-        if metadata.manufacturer.isEmpty,
-           let tiff = properties[kCGImagePropertyTIFFDictionary as String] as? [String: Any],
-           let make = tiff[kCGImagePropertyTIFFMake as String] as? String {
-            result.manufacturer = make.trimmingCharacters(in: .whitespacesAndNewlines)
-        }
-        guard metadata.acquisitionDateTime == nil,
-              let exif = properties[kCGImagePropertyExifDictionary as String] as? [String: Any],
-              let date = exif[kCGImagePropertyExifDateTimeOriginal as String] as? String else { return result }
-        let formatter = DateFormatter()
-        formatter.locale = Locale(identifier: "en_US_POSIX")
-        formatter.calendar = Calendar(identifier: .gregorian)
-        formatter.timeZone = metadata.acquisitionTimeZone
-        formatter.isLenient = false
-        if let offset = exif["OffsetTimeOriginal"] as? String {
-            let bytes = Array(offset.utf8)
-            guard bytes.count == 6, [43, 45].contains(bytes[0]), bytes[3] == 58,
-                  [bytes[1], bytes[2], bytes[4], bytes[5]].allSatisfy({ (48...57).contains($0) }) else {
-                throw MaterializationError.invalidMetadata("EXIF original-time offset is malformed")
-            }
-            let hours = Int(bytes[1] - 48) * 10 + Int(bytes[2] - 48)
-            let minutes = Int(bytes[4] - 48) * 10 + Int(bytes[5] - 48)
-            let seconds = (hours * 3600 + minutes * 60) * (bytes[0] == 45 ? -1 : 1)
-            guard (-12 * 3600...14 * 3600).contains(seconds), minutes < 60,
-                  let zone = TimeZone(secondsFromGMT: seconds) else {
-                throw MaterializationError.invalidMetadata("EXIF original-time offset is out of range")
-            }
-            formatter.timeZone = zone
-            result.acquisitionTimeZone = zone
-        }
-        formatter.dateFormat = "yyyy:MM:dd HH:mm:ss"
-        guard let acquired = formatter.date(from: date), formatter.string(from: acquired) == date else {
-            throw MaterializationError.invalidMetadata("EXIF DateTimeOriginal is malformed")
-        }
-        result.acquisitionDateTime = acquired
-        return result
-    }
-    #endif
 }

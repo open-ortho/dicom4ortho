@@ -11,7 +11,7 @@ enum MetadataValidation {
         .lossyImageCompression, .lossyImageCompressionRatio, .lossyImageCompressionMethod,
         .sopClassUID, .sopInstanceUID, .studyInstanceUID, .seriesInstanceUID,
         .patientName, .patientID, .patientBirthDate, .patientSex, .acquisitionDateTime,
-        .acquisitionDate, .acquisitionTime, .contentDate, .contentTime, .timezoneOffsetFromUTC,
+        .acquisitionDate, .acquisitionTime, .timezoneOffsetFromUTC,
         .viewCodeSequence, .anatomicRegionSequence, .primaryAnatomicStructureSequence,
         .deviceSequence, .acquisitionContextSequence, .imageType, .patientOrientation,
         .imageLaterality, .imageComments, .seriesDescription, .modality,
@@ -82,7 +82,7 @@ enum MetadataValidation {
         }
     }
 
-    private static func text(_ value: String, maximum: Int) throws {
+    static func text(_ value: String, maximum: Int) throws {
         guard value.count <= maximum, !value.contains("\\"),
               !value.unicodeScalars.contains(where: { CharacterSet.controlCharacters.contains($0) }) else {
             throw MaterializationError.invalidMetadata("Text exceeds its VR limit or contains separators/control characters")

@@ -27,10 +27,14 @@ private func encodedImage(type: String, exif: Bool = false, offset: String? = ni
     var properties: [String: Any] = [:]
     if exif {
         var exifProperties = [
-            kCGImagePropertyExifDateTimeOriginal as String: "2026:07:14 12:30:00"]
+            kCGImagePropertyExifDateTimeOriginal as String: "2026:07:14 12:30:00",
+            kCGImagePropertyExifDateTimeDigitized as String: "2026:07:15 13:00:00"]
         if let offset { exifProperties["OffsetTimeOriginal"] = offset }
         properties[kCGImagePropertyExifDictionary as String] = exifProperties
-        properties[kCGImagePropertyTIFFDictionary as String] = [kCGImagePropertyTIFFMake as String: "Example Camera"]
+        properties[kCGImagePropertyTIFFDictionary as String] = [
+            kCGImagePropertyTIFFMake as String: "Example Camera",
+            kCGImagePropertyTIFFModel as String: "Synthetic Model",
+            kCGImagePropertyTIFFSoftware as String: "Synthetic Software"]
     }
     CGImageDestinationAddImage(destination, image, properties as CFDictionary)
     guard CGImageDestinationFinalize(destination) else { throw MaterializationError.unsupportedImage }
@@ -80,12 +84,16 @@ private func encodedImage(type: String, exif: Bool = false, offset: String? = ni
                                              encoding: .explicitLittleEndian)
     #expect(fallback.dataSet.string(for: .acquisitionDate) == "20260714")
     #expect(fallback.dataSet.string(for: .manufacturer) == "Example Camera")
+    #expect(fallback.dataSet.string(for: .manufacturerModelName) == "Synthetic Model")
+    #expect(fallback.dataSet.string(for: .softwareVersions) == "Synthetic Software")
+    #expect(fallback.dataSet.string(for: .contentDate) == "20260715")
     metadata.acquisitionDateTime = ISO8601DateFormatter().date(from: "2026-10-21T12:00:00Z")!
     metadata.manufacturer = "Explicit"
     let explicit = try OrthodonticPhotograph(image: .encoded(bytes), metadata: metadata,
                                              encoding: .explicitLittleEndian)
     #expect(explicit.dataSet.string(for: .acquisitionDate) == "20261021")
     #expect(explicit.dataSet.string(for: .manufacturer) == "Explicit")
+    #expect(explicit.dataSet.string(for: .contentDate) == "20260715")
 }
 
 @Test func rawJPEG2000PreservationRequiresColorAndLossEvidence() throws {

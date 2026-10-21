@@ -145,8 +145,10 @@ struct PhotographProfile {
             formatter.dateFormat = "Z"
             let offset = formatter.string(from: acquired)
             dataset.setString(date + time + offset, for: .acquisitionDateTime, vr: .DT)
-            for tag in [Tag.acquisitionDate, .contentDate] { dataset.setString(date, for: tag, vr: .DA) }
-            for tag in [Tag.acquisitionTime, .contentTime] { dataset.setString(time, for: tag, vr: .TM) }
+            dataset.setString(date, for: .acquisitionDate, vr: .DA)
+            dataset.setString(time, for: .acquisitionTime, vr: .TM)
+            if dataset[.contentDate] == nil { dataset.setString(date, for: .contentDate, vr: .DA) }
+            if dataset[.contentTime] == nil { dataset.setString(time, for: .contentTime, vr: .TM) }
             dataset.setString(offset, for: .timezoneOffsetFromUTC, vr: .SH)
         }
         guard let progress = metadata.treatmentProgress else { return }

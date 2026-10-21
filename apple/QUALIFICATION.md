@@ -83,6 +83,9 @@ empty Patient Orientation for IV28/IV30 rather than Python's Type 2C omission.
    a Swift-tools-6.4 manifest. A compatible Xcode/host or suitable hosted runner is needed.
    Do not solve this by downgrading a manifest without qualifying its actual dependencies.
 2. The added CI workflow needs a successful hosted run; local Apple checks are not CI evidence.
+   The setup-swift v2 action did not list 6.4.1. CI now extracts the exact official
+   package using its qualified SHA-256 and trusted signature instead of changing a
+   package manifest to accommodate an older compiler.
 3. Shared DENT-OIP/GXV conformance is not established; expand the reference corpus as it arrives.
 4. No release tag has been published. Use the checklist before claiming a distributable release.
 

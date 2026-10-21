@@ -270,9 +270,10 @@ Root `pyproject.toml`, Make targets, and release tooling remain the entry points
 `pip install -e ".[dev]"`, `python -m build`, and `make build` still run from the
 repository root and produce the existing package artifacts in `dist/`.
 
-The Swift API checkpoint lives under [`apple/`](apple/README.md), with a root
-`Package.swift` for direct SwiftPM Git-URL consumption. Clinical Swift operations
-are not implemented at this checkpoint. Implementations have independent runtime
+The Swift implementation lives under [`apple/`](apple/README.md), with a root
+`Package.swift` for direct SwiftPM Git-URL consumption. Swift supports image creation,
+view-only templates, and declared-view extraction; it is not release-qualified.
+Implementations have independent runtime
 code and builds, not a shared executable core.
 See [the repository layout and implementation boundaries](docs/REPOSITORY_LAYOUT.md).
 

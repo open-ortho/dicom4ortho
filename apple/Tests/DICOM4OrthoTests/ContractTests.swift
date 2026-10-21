@@ -25,6 +25,7 @@ private enum ContractAdapter {
         let stub = try ContractAdapter.stub(view.keyword)
         for tag in [Tag.pixelData, .rows, .columns, .patientID, .acquisitionDateTime, .sopInstanceUID,
                     .studyInstanceUID, .seriesInstanceUID] { #expect(stub[tag] == nil) }
+        #expect((stub.sequence(for: .viewCodeSequence)?.count ?? 0) <= 1)
         #expect(try ContractAdapter.extract(stub).map(\.keyword) == [view.keyword])
         let photo = try ContractAdapter.create(view.keyword)
         let file = try DICOMFile.read(from: photo.dicomData())
@@ -104,6 +105,16 @@ private func step(_ codes: [DataSet], id: String) -> SequenceItem {
     #expect(try ContractAdapter.extract(dataset).first?.keyword == nil)
 }
 
+@Test func structuredCommentsMustMatchTheEntireDeclaration() throws {
+    var dataset = try ContractAdapter.stub("EV01")
+    let declaration = dataset.string(for: .imageComments)!
+    #expect(try ContractAdapter.extract(dataset).map(\.keyword) == ["EV01"])
+    for text in ["EV01", "some text " + declaration, declaration + " extra text", "EV01^wrong^description"] {
+        dataset.setString(text, for: .imageComments, vr: .LT)
+        #expect(try ContractAdapter.extract(dataset).isEmpty)
+    }
+}
+
 @Test func worklistCopyingUsesSelectedStepAndKeepsPersonnelRolesDistinct() throws {
     let view = try OrthodonticPhotograph.availableViews()[0]
     var worklist = DataSet()
@@ -124,6 +135,7 @@ private func step(_ codes: [DataSet], id: String) -> SequenceItem {
     #expect(photo.dataSet.string(for: .referringPhysicianName) == "Referral^Doctor")
     #expect(photo.dataSet.string(for: .sopInstanceUID) == originalUID)
     #expect(try ContractAdapter.extract(photo.dataSet).count == 3)
+    try export(photo, name: "worklist")
     #expect(throws: MaterializationError.invalidScheduledStep(-1)) {
         try metadata.applyingWorklist(worklist, scheduledStepIndex: -1)
     }
@@ -151,8 +163,17 @@ private func step(_ codes: [DataSet], id: String) -> SequenceItem {
     #expect(sibling.dataSet.string(for: .studyInstanceUID) == first.dataSet.string(for: .studyInstanceUID))
     #expect(sibling.dataSet.string(for: .seriesInstanceUID) == first.dataSet.string(for: .seriesInstanceUID))
     #expect(sibling.dataSet.string(for: .sopInstanceUID) != first.dataSet.string(for: .sopInstanceUID))
+    try export(first, name: "clinical-first")
+    try export(sibling, name: "clinical-second")
     second.dataSet.setString("invalid", for: .sopInstanceUID, vr: .UI)
     #expect(throws: MaterializationError.invalidUID("invalid")) { try second.dicomData() }
+}
+
+private func export(_ photo: OrthodonticPhotograph, name: String) throws {
+    guard let directory = ProcessInfo.processInfo.environment["DICOM4ORTHO_TEST_ARTIFACTS"] else { return }
+    let url = URL(fileURLWithPath: directory, isDirectory: true)
+    try FileManager.default.createDirectory(at: url, withIntermediateDirectories: true)
+    try photo.dicomData().write(to: url.appendingPathComponent(name + ".dcm"))
 }
 
 @Test func invalidClinicalValuesAndInputsThrowBeforeOutput() throws {

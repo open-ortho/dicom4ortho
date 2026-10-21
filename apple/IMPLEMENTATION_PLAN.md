@@ -35,6 +35,20 @@ layout tests pass. These checks do not establish clinical implementation conform
 - Run available Apple/Python checks; do not call simulator cross-builds simulator tests.
 - Add CI/release guidance and request PR review. Keep #82 open for any unmet criteria.
 
+## Implementation checkpoint (2026-10-21)
+
+The three public capabilities are implemented, with an offline 73-view catalog,
+clinical/worklist metadata, stable identity, supported image imports, separate
+compressed preservation, 13 output encodings, contract adapters, independent output
+checks, and CI/release documentation. The API branch has the structured-comment
+source correction; the implementation branch includes that correction.
+
+PR1: https://github.com/open-ortho/dicom4ortho/pull/85. Formal reviewer requests are
+not permitted for zgypa-agent, so @zgypa received a PR comment notification instead.
+
+See [QUALIFICATION.md](QUALIFICATION.md) for results and unmet acceptance checks.
+Do not mark #82 completed while simulator execution or another required check remains blocked.
+
 ## Environmental limit
 
 mainframe1 is reachable as the separately provisioned `amagni-agent` build user.

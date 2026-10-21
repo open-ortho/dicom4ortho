@@ -16,7 +16,7 @@ enum MetadataValidation {
         .deviceSequence, .acquisitionContextSequence, .imageType, .patientOrientation,
         .imageLaterality, .imageComments, .seriesDescription, .modality,
         .physiciansOfRecord, .operatorsName, .manufacturer, .studyDescription,
-        .seriesNumber, .instanceNumber
+        .seriesNumber, .instanceNumber, .numberOfFrames
     ]
 
     static func identities(_ dataset: DataSet) throws {
@@ -67,6 +67,14 @@ enum MetadataValidation {
         }
         for number in [metadata.seriesNumber, metadata.instanceNumber] where String(number).count > 12 {
             throw MaterializationError.invalidMetadata("DICOM IS values must fit within 12 characters")
+        }
+        if let acquisition = metadata.acquisitionDateTime {
+            var calendar = Calendar(identifier: .gregorian)
+            calendar.timeZone = metadata.acquisitionTimeZone
+            guard acquisition.timeIntervalSince1970.isFinite,
+                  (1...9999).contains(calendar.component(.year, from: acquisition)) else {
+                throw MaterializationError.invalidMetadata("Acquisition timestamp is outside DICOM's date range")
+            }
         }
     }
 

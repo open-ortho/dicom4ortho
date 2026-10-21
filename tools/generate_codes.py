@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Generate the committed terminology lock used by dicom4ortho.
+"""Generate committed Python and Swift terminology artifacts from one resolution.
 
 DICOM concepts are resolved from official NEMA FHIR ValueSets and the NEMA
 DCM ontology. ADA 1100 image types are resolved from Open Ortho FHIR

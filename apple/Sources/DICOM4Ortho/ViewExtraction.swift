@@ -70,7 +70,8 @@ enum ViewExtraction {
         let catalogScheme = terminology.imageTypes.values.contains { $0.code.scheme == scheme }
         guard requireExtension ? extended : (catalogScheme || extended) else { return nil }
         let creator = code.string(for: .contextGroupExtensionCreatorUID)
-        let matchingCreator = creator == nil || creator == DentalProfile.creatorUID
+        let matchingCreator = extended ? creator == DentalProfile.creatorUID
+            : (creator == nil || creator == DentalProfile.creatorUID)
         // The bundle has no version-specific aliases. Retain other explicit versions
         // as unresolved rather than silently claiming a match to an unversioned code.
         let unversioned = (code.string(for: .codingSchemeVersion) ?? "").isEmpty

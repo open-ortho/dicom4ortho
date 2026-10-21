@@ -23,7 +23,13 @@ enum PixelMaterialization {
         var dataset = try PhotographProfile().makeMetadata(metadata)
         layout(width: width, height: height, to: &dataset)
         dataset.setString("RGB", for: .photometricInterpretation, vr: .CS)
-        dataset.setString("00", for: .lossyImageCompression, vr: .CS)
+        let previousLoss = metadata.additionalAttributes.string(for: .lossyImageCompression) == "01"
+        dataset.setString(previousLoss ? "01" : "00", for: .lossyImageCompression, vr: .CS)
+        if previousLoss {
+            for tag in [Tag.lossyImageCompressionMethod, .lossyImageCompressionRatio] {
+                dataset[tag] = metadata.additionalAttributes[tag]
+            }
+        }
         dataset[.pixelData] = .data(tag: .pixelData, vr: .OB, data: pixels)
         return try encode(dataset, metadata: metadata, encoding: encoding)
     }

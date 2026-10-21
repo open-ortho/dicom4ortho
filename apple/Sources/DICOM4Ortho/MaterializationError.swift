@@ -3,7 +3,8 @@
 
 /// Input or clinical-profile errors, distinct from DICOMKit and file-access errors.
 public enum MaterializationError: Error, Equatable, Sendable {
-    /// API-only checkpoint: this operation has no implementation yet.
+    /// Retained for source compatibility with the API-only checkpoint. Implemented
+    /// clinical operations no longer throw this case.
     case notImplemented(String)
     /// The normalized photograph keyword is absent from the bundled catalog.
     case unknownImageType(String)
@@ -19,7 +20,7 @@ public enum MaterializationError: Error, Equatable, Sendable {
     case invalidTerminology(String)
     /// Lossy quality must be finite and strictly between zero and one.
     case invalidCompressionQuality
-    /// The treatment event is not a valid Gregorian calendar date.
+    /// A supplied clinical date is not a valid Gregorian calendar date.
     case invalidClinicalDate
     /// Treatment progress requires an actual acquisition date.
     case acquisitionDateRequired

@@ -100,6 +100,23 @@ def compare_python_views(directory: Path) -> None:
         assert actual.ImageComments == f"{keyword}^{view.abbreviation}^{view.meaning}".replace("\xa0", " ")
 
 
+def validate_clinical_relationships(directory: Path) -> None:
+    """Check independent serialized identity, progress, and worklist role evidence."""
+    first = pydicom.dcmread(directory / "clinical-first.dcm")
+    second = pydicom.dcmread(directory / "clinical-second.dcm")
+    assert first.StudyInstanceUID == second.StudyInstanceUID
+    assert first.SeriesInstanceUID == second.SeriesInstanceUID
+    assert first.SOPInstanceUID != second.SOPInstanceUID
+    assert first.AcquisitionDate == "20261021"
+    assert first.AcquisitionContextSequence[-1].NumericValue == 0
+    worklist = pydicom.dcmread(directory / "worklist.dcm")
+    assert str(worklist.PhysiciansOfRecord) == "Provider^"
+    assert str(worklist.OperatorsName) == "Operator^"
+    assert str(worklist.ReferringPhysicianName) == "Referral^Doctor"
+    assert worklist.RequestAttributesSequence[0].ScheduledProcedureStepID == "B"
+    assert len(worklist.RequestAttributesSequence[0].ScheduledProtocolCodeSequence) == 2
+
+
 def main() -> None:
     """Report measured lossy errors without inventing clinical acceptance thresholds."""
     parser = argparse.ArgumentParser(description=__doc__)
@@ -107,6 +124,7 @@ def main() -> None:
     parser.add_argument("--compare-python", action="store_true")
     arguments = parser.parse_args()
     reports = validate(arguments.directory)
+    validate_clinical_relationships(arguments.directory)
     if arguments.compare_python:
         compare_python_views(arguments.directory)
     print(json.dumps(reports, indent=2))

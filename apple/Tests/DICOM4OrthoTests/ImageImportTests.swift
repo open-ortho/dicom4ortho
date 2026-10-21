@@ -117,3 +117,31 @@ private func encodedImage(type: String, exif: Bool = false) throws -> Data {
                                           metadata: .init(imageType: "EV01"))
     #expect(throws: (any Error).self) { try photo.save(to: URL(string: "https://example.invalid/photo.dcm")!) }
 }
+
+@Test func JP2PreservationUsesContainerColorAndKeepsTheOriginalCodestream() throws {
+    let original = try OrthodonticPhotograph(
+        image: .rgb8(syntheticRGB(), width: 64, height: 64), metadata: .init(imageType: "EV01"),
+        encoding: .jpeg2000Lossless)
+    let stream = original.dataSet[.pixelData]!.encapsulatedFragments![0]
+    let jp2 = try J2KFileWriter(format: .jp2).wrap(
+        codestream: stream, headerForImage: J2KImage(width: 64, height: 64, components: 3))
+    var metadata = PhotographMetadata(imageType: "EV01")
+    metadata.additionalAttributes.setString("00", for: .lossyImageCompression, vr: .CS)
+    let preserved = try OrthodonticPhotograph(image: .encoded(jp2), metadata: metadata)
+    #expect(preserved.dataSet[.pixelData]?.encapsulatedFragments?.first == stream)
+    #expect(preserved.dataSet.string(for: .photometricInterpretation) == "YBR_RCT")
+}
+
+@Test func rawSamplesAndUncompressedContainersDoNotEraseKnownPreviousLoss() throws {
+    var metadata = PhotographMetadata(imageType: "EV01")
+    metadata.additionalAttributes.setString("01", for: .lossyImageCompression, vr: .CS)
+    metadata.additionalAttributes.setString("ISO_10918_1", for: .lossyImageCompressionMethod, vr: .CS)
+    metadata.additionalAttributes.setString("8.5", for: .lossyImageCompressionRatio, vr: .DS)
+    let raw = try OrthodonticPhotograph(image: .rgb8(syntheticRGB(), width: 64, height: 64), metadata: metadata)
+    #expect(raw.dataSet.string(for: .lossyImageCompression) == "01")
+    #expect(raw.dataSet.string(for: .lossyImageCompressionRatio) == "8.5")
+    let png = try OrthodonticPhotograph(image: .encoded(encodedImage(type: "public.png")),
+                                        metadata: metadata, encoding: .explicitLittleEndian)
+    #expect(png.dataSet.string(for: .lossyImageCompression) == "01")
+    #expect(png.dataSet.string(for: .lossyImageCompressionRatio) == "8.5")
+}

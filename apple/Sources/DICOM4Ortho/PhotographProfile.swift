@@ -89,6 +89,7 @@ struct PhotographProfile {
     func makeMetadata(_ metadata: PhotographMetadata) throws -> DataSet {
         try MetadataValidation.validate(metadata)
         var dataset = metadata.additionalAttributes
+        for tag in dataset.tags where tag.group == 0x0002 { dataset[tag] = nil }
         // Supplementary attributes may not supply stale pixels, identities, profile
         // sequences or compression history from another image. Managed values follow.
         for tag in MetadataValidation.managedTags { dataset[tag] = nil }

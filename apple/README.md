@@ -20,7 +20,7 @@ metadata.patientFamilyName = "Example"
 metadata.patientGivenName = "Alex"
 let photo = try OrthodonticPhotograph(
     image: .rgb8(Data([255, 0, 0]), width: 1, height: 1), metadata: metadata,
-    encoding: .jpeg2000Lossless)
+    encoding: .explicitLittleEndian)
 let bytes = try photo.dicomData()
 try photo.save(to: URL(fileURLWithPath: "example.dcm"))
 
@@ -55,13 +55,18 @@ unsupported preservation paths. Explicit encoding allows decoding/re-encoding an
 makes additional lossy intent visible. The [capability matrix](QUALIFICATION.md#codec-capabilities)
 records qualified combinations; enum cases alone are not support claims.
 
-PNG, TIFF, BMP, and supported JPEG sources can be decoded through ImageIO with an
+PNG, supported lossless TIFF, BMP, and supported JPEG sources can be decoded through ImageIO with an
 explicit output encoding. RGB8 output is intentional: the selected VL IOD requires
 8-bit samples; 16-bit samples must not be silently relabeled or down-converted.
 Multiple frames/pages, alpha, and nonidentity EXIF orientation are rejected.
 Normalize those sources explicitly in the application before calling the library.
+HEIF/GIF, JPEG-in-TIFF, and unknown TIFF compression schemes are not accepted merely
+because ImageIO can decode them; their source-loss histories need separate qualification.
 
-Baseline 8-bit three-component YCbCr JPEG can be preserved without recompression.
+Baseline 8-bit three-component YCbCr JPEG with a JFIF or Adobe-transform-1 declaration
+can be preserved without recompression. Headerless color assumptions and Adobe RGB/CMYK
+JPEG are rejected. Explicit JPEG decoding accepts qualified 8-bit color baseline or
+progressive processes, not an unqualified lossless process labeled as lossy.
 JP2 preservation accepts a single sRGB codestream with three unsigned 8-bit components
 and a supported MCT; palettes, channel mappings, Part 2 extensions, and coding-style
 overrides are rejected. Raw J2K additionally needs an explicit RGB source declaration:

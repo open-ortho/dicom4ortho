@@ -31,7 +31,31 @@ enum ImageImport {
             }
             return try JPEG2000Preservation.preserve(bytes, metadata: metadata)
         }
-        guard let source, let image = CGImageSourceCreateImageAtIndex(source, 0, nil),
+        guard let source, let sourceType = CGImageSourceGetType(source) else {
+            throw MaterializationError.unsupportedImage
+        }
+        let type = sourceType as String
+        guard ["public.jpeg", "public.png", "public.tiff", "com.microsoft.bmp", "public.jpeg-2000"].contains(type) else {
+            // ImageIO also reads HEIF/GIF and other containers. Accepting all of
+            // them would silently assert a compression history we have not qualified.
+            throw MaterializationError.unsupportedImage
+        }
+        if type == "public.tiff" {
+            let tiff = properties[kCGImagePropertyTIFFDictionary as String] as? [String: Any]
+            let compression = tiff?[kCGImagePropertyTIFFCompression as String] as? Int
+            // TIFF 6.0 lossless encodings plus the two registered Deflate values.
+            // JPEG-in-TIFF and unknown schemes need separate source-history qualification.
+            guard let compression, [1, 5, 8, 32773, 32946].contains(compression) else {
+                throw MaterializationError.unsupportedImage
+            }
+        }
+        if type == "public.jpeg" {
+            let header = try JPEGPreservation.inspect(bytes)
+            guard [0xc0, 0xc2].contains(header.process), header.precision == 8 else {
+                throw MaterializationError.unsupportedImage
+            }
+        }
+        guard let image = CGImageSourceCreateImageAtIndex(source, 0, nil),
               image.bitsPerComponent == 8,
               [.none, .noneSkipFirst, .noneSkipLast].contains(image.alphaInfo),
               let space = CGColorSpace(name: CGColorSpace.sRGB) else {
@@ -125,15 +149,16 @@ enum ImageImport {
             }
             let hours = Int(bytes[1] - 48) * 10 + Int(bytes[2] - 48)
             let minutes = Int(bytes[4] - 48) * 10 + Int(bytes[5] - 48)
-            guard hours <= 14, minutes < 60,
-                  let zone = TimeZone(secondsFromGMT: (hours * 3600 + minutes * 60) * (bytes[0] == 45 ? -1 : 1)) else {
+            let seconds = (hours * 3600 + minutes * 60) * (bytes[0] == 45 ? -1 : 1)
+            guard (-12 * 3600...14 * 3600).contains(seconds), minutes < 60,
+                  let zone = TimeZone(secondsFromGMT: seconds) else {
                 throw MaterializationError.invalidMetadata("EXIF original-time offset is out of range")
             }
             formatter.timeZone = zone
             result.acquisitionTimeZone = zone
         }
         formatter.dateFormat = "yyyy:MM:dd HH:mm:ss"
-        guard let acquired = formatter.date(from: date) else {
+        guard let acquired = formatter.date(from: date), formatter.string(from: acquired) == date else {
             throw MaterializationError.invalidMetadata("EXIF DateTimeOriginal is malformed")
         }
         result.acquisitionDateTime = acquired

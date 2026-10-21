@@ -14,7 +14,7 @@ The shared GXV/reference suite described in `docs/API_CONTRACT.md` is not availa
 
 ## Observed checks (2026-10-21)
 
-- Nineteen Swift tests cover public API, templates, all 73 view mappings, extraction, worklist copying,
+- Twenty Swift tests cover public API, templates, all 73 view mappings, extraction, worklist copying,
   clinical dates/personnel/identity, input imports, save lifecycle, and codec tests pass.
 - All 13 output policies independently decode at 64×64 and 1024×1024 synthetic RGB.
   Lossless paths reproduce the source samples exactly; lossy errors are measured,
@@ -82,6 +82,9 @@ empty Patient Orientation for IV28/IV30 rather than Python's Type 2C omission.
 1. **iOS simulator test execution remains blocked** by Xcode 26.3's resolver rejecting
    a Swift-tools-6.4 manifest. A compatible Xcode/host or suitable hosted runner is needed.
    Do not solve this by downgrading a manifest without qualifying its actual dependencies.
+   A standalone simulator test-target build was also attempted: its Swift Testing
+   macro expansion fails against the installed older SDK/testing support. Library
+   cross-compilation remains successful; test-target compilation is not claimed.
 2. The added CI workflow needs a successful hosted run; local Apple checks are not CI evidence.
    The setup-swift v2 action did not list 6.4.1. CI now extracts the exact official
    package using its qualified SHA-256 and trusted signature instead of changing a

@@ -75,6 +75,10 @@ enum MetadataValidation {
                   (1...9999).contains(calendar.component(.year, from: acquisition)) else {
                 throw MaterializationError.invalidMetadata("Acquisition timestamp is outside DICOM's date range")
             }
+            let offset = metadata.acquisitionTimeZone.secondsFromGMT(for: acquisition)
+            guard (-12 * 3600...14 * 3600).contains(offset), offset % 60 == 0 else {
+                throw MaterializationError.invalidMetadata("Acquisition timezone cannot be represented by a DICOM UTC offset")
+            }
         }
     }
 

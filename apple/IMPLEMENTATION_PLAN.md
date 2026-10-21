@@ -48,6 +48,9 @@ not permitted for zgypa-agent, so @zgypa received a PR comment notification inst
 
 See [QUALIFICATION.md](QUALIFICATION.md) for results and unmet acceptance checks.
 Do not mark #82 completed while simulator execution or another required check remains blocked.
+PR2: https://github.com/open-ortho/dicom4ortho/pull/86. @zgypa received the second
+review notification there. The two PRs target develop; PR2 includes PR1 and should
+be reviewed/merged after the API PR. Follow-up qualification fixes continue on PR2.
 
 ## Environmental limit
 

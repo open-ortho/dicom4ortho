@@ -1,13 +1,16 @@
-// PS3.6 standard tags missing from DICOMKit 2.7.0's convenience members only.
-// The upstream dictionary still owns these definitions; do not duplicate its other constants.
+// Convenience members missing from DICOMCore 2.7.0, resolved through its sibling
+// dictionary instead of copying tag numbers into a second standard registry.
 import DICOMCore
 import DICOMKit
+import DICOMDictionary
 
 extension Tag {
-    static let deviceSequence = Tag(group: 0x0050, element: 0x0010)
-    static let viewCodeSequence = Tag(group: 0x0054, element: 0x0220)
-    static let viewModifierCodeSequence = Tag(group: 0x0054, element: 0x0222)
-    static let scheduledProcedureStepSequence = Tag(group: 0x0040, element: 0x0100)
+    // These keys are invariants of the pinned dependency's bundled dictionary,
+    // verified by the contract tests. They do not depend on caller input or a server.
+    static let deviceSequence = DataElementDictionary.lookup(keyword: "DeviceSequence")!.tag
+    static let viewCodeSequence = DataElementDictionary.lookup(keyword: "ViewCodeSequence")!.tag
+    static let viewModifierCodeSequence = DataElementDictionary.lookup(keyword: "ViewModifierCodeSequence")!.tag
+    static let scheduledProcedureStepSequence = DataElementDictionary.lookup(keyword: "ScheduledProcedureStepSequence")!.tag
 }
 
 // Library-owned registered UID and the CID extended by the DENT-OIP profile.

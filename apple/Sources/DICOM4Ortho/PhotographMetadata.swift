@@ -50,9 +50,9 @@ public struct PhotographMetadata: Sendable {
     /// Replace study/series values with shared values for related photographs.
     public init(imageType: String) {
         self.imageType = imageType
-        studyInstanceUID = UIDGenerator(root: "1.3.6.1.4.1.61741.11.2.2").generate().value
-        seriesInstanceUID = UIDGenerator(root: "1.3.6.1.4.1.61741.11.2.3").generate().value
-        sopInstanceUID = UIDGenerator(root: "1.3.6.1.4.1.61741.11.2.4").generate().value
+        studyInstanceUID = UIDGenerator(root: DentalProfile.creatorUID + ".2").generate().value
+        seriesInstanceUID = UIDGenerator(root: DentalProfile.creatorUID + ".3").generate().value
+        sopInstanceUID = UIDGenerator(root: DentalProfile.creatorUID + ".4").generate().value
     }
 
     /// Copies supported patient, referring-physician, study, and request facts from

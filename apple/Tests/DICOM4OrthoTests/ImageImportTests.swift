@@ -14,7 +14,7 @@ private func syntheticRGB() -> Data {
     Data((0..<(64 * 64 * 3)).map { UInt8(truncatingIfNeeded: $0) })
 }
 
-private func encodedImage(type: String, exif: Bool = false) throws -> Data {
+private func encodedImage(type: String, exif: Bool = false, offset: String? = nil) throws -> Data {
     let data = NSMutableData()
     guard let provider = CGDataProvider(data: syntheticRGB() as CFData),
           let image = CGImage(width: 64, height: 64, bitsPerComponent: 8, bitsPerPixel: 24,
@@ -26,8 +26,10 @@ private func encodedImage(type: String, exif: Bool = false) throws -> Data {
     }
     var properties: [String: Any] = [:]
     if exif {
-        properties[kCGImagePropertyExifDictionary as String] = [
+        var exifProperties = [
             kCGImagePropertyExifDateTimeOriginal as String: "2026:07:14 12:30:00"]
+        if let offset { exifProperties["OffsetTimeOriginal"] = offset }
+        properties[kCGImagePropertyExifDictionary as String] = exifProperties
         properties[kCGImagePropertyTIFFDictionary as String] = [kCGImagePropertyTIFFMake as String: "Example Camera"]
     }
     CGImageDestinationAddImage(destination, image, properties as CFDictionary)
@@ -144,4 +146,14 @@ private func encodedImage(type: String, exif: Bool = false) throws -> Data {
                                         metadata: metadata, encoding: .explicitLittleEndian)
     #expect(png.dataSet.string(for: .lossyImageCompression) == "01")
     #expect(png.dataSet.string(for: .lossyImageCompressionRatio) == "8.5")
+}
+
+@Test func EXIFOffsetControlsAcquisitionRatherThanTheProcessTimezone() throws {
+    let bytes = try encodedImage(type: "public.jpeg", exif: true, offset: "+05:30")
+    var metadata = PhotographMetadata(imageType: "EV01")
+    metadata.acquisitionTimeZone = TimeZone(secondsFromGMT: 0)!
+    let photo = try OrthodonticPhotograph(image: .encoded(bytes), metadata: metadata,
+                                          encoding: .explicitLittleEndian)
+    #expect(photo.dataSet.string(for: .timezoneOffsetFromUTC) == "+0530")
+    #expect(photo.dataSet.string(for: .acquisitionTime)?.hasPrefix("123000") == true)
 }

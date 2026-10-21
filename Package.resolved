@@ -1,0 +1,69 @@
+{
+  "originHash" : "197cdb73cc6125cba42a5ab7a918f5545af79ce39e54fce9ccf3de249e181959",
+  "pins" : [
+    {
+      "identity" : "compressionfamily",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/Raster-Lab/CompressionFamily.git",
+      "state" : {
+        "revision" : "36ef2c94e28a3b74ba395ce6397ba2ae7b041c5e",
+        "version" : "1.0.1"
+      }
+    },
+    {
+      "identity" : "dicomkit",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/raster-labs/DICOMKit.git",
+      "state" : {
+        "revision" : "fd727eaeb7452e936f1608ddd12910d34406883f",
+        "version" : "2.7.0"
+      }
+    },
+    {
+      "identity" : "j2kswift",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/Raster-Lab/J2KSwift.git",
+      "state" : {
+        "revision" : "768f6b53499b806fd0304962056e1fc7833f12e5",
+        "version" : "11.0.3"
+      }
+    },
+    {
+      "identity" : "jliswift",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/raster-labs/JLISwift.git",
+      "state" : {
+        "revision" : "b6df774a3c3ecdf4b98971f31543fdd18074ace2",
+        "version" : "0.6.0"
+      }
+    },
+    {
+      "identity" : "jlswift",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/raster-labs/JLSwift.git",
+      "state" : {
+        "revision" : "d17545284a23e93f3d884a18f1046c4e305daa35",
+        "version" : "0.10.1"
+      }
+    },
+    {
+      "identity" : "jxlswift",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/Raster-Lab/JXLSwift.git",
+      "state" : {
+        "revision" : "760697a54dd253da8e8466c3fd09ecf2c2d89aec",
+        "version" : "1.4.0"
+      }
+    },
+    {
+      "identity" : "swift-argument-parser",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/apple/swift-argument-parser.git",
+      "state" : {
+        "revision" : "6a52f3251125d74daf04fcbd5e6f08a75d074382",
+        "version" : "1.8.2"
+      }
+    }
+  ],
+  "version" : 3
+}

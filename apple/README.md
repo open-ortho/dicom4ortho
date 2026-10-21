@@ -37,12 +37,16 @@ Extraction accepts already parsed datasets, including supplied worklists. Result
 retain actual-versus-prescribed roles, item indices, repetitions, and unresolved
 qualifying codes. No operation infers a view from anatomy or performs a network query.
 
-For newly created images, the explicit declaration is DENT-OIP's structured
-`keyword^abbreviation^meaning` Image Comments format. It is not arbitrary comment
-inference. `DeclaredView.Source.imageComments` retains that text; its `code` is the
-exact matched catalog entry. Legacy/private sequence declarations retain their original
-code dataset. View Code Sequence remains a single projection item: DICOM PS3.3
-Table C.8-77 and DENT-OIP do not permit appending a second type-code item beside it.
+Photograph-type codes use `RequestAttributesSequence.ScheduledProtocolCodeSequence`,
+as directed by [DENT-OIP #12](https://github.com/open-ortho/dent-oip/issues/12) and
+[current §3.4.1.3](https://open-ortho.github.io/dent-oip/nightly/V1_Orthodontic_Imaging_Profile/03_oip_process_flow/index.html#image-views-request-procedure-codes).
+`DeclaredView.Source.requested` labels these as prescriptions, not acquired views.
+Supplied series/worklist protocol lists must be retained; they do not uniquely identify
+an instance. No implicit Instance Number to protocol-index mapping is promised.
+Image Comments is a human-readable label only, never a coded-extraction source.
+Legacy/private View Code Sequence declarations retain their original code datasets.
+New output keeps the projection as its single View Code Sequence item; the remaining
+instance-level question is tracked in [DENT-OIP #25](https://github.com/open-ortho/dent-oip/issues/25).
 
 `PhotographInput` accepts RGB8, encoded bytes, and local files. `preserveSource`
 means no recompression, or uncompressed output for raw samples; it must reject

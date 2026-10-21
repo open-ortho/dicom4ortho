@@ -6,17 +6,15 @@ import DICOMKit
 public struct DeclaredView: Sendable {
     /// Resolved catalog keyword, or nil for a qualifying but unknown type code.
     public let keyword: String?
-    /// Original coded entry when read from a sequence, or the matched bundled code
-    /// for an exact DENT-OIP structured-comment declaration. No code is guessed.
+    /// Original coded entry, including scheme/version/context metadata. No code is guessed.
     public let code: DataSet
     public let source: Source
 
     /// Sequence association. Indices are zero-based and repeated declarations remain distinct.
     public enum Source: Sendable, Equatable {
         case image(viewCodeIndex: Int)
-        /// Exact structured declaration text, retained rather than treated as free-text evidence.
-        case imageComments(String)
         case scheduled(stepIndex: Int, protocolIndex: Int, stepID: String?)
+        /// Prescribed protocol carried by an image/template, not proof of acquisition.
         case requested(requestIndex: Int, protocolIndex: Int)
     }
 

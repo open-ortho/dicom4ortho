@@ -37,6 +37,13 @@ Extraction accepts already parsed datasets, including supplied worklists. Result
 retain actual-versus-prescribed roles, item indices, repetitions, and unresolved
 qualifying codes. No operation infers a view from anatomy or performs a network query.
 
+For newly created images, the explicit declaration is DENT-OIP's structured
+`keyword^abbreviation^meaning` Image Comments format. It is not arbitrary comment
+inference. `DeclaredView.Source.imageComments` retains that text; its `code` is the
+exact matched catalog entry. Legacy/private sequence declarations retain their original
+code dataset. View Code Sequence remains a single projection item: DICOM PS3.3
+Table C.8-77 and DENT-OIP do not permit appending a second type-code item beside it.
+
 `PhotographInput` accepts RGB8, encoded bytes, and local files. `preserveSource`
 means no recompression, or uncompressed output for raw samples; it must reject
 unsupported preservation paths. Explicit encoding allows decoding/re-encoding and

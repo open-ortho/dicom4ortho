@@ -24,7 +24,8 @@ layout tests pass. These checks do not establish clinical implementation conform
 - Bundle offline terminology generated from the same inputs as Python, without
   refreshing the clinical lock just to build and without adding a Python runtime dependency.
 - Create complete images and image-free templates; write explicit coded photograph
-  declarations so creation/extraction can be tested together.
+  declarations using DENT-OIP's structured Image Comments format so creation/extraction
+  can be tested together without violating View Code Sequence's single-item constraint.
 - Extract image declarations and every worklist step/protocol occurrence; preserve
   role/association and unknown qualifying codes; exclude unrelated projections.
 - Implement supported local image imports, EXIF fallback, clinical metadata, worklist

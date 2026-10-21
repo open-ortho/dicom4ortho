@@ -279,6 +279,11 @@ See [the repository layout and implementation boundaries](docs/REPOSITORY_LAYOUT
 
 ## Usage
 
+Photograph-type codes are stored under Request Attributes / Scheduled Protocol
+Code Sequence, separately from anatomical projections. See
+[code location and migration behavior](docs/VIEW_CODE_LOCATION.md), including the
+distinction between a series prescription and an acquired instance.
+
 The official documentation of this project is available on line
 [here](https://open-ortho.github.io/dicom4ortho). Source code for the
 documentation is in this repository under the `gh-pages` branch.

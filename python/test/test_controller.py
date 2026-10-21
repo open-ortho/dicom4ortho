@@ -20,7 +20,6 @@ from pydicom import dcmread
 from pynetdicom import AE, evt, AllStoragePresentationContexts, ALL_TRANSFER_SYNTAXES
 from dicom4ortho.controller import OrthodonticController
 from dicom4ortho.m_orthodontic_photograph import OrthodonticPhotograph
-from dicom4ortho.config import VL_DENTAL_VIEW_CID
 from test.sample_data_generator import make_sample_MWL
 from pynetdicom.sop_class import VLPhotographicImageStorage # 
 
@@ -93,7 +92,7 @@ class TestDIMSESend(unittest.TestCase):
 
     def test_image_type_code_persists_through_send_dimse(self):
         """
-        Test that the DICOM sent via DIMSE contains the expected image type code in ViewCodeSequence.
+        Test that DIMSE retains the expected image-type code in requested protocols.
         Starts a local DIMSE SCP to receive the DICOM, then inspects the received file.
         """
 
@@ -133,15 +132,14 @@ class TestDIMSESend(unittest.TestCase):
         self.assertTrue(self.received_files, "No DICOM file received by local DIMSE SCP.")
         ds = dcmread(self.received_files[0])
         found = False
-        for item in ds.ViewCodeSequence:
+        for item in ds.RequestAttributesSequence[0].ScheduledProtocolCodeSequence:
             if (
-                getattr(item, 'ContextIdentifier', None) == VL_DENTAL_VIEW_CID and
                 getattr(item, 'CodeValue', None) == 'EV99' and
                 getattr(item, 'CodingSchemeDesignator', None) == '99OPOR' and
                 getattr(item, 'CodeMeaning', None) == 'Custom Ortho View'
             ):
                 found = True
-        self.assertTrue(found, "Custom image type code not found in ViewCodeSequence after DIMSE send.")
+        self.assertTrue(found, "Custom image type code not found in requested protocols after DIMSE send.")
         try:
             os.remove(metadata['output_image_filename'])
         except OSError:
@@ -150,7 +148,7 @@ class TestDIMSESend(unittest.TestCase):
     @unittest.skip("Not implemented yet")
     def test_image_type_code_series_send_dimse(self):
         """
-        Test that sending an OrthodonticSeries via DIMSE results in all received DICOMs containing the expected image type codes in ViewCodeSequence.
+        Test that DIMSE retains the series members' requested protocol codes.
         """
         controller = OrthodonticController()
         # Create two OrthodonticPhotograph objects with different codes
@@ -211,23 +209,21 @@ class TestDIMSESend(unittest.TestCase):
         found1 = found2 = False
         for f in self.received_files:
             ds = dcmread(f)
-            for item in ds.ViewCodeSequence:
+            for item in ds.RequestAttributesSequence[0].ScheduledProtocolCodeSequence:
                 if (
-                    getattr(item, 'ContextIdentifier', None) == VL_DENTAL_VIEW_CID and
                     getattr(item, 'CodeValue', None) == 'EV99A' and
                     getattr(item, 'CodingSchemeDesignator', None) == '99OPOR' and
                     getattr(item, 'CodeMeaning', None) == 'Custom Ortho View 1'
                 ):
                     found1 = True
                 if (
-                    getattr(item, 'ContextIdentifier', None) == VL_DENTAL_VIEW_CID and
                     getattr(item, 'CodeValue', None) == 'EV99B' and
                     getattr(item, 'CodingSchemeDesignator', None) == '99OPOR' and
                     getattr(item, 'CodeMeaning', None) == 'Custom Ortho View 2'
                 ):
                     found2 = True
-        self.assertTrue(found1, "Custom image type code 1 not found in ViewCodeSequence after DIMSE send.")
-        self.assertTrue(found2, "Custom image type code 2 not found in ViewCodeSequence after DIMSE send.")
+        self.assertTrue(found1, "Custom image type code 1 not found in requested protocols.")
+        self.assertTrue(found2, "Custom image type code 2 not found in requested protocols.")
         # Cleanup
         for meta in (meta1, meta2):
             try:
@@ -237,7 +233,7 @@ class TestDIMSESend(unittest.TestCase):
 
     def test_image_type_code_dicom_datasets_send_dimse(self):
         """
-        Test that sending a list of DICOM datasets via DIMSE results in all received DICOMs containing the expected image type codes in ViewCodeSequence.
+        Test that DIMSE retains the requested protocol codes in a dataset list.
         """
         controller = OrthodonticController()
         # Create two OrthodonticPhotograph objects with different codes
@@ -295,23 +291,21 @@ class TestDIMSESend(unittest.TestCase):
         found1 = found2 = False
         for f in self.received_files:
             ds = dcmread(f)
-            for item in ds.ViewCodeSequence:
+            for item in ds.RequestAttributesSequence[0].ScheduledProtocolCodeSequence:
                 if (
-                    getattr(item, 'ContextIdentifier', None) == VL_DENTAL_VIEW_CID and
                     getattr(item, 'CodeValue', None) == 'EV99A' and
                     getattr(item, 'CodingSchemeDesignator', None) == '99OPOR' and
                     getattr(item, 'CodeMeaning', None) == 'Custom Ortho View 1'
                 ):
                     found1 = True
                 if (
-                    getattr(item, 'ContextIdentifier', None) == VL_DENTAL_VIEW_CID and
                     getattr(item, 'CodeValue', None) == 'EV99B' and
                     getattr(item, 'CodingSchemeDesignator', None) == '99OPOR' and
                     getattr(item, 'CodeMeaning', None) == 'Custom Ortho View 2'
                 ):
                     found2 = True
-        self.assertTrue(found1, "Custom image type code 1 not found in ViewCodeSequence after DIMSE send.")
-        self.assertTrue(found2, "Custom image type code 2 not found in ViewCodeSequence after DIMSE send.")
+        self.assertTrue(found1, "Custom image type code 1 not found in requested protocols.")
+        self.assertTrue(found2, "Custom image type code 2 not found in requested protocols.")
         # Cleanup
         for meta in (meta1, meta2):
             try:

@@ -4,6 +4,7 @@ The model.
 import datetime
 import logging
 import io
+from copy import deepcopy
 from math import copysign
 
 from pydicom.sequence import Sequence
@@ -283,6 +284,9 @@ class DicomBase(object):
         if 'RequestedProcedureDescription' in self.dicom_mwl:
             ras.RequestedProcedureDescription = self.dicom_mwl.RequestedProcedureDescription
 
+        if 'RequestedProcedureCodeSequence' in self.dicom_mwl:
+            ras.RequestedProcedureCodeSequence = deepcopy(self.dicom_mwl.RequestedProcedureCodeSequence)
+
         if 'ReasonForTheRequestedProcedure' in self.dicom_mwl:
             ras.ReasonForTheRequestedProcedure = self.dicom_mwl.ReasonForTheRequestedProcedure
 
@@ -296,9 +300,11 @@ class DicomBase(object):
             ras.ScheduledProcedureStepDescription = self.dicom_mwl.ScheduledProcedureStepDescription
 
         if 'ScheduledProcedureStepSequence' in self.dicom_mwl and self.dicom_mwl.ScheduledProcedureStepSequence:
-            if 'ScheduledProtocolCodeSequence' in self.dicom_mwl.ScheduledProcedureStepSequence[0]:
-                ras.ScheduledProtocolCodeSequence = self.dicom_mwl.ScheduledProcedureStepSequence[
-                    0].ScheduledProtocolCodeSequence
+            step = self.dicom_mwl.ScheduledProcedureStepSequence[0]
+            for keyword in ('ScheduledProcedureStepID', 'ScheduledProcedureStepDescription',
+                            'ScheduledProtocolCodeSequence'):
+                if keyword in step:
+                    setattr(ras, keyword, deepcopy(getattr(step, keyword)))
 
         self._ds.RequestAttributesSequence = Sequence([])
         self._ds.RequestAttributesSequence.append(ras)

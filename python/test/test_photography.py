@@ -19,7 +19,6 @@ from dicom4ortho.controller import OrthodonticController
 from dicom4ortho.m_orthodontic_photograph import OrthodonticPhotograph
 from dicom4ortho.config import StudyInstanceUID_ROOT, SeriesInstanceUID_ROOT
 from dicom4ortho.utils import generate_dicom_uid, get_scheduled_protocol_code
-from dicom4ortho.config import VL_DENTAL_VIEW_CID, DICOM4ORTHO_ROOT_UID
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(format='%(asctime)s %(module)s %(levelname)s: %(message)s',
@@ -345,11 +344,13 @@ class PhotoTests(unittest.TestCase):
         code.CodeValue = 'EV20'
         code.CodingSchemeDesignator = '99OPOR'
         code.CodeMeaning = 'Extraoral, Full Face, Full Smile, Centric Relation'
-        o.image_type_code_dataset = code
+        OrthodonticPhotograph.set_image_type_code_dataset(o._ds, code, protocol_index=1)
         o.save()
         # Verify the compatibility helper still works and warns callers.
         with self.assertWarnsRegex(DeprecationWarning, 'get_scheduled_protocol_code is deprecated'):
-            scheduled_protocol_code = get_scheduled_protocol_code(o._ds)
+            self.assertIsNone(get_scheduled_protocol_code(o._ds))
+        # Several views are prescribed: selection must be explicit, not the first match.
+        scheduled_protocol_code = o._ds.RequestAttributesSequence[0].ScheduledProtocolCodeSequence[1]
         self.assertIsNotNone(scheduled_protocol_code,
                              "Scheduled Protocol Code should not be None")
         self.assertEqual(scheduled_protocol_code.CodeValue,
@@ -400,7 +401,7 @@ class PhotoTests(unittest.TestCase):
         self.assertTrue(outputfilename.exists())
 
     def test_set_image_type_code_dataset_creator_uid(self):
-        """Test ContextGroupExtensionCreatorUID logic in set_image_type_code_dataset."""
+        """Explicit creator metadata survives without fabricating a projection CID."""
 
         ds = Dataset()
         code = Dataset()
@@ -411,12 +412,12 @@ class PhotoTests(unittest.TestCase):
         # 1. Explicit creator_uid argument
         OrthodonticPhotograph.set_image_type_code_dataset(
             ds, code, creator_uid='1.2.3.4.5.6.7.8.9')
-        item = ds.ViewCodeSequence[0]
+        item = ds.RequestAttributesSequence[0].ScheduledProtocolCodeSequence[0]
         self.assertEqual(item.ContextGroupExtensionCreatorUID,
                          '1.2.3.4.5.6.7.8.9')
-        self.assertEqual(item.ContextIdentifier, VL_DENTAL_VIEW_CID)
-        self.assertEqual(item.ContextGroupExtensionFlag, 'Y')
-        self.assertTrue(hasattr(item, 'ContextGroupLocalVersion'))
+        self.assertNotIn('ContextIdentifier', item)
+        self.assertNotIn('ContextGroupExtensionFlag', item)
+        self.assertNotIn('ContextGroupLocalVersion', item)
 
         # 2. Creator UID set in code_dataset
         ds2 = Dataset()
@@ -426,28 +427,25 @@ class PhotoTests(unittest.TestCase):
         code2.CodeMeaning = 'Extraoral, Full Face, Resting'
         code2.ContextGroupExtensionCreatorUID = '9.8.7.6.5.4.3.2.1'
         OrthodonticPhotograph.set_image_type_code_dataset(ds2, code2)
-        item2 = ds2.ViewCodeSequence[0]
+        item2 = ds2.RequestAttributesSequence[0].ScheduledProtocolCodeSequence[0]
         self.assertEqual(item2.ContextGroupExtensionCreatorUID,
                          '9.8.7.6.5.4.3.2.1')
-        self.assertEqual(item2.ContextIdentifier, VL_DENTAL_VIEW_CID)
-        self.assertEqual(item2.ContextGroupExtensionFlag, 'Y')
-        self.assertTrue(hasattr(item2, 'ContextGroupLocalVersion'))
+        self.assertNotIn('ContextIdentifier', item2)
+        self.assertNotIn('ContextGroupExtensionFlag', item2)
+        self.assertNotIn('ContextGroupLocalVersion', item2)
 
-        # 3. No creator_uid argument and not set in code_dataset (should fallback and warn)
+        # 3. No creator metadata: do not invent an assigning authority or private CID.
         ds3 = Dataset()
         code3 = Dataset()
         code3.CodeValue = 'EV22'
         code3.CodingSchemeDesignator = '99OPOR'
         code3.CodeMeaning = 'Extraoral, Full Face, Open Mouth'
-        with self.assertLogs('dicom4ortho.m_orthodontic_photograph', level='WARNING') as cm:
-            OrthodonticPhotograph.set_image_type_code_dataset(ds3, code3)
-        item3 = ds3.ViewCodeSequence[0]
-        self.assertEqual(item3.ContextGroupExtensionCreatorUID,
-                         DICOM4ORTHO_ROOT_UID)
-        self.assertEqual(item3.ContextIdentifier, VL_DENTAL_VIEW_CID)
-        self.assertEqual(item3.ContextGroupExtensionFlag, 'Y')
-        self.assertTrue(
-            any('using dicom4ortho UID' in msg for msg in cm.output))
+        OrthodonticPhotograph.set_image_type_code_dataset(ds3, code3)
+        item3 = ds3.RequestAttributesSequence[0].ScheduledProtocolCodeSequence[0]
+        self.assertNotIn('ContextGroupExtensionCreatorUID', item3)
+        self.assertNotIn('ContextIdentifier', item3)
+        self.assertNotIn('ContextGroupExtensionFlag', item3)
+        self.assertNotIn('ViewCodeSequence', ds3)
 
     def test_get_image_type_code_dataset(self):
         """Test get_image_type_code_dataset returns the correct item after set_image_type_code_dataset."""
@@ -463,8 +461,8 @@ class PhotoTests(unittest.TestCase):
         self.assertIsNotNone(item)
         self.assertEqual(item.ContextGroupExtensionCreatorUID,
                          '1.2.3.4.5.6.7.8.9')
-        self.assertEqual(item.ContextIdentifier, VL_DENTAL_VIEW_CID)
-        self.assertEqual(item.ContextGroupExtensionFlag, 'Y')
+        self.assertNotIn('ContextIdentifier', item)
+        self.assertNotIn('ContextGroupExtensionFlag', item)
         self.assertEqual(item.CodeValue, 'EV30')
         self.assertEqual(item.CodingSchemeDesignator, '99OPOR')
         self.assertEqual(item.CodeMeaning, 'Extraoral, Profile, Smile')
@@ -481,13 +479,13 @@ class PhotoTests(unittest.TestCase):
         self.assertIsNotNone(item2)
         self.assertEqual(item2.ContextGroupExtensionCreatorUID,
                          '9.8.7.6.5.4.3.2.1')
-        self.assertEqual(item2.ContextIdentifier, VL_DENTAL_VIEW_CID)
-        self.assertEqual(item2.ContextGroupExtensionFlag, 'Y')
+        self.assertNotIn('ContextIdentifier', item2)
+        self.assertNotIn('ContextGroupExtensionFlag', item2)
         self.assertEqual(item2.CodeValue, 'EV31')
         self.assertEqual(item2.CodingSchemeDesignator, '99OPOR')
         self.assertEqual(item2.CodeMeaning, 'Extraoral, Profile, Resting')
 
-        # Set with fallback to library UID
+        # No assigning authority is invented.
         ds3 = Dataset()
         code3 = Dataset()
         code3.CodeValue = 'EV32'
@@ -496,10 +494,9 @@ class PhotoTests(unittest.TestCase):
         OrthodonticPhotograph.set_image_type_code_dataset(ds3, code3)
         item3 = OrthodonticPhotograph.get_image_type_code_dataset(ds3)
         self.assertIsNotNone(item3)
-        self.assertEqual(item3.ContextGroupExtensionCreatorUID,
-                         DICOM4ORTHO_ROOT_UID)
-        self.assertEqual(item3.ContextIdentifier, VL_DENTAL_VIEW_CID)
-        self.assertEqual(item3.ContextGroupExtensionFlag, 'Y')
+        self.assertNotIn('ContextGroupExtensionCreatorUID', item3)
+        self.assertNotIn('ContextIdentifier', item3)
+        self.assertNotIn('ContextGroupExtensionFlag', item3)
         self.assertEqual(item3.CodeValue, 'EV32')
         self.assertEqual(item3.CodingSchemeDesignator, '99OPOR')
         self.assertEqual(item3.CodeMeaning, 'Extraoral, Profile, Open Mouth')
@@ -519,13 +516,13 @@ class PhotoTests(unittest.TestCase):
         self.assertIsNotNone(item)
         self.assertEqual(item.ContextGroupExtensionCreatorUID,
                          '1.2.3.4.5.6.7.8.9')
-        self.assertEqual(item.ContextIdentifier, VL_DENTAL_VIEW_CID)
-        self.assertEqual(item.ContextGroupExtensionFlag, 'Y')
+        self.assertNotIn('ContextIdentifier', item)
+        self.assertNotIn('ContextGroupExtensionFlag', item)
         self.assertEqual(item.CodeValue, 'EV40')
         self.assertEqual(item.CodingSchemeDesignator, '99OPOR')
         self.assertEqual(item.CodeMeaning, 'Extraoral, Oblique, Smile')
 
-        # 2. No creator_uid in code_dataset (should fallback to library UID)
+        # 2. No creator metadata in code_dataset.
         o2 = OrthodonticPhotograph()
         code2 = Dataset()
         code2.CodeValue = 'EV41'
@@ -534,16 +531,15 @@ class PhotoTests(unittest.TestCase):
         o2.image_type_code_dataset = code2
         item2 = o2.image_type_code_dataset
         self.assertIsNotNone(item2)
-        self.assertEqual(item2.ContextGroupExtensionCreatorUID,
-                         DICOM4ORTHO_ROOT_UID)
-        self.assertEqual(item2.ContextIdentifier, VL_DENTAL_VIEW_CID)
-        self.assertEqual(item2.ContextGroupExtensionFlag, 'Y')
+        self.assertNotIn('ContextGroupExtensionCreatorUID', item2)
+        self.assertNotIn('ContextIdentifier', item2)
+        self.assertNotIn('ContextGroupExtensionFlag', item2)
         self.assertEqual(item2.CodeValue, 'EV41')
         self.assertEqual(item2.CodingSchemeDesignator, '99OPOR')
         self.assertEqual(item2.CodeMeaning, 'Extraoral, Oblique, Resting')
 
     def test_set_image_type_code_dataset_preserves_unrelated(self):
-        """Test set_image_type_code_dataset does not touch unrelated ViewCodeSequence items."""
+        """The writer never changes ViewCodeSequence, even for a legacy multi-item input."""
         ds = Dataset()
         unrelated1 = Dataset()
         unrelated1.CodeValue = 'STD01'
@@ -568,7 +564,7 @@ class PhotoTests(unittest.TestCase):
             ds, code, creator_uid='1.2.3.4.5.6.7.8.9')
 
         # Ensure unrelated items are still present and unchanged
-        self.assertEqual(len(ds.ViewCodeSequence), 3)
+        self.assertEqual(len(ds.ViewCodeSequence), 2)
         self.assertEqual(ds.ViewCodeSequence[0].CodeValue, 'STD01')
         self.assertEqual(ds.ViewCodeSequence[1].CodeValue, 'STD02')
 

@@ -50,8 +50,8 @@
 
 `dicom4ortho` is an open-source library: a reusable software component
 for developers building applications that store and exchange dental photographs.
-Python is the current implementation; other language implementations may expose
-idiomatic APIs while sharing the same functional goals.
+Each language implementation may expose an idiomatic API while sharing the same
+functional goals.
 
 Dental providers, especially orthodontists, take different types of patient
 photographs to document anatomy and monitor treatment. These include full-face

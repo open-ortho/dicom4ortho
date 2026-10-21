@@ -17,18 +17,21 @@ The shared GXV/reference suite described in `docs/API_CONTRACT.md` is not availa
 
 ## Observed checks (2026-10-21)
 
-- Twenty Swift tests cover public API, templates, all 73 view mappings, extraction, worklist copying,
+- Twenty-one Swift tests cover public API, templates, all 73 view mappings, extraction, worklist copying,
   clinical dates/personnel/identity, input imports, save lifecycle, and codec tests pass.
-- All 13 output policies independently decode at 64×64, 1024×1024, and 2048×2048 synthetic RGB.
+- All 13 output policies independently decode at 64×64 synthetic RGB after the
+  request-code correction. Earlier codec checks also decoded 1024×1024 and 2048×2048;
+  those larger checks predate the metadata-location correction.
   Lossless paths reproduce the source samples exactly; lossy errors are measured,
   not interpreted as clinical-quality acceptance thresholds.
 - Independent decoders: pydicom 3 with libjpeg/OpenJPEG/CharLS plugins, Pillow's JPEG
   decoder, and libjxl 0.12.0 `djxl`. DICOMKit self-readback is not this oracle.
-- Independent `dciodvfy` snapshot 20260927113651 checks all 89 exported encoding/view/
-  clinical/worklist instances without errors. Empty Type 2 DICOMDIR fields and the
+- Independent `dciodvfy` snapshot 20260927113651 checks all 90 corrected encoding/view/
+  clinical/worklist/multi-request instances without errors. Empty Type 2 DICOMDIR fields and the
   validator's standard-extended profile warnings remain; neither is hidden.
-- Python: 133 non-E2E tests pass, four skips. Runtime/terminology lock and Python
-  packaging remain unchanged. Generator changes have offline parity/drift tests;
+- Python: 141 non-E2E tests pass, four skips. The maintainer-authorized code-location
+  correction changes Python runtime behavior; terminology lock and packaging remain
+  unchanged. Generator changes have offline parity/drift tests;
   error-only Pylint and Python wheel/source-archive builds also pass.
 - iOS device and simulator library cross-builds pass on the recorded SDK/toolchain.
   These are compile checks, **not test execution on either device or simulator**.
@@ -78,8 +81,24 @@ find /path/to/synthetic-artifacts -name '*.dcm' -exec dciodvfy {} \;
 
 `ContractTests.swift` contains thin adapters that call the actual public functions.
 They do not implement clinical mappings or extraction. The Python comparison has
-two deliberate differences: a complete structured Image Comments declaration and
-empty Patient Orientation for IV28/IV30 rather than Python's Type 2C omission.
+two deliberate label/orientation differences: a three-field human-readable Image
+Comments label and empty Patient Orientation for IV28/IV30 rather than Python's
+Type 2C omission. Both implementations now write the same coded Request Attributes /
+Scheduled Protocol Code Sequence and keep one projection. Comments do not identify a view.
+
+## Request-code correction
+
+Following the maintainer's instruction and DENT-OIP #12, new codes use Request
+Attributes / Scheduled Protocol Code Sequence instead of private projection extensions
+or comment extraction. Current source/nightly §3.4.1.3 contains the instruction;
+the old `latest` tag inspected earlier predates it. The correction preserves supplied
+series/worklist request lists, repetitions, identifiers and code metadata. It does
+not claim a unique instance association for a multi-view prescription; #25 remains open.
+See [migration behavior](../docs/VIEW_CODE_LOCATION.md) for Python's scalar convenience
+and explicit-index updates. Validation results for the earlier representation are
+historical, not proof of the new output. The corrected outputs are re-exported and
+independently checked, including both languages' exact request-code locations,
+projection cardinality, repeated protocols and separate request identifiers.
 
 ## Remaining acceptance limits
 

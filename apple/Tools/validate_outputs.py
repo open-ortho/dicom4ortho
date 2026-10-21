@@ -76,7 +76,7 @@ def compare_python_views(directory: Path) -> None:
 
     attributes = ["SeriesDescription", "PatientOrientation", "ImageLaterality", "DeviceSequence",
                   "AnatomicRegionSequence", "PrimaryAnatomicStructureSequence", "ViewCodeSequence",
-                  "AcquisitionContextSequence"]
+                  "AcquisitionContextSequence", "RequestAttributesSequence"]
     for keyword in sorted(VIEWS):
         parameters = {"image_type": keyword}
         if keyword in ("IV28", "IV30", "EV40"):
@@ -98,6 +98,11 @@ def compare_python_views(directory: Path) -> None:
                 assert left.to_json_dict() == right.to_json_dict(), (keyword, attribute)
         view = IMAGE_TYPES[keyword]
         assert actual.ImageComments == f"{keyword}^{view.abbreviation}^{view.meaning}".replace("\xa0", " ")
+        code = actual.RequestAttributesSequence[0].ScheduledProtocolCodeSequence[0]
+        assert code.CodeValue == view.code.value
+        assert code.CodingSchemeDesignator == view.code.scheme
+        assert "ContextIdentifier" not in code  # No projection-CID extension on a protocol.
+        assert len(actual.get("ViewCodeSequence", [])) <= 1
 
 
 def validate_clinical_relationships(directory: Path) -> None:
@@ -115,6 +120,17 @@ def validate_clinical_relationships(directory: Path) -> None:
     assert str(worklist.ReferringPhysicianName) == "Referral^Doctor"
     assert worklist.RequestAttributesSequence[0].ScheduledProcedureStepID == "B"
     assert len(worklist.RequestAttributesSequence[0].ScheduledProtocolCodeSequence) == 2
+    assert worklist.RequestAttributesSequence[0].RequestedProcedureID == "request-worklist"
+    assert len(worklist.RequestAttributesSequence[0].RequestedProcedureCodeSequence) == 1
+    series = pydicom.dcmread(directory / "series-requests.dcm")
+    requests = series.RequestAttributesSequence
+    assert [item.ScheduledProcedureStepID for item in requests] == ["A", "B"]
+    assert requests[0].RequestedProcedureID == "request-A"
+    assert [[code.CodeValue for code in item.ScheduledProtocolCodeSequence] for item in requests] == [
+        ["EV01", "EV02", "EV01"], ["EV02"]]
+    assert series.InstanceNumber == 999  # Not an inferred protocol index.
+    assert "PerformedProtocolCodeSequence" not in series
+    assert len(series.ViewCodeSequence) == 1
 
 
 def main() -> None:

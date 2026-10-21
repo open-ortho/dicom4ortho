@@ -35,19 +35,25 @@ Extraction accepts already parsed datasets, including supplied worklists. Result
 retain actual-versus-prescribed roles, item indices, repetitions, and unresolved
 qualifying codes. No operation infers a view from anatomy or performs a network query.
 
-For newly created images, the explicit declaration is DENT-OIP's structured
-`keyword^abbreviation^meaning` Image Comments format. It is not arbitrary comment
-inference. `DeclaredView.Source.imageComments` retains that text; its `code` is the
-exact matched catalog entry. Legacy/private sequence declarations retain their original
-code dataset. View Code Sequence remains a single projection item: DICOM PS3.3
-Table C.8-77 and DENT-OIP do not permit appending a second type-code item beside it.
-The format is documented in DENT-OIP's
-[Image Comments section](https://github.com/open-ortho/dent-oip/blob/latest/source/DICOM/VL_Photographic_Image/General_Image/0020_4000_image_comments.rst).
-Arbitrary comments, legacy two-field comments, and unknown structured-comment types
-are not resolved by inference. Coded extraction supports the bundled catalog scheme
+New photograph-type codes use
+`RequestAttributesSequence (0040,0275).ScheduledProtocolCodeSequence (0040,0008)`,
+as directed by [DENT-OIP #12](https://github.com/open-ortho/dent-oip/issues/12) and
+[current §3.4.1.3](https://open-ortho.github.io/dent-oip/nightly/V1_Orthodontic_Imaging_Profile/03_oip_process_flow/index.html#image-views-request-procedure-codes).
+Without supplied request context, creation/templates populate a one-code protocol
+list from the caller's view. A supplied series/worklist request list is retained,
+not overwritten or extended to pretend the selected image was prescribed.
+`DeclaredView.Source.requested` labels these results as prescriptions, not acquired views.
+Projection remains the single `ViewCodeSequence` item; Image Comments is only a
+human-readable label and is never used by extraction, even for an exact catalog match.
+Legacy/private View Code Sequence declarations remain readable with their original
+code datasets, but are not newly written. Coded extraction supports the bundled catalog scheme
 and qualifying private CID extensions; it does not claim to resolve every SNOMED
 procedure code or recursively search unrelated IODs. Incomplete code entries are
 ignored without suppressing valid entries elsewhere.
+Multiple protocol items describe the acquisition context/series, not a unique
+instance association. No automatic Instance Number to list-index mapping or promotion
+to Performed Protocol Code Sequence is implemented; the unresolved instance-level
+question is tracked in [DENT-OIP #25](https://github.com/open-ortho/dent-oip/issues/25).
 
 `PhotographInput` accepts RGB8, encoded bytes, and local files. `preserveSource`
 means no recompression, or uncompressed output for raw samples; it must reject

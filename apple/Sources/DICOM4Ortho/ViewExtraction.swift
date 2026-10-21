@@ -18,15 +18,6 @@ enum ViewExtraction {
                     results.append(occurrence)
                 }
             }
-            if let text = dataset.string(for: .imageComments) {
-                let parts = text.split(separator: "^", omittingEmptySubsequences: false).map(String.init)
-                if parts.count == 3, let type = terminology.imageTypes[parts[0]],
-                   parts[1] == type.abbreviation,
-                   parts[2] == type.meaning.replacingOccurrences(of: "\u{a0}", with: " ") {
-                    results.append(DeclaredView(keyword: type.keyword, code: type.code.dataSet,
-                                                source: .imageComments(text)))
-                }
-            }
         }
         for (stepIndex, step) in (dataset.sequence(for: .scheduledProcedureStepSequence) ?? []).enumerated() {
             let step = DataSet(elements: step.allElements)
@@ -67,7 +58,10 @@ enum ViewExtraction {
         let extended = code.string(for: .contextIdentifier) == DentalProfile.viewContextIdentifier
             && code.string(for: .contextGroupExtensionFlag) == "Y"
         let type = terminology.imageTypes.values.first { $0.code.value == value && $0.code.scheme == scheme }
-        let catalogScheme = terminology.imageTypes.values.contains { $0.code.scheme == scheme }
+        // Older dicom4ortho worklists used 99OPOR. Preserve those occurrences,
+        // unresolved: the bundle does not assert that private scheme's aliases.
+        let catalogScheme = scheme == "99OPOR"
+            || terminology.imageTypes.values.contains { $0.code.scheme == scheme }
         guard requireExtension ? extended : (catalogScheme || extended) else { return nil }
         let creator = code.string(for: .contextGroupExtensionCreatorUID)
         let matchingCreator = extended ? creator == DentalProfile.creatorUID

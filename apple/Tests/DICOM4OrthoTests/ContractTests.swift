@@ -26,6 +26,7 @@ private enum ContractAdapter {
         for tag in [Tag.pixelData, .rows, .columns, .patientID, .acquisitionDateTime, .sopInstanceUID,
                     .studyInstanceUID, .seriesInstanceUID] { #expect(stub[tag] == nil) }
         #expect((stub.sequence(for: .viewCodeSequence)?.count ?? 0) <= 1)
+        #expect(try ContractAdapter.extract(stub).first?.source == .requested(requestIndex: 0, protocolIndex: 0))
         #expect(try ContractAdapter.extract(stub).map(\.keyword) == [view.keyword])
         let photo = try ContractAdapter.create(view.keyword)
         let file = try DICOMFile.read(from: photo.dicomData())
@@ -79,17 +80,25 @@ private func step(_ codes: [DataSet], id: String) -> SequenceItem {
     #expect(worklist.sequence(for: .scheduledProcedureStepSequence)?.count == 2)
     var mixed = try ContractAdapter.stub(first.keyword)
     mixed[.scheduledProcedureStepSequence] = worklist[.scheduledProcedureStepSequence]
-    mixed.setSequence([step([second.code], id: "C")], for: .requestAttributesSequence)
+    mixed.setSequence([step([first.code, second.code], id: "C")], for: .requestAttributesSequence)
     let mixedResults = try ContractAdapter.extract(mixed)
     #expect(mixedResults.count == 6)
-    #expect(mixedResults.first?.source == .imageComments(mixed.string(for: .imageComments)!))
-    #expect(mixedResults.last?.source == .requested(requestIndex: 0, protocolIndex: 0))
+    #expect(mixedResults.first?.source == .scheduled(stepIndex: 0, protocolIndex: 1, stepID: "A"))
+    #expect(mixedResults.last?.source == .requested(requestIndex: 0, protocolIndex: 1))
+    var legacy = first.code
+    legacy.setString("99OPOR", for: .codingSchemeDesignator, vr: .SH)
+    worklist.setSequence([step([legacy], id: "legacy")], for: .scheduledProcedureStepSequence)
+    let legacyResult = try ContractAdapter.extract(worklist)
+    #expect(legacyResult.count == 1)
+    #expect(legacyResult[0].keyword == nil)
+    #expect(legacyResult[0].code.string(for: .codingSchemeDesignator) == "99OPOR")
 }
 
 @Test func extractionNeverInfersViewsFromProjectionLabelsOrAnatomy() throws {
     var dataset = try ContractAdapter.stub("EV01")
     let items = dataset.sequence(for: .viewCodeSequence)!
     dataset[.imageComments] = nil
+    dataset[.requestAttributesSequence] = nil
     dataset.setSequence([items[0]], for: .viewCodeSequence)
     #expect(try ContractAdapter.extract(dataset).isEmpty)
     var declaration = try OrthodonticPhotograph.availableViews()[0].code
@@ -105,14 +114,48 @@ private func step(_ codes: [DataSet], id: String) -> SequenceItem {
     #expect(try ContractAdapter.extract(dataset).first?.keyword == nil)
 }
 
-@Test func structuredCommentsMustMatchTheEntireDeclaration() throws {
+@Test func commentsAreNeverUsedInsteadOfCodedProtocols() throws {
     var dataset = try ContractAdapter.stub("EV01")
     let declaration = dataset.string(for: .imageComments)!
     #expect(try ContractAdapter.extract(dataset).map(\.keyword) == ["EV01"])
-    for text in ["EV01", "some text " + declaration, declaration + " extra text", "EV01^wrong^description"] {
+    dataset[.requestAttributesSequence] = nil
+    for text in [declaration, "EV01", "some text " + declaration, declaration + " extra text", "EV01^wrong^description"] {
         dataset.setString(text, for: .imageComments, vr: .LT)
         #expect(try ContractAdapter.extract(dataset).isEmpty)
     }
+}
+
+@Test func creationPreservesSeriesPrescriptionsWithoutClaimingTheyWereAcquired() throws {
+    let views = try OrthodonticPhotograph.availableViews()
+    var first = DataSet(elements: step([views[0].code, views[1].code, views[0].code], id: "A").allElements)
+    first.setString("request-A", for: .requestedProcedureID, vr: .SH)
+    first.setSequence([views[1].code.sequenceItem], for: .requestedProcedureCodeSequence)
+    let second = step([views[1].code], id: "B")
+    var metadata = PhotographMetadata(imageType: "IV01")
+    metadata.instanceNumber = 999  // Never an implicit index into the protocol list.
+    metadata.additionalAttributes.setSequence([first.sequenceItem, second], for: .requestAttributesSequence)
+    let photo = try ContractAdapter.create("IV01", metadata: metadata)
+    let stored = photo.dataSet.sequence(for: .requestAttributesSequence)!
+    #expect(stored.count == 2)
+    #expect(stored[0].string(for: .requestedProcedureID) == "request-A")
+    let storedRequest = DataSet(elements: stored[0].allElements)
+    #expect(storedRequest.sequence(for: .scheduledProtocolCodeSequence)?.count == 3)
+    #expect(storedRequest.sequence(for: .requestedProcedureCodeSequence)?.count == 1)
+    let extracted = try ContractAdapter.extract(photo.dataSet)
+    #expect(extracted.map(\.keyword) == [views[0].keyword, views[1].keyword, views[0].keyword, views[1].keyword])
+    #expect(extracted.last?.source == .requested(requestIndex: 1, protocolIndex: 0))
+    #expect(photo.dataSet[.performedProtocolCodeSequence] == nil)
+    #expect(photo.dataSet.sequence(for: .viewCodeSequence)?.count == 1)
+    try export(photo, name: "series-requests")
+    var commentsEdited = photo.dataSet
+    commentsEdited.setString("arbitrary note", for: .imageComments, vr: .LT)
+    #expect(try ContractAdapter.extract(commentsEdited).map(\.keyword) == extracted.map(\.keyword))
+    first[.scheduledProtocolCodeSequence] = nil
+    metadata.additionalAttributes.setSequence([first.sequenceItem], for: .requestAttributesSequence)
+    let emptyRequest = try ContractAdapter.create("IV01", metadata: metadata)
+    #expect(try ContractAdapter.extract(emptyRequest.dataSet).map(\.keyword) == ["IV01"])
+    #expect(emptyRequest.dataSet.sequence(for: .requestAttributesSequence)?[0]
+        .string(for: .requestedProcedureID) == "request-A")
 }
 
 @Test func worklistCopyingUsesSelectedStepAndKeepsPersonnelRolesDistinct() throws {
@@ -122,6 +165,8 @@ private func step(_ codes: [DataSet], id: String) -> SequenceItem {
     worklist.setString("new-id", for: .patientID, vr: .LO)
     worklist.setString("WorklistAuthority", for: .issuerOfPatientID, vr: .LO)
     worklist.setString("Referral^Doctor", for: .referringPhysicianName, vr: .PN)
+    worklist.setString("request-worklist", for: .requestedProcedureID, vr: .SH)
+    worklist.setSequence([view.code.sequenceItem], for: .requestedProcedureCodeSequence)
     worklist.setSequence([step([view.code], id: "A"), step([view.code, view.code], id: "B")],
                          for: .scheduledProcedureStepSequence)
     var metadata = PhotographMetadata(imageType: "EV01")
@@ -136,7 +181,9 @@ private func step(_ codes: [DataSet], id: String) -> SequenceItem {
     #expect(photo.dataSet.string(for: .operatorsName) == "Operator^")
     #expect(photo.dataSet.string(for: .referringPhysicianName) == "Referral^Doctor")
     #expect(photo.dataSet.string(for: .sopInstanceUID) == originalUID)
-    #expect(try ContractAdapter.extract(photo.dataSet).count == 3)
+    let request = DataSet(elements: photo.dataSet.sequence(for: .requestAttributesSequence)![0].allElements)
+    #expect(request.sequence(for: .requestedProcedureCodeSequence)?.count == 1)
+    #expect(try ContractAdapter.extract(photo.dataSet).count == 2)
     try export(photo, name: "worklist")
     #expect(throws: MaterializationError.invalidScheduledStep(-1)) {
         try metadata.applyingWorklist(worklist, scheduledStepIndex: -1)

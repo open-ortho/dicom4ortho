@@ -2,10 +2,10 @@
 name: Swift materialization
 on:
   pull_request:
-    paths: ['Package.swift', 'Package.resolved', 'apple/**', '.github/workflows/swift.yml']
+    paths: ['Package.swift', 'Package.resolved', 'apple/**', 'python/dicom4ortho/**', '.github/workflows/swift.yml']
   push:
     branches: [develop, 'zgypa-agent/82-swift-*']
-    paths: ['Package.swift', 'Package.resolved', 'apple/**', '.github/workflows/swift.yml']
+    paths: ['Package.swift', 'Package.resolved', 'apple/**', 'python/dicom4ortho/**', '.github/workflows/swift.yml']
   workflow_dispatch:
 permissions:
   contents: read

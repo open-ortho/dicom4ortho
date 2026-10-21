@@ -38,14 +38,16 @@ enum WorklistMapping {
         }
         var request = DataSet(elements: steps[stepIndex].allElements)
         // Request Attributes carries scheduled/requested context, not actual image type.
-        for tag in [Tag.accessionNumber, .requestedProcedureID, .requestedProcedureDescription] {
+        for tag in [Tag.accessionNumber, .requestedProcedureID, .requestedProcedureDescription,
+                    .requestedProcedureCodeSequence] {
             if let value = worklist[tag] { request[tag] = value }
         }
         // Keep only attributes defined for the supported request context. A scheduled
         // station/time is not the image's acquisition station/time.
         let allowed: Set<Tag> = [.scheduledProcedureStepID, .scheduledProcedureStepDescription,
                                  .scheduledProtocolCodeSequence, .requestedProcedureID,
-                                 .requestedProcedureDescription, .accessionNumber]
+                                  .requestedProcedureDescription, .requestedProcedureCodeSequence,
+                                  .accessionNumber]
         request = DataSet(elements: request.tags.filter { allowed.contains($0) }.compactMap { request[$0] })
         result.additionalAttributes.setSequence([request.sequenceItem], for: .requestAttributesSequence)
         return result

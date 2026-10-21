@@ -23,9 +23,9 @@ layout tests pass. These checks do not establish clinical implementation conform
 - Implement the unchanged PR1 interfaces, reusing reviewed backend/profile code.
 - Bundle offline terminology generated from the same inputs as Python, without
   refreshing the clinical lock just to build and without adding a Python runtime dependency.
-- Create complete images and image-free templates; write explicit coded photograph
-  declarations using DENT-OIP's structured Image Comments format so creation/extraction
-  can be tested together without violating View Code Sequence's single-item constraint.
+- Create complete images and image-free templates; write photograph-type codes under
+  Request Attributes / Scheduled Protocol Code Sequence as DENT-OIP #12 directs,
+  keeping projection separate and retaining supplied series-level prescriptions.
 - Extract image declarations and every worklist step/protocol occurrence; preserve
   role/association and unknown qualifying codes; exclude unrelated projections.
 - Implement supported local image imports, EXIF fallback, clinical metadata, worklist
@@ -40,8 +40,8 @@ layout tests pass. These checks do not establish clinical implementation conform
 The three public capabilities are implemented, with an offline 73-view catalog,
 clinical/worklist metadata, stable identity, supported image imports, separate
 compressed preservation, 13 output encodings, contract adapters, independent output
-checks, and CI/release documentation. The API branch has the structured-comment
-source correction; the implementation branch includes that correction.
+checks, and CI/release documentation. The request-code correction below supersedes
+the earlier structured-comment extraction design.
 
 PR1: https://github.com/open-ortho/dicom4ortho/pull/85. Formal reviewer requests are
 not permitted for zgypa-agent, so @zgypa received a PR comment notification instead.
@@ -58,3 +58,20 @@ mainframe1 is reachable as the separately provisioned `amagni-agent` build user.
 Xcode 26.3 cannot resolve a tools-6.4 package for simulator testing. Continue using
 isolated Swift 6.4.1 and available SDKs without upgrading host software. No Linux
 qualification, complete profile conformance, or iOS simulator execution is implied.
+
+## View-code placement correction
+
+The maintainer requested that both Python and Swift use DENT-OIP #12's
+`RequestAttributesSequence.ScheduledProtocolCodeSequence` location. The instruction
+is present in current source and nightly §3.4.1.3; inspecting the old August 2024
+`latest` tag had incorrectly suggested it was missing. January 20, 2025 commit
+`5d3fb8a35` supports #12's closure. Findings and reciprocal links were added to
+[issue 12](https://github.com/open-ortho/dent-oip/issues/12#issuecomment-6326356779) and
+[issue 25](https://github.com/open-ortho/dent-oip/issues/25#issuecomment-6326362717).
+
+New output uses coded request protocols; comments are labels only and private
+projection extensions are read-only legacy input. Supplied protocol lists, codes,
+identifiers and request/procedure context survive. Neither implementation infers
+an actual image type from an ambiguous list or treats Instance Number as a code index.
+This explicitly authorized Python behavior change supersedes the earlier promise
+of an unchanged Python runtime; packaging and entry points remain unchanged.

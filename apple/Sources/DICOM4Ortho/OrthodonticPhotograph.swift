@@ -52,15 +52,16 @@ public struct OrthodonticPhotograph: Sendable {
         }
     }
 
-    /// Reads exact DENT-OIP structured Image Comments declarations, legacy/private
-    /// VL image View Code Sequence declarations, every scheduled
+    /// Reads Request Attributes protocol codes (DENT-OIP #12), legacy/private
+    /// VL image View Code Sequence declarations, and every worklist scheduled
     /// step/protocol item, and copied Request Attributes protocol items. Returns a
     /// collection even for one/zero results; preserves sequence order and repetitions.
-    /// Coded matching uses identity, never Code Meaning or anatomy. Structured comments
-    /// must match the catalog declaration format, not an arbitrary EV/IV-looking substring. Unrelated
+    /// Coded matching uses identity, never Code Meaning, Image Comments or anatomy. Unrelated
     /// projection/procedure codes and incomplete coded entries are not type declarations.
     /// Qualifying unknown private codes have a nil keyword. Input is not mutated and
     /// pixels are not decoded. Other IOD-specific locations are not exhaustively searched.
+    /// Request protocol lists describe prescriptions, not necessarily this instance's
+    /// actual view. No implicit Instance Number to protocol-index mapping is performed.
     public static func extractViews(from dataSet: DataSet) throws -> [DeclaredView] {
         try ViewExtraction.extract(dataSet)
     }

@@ -101,8 +101,7 @@ struct PhotographProfile {
         dataset.setString(metadata.seriesInstanceUID, for: .seriesInstanceUID, vr: .UI)
         dataset.setStrings(["ORIGINAL", "PRIMARY"], for: .imageType, vr: .CS)
         dataset.setString(metadata.patientID, for: .patientID, vr: .LO)
-        dataset.setString(metadata.patientFamilyName + "^" + metadata.patientGivenName,
-                          for: .patientName, vr: .PN)
+        dataset.setString(metadata.patientName.dicomString, for: .patientName, vr: .PN)
         dataset.setString(metadata.patientBirthDate, for: .patientBirthDate, vr: .DA)
         let sexes = ["M": "M", "MALE": "M", "F": "F", "FEMALE": "F", "O": "O", "OTHER": "O"]
         dataset.setString(sexes[metadata.patientSex.uppercased()] ?? "", for: .patientSex, vr: .CS)

@@ -19,7 +19,7 @@ The shared GXV/reference suite described in `docs/API_CONTRACT.md` is not availa
 
 - Twenty Swift tests cover public API, templates, all 73 view mappings, extraction, worklist copying,
   clinical dates/personnel/identity, input imports, save lifecycle, and codec tests pass.
-- All 13 output policies independently decode at 64×64 and 1024×1024 synthetic RGB.
+- All 13 output policies independently decode at 64×64, 1024×1024, and 2048×2048 synthetic RGB.
   Lossless paths reproduce the source samples exactly; lossy errors are measured,
   not interpreted as clinical-quality acceptance thresholds.
 - Independent decoders: pydicom 3 with libjpeg/OpenJPEG/CharLS plugins, Pillow's JPEG
@@ -63,6 +63,7 @@ On an Apple build host with compatible Swift and SDKs, from the repository root:
 ```sh
 DICOM4ORTHO_TEST_ARTIFACTS=/path/to/synthetic-artifacts swift test --jobs 4
 DICOM4ORTHO_TEST_IMAGE_SIZE=1024 DICOM4ORTHO_TEST_ARTIFACTS=/path/to/synthetic-artifacts swift test --jobs 4
+DICOM4ORTHO_TEST_IMAGE_SIZE=2048 DICOM4ORTHO_TEST_ARTIFACTS=/path/to/synthetic-artifacts swift test --jobs 4
 swift build --target DICOM4Ortho --triple arm64-apple-ios18.0 --sdk "$(xcrun --sdk iphoneos --show-sdk-path)" --scratch-path .build-ios-device --jobs 4
 swift build --target DICOM4Ortho --triple arm64-apple-ios18.0-simulator --sdk "$(xcrun --sdk iphonesimulator --show-sdk-path)" --scratch-path .build-ios-simulator --jobs 4
 ```

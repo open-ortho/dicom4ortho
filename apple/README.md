@@ -102,6 +102,10 @@ edits affect that value and do not automatically rebuild clinical mappings.
 `applyingWorklist(_:scheduledStepIndex:)` copies a selected supplied step's context
 locally. It is separate from `extractViews`, which reads every step's prescriptions.
 Set explicit corrections after copying worklist facts. This is not network delivery.
+The typed patient-name convenience edits family/given components. Additional name
+components/representations copied from a worklist are retained; correcting a given
+name does not discard a middle name or an ideographic/phonetic representation.
+The native dataset boundary remains available for arbitrary DICOM PN editing.
 
 ## Building and consuming
 

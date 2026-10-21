@@ -46,6 +46,20 @@ public struct PhotographMetadata: Sendable {
     /// For advanced edits after creation, use OrthodonticPhotograph.dataSet.
     public var additionalAttributes = DataSet()
 
+    // Retain source components that the family/given convenience does not expose.
+    // Later family/given corrections change those components, not unrelated PN groups.
+    var worklistPatientName: DICOMPersonName?
+
+    var patientName: DICOMPersonName {
+        guard let source = worklistPatientName else {
+            return DICOMPersonName(familyName: patientFamilyName, givenName: patientGivenName)
+        }
+        return DICOMPersonName(alphabetic: .init(
+            familyName: patientFamilyName, givenName: patientGivenName,
+            middleName: source.middleName, namePrefix: source.namePrefix, nameSuffix: source.nameSuffix),
+            ideographic: source.ideographic, phonetic: source.phonetic)
+    }
+
     /// Generates independent UIDs under dicom4ortho's registered roots using DICOMKit.
     /// Replace study/series values with shared values for related photographs.
     public init(imageType: String) {

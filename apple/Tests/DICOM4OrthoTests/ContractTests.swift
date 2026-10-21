@@ -120,6 +120,7 @@ private func step(_ codes: [DataSet], id: String) -> SequenceItem {
     var worklist = DataSet()
     worklist.setString("Patient^Example", for: .patientName, vr: .PN)
     worklist.setString("new-id", for: .patientID, vr: .LO)
+    worklist.setString("WorklistAuthority", for: .issuerOfPatientID, vr: .LO)
     worklist.setString("Referral^Doctor", for: .referringPhysicianName, vr: .PN)
     worklist.setSequence([step([view.code], id: "A"), step([view.code, view.code], id: "B")],
                          for: .scheduledProcedureStepSequence)
@@ -130,6 +131,7 @@ private func step(_ codes: [DataSet], id: String) -> SequenceItem {
     metadata = try metadata.applyingWorklist(worklist, scheduledStepIndex: 1)
     let photo = try ContractAdapter.create("EV01", metadata: metadata)
     #expect(photo.dataSet.string(for: .patientID) == "new-id")
+    #expect(photo.dataSet.string(for: .issuerOfPatientID) == "WorklistAuthority")
     #expect(photo.dataSet.string(for: .physiciansOfRecord) == "Provider^")
     #expect(photo.dataSet.string(for: .operatorsName) == "Operator^")
     #expect(photo.dataSet.string(for: .referringPhysicianName) == "Referral^Doctor")
@@ -139,6 +141,11 @@ private func step(_ codes: [DataSet], id: String) -> SequenceItem {
     #expect(throws: MaterializationError.invalidScheduledStep(-1)) {
         try metadata.applyingWorklist(worklist, scheduledStepIndex: -1)
     }
+    worklist.setString("Patient^Example^Middle^Dr.^III=例^示=れい^し", for: .patientName, vr: .PN)
+    var full = try metadata.applyingWorklist(worklist, scheduledStepIndex: 0)
+    full.patientGivenName = "Corrected"
+    let fullName = try ContractAdapter.create("EV01", metadata: full)
+    #expect(fullName.dataSet.string(for: .patientName) == "Patient^Corrected^Middle^Dr.^III=例^示=れい^し")
 }
 
 @Test func identityAndClinicalTimeSurviveSerializationAndValueCopies() throws {

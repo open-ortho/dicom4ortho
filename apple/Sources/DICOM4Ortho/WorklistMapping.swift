@@ -12,10 +12,23 @@ enum WorklistMapping {
         var result = metadata
         if let name = worklist.string(for: .patientName), !name.isEmpty,
            let parsed = DICOMPersonName.parse(name) {
+            let groups = name.split(separator: "=", omittingEmptySubsequences: false)
+            guard groups.count <= 3,
+                  groups.allSatisfy({ $0.split(separator: "^", omittingEmptySubsequences: false).count <= 5 }) else {
+                throw MaterializationError.invalidMetadata("Worklist Patient Name has invalid PN component cardinality")
+            }
+            result.worklistPatientName = parsed
             result.patientFamilyName = parsed.familyName
             result.patientGivenName = parsed.givenName
         }
-        if let value = nonempty(worklist, .patientID) { result.patientID = value }
+        if let value = nonempty(worklist, .patientID) {
+            result.patientID = value
+            // An ID and its assigning authority travel together. Retaining the old
+            // patient's issuer after replacing the ID would change its identity.
+            for tag in [Tag.issuerOfPatientID, .issuerOfPatientIDQualifiersSequence] {
+                result.additionalAttributes[tag] = worklist[tag]
+            }
+        }
         if let value = nonempty(worklist, .patientBirthDate) { result.patientBirthDate = value }
         if let value = nonempty(worklist, .patientSex) { result.patientSex = value }
         if let value = nonempty(worklist, .studyInstanceUID) { result.studyInstanceUID = value }

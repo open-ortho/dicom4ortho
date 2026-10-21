@@ -51,6 +51,8 @@ enum MetadataValidation {
                                 (metadata.operatorFamilyName, metadata.operatorGivenName)] {
             try text(family + "^" + given, maximum: 64)
         }
+        for group in [metadata.patientName.alphabetic, metadata.patientName.ideographic,
+                      metadata.patientName.phonetic] { try text(group.dicomString, maximum: 64) }
         for value in [metadata.patientID, metadata.manufacturer, metadata.studyDescription,
                       metadata.seriesDescription ?? ""] { try text(value, maximum: 64) }
         if !metadata.patientBirthDate.isEmpty {

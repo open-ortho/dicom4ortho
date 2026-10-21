@@ -113,6 +113,19 @@ Python release tag that predates `Package.swift`. Once the implementation is
 qualified, a versioned Git tag will identify a Swift-consumable release. No release
 tag or simulator test-execution qualification is claimed by this work.
 
+Before merge, the implementation is available from the author's public fork:
+
+```swift
+// Consuming Package.swift dependencies:
+.package(url: "https://github.com/zgypa-agent/dicom4ortho.git",
+         branch: "zgypa-agent/82-swift-implementation")
+// Consuming target dependencies:
+.product(name: "DICOM4Ortho", package: "dicom4ortho")
+```
+
+After release, prefer the upstream `open-ortho/dicom4ortho` URL with a qualified tag.
+Branch references are pre-release integration aids, not stable releases.
+
 The development Mac currently has Xcode 26.3 plus an isolated official Swift 6.4.1
 toolchain. Standalone SwiftPM testing/cross-compilation can use that toolchain, but
 Xcode's older resolver prevents simulator test execution. Neither the OS nor Xcode

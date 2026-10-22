@@ -202,18 +202,27 @@ class OrthodonticPhotograph(PhotographBase):
         This function modifies the given Dataset in place and does not return a value.
 
         See DENT-OIP #12 and section 3.4.1.3. The historical creator_uid argument
-        remains accepted and is copied only when explicitly supplied; otherwise
-        the supplied coded entry, including scheme/version metadata, is retained.
+        is accepted only for an explicitly declared, fully supplied extension
+        context. A creator UID without extension flag Y is invalid, including when
+        it is embedded in code_dataset. Invalid input raises before ds is changed.
 
         :param ds: The DICOM Dataset to modify
         :param code_dataset: The code Dataset to insert/update
-        :param creator_uid: Optional explicit creator metadata; no default is invented.
+        :param creator_uid: Optional creator for a supplied extension context; no default is invented.
         """
         if code_dataset is None:
             return
         code_dataset = deepcopy(code_dataset)
         if creator_uid is not None:
             code_dataset.ContextGroupExtensionCreatorUID = creator_uid
+        if getattr(code_dataset, 'ContextGroupExtensionCreatorUID', None) is not None:
+            if getattr(code_dataset, 'ContextGroupExtensionFlag', None) != 'Y':
+                raise ValueError('ContextGroupExtensionCreatorUID requires extension flag Y.')
+        if getattr(code_dataset, 'ContextGroupExtensionFlag', None) == 'Y':
+            required = ('ContextIdentifier', 'MappingResource', 'ContextGroupVersion',
+                        'ContextGroupLocalVersion', 'ContextGroupExtensionCreatorUID')
+            if any(not getattr(code_dataset, keyword, None) for keyword in required):
+                raise ValueError('A private extension requires its complete supplied context.')
         set_view_code(ds, code_dataset, request_index=request_index, protocol_index=protocol_index)
 
     def set_dicom_attributes_by_type_keyword(self, type_keyword=None):

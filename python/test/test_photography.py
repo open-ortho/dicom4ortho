@@ -44,6 +44,15 @@ def make_photo_metadata():
     return metadata
 
 
+def declare_test_extension(code: Dataset) -> None:
+    """Supply a synthetic private protocol context, never the projection CID 4063."""
+    code.ContextIdentifier = '1'
+    code.MappingResource = '99TEST'
+    code.ContextGroupVersion = '20261022000000'
+    code.ContextGroupLocalVersion = '20261022000000'
+    code.ContextGroupExtensionFlag = 'Y'
+
+
 def photo_generator(image_type: str, filename: Path) -> OrthodonticPhotograph:
     o = OrthodonticPhotograph(
         image_type=image_type,
@@ -401,7 +410,7 @@ class PhotoTests(unittest.TestCase):
         self.assertTrue(outputfilename.exists())
 
     def test_set_image_type_code_dataset_creator_uid(self):
-        """Explicit creator metadata survives without fabricating a projection CID."""
+        """Creator metadata is allowed only with a supplied private extension context."""
 
         ds = Dataset()
         code = Dataset()
@@ -409,15 +418,21 @@ class PhotoTests(unittest.TestCase):
         code.CodingSchemeDesignator = '99OPOR'
         code.CodeMeaning = 'Extraoral, Full Face, Full Smile, Centric Relation'
 
-        # 1. Explicit creator_uid argument
+        # 1. An ordinary code must not acquire an orphan extension creator.
+        with self.assertRaisesRegex(ValueError, 'extension flag Y'):
+            OrthodonticPhotograph.set_image_type_code_dataset(
+                ds, code, creator_uid='1.2.3.4.5.6.7.8.9')
+        self.assertNotIn('RequestAttributesSequence', ds)
+        self.assertNotIn('ContextGroupExtensionCreatorUID', code)
+        declare_test_extension(code)
         OrthodonticPhotograph.set_image_type_code_dataset(
             ds, code, creator_uid='1.2.3.4.5.6.7.8.9')
         item = ds.RequestAttributesSequence[0].ScheduledProtocolCodeSequence[0]
         self.assertEqual(item.ContextGroupExtensionCreatorUID,
                          '1.2.3.4.5.6.7.8.9')
-        self.assertNotIn('ContextIdentifier', item)
-        self.assertNotIn('ContextGroupExtensionFlag', item)
-        self.assertNotIn('ContextGroupLocalVersion', item)
+        self.assertEqual(item.ContextIdentifier, '1')
+        self.assertEqual(item.ContextGroupExtensionFlag, 'Y')
+        self.assertEqual(item.ContextGroupLocalVersion, '20261022000000')
 
         # 2. Creator UID set in code_dataset
         ds2 = Dataset()
@@ -426,13 +441,17 @@ class PhotoTests(unittest.TestCase):
         code2.CodingSchemeDesignator = '99OPOR'
         code2.CodeMeaning = 'Extraoral, Full Face, Resting'
         code2.ContextGroupExtensionCreatorUID = '9.8.7.6.5.4.3.2.1'
+        with self.assertRaisesRegex(ValueError, 'extension flag Y'):
+            OrthodonticPhotograph.set_image_type_code_dataset(ds2, code2)
+        self.assertNotIn('RequestAttributesSequence', ds2)
+        declare_test_extension(code2)
         OrthodonticPhotograph.set_image_type_code_dataset(ds2, code2)
         item2 = ds2.RequestAttributesSequence[0].ScheduledProtocolCodeSequence[0]
         self.assertEqual(item2.ContextGroupExtensionCreatorUID,
                          '9.8.7.6.5.4.3.2.1')
-        self.assertNotIn('ContextIdentifier', item2)
-        self.assertNotIn('ContextGroupExtensionFlag', item2)
-        self.assertNotIn('ContextGroupLocalVersion', item2)
+        self.assertEqual(item2.ContextIdentifier, '1')
+        self.assertEqual(item2.ContextGroupExtensionFlag, 'Y')
+        self.assertEqual(item2.ContextGroupLocalVersion, '20261022000000')
 
         # 3. No creator metadata: do not invent an assigning authority or private CID.
         ds3 = Dataset()
@@ -455,14 +474,15 @@ class PhotoTests(unittest.TestCase):
         code.CodingSchemeDesignator = '99OPOR'
         code.CodeMeaning = 'Extraoral, Profile, Smile'
         # Set with explicit creator_uid
+        declare_test_extension(code)
         OrthodonticPhotograph.set_image_type_code_dataset(
             ds, code, creator_uid='1.2.3.4.5.6.7.8.9')
         item = OrthodonticPhotograph.get_image_type_code_dataset(ds)
         self.assertIsNotNone(item)
         self.assertEqual(item.ContextGroupExtensionCreatorUID,
                          '1.2.3.4.5.6.7.8.9')
-        self.assertNotIn('ContextIdentifier', item)
-        self.assertNotIn('ContextGroupExtensionFlag', item)
+        self.assertEqual(item.ContextIdentifier, '1')
+        self.assertEqual(item.ContextGroupExtensionFlag, 'Y')
         self.assertEqual(item.CodeValue, 'EV30')
         self.assertEqual(item.CodingSchemeDesignator, '99OPOR')
         self.assertEqual(item.CodeMeaning, 'Extraoral, Profile, Smile')
@@ -474,13 +494,14 @@ class PhotoTests(unittest.TestCase):
         code2.CodingSchemeDesignator = '99OPOR'
         code2.CodeMeaning = 'Extraoral, Profile, Resting'
         code2.ContextGroupExtensionCreatorUID = '9.8.7.6.5.4.3.2.1'
+        declare_test_extension(code2)
         OrthodonticPhotograph.set_image_type_code_dataset(ds2, code2)
         item2 = OrthodonticPhotograph.get_image_type_code_dataset(ds2)
         self.assertIsNotNone(item2)
         self.assertEqual(item2.ContextGroupExtensionCreatorUID,
                          '9.8.7.6.5.4.3.2.1')
-        self.assertNotIn('ContextIdentifier', item2)
-        self.assertNotIn('ContextGroupExtensionFlag', item2)
+        self.assertEqual(item2.ContextIdentifier, '1')
+        self.assertEqual(item2.ContextGroupExtensionFlag, 'Y')
         self.assertEqual(item2.CodeValue, 'EV31')
         self.assertEqual(item2.CodingSchemeDesignator, '99OPOR')
         self.assertEqual(item2.CodeMeaning, 'Extraoral, Profile, Resting')
@@ -511,13 +532,14 @@ class PhotoTests(unittest.TestCase):
         code.CodeMeaning = 'Extraoral, Oblique, Smile'
         # Set creator UID directly
         code.ContextGroupExtensionCreatorUID = '1.2.3.4.5.6.7.8.9'
+        declare_test_extension(code)
         o.image_type_code_dataset = code
         item = o.image_type_code_dataset
         self.assertIsNotNone(item)
         self.assertEqual(item.ContextGroupExtensionCreatorUID,
                          '1.2.3.4.5.6.7.8.9')
-        self.assertNotIn('ContextIdentifier', item)
-        self.assertNotIn('ContextGroupExtensionFlag', item)
+        self.assertEqual(item.ContextIdentifier, '1')
+        self.assertEqual(item.ContextGroupExtensionFlag, 'Y')
         self.assertEqual(item.CodeValue, 'EV40')
         self.assertEqual(item.CodingSchemeDesignator, '99OPOR')
         self.assertEqual(item.CodeMeaning, 'Extraoral, Oblique, Smile')
@@ -560,8 +582,7 @@ class PhotoTests(unittest.TestCase):
         code.CodeValue = 'EV99'
         code.CodingSchemeDesignator = '99OPOR'
         code.CodeMeaning = 'Proprietary View'
-        OrthodonticPhotograph.set_image_type_code_dataset(
-            ds, code, creator_uid='1.2.3.4.5.6.7.8.9')
+        OrthodonticPhotograph.set_image_type_code_dataset(ds, code)
 
         # Ensure unrelated items are still present and unchanged
         self.assertEqual(len(ds.ViewCodeSequence), 2)
@@ -572,8 +593,7 @@ class PhotoTests(unittest.TestCase):
         prop_item = OrthodonticPhotograph.get_image_type_code_dataset(ds)
         self.assertIsNotNone(prop_item)
         self.assertEqual(prop_item.CodeValue, 'EV99')
-        self.assertEqual(
-            prop_item.ContextGroupExtensionCreatorUID, '1.2.3.4.5.6.7.8.9')
+        self.assertNotIn('ContextGroupExtensionCreatorUID', prop_item)
 
     def test_get_image_type_code_dataset_with_multiple_items(self):
         """Test get_image_type_code_dataset returns the correct proprietary item among others."""

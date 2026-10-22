@@ -32,8 +32,12 @@ OrthodonticPhotograph.set_image_type_code_dataset(
 ```
 
 Indices are zero-based; explicit selection is required for ambiguous lists. The
-historical `creator_uid` argument remains accepted, but no default creator, context
-group or current-date version is invented. Supplied coded metadata is copied intact.
+historical `creator_uid` argument is accepted only with a supplied private extension
+context: flag `Y`, Context Identifier, Mapping Resource, Context Group Version and
+Local Version. An orphan creator UID (argument or embedded field) or an incomplete
+extension is rejected before the destination changes. Ordinary protocol codes omit
+extension attributes; no projection CID 4063, default creator or current-date version
+is invented. Valid supplied coded metadata is copied intact.
 Legacy private View Code Sequence declarations remain readable; writers no longer
 append type codes there. Existing files are not bulk-migrated or silently rewritten.
 

@@ -25,6 +25,47 @@ def request(codes: list[Dataset], identifier: str = 'request-A') -> Dataset:
 class TestPhotographProtocols(unittest.TestCase):
     """Exercise production creation/getters/setters and their native-dataset boundary."""
 
+    def test_orphan_creators_are_rejected_without_mutating_inputs(self):
+        for embedded in (False, True):
+            for flag in (None, 'N'):
+                with self.subTest(embedded=embedded, flag=flag):
+                    code = IMAGE_TYPES['EV01'].code.to_dataset()
+                    if flag is not None:
+                        code.ContextGroupExtensionFlag = flag
+                    if embedded:
+                        code.ContextGroupExtensionCreatorUID = '1.2.3.4.5'
+                    original_code = deepcopy(code)
+                    dataset = Dataset()
+                    dataset.RequestAttributesSequence = [request([IMAGE_TYPES['EV02'].code.to_dataset()])]
+                    original_dataset = deepcopy(dataset)
+                    arguments = {} if embedded else {'creator_uid': '1.2.3.4.5'}
+                    with self.assertRaisesRegex(ValueError, 'extension flag Y'):
+                        OrthodonticPhotograph.set_image_type_code_dataset(dataset, code, **arguments)
+                    self.assertEqual(dataset, original_dataset)
+                    self.assertEqual(code, original_code)
+
+    def test_extension_creator_requires_complete_supplied_context(self):
+        code = IMAGE_TYPES['EV01'].code.to_dataset()
+        code.ContextIdentifier = '1'  # A synthetic private protocol context, not CID 4063.
+        code.MappingResource = '99TEST'
+        code.ContextGroupVersion = '20261022000000'
+        code.ContextGroupLocalVersion = '20261022000000'
+        code.ContextGroupExtensionFlag = 'Y'
+        code.ContextGroupExtensionCreatorUID = '1.2.3.4.5'
+        original = deepcopy(code)
+        for keyword in ('ContextIdentifier', 'MappingResource', 'ContextGroupVersion',
+                        'ContextGroupLocalVersion', 'ContextGroupExtensionCreatorUID'):
+            incomplete = deepcopy(code)
+            delattr(incomplete, keyword)
+            dataset = Dataset()
+            with self.subTest(missing=keyword), self.assertRaisesRegex(ValueError, 'complete supplied context'):
+                OrthodonticPhotograph.set_image_type_code_dataset(dataset, incomplete)
+            self.assertNotIn('RequestAttributesSequence', dataset)
+        dataset = Dataset()
+        OrthodonticPhotograph.set_image_type_code_dataset(dataset, code)
+        self.assertEqual(requested_view_codes(dataset), [original])
+        self.assertEqual(code, original)
+
     def test_every_view_creates_a_requested_code_and_keeps_one_projection(self):
         for keyword, view in VIEWS.items():
             with self.subTest(keyword=keyword):

@@ -43,14 +43,16 @@ compressed preservation, 13 output encodings, contract adapters, independent out
 checks, and CI/release documentation. The request-code correction below supersedes
 the earlier structured-comment extraction design.
 
-PR1: https://github.com/open-ortho/dicom4ortho/pull/85. Formal reviewer requests are
+PR1: https://github.com/open-ortho/dicom4ortho/pull/85, merged into `develop` as
+`410f9d4`. Formal reviewer requests are
 not permitted for zgypa-agent, so @zgypa received a PR comment notification instead.
 
 See [QUALIFICATION.md](QUALIFICATION.md) for results and unmet acceptance checks.
 Do not mark #82 completed while simulator execution or another required check remains blocked.
 PR2: https://github.com/open-ortho/dicom4ortho/pull/86. @zgypa received the second
-review notification there. The two PRs target develop; PR2 includes PR1 and should
-be reviewed/merged after the API PR. Follow-up qualification fixes continue on PR2.
+review notification there. PR2 merges the current `develop`, retaining the real
+implementation, offline resources/codecs, tests, and the later request-code correction
+instead of restoring API-only placeholders. Follow-up qualification fixes continue on PR2.
 
 ## Environmental limit
 

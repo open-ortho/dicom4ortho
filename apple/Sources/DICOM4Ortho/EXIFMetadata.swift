@@ -21,8 +21,10 @@ enum EXIFMetadata {
                 result.acquisitionDateTime = try parse(date, timeZone: result.acquisitionTimeZone)
             }
         }
-        // DICOM's dataset UTC offset applies to Content Date/Time too. Convert any
-        // distinct EXIF digitization/editing offset into the selected output zone.
+        // Reject non-finite/out-of-range explicit instants before timezone arithmetic.
+        try MetadataValidation.validate(result)
+        // DICOM has one dataset UTC offset. Its acquisition-time offset must also
+        // describe Content Date/Time, even if DST differs at digitization/editing.
         if result.additionalAttributes[.contentDate] == nil && result.additionalAttributes[.contentTime] == nil {
             let digitized = exif[kCGImagePropertyExifDateTimeDigitized as String] as? String
             let value = digitized ?? tiff[kCGImagePropertyTIFFDateTime as String] as? String
@@ -30,11 +32,16 @@ enum EXIFMetadata {
             if let value {
                 let sourceZone = try (exif[offsetKey] as? String).map(timeZone) ?? result.acquisitionTimeZone
                 let date = try parse(value, timeZone: sourceZone)
-                let formatter = formatter(timeZone: result.acquisitionTimeZone)
+                let offset = result.acquisitionDateTime.map {
+                    result.acquisitionTimeZone.secondsFromGMT(for: $0)
+                } ?? sourceZone.secondsFromGMT(for: date)
+                try MetadataValidation.utcOffset(offset)
+                let formatter = formatter(timeZone: TimeZone(secondsFromGMT: offset)!)
                 formatter.dateFormat = "yyyyMMdd"
                 result.additionalAttributes.setString(formatter.string(from: date), for: .contentDate, vr: .DA)
                 formatter.dateFormat = "HHmmss"
                 result.additionalAttributes.setString(formatter.string(from: date), for: .contentTime, vr: .TM)
+                result.contentTimeZoneOffset = offset
             }
         }
         return result

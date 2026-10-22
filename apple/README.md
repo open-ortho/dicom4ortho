@@ -96,8 +96,11 @@ editing time is never substituted for capture time. Treatment events after captu
 are rejected; a zero-day offset is valid.
 Camera model/software/serial and aperture/shutter values are copied only when the
 corresponding supplementary attributes are absent. Digitization/editing timestamps
-populate Content Date/Time, not Acquisition Date/Time; known source offsets are
-converted to the dataset's selected timezone. Preservation is not de-identification:
+populate Content Date/Time, not Acquisition Date/Time. They are normalized to the
+fixed offset emitted at acquisition, not the regional timezone's possibly different
+daylight-saving offset at digitization. Content-only EXIF emits its source offset
+without inventing acquisition fields. Explicit Content Date/Time values remain unchanged.
+Preservation is not de-identification:
 the original compressed stream can still contain embedded EXIF information.
 
 Share study/series UIDs through `PhotographMetadata` for related images, while

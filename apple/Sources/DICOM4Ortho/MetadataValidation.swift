@@ -78,9 +78,14 @@ enum MetadataValidation {
                 throw MaterializationError.invalidMetadata("Acquisition timestamp is outside DICOM's date range")
             }
             let offset = metadata.acquisitionTimeZone.secondsFromGMT(for: acquisition)
-            guard (-12 * 3600...14 * 3600).contains(offset), offset % 60 == 0 else {
-                throw MaterializationError.invalidMetadata("Acquisition timezone cannot be represented by a DICOM UTC offset")
-            }
+            try utcOffset(offset)
+        }
+        if let offset = metadata.contentTimeZoneOffset { try utcOffset(offset) }
+    }
+
+    static func utcOffset(_ seconds: Int) throws {
+        guard (-12 * 3600...14 * 3600).contains(seconds), seconds % 60 == 0 else {
+            throw MaterializationError.invalidMetadata("Timestamp timezone cannot be represented by a DICOM UTC offset")
         }
     }
 

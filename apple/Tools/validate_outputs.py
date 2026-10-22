@@ -6,6 +6,7 @@ Python runtime dependencies. Run dciodvfy separately for IOD validation.
 """
 
 import argparse
+from datetime import datetime, timezone
 from io import BytesIO
 import json
 from pathlib import Path
@@ -133,6 +134,28 @@ def validate_clinical_relationships(directory: Path) -> None:
     assert len(series.ViewCodeSequence) == 1
 
 
+def validate_content_instants(directory: Path) -> None:
+    """Reconstruct content instants independently from serialized DA/TM and offset."""
+    cases = {
+        'content-spring-preserved': ('2026-03-30T11:00:00+00:00', '+0100'),
+        'content-spring-decoded': ('2026-03-30T11:00:00+00:00', '+0100'),
+        'content-autumn-preserved': ('2026-10-26T12:00:00+00:00', '+0200'),
+        'content-autumn-decoded': ('2026-10-26T12:00:00+00:00', '+0200'),
+        'content-only-preserved': ('2026-03-30T11:00:00+00:00', '+0200'),
+        'content-only-decoded': ('2026-03-30T11:00:00+00:00', '+0200'),
+        'content-editing': ('2026-03-30T11:00:00+00:00', '+0100'),
+    }
+    for name, (expected, offset) in cases.items():
+        dataset = pydicom.dcmread(directory / f'{name}.dcm')
+        assert dataset.TimezoneOffsetFromUTC == offset, name
+        encoded = str(dataset.ContentDate) + str(dataset.ContentTime) + offset
+        instant = datetime.strptime(encoded, '%Y%m%d%H%M%S%z').astimezone(timezone.utc)
+        assert instant == datetime.fromisoformat(expected), name
+        if name.startswith('content-only'):
+            assert all(tag not in dataset for tag in
+                       ('AcquisitionDateTime', 'AcquisitionDate', 'AcquisitionTime')), name
+
+
 def main() -> None:
     """Report measured lossy errors without inventing clinical acceptance thresholds."""
     parser = argparse.ArgumentParser(description=__doc__)
@@ -141,6 +164,7 @@ def main() -> None:
     arguments = parser.parse_args()
     reports = validate(arguments.directory)
     validate_clinical_relationships(arguments.directory)
+    validate_content_instants(arguments.directory)
     if arguments.compare_python:
         compare_python_views(arguments.directory)
     print(json.dumps(reports, indent=2))

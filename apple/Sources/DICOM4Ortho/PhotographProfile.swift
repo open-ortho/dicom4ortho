@@ -156,10 +156,10 @@ struct PhotographProfile {
     }
 
     private func applyClinicalMetadata(_ metadata: PhotographMetadata, to dataset: inout DataSet) throws {
+        let formatter = DateFormatter()
+        formatter.locale = Locale(identifier: "en_US_POSIX")
+        formatter.calendar = Calendar(identifier: .gregorian)
         if let acquired = metadata.acquisitionDateTime {
-            let formatter = DateFormatter()
-            formatter.locale = Locale(identifier: "en_US_POSIX")
-            formatter.calendar = Calendar(identifier: .gregorian)
             formatter.timeZone = metadata.acquisitionTimeZone
             formatter.dateFormat = "yyyyMMdd"
             let date = formatter.string(from: acquired)
@@ -173,6 +173,13 @@ struct PhotographProfile {
             if dataset[.contentDate] == nil { dataset.setString(date, for: .contentDate, vr: .DA) }
             if dataset[.contentTime] == nil { dataset.setString(time, for: .contentTime, vr: .TM) }
             dataset.setString(offset, for: .timezoneOffsetFromUTC, vr: .SH)
+        } else if let offset = metadata.contentTimeZoneOffset {
+            // Content can have a known instant/offset even when capture is unknown.
+            // Format only the fixed offset; do not manufacture acquisition DA/TM/DT.
+            formatter.timeZone = TimeZone(secondsFromGMT: offset)
+            formatter.dateFormat = "Z"
+            dataset.setString(formatter.string(from: Date(timeIntervalSince1970: 0)),
+                              for: .timezoneOffsetFromUTC, vr: .SH)
         }
         guard let progress = metadata.treatmentProgress else { return }
         guard let acquired = metadata.acquisitionDateTime else {

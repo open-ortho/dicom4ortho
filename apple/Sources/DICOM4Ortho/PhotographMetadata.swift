@@ -46,6 +46,10 @@ public struct PhotographMetadata: Sendable {
     /// For advanced edits after creation, use OrthodonticPhotograph.dataSet.
     public var additionalAttributes = DataSet()
 
+    // EXIF-only content timestamps still need a dataset UTC offset. This does not
+    // invent an acquisition instant or change the caller's clinical calendar zone.
+    var contentTimeZoneOffset: Int?
+
     // Retain source components that the family/given convenience does not expose.
     // Later family/given corrections change those components, not unrelated PN groups.
     var worklistPatientName: DICOMPersonName?

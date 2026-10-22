@@ -14,7 +14,8 @@ private func syntheticRGB() -> Data {
     Data((0..<(64 * 64 * 3)).map { UInt8(truncatingIfNeeded: $0) })
 }
 
-private func encodedImage(type: String, exif: Bool = false, offset: String? = nil) throws -> Data {
+private func encodedImage(type: String, exif: Bool = false, offset: String? = nil,
+                          imageProperties: [String: Any] = [:]) throws -> Data {
     let data = NSMutableData()
     guard let provider = CGDataProvider(data: syntheticRGB() as CFData),
           let image = CGImage(width: 64, height: 64, bitsPerComponent: 8, bitsPerPixel: 24,
@@ -24,7 +25,7 @@ private func encodedImage(type: String, exif: Bool = false, offset: String? = ni
           let destination = CGImageDestinationCreateWithData(data, type as CFString, 1, nil) else {
         throw MaterializationError.unsupportedImage
     }
-    var properties: [String: Any] = [:]
+    var properties = imageProperties
     if exif {
         var exifProperties = [
             kCGImagePropertyExifDateTimeOriginal as String: "2026:07:14 12:30:00",
@@ -164,4 +165,76 @@ private func encodedImage(type: String, exif: Bool = false, offset: String? = ni
                                           encoding: .explicitLittleEndian)
     #expect(photo.dataSet.string(for: .timezoneOffsetFromUTC) == "+0530")
     #expect(photo.dataSet.string(for: .acquisitionTime)?.hasPrefix("123000") == true)
+}
+
+@Test func contentTimesUseTheAcquisitionOffsetAcrossDaylightSavingChanges() throws {
+    for (name, acquired, digitized, sourceOffset, expectedTime, datasetOffset) in [
+        ("spring", "2026-03-28T12:00:00Z", "2026:03:30 13:00:00", "+02:00", "120000", "+0100"),
+        ("autumn", "2026-10-24T12:00:00Z", "2026:10:26 13:00:00", "+01:00", "140000", "+0200")
+    ] {
+        let bytes = try encodedImage(type: "public.jpeg", imageProperties: [
+            kCGImagePropertyExifDictionary as String: [
+                kCGImagePropertyExifDateTimeDigitized as String: digitized,
+                "OffsetTimeDigitized": sourceOffset]])
+        var metadata = PhotographMetadata(imageType: "EV01")
+        metadata.acquisitionDateTime = ISO8601DateFormatter().date(from: acquired)!
+        metadata.acquisitionTimeZone = TimeZone(identifier: "Europe/Rome")!
+        for (policy, encoding) in [("preserved", PhotographEncoding.preserveSource),
+                                    ("decoded", .explicitLittleEndian)] {
+            let photo = try OrthodonticPhotograph(image: .encoded(bytes), metadata: metadata, encoding: encoding)
+            let dataset = try DICOMFile.read(from: photo.dicomData()).dataSet
+            #expect(dataset.string(for: .contentTime) == expectedTime)
+            #expect(dataset.string(for: .timezoneOffsetFromUTC) == datasetOffset)
+            #expect(dataset.string(for: .acquisitionTime)?.hasPrefix(name == "spring" ? "130000" : "140000") == true)
+            try exportTimestamp(photo, name: "content-\(name)-\(policy)")
+        }
+    }
+}
+
+@Test func contentOnlyEXIFEmitsItsKnownOffsetWithoutInventingAcquisition() throws {
+    let bytes = try encodedImage(type: "public.jpeg", imageProperties: [
+        kCGImagePropertyExifDictionary as String: [
+            kCGImagePropertyExifDateTimeDigitized as String: "2026:03:30 13:00:00",
+            "OffsetTimeDigitized": "+02:00"]])
+    var metadata = PhotographMetadata(imageType: "EV01")
+    metadata.acquisitionTimeZone = TimeZone(identifier: "Europe/Rome")!
+    for (policy, encoding) in [("preserved", PhotographEncoding.preserveSource),
+                                ("decoded", .explicitLittleEndian)] {
+        let photo = try OrthodonticPhotograph(image: .encoded(bytes), metadata: metadata, encoding: encoding)
+        let dataset = try DICOMFile.read(from: photo.dicomData()).dataSet
+        #expect(dataset.string(for: .contentDate) == "20260330")
+        #expect(dataset.string(for: .contentTime) == "130000")
+        #expect(dataset.string(for: .timezoneOffsetFromUTC) == "+0200")
+        for tag in [Tag.acquisitionDateTime, .acquisitionDate, .acquisitionTime] { #expect(dataset[tag] == nil) }
+        try exportTimestamp(photo, name: "content-only-\(policy)")
+    }
+}
+
+@Test func editingTimestampUsesTheDatasetOffsetAndExplicitContentStillWins() throws {
+    let bytes = try encodedImage(type: "public.jpeg", imageProperties: [
+        kCGImagePropertyTIFFDictionary as String: [kCGImagePropertyTIFFDateTime as String: "2026:03:30 13:00:00"],
+        kCGImagePropertyExifDictionary as String: ["OffsetTime": "+02:00"]])
+    var metadata = PhotographMetadata(imageType: "EV01")
+    metadata.acquisitionDateTime = ISO8601DateFormatter().date(from: "2026-03-28T12:00:00Z")!
+    metadata.acquisitionTimeZone = TimeZone(identifier: "Europe/Rome")!
+    let fallback = try OrthodonticPhotograph(image: .encoded(bytes), metadata: metadata)
+    #expect(fallback.dataSet.string(for: .contentTime) == "120000")
+    #expect(fallback.dataSet.string(for: .timezoneOffsetFromUTC) == "+0100")
+    try exportTimestamp(fallback, name: "content-editing")
+    metadata.additionalAttributes.setString("20260101", for: .contentDate, vr: .DA)
+    metadata.additionalAttributes.setString("010203", for: .contentTime, vr: .TM)
+    let explicit = try OrthodonticPhotograph(image: .encoded(bytes), metadata: metadata)
+    #expect(explicit.dataSet.string(for: .contentDate) == "20260101")
+    #expect(explicit.dataSet.string(for: .contentTime) == "010203")
+    metadata.acquisitionDateTime = Date(timeIntervalSince1970: .nan)
+    #expect(throws: MaterializationError.self) {
+        try OrthodonticPhotograph(image: .encoded(bytes), metadata: metadata)
+    }
+}
+
+private func exportTimestamp(_ photo: OrthodonticPhotograph, name: String) throws {
+    guard let directory = ProcessInfo.processInfo.environment["DICOM4ORTHO_TEST_ARTIFACTS"] else { return }
+    let url = URL(fileURLWithPath: directory, isDirectory: true)
+    try FileManager.default.createDirectory(at: url, withIntermediateDirectories: true)
+    try photo.dicomData().write(to: url.appendingPathComponent(name + ".dcm"))
 }

@@ -59,6 +59,29 @@ advertised as supported. In particular, DICOMKit refuses Part 2 encoding. Unsupp
 policies/formats throw; they are not silently assigned a different transfer syntax.
 The current tests are synthetic interoperability checks, not a production image corpus.
 
+## Review corrections (2026-10-22)
+
+- Current `develop` (the squash-merged API PR #85, `410f9d4`) is merged into the
+  implementation branch. Conflict resolution retains real behavior, backend/resource
+  dependencies and request-code corrections instead of restoring API placeholders.
+- Python rejects orphan extension creators and incomplete declared extension contexts
+  before changing the destination. Ordinary codes omit extension metadata. Its 143
+  non-E2E tests pass with four skips, and error-only production/new-test Pylint passes.
+  Four independently exported ordinary/valid-extension/rejected-input control cases
+  pass `dciodvfy` without errors.
+- EXIF content timestamps are converted to the fixed UTC offset emitted at acquisition,
+  rather than a regional timezone's offset at digitization/editing. Content-only EXIF
+  retains its known offset without fabricating acquisition fields. Explicit content
+  values are unchanged. Spring/autumn DST and content-only regressions exercise both
+  preserved JPEG and decoded output; independent Python checks reconstruct their UTC
+  instants from serialized Content Date/Time and Timezone Offset From UTC.
+- The resolved/fixed tree passes 24 Swift tests, both iOS library cross-builds and
+  independent output decoding/mapping/UTC-instant checks. All 97 regenerated Swift
+  instances pass `dciodvfy` without errors (the four Python creator cases above are
+  separate). The new timestamp regressions were observed failing before the fix.
+- These checks do not qualify actual iOS simulator test execution; the blocker below
+  remains. The new revision must pass its own hosted CI run.
+
 ## Reproducing checks
 
 On an Apple build host with compatible Swift and SDKs, from the repository root:

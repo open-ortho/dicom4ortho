@@ -12,7 +12,7 @@
     <img src="https://raw.githubusercontent.com/open-ortho/dicom4ortho/master/images/open-ortho.png" alt="Logo" width="80" height="80">
   </a>
 
-  <h3 align="center">dicom4ortho 0.5.4-dev</h3>
+  <h3 align="center">dicom4ortho 0.5.4</h3>
 
   <p align="center">
     DICOM functionality for orthodontic photographs.
@@ -323,6 +323,34 @@ baseline VL Photographic Image IOD.
 generate a new UID for DICOM usage with this root:
 
     $ d4o_generate
+
+### Patient ID assigning authority (Python)
+
+Use the public helper on any pydicom dataset, independently of photograph authoring:
+
+```python
+from dicom4ortho import set_patient_id_assigning_authority
+
+set_patient_id_assigning_authority(
+    dataset,
+    local_namespace_entity_id="MY-PRACTICE-123",
+    universal_entity_id_root="1.3.6.1.4.1.62074.1.4.4",
+    instance_number=123,
+)
+```
+
+This sets `IssuerOfPatientID` and replaces `IssuerOfPatientIDQualifiersSequence`
+with exactly one item containing the same `LocalNamespaceEntityID`, the root
+plus canonical numeric instance as `UniversalEntityID`, and type `ISO`. It does
+not change `PatientID`. Applications must use a root they are authorized to assign.
+
+Instances may be non-negative integers or ASCII decimal strings; leading zeroes
+are removed. Booleans, floats, missing values, negatives, signs and non-digits
+are rejected. Roots and final OIDs must have valid numeric OID components and
+fit the 64-character DICOM UID limit. Local labels must be non-blank single LO
+values of at most 64 characters without surrounding whitespace, backslashes or
+control characters. Invalid input raises `ValueError` before changing the dataset.
+Applications may enforce stronger constraints, such as a strictly positive ID.
 
 ## Known Issues
 

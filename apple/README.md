@@ -1,9 +1,8 @@
 # DICOM4Ortho for Swift
 
-**API-only checkpoint for #82.** Clinical operations currently throw
-`MaterializationError.notImplemented`; this package does not yet create clinical
-output. Another application can compile against these declarations and provide its
-own test doubles. Do not treat API compilation as implementation conformance.
+Swift implementation of the three [shared capabilities](../docs/API_CONTRACT.md),
+without networking. The package is not release-qualified. See the
+[qualification record and remaining limits](QUALIFICATION.md).
 
 ## Contract and usage
 
@@ -21,7 +20,7 @@ metadata.patientFamilyName = "Example"
 metadata.patientGivenName = "Alex"
 let photo = try OrthodonticPhotograph(
     image: .rgb8(Data([255, 0, 0]), width: 1, height: 1), metadata: metadata,
-    encoding: .jpeg2000Lossless)
+    encoding: .explicitLittleEndian)
 let bytes = try photo.dicomData()
 try photo.save(to: URL(fileURLWithPath: "example.dcm"))
 
@@ -30,25 +29,96 @@ let declarations = try OrthodonticPhotograph.extractViews(from: photo.dataSet)
 let catalog = try OrthodonticPhotograph.availableViews()
 ```
 
-These calls demonstrate the fixed interface; they throw until PR2 implements it.
 Creation maps a supported view, validates supplied facts, and handles pixels;
 templates intentionally omit pixels and may lack required exchange metadata.
 Extraction accepts already parsed datasets, including supplied worklists. Results
-retain actual-versus-prescribed roles, item indices, repetitions, and unresolved
+retain intended-view versus prescription roles, item indices, repetitions, and unresolved
 qualifying codes. No operation infers a view from anatomy or performs a network query.
 
-For newly created images, the explicit declaration is DENT-OIP's structured
-`keyword^abbreviation^meaning` Image Comments format. It is not arbitrary comment
-inference. `DeclaredView.Source.imageComments` retains that text; its `code` is the
-exact matched catalog entry. Legacy/private sequence declarations retain their original
-code dataset. View Code Sequence remains a single projection item: DICOM PS3.3
-Table C.8-77 and DENT-OIP do not permit appending a second type-code item beside it.
+Each image/template writes a `CODE` item in `AcquisitionContextSequence (0040,0555)`:
+the proposed concept **Intended orthodontic photographic view** identifies the
+selected catalog code in `ConceptCodeSequence`. This follows the maintainer's
+[review correction](https://github.com/open-ortho/dicom4ortho/pull/86#pullrequestreview-5626642043)
+and [DENT-OIP #25 proposal](https://github.com/open-ortho/dent-oip/issues/25#issuecomment-6340377599).
+The Concept Name is `(AAAAAAA, DCM, "Intended orthodontic photographic view")`.
+**AAAAAAA is an unassigned DICOM CP-style placeholder, not an approved DCM code or
+an adopted TID 3465 row.** It needs WG-22/CP agreement and an assigned code before
+standards-conformance qualification. No new DICOM attribute is invented.
+The designation records the clinical intention for this image, not proof that the
+patient achieved every requested facial pose or functional condition.
+`DeclaredView.Source.intended(acquisitionContextIndex:)` identifies these occurrences.
+
+Series/worklist Request Attributes / Scheduled Protocol Code Sequence is preserved
+verbatim when supplied; creation never synthesizes a prescription from the image's
+intended view. `Source.scheduled` and `Source.requested` remain explicitly prescribed
+roles, not instance classifications. Two instances in the same series can therefore
+have different intended views and identical request context.
+Projection remains the single `ViewCodeSequence` item; Image Comments is only a
+human-readable label and is never used by extraction, even for an exact catalog match.
+Legacy/private View Code Sequence declarations remain readable with their original
+code datasets, but are not newly written. Coded extraction supports the bundled catalog scheme
+and qualifying private CID extensions; it does not claim to resolve every SNOMED
+procedure code or recursively search unrelated IODs. Incomplete code entries are
+ignored without suppressing valid entries elsewhere.
+Multiple protocol items describe the request/series, not a unique
+instance association. No automatic Instance Number to list-index mapping or promotion
+to Performed Protocol Code Sequence is implemented. The concept above remains a
+proposal, not a claim that DENT-OIP #25 or DICOM approval is complete.
+
+The Python runtime, tests, packaging and shared generator are unchanged in this PR.
+Separate Python alignment is tracked in [#88](https://github.com/open-ortho/dicom4ortho/issues/88).
+Swift's resource is exported offline by `python apple/Tools/export_terminology.py`
+from the reviewed lock; `--check` detects drift without writing. This Apple-only
+maintenance command does not change `make update_codes` / `make check_codes` and
+is not run by SwiftPM or required at runtime.
 
 `PhotographInput` accepts RGB8, encoded bytes, and local files. `preserveSource`
 means no recompression, or uncompressed output for raw samples; it must reject
 unsupported preservation paths. Explicit encoding allows decoding/re-encoding and
-makes additional lossy intent visible. The implementation PR will record qualified
-format/codec combinations; enum cases alone are not support claims.
+makes additional lossy intent visible. The [capability matrix](QUALIFICATION.md#codec-capabilities)
+records qualified combinations; enum cases alone are not support claims.
+
+PNG, supported lossless TIFF, BMP, and supported JPEG sources can be decoded through ImageIO with an
+explicit output encoding. RGB8 output is intentional: the selected VL IOD requires
+8-bit samples; 16-bit samples must not be silently relabeled or down-converted.
+Multiple frames/pages, alpha, and nonidentity EXIF orientation are rejected.
+Normalize those sources explicitly in the application before calling the library.
+HEIF/GIF, JPEG-in-TIFF, and unknown TIFF compression schemes are not accepted merely
+because ImageIO can decode them; their source-loss histories need separate qualification.
+
+Baseline 8-bit three-component YCbCr JPEG with a JFIF or Adobe-transform-1 declaration
+can be preserved without recompression. Headerless color assumptions and Adobe RGB/CMYK
+JPEG are rejected. Explicit JPEG decoding accepts qualified 8-bit color baseline or
+progressive processes, not an unqualified lossless process labeled as lossy.
+JP2 preservation accepts a single sRGB codestream with three unsigned 8-bit components
+and a supported MCT; palettes, channel mappings, Part 2 extensions, and coding-style
+overrides are rejected. Raw J2K additionally needs an explicit RGB source declaration:
+
+```swift
+import DICOMCore
+metadata.additionalAttributes.setString("RGB", for: .photometricInterpretation, vr: .CS)
+metadata.additionalAttributes.setString("00", for: .lossyImageCompression, vr: .CS)
+```
+
+Only declare `00` if the source is known never to have undergone lossy compression.
+Reversible wavelets do not prove absence of rate truncation or earlier loss. Unknown
+JPEG 2000 history is rejected rather than guessed; irreversible streams cannot
+declare `00`. Known earlier lossy history (`01`, with optional method/ratio) is retained
+even when the requested output is lossless. Encapsulated streams receive only the
+even-length padding required by DICOM; JP2 containers are not placed in Pixel Data.
+
+EXIF DateTimeOriginal and camera Make are fallback facts. Explicit acquisition and
+manufacturer values win. Acquisition timezone controls clinical day arithmetic;
+editing time is never substituted for capture time. Treatment events after capture
+are rejected; a zero-day offset is valid.
+Camera model/software/serial and aperture/shutter values are copied only when the
+corresponding supplementary attributes are absent. Digitization/editing timestamps
+populate Content Date/Time, not Acquisition Date/Time. They are normalized to the
+fixed offset emitted at acquisition, not the regional timezone's possibly different
+daylight-saving offset at digitization. Content-only EXIF emits its source offset
+without inventing acquisition fields. Explicit Content Date/Time values remain unchanged.
+Preservation is not de-identification:
+the original compressed stream can still contain embedded EXIF information.
 
 Share study/series UIDs through `PhotographMetadata` for related images, while
 keeping SOP Instance UIDs distinct. No study/series wrapper classes or Python-style
@@ -58,6 +128,10 @@ edits affect that value and do not automatically rebuild clinical mappings.
 `applyingWorklist(_:scheduledStepIndex:)` copies a selected supplied step's context
 locally. It is separate from `extractViews`, which reads every step's prescriptions.
 Set explicit corrections after copying worklist facts. This is not network delivery.
+The typed patient-name convenience edits family/given components. Additional name
+components/representations copied from a worklist are retained; correcting a given
+name does not discard a middle name or an ideographic/phonetic representation.
+The native dataset boundary remains available for arbitrary DICOM PN editing.
 
 ## Building and consuming
 
@@ -69,24 +143,23 @@ all Swift sources/tests live under `apple/`. Python packaging is unchanged.
 swift test
 ```
 
-For pre-release integration, depend on this API branch/revision. Do not select a
+For pre-release integration, depend on the implementation branch/revision. Do not select a
 Python release tag that predates `Package.swift`. Once the implementation is
 qualified, a versioned Git tag will identify a Swift-consumable release. No release
-tag or simulator qualification is claimed by this interface PR.
+tag or simulator test-execution qualification is claimed by this work.
 
-Before this PR is merged, an application package can resolve the API from the
-author's public fork (Swift tools 6.4+ is still required even for this API checkpoint):
+Before merge, the implementation is available from the author's public fork:
 
 ```swift
-// In the consuming Package.swift dependencies:
+// Consuming Package.swift dependencies:
 .package(url: "https://github.com/zgypa-agent/dicom4ortho.git",
-         branch: "zgypa-agent/82-swift-api")
-// In the consuming target dependencies:
+         branch: "zgypa-agent/82-swift-implementation")
+// Consuming target dependencies:
 .product(name: "DICOM4Ortho", package: "dicom4ortho")
 ```
 
-After merge/release, use the upstream `open-ortho/dicom4ortho` URL with a qualified
-revision/tag instead. Branch references are pre-release integration aids, not stable releases.
+After release, prefer the upstream `open-ortho/dicom4ortho` URL with a qualified tag.
+Branch references are pre-release integration aids, not stable releases.
 
 The development Mac currently has Xcode 26.3 plus an isolated official Swift 6.4.1
 toolchain. Standalone SwiftPM testing/cross-compilation can use that toolchain, but
@@ -101,4 +174,5 @@ DICOMKit owns serialization, constants, and codecs. DICOM4Ortho owns dental clin
 mapping and extraction. Public inputs/outputs may use dependency-native datasets;
 UI/camera frameworks, Python runtime, DIMSE, STOW-RS, authentication, and delivery
 queues are excluded. DICOM4Ortho and DICOMKit are MIT-licensed. Retain upstream
-codec dependency notices when redistributing them.
+codec dependency notices when redistributing them. See [dependency notices](THIRD_PARTY.md)
+and the [release checklist](RELEASING.md).

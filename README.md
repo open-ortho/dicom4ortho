@@ -270,13 +270,19 @@ Root `pyproject.toml`, Make targets, and release tooling remain the entry points
 `pip install -e ".[dev]"`, `python -m build`, and `make build` still run from the
 repository root and produce the existing package artifacts in `dist/`.
 
-The Swift API checkpoint lives under [`apple/`](apple/README.md), with a root
-`Package.swift` for direct SwiftPM Git-URL consumption. Clinical Swift operations
-are not implemented at this checkpoint. Implementations have independent runtime
+The Swift implementation lives under [`apple/`](apple/README.md), with a root
+`Package.swift` for direct SwiftPM Git-URL consumption. Swift supports image creation,
+view-only templates, and declared-view extraction; it is not release-qualified.
+Implementations have independent runtime
 code and builds, not a shared executable core.
 See [the repository layout and implementation boundaries](docs/REPOSITORY_LAYOUT.md).
 
 ## Usage
+
+Swift records each image's **intended photograph type** in Acquisition Context,
+using the provisional DENT-OIP #25 concept pending DICOM approval. Series/worklist
+prescriptions remain separate. This PR does not change the Python implementation;
+its alignment is tracked in #88. See [code location and proposal status](docs/VIEW_CODE_LOCATION.md).
 
 The official documentation of this project is available on line
 [here](https://open-ortho.github.io/dicom4ortho). Source code for the

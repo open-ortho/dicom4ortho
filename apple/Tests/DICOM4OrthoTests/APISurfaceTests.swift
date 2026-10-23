@@ -1,5 +1,4 @@
-// Compiles the application-facing surface before implementation work begins.
-// These tests deliberately do not pass off placeholder output as clinical behavior.
+// Exercises public application values independently of internal implementation types.
 import Foundation
 import Testing
 import DICOMCore
@@ -27,21 +26,14 @@ import DICOM4Ortho
     #expect(occurrence.source == .scheduled(stepIndex: 1, protocolIndex: 2, stepID: "step-b"))
 }
 
-@Test func apiOnlyOperationsFailExplicitly() {
-    #expect(throws: MaterializationError.notImplemented("create")) {
-        try OrthodonticPhotograph(image: .rgb8(Data([0, 0, 0]), width: 1, height: 1),
-                                  metadata: .init(imageType: "EV01"))
-    }
-    #expect(throws: MaterializationError.notImplemented("createStub")) {
-        try OrthodonticPhotograph.createStub(view: "EV01")
-    }
-    #expect(throws: MaterializationError.notImplemented("extractViews")) {
-        try OrthodonticPhotograph.extractViews(from: DataSet())
-    }
-    #expect(throws: MaterializationError.notImplemented("availableViews")) {
-        try OrthodonticPhotograph.availableViews()
-    }
-    #expect(throws: MaterializationError.notImplemented("applyingWorklist")) {
+@Test func publicOperationsProduceRealResults() throws {
+    let photo = try OrthodonticPhotograph(image: .rgb8(Data([0, 0, 0]), width: 1, height: 1),
+                                         metadata: .init(imageType: "EV01"))
+    let parsed = try DICOMFile.read(from: photo.dicomData())
+    #expect(parsed.sopInstanceUID == photo.dataSet.string(for: .sopInstanceUID))
+    #expect(try OrthodonticPhotograph.availableViews().count == 73)
+    #expect(try OrthodonticPhotograph.extractViews(from: DataSet()).isEmpty)
+    #expect(throws: MaterializationError.invalidScheduledStep(0)) {
         try PhotographMetadata(imageType: "EV01").applyingWorklist(DataSet(), scheduledStepIndex: 0)
     }
 }

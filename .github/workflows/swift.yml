@@ -1,0 +1,60 @@
+# Swift checks are independent of the existing Python packaging and publication jobs.
+name: Swift materialization
+on:
+  pull_request:
+    paths: ['Package.swift', 'Package.resolved', 'apple/**', 'python/dicom4ortho/**', '.github/workflows/swift.yml']
+  push:
+    branches: [develop, 'zgypa-agent/82-swift-*']
+    paths: ['Package.swift', 'Package.resolved', 'apple/**', 'python/dicom4ortho/**', '.github/workflows/swift.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: swift-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  macos:
+    runs-on: macos-15
+    timeout-minutes: 30
+    env:
+      # Match the SDKs qualified on mainframe1 without changing the runner's selection.
+      DEVELOPER_DIR: /Applications/Xcode_26.3.app/Contents/Developer
+    steps:
+      - uses: actions/checkout@v4
+      - name: Extract the qualified official Swift toolchain
+        run: bash apple/Tools/setup-ci-swift.sh
+      - name: Record build environment
+        run: |
+          swift --version
+          xcodebuild -version
+      - name: Test public API and clinical behavior
+        env:
+          DICOM4ORTHO_TEST_ARTIFACTS: ${{ runner.temp }}/dicom4ortho-artifacts
+        run: swift test --jobs 4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install independent output decoders (validation only)
+        env:
+          HOMEBREW_NO_AUTO_UPDATE: '1'
+        run: |
+          python -m pip install 'pydicom>=3' numpy pillow pylibjpeg pylibjpeg-libjpeg pylibjpeg-openjpeg pyjpegls requests pynetdicom prettytable
+          brew install jpeg-xl
+          djxl --version
+      - name: Check the Apple-only offline terminology export
+        run: |
+          python apple/Tools/export_terminology.py --check
+          python -m unittest discover -s apple/Tools -p 'test_*.py'
+      - name: Independently decode outputs and compare clinical mappings
+        env:
+          PYTHONPATH: python
+        run: python apple/Tools/validate_outputs.py "${{ runner.temp }}/dicom4ortho-artifacts" --compare-python
+      - name: Cross-build iOS device library
+        run: swift build --target DICOM4Ortho --triple arm64-apple-ios18.0 --sdk "$(xcrun --sdk iphoneos --show-sdk-path)" --scratch-path .build-ios-device --jobs 4
+      - name: Cross-build iOS simulator library (not test execution)
+        run: swift build --target DICOM4Ortho --triple arm64-apple-ios18.0-simulator --sdk "$(xcrun --sdk iphonesimulator --show-sdk-path)" --scratch-path .build-ios-simulator --jobs 4
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: synthetic-dicom-fixtures
+          path: ${{ runner.temp }}/dicom4ortho-artifacts

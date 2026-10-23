@@ -20,7 +20,8 @@ public struct PhotographMetadata: Sendable {
     public var seriesInstanceUID: String
     /// Identity of this final instance, retained across repeated serialization.
     public var sopInstanceUID: String
-    /// ADA photograph keyword, with or without a hyphen (for example EV01 / EV-01).
+    /// Intended ADA photograph keyword, with or without a hyphen (EV01 / EV-01).
+    /// This designation does not prove that the patient achieved every pose/condition.
     public var imageType: String
     /// Projection keyword, required for variable-direction complete images.
     public var directionKeyword: String?
@@ -46,13 +47,31 @@ public struct PhotographMetadata: Sendable {
     /// For advanced edits after creation, use OrthodonticPhotograph.dataSet.
     public var additionalAttributes = DataSet()
 
+    // EXIF-only content timestamps still need a dataset UTC offset. This does not
+    // invent an acquisition instant or change the caller's clinical calendar zone.
+    var contentTimeZoneOffset: Int?
+
+    // Retain source components that the family/given convenience does not expose.
+    // Later family/given corrections change those components, not unrelated PN groups.
+    var worklistPatientName: DICOMPersonName?
+
+    var patientName: DICOMPersonName {
+        guard let source = worklistPatientName else {
+            return DICOMPersonName(familyName: patientFamilyName, givenName: patientGivenName)
+        }
+        return DICOMPersonName(alphabetic: .init(
+            familyName: patientFamilyName, givenName: patientGivenName,
+            middleName: source.middleName, namePrefix: source.namePrefix, nameSuffix: source.nameSuffix),
+            ideographic: source.ideographic, phonetic: source.phonetic)
+    }
+
     /// Generates independent UIDs under dicom4ortho's registered roots using DICOMKit.
     /// Replace study/series values with shared values for related photographs.
     public init(imageType: String) {
         self.imageType = imageType
-        studyInstanceUID = UIDGenerator(root: "1.3.6.1.4.1.61741.11.2.2").generate().value
-        seriesInstanceUID = UIDGenerator(root: "1.3.6.1.4.1.61741.11.2.3").generate().value
-        sopInstanceUID = UIDGenerator(root: "1.3.6.1.4.1.61741.11.2.4").generate().value
+        studyInstanceUID = UIDGenerator(root: DentalProfile.creatorUID + ".2").generate().value
+        seriesInstanceUID = UIDGenerator(root: DentalProfile.creatorUID + ".3").generate().value
+        sopInstanceUID = UIDGenerator(root: DentalProfile.creatorUID + ".4").generate().value
     }
 
     /// Copies supported patient, referring-physician, study, and request facts from
@@ -61,6 +80,6 @@ public struct PhotographMetadata: Sendable {
     /// it does not change imageType, acquisition time, provider, operator, or SOP UID.
     /// No worklist server is contacted. Set subsequent explicit corrections afterward.
     public func applyingWorklist(_ worklist: DataSet, scheduledStepIndex: Int) throws -> Self {
-        throw MaterializationError.notImplemented("applyingWorklist")
+        try WorklistMapping.apply(worklist, stepIndex: scheduledStepIndex, to: self)
     }
 }

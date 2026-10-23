@@ -20,7 +20,8 @@ public struct PhotographMetadata: Sendable {
     public var seriesInstanceUID: String
     /// Identity of this final instance, retained across repeated serialization.
     public var sopInstanceUID: String
-    /// ADA photograph keyword, with or without a hyphen (for example EV01 / EV-01).
+    /// Intended ADA photograph keyword, with or without a hyphen (EV01 / EV-01).
+    /// This designation does not prove that the patient achieved every pose/condition.
     public var imageType: String
     /// Projection keyword, required for variable-direction complete images.
     public var directionKeyword: String?

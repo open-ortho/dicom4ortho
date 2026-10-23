@@ -41,6 +41,10 @@ jobs:
           python -m pip install 'pydicom>=3' numpy pillow pylibjpeg pylibjpeg-libjpeg pylibjpeg-openjpeg pyjpegls requests pynetdicom prettytable
           brew install jpeg-xl
           djxl --version
+      - name: Check the Apple-only offline terminology export
+        run: |
+          python apple/Tools/export_terminology.py --check
+          python -m unittest discover -s apple/Tools -p 'test_*.py'
       - name: Independently decode outputs and compare clinical mappings
         env:
           PYTHONPATH: python

@@ -13,11 +13,15 @@ extension Tag {
     static let scheduledProcedureStepSequence = DataElementDictionary.lookup(keyword: "ScheduledProcedureStepSequence")!.tag
 }
 
-// Library-owned registered UID and the CID extended by the DENT-OIP profile.
-// Neither is an alternative DICOM transfer-syntax or SOP-class registry.
+// Library identity, legacy read context, and the explicitly unassigned CP concept.
+// No new DICOM tag is needed: the proposed concept uses Acquisition Context.
 enum DentalProfile {
     static let creatorUID = "1.3.6.1.4.1.61741.11.2"
     static let viewContextIdentifier = "4063"
+    // DENT-OIP #25 proposal, pending WG-22/DICOM approval. AAAAAAA is a CP
+    // placeholder, not an assigned DCM concept; keep it separate from the lock.
+    static let intendedViewConcept = Terminology.Code(
+        value: "AAAAAAA", scheme: "DCM", meaning: "Intended orthodontic photographic view")
 }
 
 extension DataSet {

@@ -279,10 +279,10 @@ See [the repository layout and implementation boundaries](docs/REPOSITORY_LAYOUT
 
 ## Usage
 
-Photograph-type codes are stored under Request Attributes / Scheduled Protocol
-Code Sequence, separately from anatomical projections. See
-[code location and migration behavior](docs/VIEW_CODE_LOCATION.md), including the
-distinction between a series prescription and an acquired instance.
+Swift records each image's **intended photograph type** in Acquisition Context,
+using the provisional DENT-OIP #25 concept pending DICOM approval. Series/worklist
+prescriptions remain separate. This PR does not change the Python implementation;
+its alignment is tracked in #88. See [code location and proposal status](docs/VIEW_CODE_LOCATION.md).
 
 The official documentation of this project is available on line
 [here](https://open-ortho.github.io/dicom4ortho). Source code for the

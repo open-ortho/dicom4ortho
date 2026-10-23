@@ -34,13 +34,8 @@ struct PhotographProfile {
         dataset.setString(sop.uid, for: .sopClassUID, vr: .UI)
         dataset.setString("XC", for: .modality, vr: .CS)
         dataset.setString(view.seriesDescription, for: .seriesDescription, vr: .LO)
-        // DENT-OIP #12 / section 3.4.1.3: this is a protocol prescription, not
-        // proof of the acquired view. A supplied series/worklist list wins below.
-        var request = DataSet()
-        request.setSequence([type.code.dataSet.sequenceItem], for: .scheduledProtocolCodeSequence)
-        dataset.setSequence([request.sequenceItem], for: .requestAttributesSequence)
-        // Optional human-readable label only; coded extraction uses the protocol
-        // sequence, never this text, even when it matches the catalog exactly.
+        // Optional human-readable label only; coded extraction uses Acquisition
+        // Context, never this text, even when it matches the catalog exactly.
         dataset.setString("\(keyword)^\(type.abbreviation)^\(type.meaning)".replacingOccurrences(of: "\u{a0}", with: " "),
                           for: .imageComments, vr: .LT)
         dataset.setString(view.imageLaterality, for: .imageLaterality, vr: .CS)
@@ -67,7 +62,15 @@ struct PhotographProfile {
         }
         // PS3.3 Table C.8-77 permits one projection item, not an appended type code.
         if !viewItems.isEmpty { dataset.setSequence(viewItems, for: .viewCodeSequence) }
-        var context: [SequenceItem] = []
+        // Instance-level intention follows DENT-OIP #25's proposed TID 3465 concept.
+        // It does not identify this image by a series prescription or assert that
+        // every intended pose was achieved. The concept is explicitly provisional.
+        var intended = DataSet()
+        intended.setString("CODE", for: .valueType, vr: .CS)
+        intended.setSequence([DentalProfile.intendedViewConcept.dataSet.sequenceItem],
+                             for: .conceptNameCodeSequence)
+        intended.setSequence([type.code.dataSet.sequenceItem], for: .conceptCodeSequence)
+        var context = [intended.sequenceItem]
         let groups: [(String, [Terminology.Code])] = [
             ("OrthognathicFunctionalConditions", view.orthognathicFunctionalConditions),
             ("FindingByInspection", view.findingsByInspection),
@@ -99,25 +102,9 @@ struct PhotographProfile {
         for tag in MetadataValidation.managedTags { dataset[tag] = nil }
         let profile = try makeStub(view: metadata.imageType,
                                    directionKeyword: metadata.directionKeyword, complete: true)
+        // The profile never supplies request protocols; any copied order context
+        // remains untouched while its independent instance intention is populated.
         for tag in profile.tags {
-            if tag == .requestAttributesSequence,
-               let supplied = dataset.sequence(for: tag), !supplied.isEmpty {
-                // Preserve an actual supplied protocol list verbatim, including
-                // unrelated/unknown codes. If there is only an empty request
-                // context, add the one prescribed view without losing identifiers.
-                let requests = supplied.map { DataSet(elements: $0.allElements) }
-                if requests.contains(where: { !($0.sequence(for: .scheduledProtocolCodeSequence) ?? []).isEmpty }) {
-                    continue
-                }
-                guard requests.count == 1 else {
-                    throw MaterializationError.invalidMetadata("Select a request before adding a view protocol")
-                }
-                var request = requests[0]
-                let templateRequest = DataSet(elements: profile.sequence(for: tag)![0].allElements)
-                request[.scheduledProtocolCodeSequence] = templateRequest[.scheduledProtocolCodeSequence]
-                dataset.setSequence([request.sequenceItem], for: tag)
-                continue
-            }
             dataset[tag] = profile[tag]
         }
         dataset.setString(metadata.sopInstanceUID, for: .sopInstanceUID, vr: .UI)

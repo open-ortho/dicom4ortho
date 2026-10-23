@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Generate committed Python and Swift terminology artifacts from one resolution.
+"""Generate the committed terminology lock used by dicom4ortho.
 
 DICOM concepts are resolved from official NEMA FHIR ValueSets and the NEMA
 DCM ontology. ADA 1100 image types are resolved from Open Ortho FHIR
@@ -37,7 +37,6 @@ from rdflib.namespace import SKOS
 sys.path.insert(0, str(Path(__file__).parent.parent / "python"))
 
 OUTPUT = Path(__file__).parent.parent / "python" / "dicom4ortho" / "_generated_codes.py"
-SWIFT_OUTPUT = Path(__file__).parent.parent / "apple/Sources/DICOM4Ortho/Resources/terminology.json"
 
 SCT_SYSTEM = "http://snomed.info/sct"
 DCM_SYSTEM = "http://dicom.nema.org/resources/ontology/DCM"
@@ -639,83 +638,15 @@ def generate(
     return "\n".join(lines)
 
 
-def generate_json(
-    codes: dict[str, dict], image_types: dict[str, dict], views: list[dict],
-    source_provenance: dict[str, dict[str, str]], python_lock: str,
-) -> str:
-    """Render Swift's offline resource from the same resolved inputs as Python.
-
-    The artifact hash links reviewed outputs; neither runtime needs the other
-    language installed. The escaped labels match the existing Python renderer.
-    """
-    resolved_codes = {
-        key: {"value": info["code"], "scheme": info["scheme"],
-              "meaning": info["meaning"].replace('"', '\\"')[:64]}
-        for key, info in codes.items()
-    }
-    resolved_types = {
-        key: {"keyword": key, "abbreviation": info["abbreviation"], "meaning": info["meaning"],
-              "code": {"value": key, "scheme": info["scheme"], "meaning": info["display"][:64]}}
-        for key, info in image_types.items()
-    }
-    optional_columns = {
-        "anatomic_region": "AnatomicRegionSequence",
-        "anatomic_region_modifier": "AnatomicRegionModifierSequence",
-        "primary_anatomic_structure": "PrimaryAnatomicStructureSequence",
-        "primary_anatomic_structure_modifier": "PrimaryAnatomicStructureModifierSequence",
-        "view_code": "ViewCodeSequence",
-        "dental_occlusion": "AcquisitionContextSequence^DentalOcclusion",
-    }
-    multiple_columns = {
-        "devices": "DeviceSequence", "view_modifiers": "ViewModifierCodeSequence",
-        "orthognathic_functional_conditions":
-            "AcquisitionContextSequence^OrthognathicFunctionalConditions",
-        "findings_by_inspection": "AcquisitionContextSequence^FindingByInspection",
-        "observable_entities": "AcquisitionContextSequence^ObservableEntity",
-    }
-    resolved_views = {}
-    for row in views:
-        keyword = row["keyword"]
-        orientation = row.get("PatientOrientation", "").strip()
-        laterality = row.get("ImageLaterality", "").strip()
-        view = {
-            "keyword": keyword,
-            "patient_orientation": codes[orientation]["code"].split("^") if orientation else None,
-            "image_laterality": codes[laterality]["code"] if laterality else "",
-            "description": image_types[keyword]["meaning"],
-            "series_description": row.get("SeriesDescription", "").strip().replace('"', '\\"'),
-        }
-        for field, column in optional_columns.items():
-            code = row.get(column, "").strip()
-            view[field] = resolved_codes[code] if code else None
-        for field, column in multiple_columns.items():
-            view[field] = [resolved_codes[code.strip()]
-                           for code in row.get(column, "").split("^") if code.strip()]
-        resolved_views[keyword] = view
-    return json.dumps({
-        "schema_version": 1,
-        "source_lock_sha256": hashlib.sha256(python_lock.encode("utf-8")).hexdigest(),
-        "source_provenance": source_provenance,
-        "codes": resolved_codes, "image_types": resolved_types, "views": resolved_views,
-    }, ensure_ascii=False, indent=2, sort_keys=True) + "\n"
-
-
-def build_outputs(fetch_url: Callable[[str], bytes] = _fetch_bytes) -> dict[Path, str]:
-    """Fetch once and validate/render all language artifacts before writing any."""
+def build_lock(fetch_url: Callable[[str], bytes] = _fetch_bytes) -> str:
+    """Fetch, validate, and render the terminology lock without writing it."""
     codes, image_types, provenance = load_terminology(fetch_url)
     print(f"  {len(codes)} DICOM codes loaded.")
     print(f"  {len(image_types)} ADA image types loaded.")
     views, views_provenance = load_views(fetch_url)
     print(f"  {len(views)} views loaded.")
     provenance["VIEWS"] = views_provenance
-    python_lock = generate(codes, image_types, views, provenance)
-    return {OUTPUT: python_lock,
-            SWIFT_OUTPUT: generate_json(codes, image_types, views, provenance, python_lock)}
-
-
-def build_lock(fetch_url: Callable[[str], bytes] = _fetch_bytes) -> str:
-    """Retain the existing Python-only rendering helper used by generator tests."""
-    return build_outputs(fetch_url)[OUTPUT]
+    return generate(codes, image_types, views, provenance)
 
 
 def main() -> None:
@@ -725,22 +656,18 @@ def main() -> None:
     if unknown_args:
         raise SystemExit(f"Unknown arguments: {', '.join(sorted(unknown_args))}")
 
-    outputs = build_outputs()
+    rendered = build_lock()
     if check:
-        stale = [path for path, rendered in outputs.items()
-                 if not path.exists() or path.read_text(encoding="utf-8") != rendered]
-        if stale:
+        if not OUTPUT.exists() or OUTPUT.read_text(encoding="utf-8") != rendered:
             raise SystemExit(
-                f"{', '.join(str(path) for path in stale)} differs from regenerated terminology; "
+                f"{OUTPUT.relative_to(Path.cwd())} differs from regenerated terminology; "
                 "run make update_codes"
             )
         print("Generated terminology lock is current.")
         return
 
-    for path, rendered in outputs.items():
-        print(f"Generating {path}...", flush=True)
-        path.parent.mkdir(parents=True, exist_ok=True)
-        path.write_text(rendered, encoding="utf-8")
+    print(f"Generating {OUTPUT}...", flush=True)
+    OUTPUT.write_text(rendered, encoding="utf-8")
     print("Done.")
 
 

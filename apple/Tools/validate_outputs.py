@@ -38,6 +38,8 @@ def validate(directory: Path) -> list[dict]:
     reports = []
     for name, suffix in ENCODINGS.items():
         dataset = pydicom.dcmread(directory / f"{name}.dcm")
+        assert intended_view(dataset).CodeValue == "EV01", name
+        assert "RequestAttributesSequence" not in dataset, name
         assert dataset.file_meta.TransferSyntaxUID == "1.2.840.10008.1.2" + suffix, name
         assert dataset.SOPClassUID == "1.2.840.10008.5.1.4.1.1.77.1.4", name
         assert dataset.SOPInstanceUID == dataset.file_meta.MediaStorageSOPInstanceUID, name
@@ -69,15 +71,34 @@ def validate(directory: Path) -> list[dict]:
     return reports
 
 
+def intended_view(dataset: pydicom.Dataset) -> pydicom.Dataset:
+    """Require the provisional instance concept, independently of Swift constants."""
+    items = []
+    for item in dataset.get("AcquisitionContextSequence", []):
+        names = item.get("ConceptNameCodeSequence", [])
+        if len(names) == 1 and (names[0].get("CodeValue"), names[0].get("CodingSchemeDesignator")) == (
+                "AAAAAAA", "DCM"):
+            assert item.ValueType == "CODE"
+            assert names[0].CodeMeaning == "Intended orthodontic photographic view"
+            assert len(item.ConceptCodeSequence) == 1
+            value = item.ConceptCodeSequence[0]
+            assert value.get("CodeMeaning")
+            assert sum(bool(value.get(key)) for key in ("CodeValue", "LongCodeValue", "URNCodeValue")) == 1
+            assert value.get("CodingSchemeDesignator") or value.get("URNCodeValue")
+            items.append(value)
+    assert len(items) == 1, "Each generated instance must have exactly one intended view"
+    return items[0]
+
+
 def compare_python_views(directory: Path) -> None:
-    """Check clinical mappings, with explicit reviewed declaration/orientation differences."""
+    """Compare unchanged Python mappings; only Swift writes proposed instance intent."""
     # Invoke with PYTHONPATH=python from the checkout. Runtime packages are not coupled.
     from dicom4ortho._generated_codes import IMAGE_TYPES, VIEWS  # pylint: disable=import-outside-toplevel
     from dicom4ortho.m_orthodontic_photograph import OrthodonticPhotograph  # pylint: disable=import-outside-toplevel
 
     attributes = ["SeriesDescription", "PatientOrientation", "ImageLaterality", "DeviceSequence",
                   "AnatomicRegionSequence", "PrimaryAnatomicStructureSequence", "ViewCodeSequence",
-                  "AcquisitionContextSequence", "RequestAttributesSequence"]
+                  "RequestAttributesSequence"]
     for keyword in sorted(VIEWS):
         parameters = {"image_type": keyword}
         if keyword in ("IV28", "IV30", "EV40"):
@@ -99,10 +120,21 @@ def compare_python_views(directory: Path) -> None:
                 assert left.to_json_dict() == right.to_json_dict(), (keyword, attribute)
         view = IMAGE_TYPES[keyword]
         assert actual.ImageComments == f"{keyword}^{view.abbreviation}^{view.meaning}".replace("\xa0", " ")
-        code = actual.RequestAttributesSequence[0].ScheduledProtocolCodeSequence[0]
+        code = intended_view(actual)
         assert code.CodeValue == view.code.value
         assert code.CodingSchemeDesignator == view.code.scheme
-        assert "ContextIdentifier" not in code  # No projection-CID extension on a protocol.
+        assert code.CodeMeaning == view.code.meaning
+        assert "ContextIdentifier" not in code
+        assert "RequestAttributesSequence" not in actual  # No invented series prescription.
+        # The new intention must not replace any of Python's existing clinical rows.
+        context = pydicom.Dataset()
+        context.AcquisitionContextSequence = [
+            item for item in actual.AcquisitionContextSequence
+            if not any((name.get("CodeValue"), name.get("CodingSchemeDesignator")) == ("AAAAAAA", "DCM")
+                       for name in item.get("ConceptNameCodeSequence", []))]
+        reference = pydicom.Dataset()
+        reference.AcquisitionContextSequence = expected.AcquisitionContextSequence
+        assert context.to_json_dict() == reference.to_json_dict(), keyword
         assert len(actual.get("ViewCodeSequence", [])) <= 1
 
 
@@ -129,9 +161,19 @@ def validate_clinical_relationships(directory: Path) -> None:
     assert requests[0].RequestedProcedureID == "request-A"
     assert [[code.CodeValue for code in item.ScheduledProtocolCodeSequence] for item in requests] == [
         ["EV01", "EV02", "EV01"], ["EV02"]]
+    assert requests[0].ScheduledProtocolCodeSequence[0].CodingSchemeVersion == "2026"
     assert series.InstanceNumber == 999  # Not an inferred protocol index.
     assert "PerformedProtocolCodeSequence" not in series
     assert len(series.ViewCodeSequence) == 1
+    assert intended_view(series).CodeValue == "IV01"
+    sibling = pydicom.dcmread(directory / "series-requests-sibling.dcm")
+    assert sibling.SeriesInstanceUID == series.SeriesInstanceUID
+    assert sibling.StudyInstanceUID == series.StudyInstanceUID
+    assert sibling.SOPInstanceUID != series.SOPInstanceUID
+    assert intended_view(sibling).CodeValue == "EV20"
+    assert [item.to_json_dict() for item in sibling.RequestAttributesSequence] == [
+        item.to_json_dict() for item in requests]
+    assert len(sibling.ViewCodeSequence) == 1
 
 
 def validate_content_instants(directory: Path) -> None:

@@ -26,7 +26,16 @@ private enum ContractAdapter {
         for tag in [Tag.pixelData, .rows, .columns, .patientID, .acquisitionDateTime, .sopInstanceUID,
                     .studyInstanceUID, .seriesInstanceUID] { #expect(stub[tag] == nil) }
         #expect((stub.sequence(for: .viewCodeSequence)?.count ?? 0) <= 1)
-        #expect(try ContractAdapter.extract(stub).first?.source == .requested(requestIndex: 0, protocolIndex: 0))
+        #expect(stub[.requestAttributesSequence] == nil)
+        #expect(stub[.performedProtocolCodeSequence] == nil)
+        let intended = DataSet(elements: stub.sequence(for: .acquisitionContextSequence)![0].allElements)
+        #expect(intended.string(for: .valueType) == "CODE")
+        #expect(intended.sequence(for: .conceptNameCodeSequence)?.count == 1)
+        #expect(intended.sequence(for: .conceptNameCodeSequence)?[0].string(for: .codeValue) == "AAAAAAA")
+        #expect(intended.sequence(for: .conceptNameCodeSequence)?[0].string(for: .codingSchemeDesignator) == "DCM")
+        #expect(intended.sequence(for: .conceptCodeSequence)?.count == 1)
+        #expect(intended.sequence(for: .conceptCodeSequence)?[0].string(for: .codeValue) == view.keyword)
+        #expect(try ContractAdapter.extract(stub).first?.source == .intended(acquisitionContextIndex: 0))
         #expect(try ContractAdapter.extract(stub).map(\.keyword) == [view.keyword])
         let photo = try ContractAdapter.create(view.keyword)
         let file = try DICOMFile.read(from: photo.dicomData())
@@ -82,8 +91,9 @@ private func step(_ codes: [DataSet], id: String) -> SequenceItem {
     mixed[.scheduledProcedureStepSequence] = worklist[.scheduledProcedureStepSequence]
     mixed.setSequence([step([first.code, second.code], id: "C")], for: .requestAttributesSequence)
     let mixedResults = try ContractAdapter.extract(mixed)
-    #expect(mixedResults.count == 6)
-    #expect(mixedResults.first?.source == .scheduled(stepIndex: 0, protocolIndex: 1, stepID: "A"))
+    #expect(mixedResults.count == 7)
+    #expect(mixedResults.first?.source == .intended(acquisitionContextIndex: 0))
+    #expect(mixedResults[1].source == .scheduled(stepIndex: 0, protocolIndex: 1, stepID: "A"))
     #expect(mixedResults.last?.source == .requested(requestIndex: 0, protocolIndex: 1))
     var legacy = first.code
     legacy.setString("99OPOR", for: .codingSchemeDesignator, vr: .SH)
@@ -99,6 +109,8 @@ private func step(_ codes: [DataSet], id: String) -> SequenceItem {
     let items = dataset.sequence(for: .viewCodeSequence)!
     dataset[.imageComments] = nil
     dataset[.requestAttributesSequence] = nil
+    dataset.setSequence(Array(dataset.sequence(for: .acquisitionContextSequence)!.dropFirst()),
+                        for: .acquisitionContextSequence)
     dataset.setSequence([items[0]], for: .viewCodeSequence)
     #expect(try ContractAdapter.extract(dataset).isEmpty)
     var declaration = try OrthodonticPhotograph.availableViews()[0].code
@@ -107,6 +119,7 @@ private func step(_ codes: [DataSet], id: String) -> SequenceItem {
     declaration.setString("1.2.3.4", for: .contextGroupExtensionCreatorUID, vr: .UI)
     dataset.setSequence([declaration.sequenceItem], for: .viewCodeSequence)
     #expect(try ContractAdapter.extract(dataset).count == 1)
+    #expect(try ContractAdapter.extract(dataset).first?.source == .image(viewCodeIndex: 0))
     #expect(try ContractAdapter.extract(dataset).first?.keyword == nil)
     declaration.setString(DentalProfile.creatorUID, for: .contextGroupExtensionCreatorUID, vr: .UI)
     declaration.setString("not-the-current-version", for: .codingSchemeVersion, vr: .SH)
@@ -114,20 +127,71 @@ private func step(_ codes: [DataSet], id: String) -> SequenceItem {
     #expect(try ContractAdapter.extract(dataset).first?.keyword == nil)
 }
 
-@Test func commentsAreNeverUsedInsteadOfCodedProtocols() throws {
+@Test func commentsAreNeverUsedInsteadOfCodedIntent() throws {
     var dataset = try ContractAdapter.stub("EV01")
     let declaration = dataset.string(for: .imageComments)!
     #expect(try ContractAdapter.extract(dataset).map(\.keyword) == ["EV01"])
     dataset[.requestAttributesSequence] = nil
+    dataset.setSequence(Array(dataset.sequence(for: .acquisitionContextSequence)!.dropFirst()),
+                        for: .acquisitionContextSequence)
     for text in [declaration, "EV01", "some text " + declaration, declaration + " extra text", "EV01^wrong^description"] {
         dataset.setString(text, for: .imageComments, vr: .LT)
         #expect(try ContractAdapter.extract(dataset).isEmpty)
     }
 }
 
-@Test func creationPreservesSeriesPrescriptionsWithoutClaimingTheyWereAcquired() throws {
+@Test func intendedViewExtractionRequiresTheProposedConceptAndKeepsUnknownOccurrences() throws {
+    let stub = try ContractAdapter.stub("EV01")
+    let original = DataSet(elements: stub.sequence(for: .acquisitionContextSequence)![0].allElements)
+    let value = DataSet(elements: original.sequence(for: .conceptCodeSequence)![0].allElements)
+    let name = DataSet(elements: original.sequence(for: .conceptNameCodeSequence)![0].allElements)
+    var unknownValue = value
+    unknownValue.setString("999999999", for: .codeValue, vr: .SH)
+    unknownValue.setString("SCT", for: .codingSchemeDesignator, vr: .SH)
+    unknownValue.setString("Unknown intended view", for: .codeMeaning, vr: .LO)
+    unknownValue.setString("2026", for: .codingSchemeVersion, vr: .SH)
+    var unknown = original
+    unknown.setSequence([unknownValue.sequenceItem], for: .conceptCodeSequence)
+    var unrelatedName = name
+    unrelatedName.setString("128741", for: .codeValue, vr: .SH)
+    var unrelated = original
+    unrelated.setSequence([unrelatedName.sequenceItem], for: .conceptNameCodeSequence)
+    var noName = original
+    noName[.conceptNameCodeSequence] = nil
+    var noMeaning = value
+    noMeaning[.codeMeaning] = nil
+    var incomplete = original
+    incomplete.setSequence([noMeaning.sequenceItem], for: .conceptCodeSequence)
+    var wrongType = original
+    wrongType.setString("TEXT", for: .valueType, vr: .CS)
+    var wrongSchemeName = name
+    wrongSchemeName.setString("99UNRELATED", for: .codingSchemeDesignator, vr: .SH)
+    var wrongScheme = original
+    wrongScheme.setSequence([wrongSchemeName.sequenceItem], for: .conceptNameCodeSequence)
+    var ambiguous = original
+    ambiguous.setSequence([value.sequenceItem, value.sequenceItem], for: .conceptCodeSequence)
+    // Code Meaning is descriptive, never the lookup key for either name or value.
+    var alternateName = name
+    alternateName.setString("Alternate display label", for: .codeMeaning, vr: .LO)
+    var alternate = original
+    alternate.setSequence([alternateName.sequenceItem], for: .conceptNameCodeSequence)
+    var dataset = DataSet()
+    dataset.setSequence([original, original, unknown, unrelated, noName, incomplete,
+                         wrongType, wrongScheme, ambiguous, alternate].map(\.sequenceItem),
+                        for: .acquisitionContextSequence)
+    let results = try ContractAdapter.extract(dataset)
+    #expect(results.map(\.keyword) == ["EV01", "EV01", nil, "EV01"])
+    #expect(results.map(\.source) == [0, 1, 2, 9].map { DeclaredView.Source.intended(acquisitionContextIndex: $0) })
+    #expect(results[2].code.string(for: .codingSchemeDesignator) == "SCT")
+    #expect(results[2].code.string(for: .codingSchemeVersion) == "2026")
+    #expect(dataset.sequence(for: .acquisitionContextSequence)?.count == 10)
+}
+
+@Test func creationKeepsInstanceIntentSeparateFromSeriesPrescriptions() throws {
     let views = try OrthodonticPhotograph.availableViews()
-    var first = DataSet(elements: step([views[0].code, views[1].code, views[0].code], id: "A").allElements)
+    var versioned = views[0].code
+    versioned.setString("2026", for: .codingSchemeVersion, vr: .SH)
+    var first = DataSet(elements: step([versioned, views[1].code, views[0].code], id: "A").allElements)
     first.setString("request-A", for: .requestedProcedureID, vr: .SH)
     first.setSequence([views[1].code.sequenceItem], for: .requestedProcedureCodeSequence)
     let second = step([views[1].code], id: "B")
@@ -140,13 +204,27 @@ private func step(_ codes: [DataSet], id: String) -> SequenceItem {
     #expect(stored[0].string(for: .requestedProcedureID) == "request-A")
     let storedRequest = DataSet(elements: stored[0].allElements)
     #expect(storedRequest.sequence(for: .scheduledProtocolCodeSequence)?.count == 3)
+    #expect(storedRequest.sequence(for: .scheduledProtocolCodeSequence)?[0]
+        .string(for: .codingSchemeVersion) == "2026")
     #expect(storedRequest.sequence(for: .requestedProcedureCodeSequence)?.count == 1)
     let extracted = try ContractAdapter.extract(photo.dataSet)
-    #expect(extracted.map(\.keyword) == [views[0].keyword, views[1].keyword, views[0].keyword, views[1].keyword])
+    #expect(extracted.map(\.keyword) == ["IV01", nil, views[1].keyword, views[0].keyword, views[1].keyword])
+    #expect(extracted.first?.source == .intended(acquisitionContextIndex: 0))
     #expect(extracted.last?.source == .requested(requestIndex: 1, protocolIndex: 0))
     #expect(photo.dataSet[.performedProtocolCodeSequence] == nil)
     #expect(photo.dataSet.sequence(for: .viewCodeSequence)?.count == 1)
     try export(photo, name: "series-requests")
+    // Two different intended photograph types can share the exact same series request.
+    var siblingMetadata = metadata
+    siblingMetadata.imageType = "EV20"
+    siblingMetadata.sopInstanceUID = PhotographMetadata(imageType: "EV20").sopInstanceUID
+    let sibling = try ContractAdapter.create("EV20", metadata: siblingMetadata)
+    #expect(sibling.dataSet.string(for: .seriesInstanceUID) == photo.dataSet.string(for: .seriesInstanceUID))
+    #expect(sibling.dataSet.string(for: .sopInstanceUID) != photo.dataSet.string(for: .sopInstanceUID))
+    #expect(try ContractAdapter.extract(sibling.dataSet).dropFirst().map(\.keyword)
+        == extracted.dropFirst().map(\.keyword))
+    #expect(try ContractAdapter.extract(sibling.dataSet).first?.keyword == "EV20")
+    try export(sibling, name: "series-requests-sibling")
     var commentsEdited = photo.dataSet
     commentsEdited.setString("arbitrary note", for: .imageComments, vr: .LT)
     #expect(try ContractAdapter.extract(commentsEdited).map(\.keyword) == extracted.map(\.keyword))
@@ -156,6 +234,12 @@ private func step(_ codes: [DataSet], id: String) -> SequenceItem {
     #expect(try ContractAdapter.extract(emptyRequest.dataSet).map(\.keyword) == ["IV01"])
     #expect(emptyRequest.dataSet.sequence(for: .requestAttributesSequence)?[0]
         .string(for: .requestedProcedureID) == "request-A")
+    #expect(DataSet(elements: emptyRequest.dataSet.sequence(for: .requestAttributesSequence)![0].allElements)
+        .sequence(for: .scheduledProtocolCodeSequence) == nil)
+    metadata.additionalAttributes.setSequence([first.sequenceItem, DataSet().sequenceItem],
+                                               for: .requestAttributesSequence)
+    #expect(try ContractAdapter.create("IV01", metadata: metadata)
+        .dataSet.sequence(for: .requestAttributesSequence)?.count == 2)
 }
 
 @Test func worklistCopyingUsesSelectedStepAndKeepsPersonnelRolesDistinct() throws {
@@ -183,7 +267,8 @@ private func step(_ codes: [DataSet], id: String) -> SequenceItem {
     #expect(photo.dataSet.string(for: .sopInstanceUID) == originalUID)
     let request = DataSet(elements: photo.dataSet.sequence(for: .requestAttributesSequence)![0].allElements)
     #expect(request.sequence(for: .requestedProcedureCodeSequence)?.count == 1)
-    #expect(try ContractAdapter.extract(photo.dataSet).count == 2)
+    #expect(try ContractAdapter.extract(photo.dataSet).count == 3)
+    #expect(try ContractAdapter.extract(photo.dataSet).first?.source == .intended(acquisitionContextIndex: 0))
     try export(photo, name: "worklist")
     #expect(throws: MaterializationError.invalidScheduledStep(-1)) {
         try metadata.applyingWorklist(worklist, scheduledStepIndex: -1)

@@ -12,6 +12,9 @@ public struct DeclaredView: Sendable {
 
     /// Sequence association. Indices are zero-based and repeated declarations remain distinct.
     public enum Source: Sendable, Equatable {
+        /// Instance-level clinical intention, not proof that every specified pose was achieved.
+        case intended(acquisitionContextIndex: Int)
+        /// Read-only compatibility with private photograph codes in View Code Sequence.
         case image(viewCodeIndex: Int)
         case scheduled(stepIndex: Int, protocolIndex: Int, stepID: String?)
         /// Prescribed protocol carried by an image/template, not proof of acquisition.

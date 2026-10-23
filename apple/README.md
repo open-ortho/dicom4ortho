@@ -32,17 +32,27 @@ let catalog = try OrthodonticPhotograph.availableViews()
 Creation maps a supported view, validates supplied facts, and handles pixels;
 templates intentionally omit pixels and may lack required exchange metadata.
 Extraction accepts already parsed datasets, including supplied worklists. Results
-retain actual-versus-prescribed roles, item indices, repetitions, and unresolved
+retain intended-view versus prescription roles, item indices, repetitions, and unresolved
 qualifying codes. No operation infers a view from anatomy or performs a network query.
 
-New photograph-type codes use
-`RequestAttributesSequence (0040,0275).ScheduledProtocolCodeSequence (0040,0008)`,
-as directed by [DENT-OIP #12](https://github.com/open-ortho/dent-oip/issues/12) and
-[current §3.4.1.3](https://open-ortho.github.io/dent-oip/nightly/V1_Orthodontic_Imaging_Profile/03_oip_process_flow/index.html#image-views-request-procedure-codes).
-Without supplied request context, creation/templates populate a one-code protocol
-list from the caller's view. A supplied series/worklist request list is retained,
-not overwritten or extended to pretend the selected image was prescribed.
-`DeclaredView.Source.requested` labels these results as prescriptions, not acquired views.
+Each image/template writes a `CODE` item in `AcquisitionContextSequence (0040,0555)`:
+the proposed concept **Intended orthodontic photographic view** identifies the
+selected catalog code in `ConceptCodeSequence`. This follows the maintainer's
+[review correction](https://github.com/open-ortho/dicom4ortho/pull/86#pullrequestreview-5626642043)
+and [DENT-OIP #25 proposal](https://github.com/open-ortho/dent-oip/issues/25#issuecomment-6340377599).
+The Concept Name is `(AAAAAAA, DCM, "Intended orthodontic photographic view")`.
+**AAAAAAA is an unassigned DICOM CP-style placeholder, not an approved DCM code or
+an adopted TID 3465 row.** It needs WG-22/CP agreement and an assigned code before
+standards-conformance qualification. No new DICOM attribute is invented.
+The designation records the clinical intention for this image, not proof that the
+patient achieved every requested facial pose or functional condition.
+`DeclaredView.Source.intended(acquisitionContextIndex:)` identifies these occurrences.
+
+Series/worklist Request Attributes / Scheduled Protocol Code Sequence is preserved
+verbatim when supplied; creation never synthesizes a prescription from the image's
+intended view. `Source.scheduled` and `Source.requested` remain explicitly prescribed
+roles, not instance classifications. Two instances in the same series can therefore
+have different intended views and identical request context.
 Projection remains the single `ViewCodeSequence` item; Image Comments is only a
 human-readable label and is never used by extraction, even for an exact catalog match.
 Legacy/private View Code Sequence declarations remain readable with their original
@@ -50,10 +60,17 @@ code datasets, but are not newly written. Coded extraction supports the bundled 
 and qualifying private CID extensions; it does not claim to resolve every SNOMED
 procedure code or recursively search unrelated IODs. Incomplete code entries are
 ignored without suppressing valid entries elsewhere.
-Multiple protocol items describe the acquisition context/series, not a unique
+Multiple protocol items describe the request/series, not a unique
 instance association. No automatic Instance Number to list-index mapping or promotion
-to Performed Protocol Code Sequence is implemented; the unresolved instance-level
-question is tracked in [DENT-OIP #25](https://github.com/open-ortho/dent-oip/issues/25).
+to Performed Protocol Code Sequence is implemented. The concept above remains a
+proposal, not a claim that DENT-OIP #25 or DICOM approval is complete.
+
+The Python runtime, tests, packaging and shared generator are unchanged in this PR.
+Separate Python alignment is tracked in [#88](https://github.com/open-ortho/dicom4ortho/issues/88).
+Swift's resource is exported offline by `python apple/Tools/export_terminology.py`
+from the reviewed lock; `--check` detects drift without writing. This Apple-only
+maintenance command does not change `make update_codes` / `make check_codes` and
+is not run by SwiftPM or required at runtime.
 
 `PhotographInput` accepts RGB8, encoded bytes, and local files. `preserveSource`
 means no recompression, or uncompressed output for raw samples; it must reject

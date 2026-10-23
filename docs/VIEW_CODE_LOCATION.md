@@ -1,47 +1,70 @@
-# Photograph-type code location
+# Intended photograph type: proposed instance-level encoding
 
-Both implementations write photograph prescription codes under
-`RequestAttributesSequence (0040,0275)` → `ScheduledProtocolCodeSequence (0040,0008)`.
-This follows [DENT-OIP #12](https://github.com/open-ortho/dent-oip/issues/12) and
-[current §3.4.1.3](https://open-ortho.github.io/dent-oip/nightly/V1_Orthodontic_Imaging_Profile/03_oip_process_flow/index.html#image-views-request-procedure-codes).
-The list describes requested protocols, not proof that every listed view was acquired.
-Projection stays in the single View Code Sequence item. Image Comments remains a
-human-readable label, not a machine-readable identifier. No projection CID 4063
-extension is manufactured for a scheduled protocol.
+The maintainer's [2026-10-23 review of PR #86](https://github.com/open-ortho/dicom4ortho/pull/86#pullrequestreview-5626642043)
+supersedes the earlier use of Request Attributes / Scheduled Protocol Code Sequence
+as a photograph identifier. Those codes describe a series/request, while different
+images in that series need their own photograph-type designation.
 
-Creation with a known view and no supplied protocol list creates a one-code request.
-With worklist/series protocols, preserve the supplied list, order, repetitions, code
-metadata and request identifiers instead of replacing it with this instance's view.
-Applications creating several images in one series should supply the same series
-request context to each. The library does not gather sibling images automatically.
+## Swift proposal
 
-Swift `extractViews` returns every qualifying request/worklist occurrence with indices
-and a prescribed role, including unresolved qualifying codes. It does not infer a
-unique actual view from a series list or use Instance Number as an array index.
-Instance-level identification remains the separate question in
-[DENT-OIP #25](https://github.com/open-ortho/dent-oip/issues/25).
+Follow [DENT-OIP #25's instance-level Acquisition Context proposal](https://github.com/open-ortho/dent-oip/issues/25#issuecomment-6340377599):
 
-Python's existing `image_type_code_dataset` / `get_image_type_code_dataset` convenience
-returns a code only for one qualifying occurrence. With multiple prescriptions it
-returns `None` and logs ambiguity rather than guessing; use the native dataset to
-inspect the full list. The setter preserves unrelated codes and request metadata:
-
-```python
-OrthodonticPhotograph.set_image_type_code_dataset(
-    dataset, code, request_index=0, protocol_index=1)
+```text
+AcquisitionContextSequence (0040,0555)
+  Item
+    ValueType (0040,A040) = CODE
+    ConceptNameCodeSequence (0040,A043)
+      (AAAAAAA, DCM, "Intended orthodontic photographic view")
+    ConceptCodeSequence (0040,A168)
+      the selected ADA-1100 photograph-type code and its existing coding scheme
 ```
 
-Indices are zero-based; explicit selection is required for ambiguous lists. The
-historical `creator_uid` argument is accepted only with a supplied private extension
-context: flag `Y`, Context Identifier, Mapping Resource, Context Group Version and
-Local Version. An orphan creator UID (argument or embedded field) or an incomplete
-extension is rejected before the destination changes. Ordinary protocol codes omit
-extension attributes; no projection CID 4063, default creator or current-date version
-is invented. Valid supplied coded metadata is copied intact.
-Legacy private View Code Sequence declarations remain readable; writers no longer
-append type codes there. Existing files are not bulk-migrated or silently rewritten.
+**`AAAAAAA` is a provisional CP-style placeholder, not an assigned DCM code.**
+The proposed concept and TID 3465 addition still need WG-22 agreement and DICOM CP
+approval. The implementation reuses existing DICOM attributes; it does not invent a
+tag or claim that a new standard code/profile rule has already been adopted.
+`DentalProfile.intendedViewConcept` keeps the provisional identity in one place,
+outside the reviewed authoritative terminology lock.
 
-The old `latest` documentation tag points to August 2024, before #12's January 2025
-implementation. The [issue findings](https://github.com/open-ortho/dent-oip/issues/12#issuecomment-6326356779)
-record the historical/current source links; the instruction was not missing from
-the current document.
+The concept records the view clinical staff **intended** to acquire for this image.
+For example, an attempted smiling view remains that intended view even if the patient
+could not smile. It does not prove that every specified pose/condition was achieved.
+
+Swift creation and pixel-free templates add one such item without replacing the
+other clinical Acquisition Context items. Different instances can have different
+intended views while sharing study/series UIDs and the exact same request context.
+Projection remains the single `ViewCodeSequence` item; Image Comments is a label,
+never the source of machine-readable view extraction.
+
+## Extraction and prescriptions
+
+`extractViews` returns every qualifying occurrence with its original coded dataset:
+
+- `.intended(acquisitionContextIndex:)`: the proposed per-instance concept.
+- `.image(viewCodeIndex:)`: read-only compatibility with legacy private View Code
+  Sequence declarations; no new photograph type is appended to that sequence.
+- `.scheduled(stepIndex:protocolIndex:stepID:)` / `.requested(requestIndex:protocolIndex:)`:
+  supplied worklist or copied series/request prescriptions, not instance identity.
+
+Indices are zero-based, duplicates remain distinct, and unknown qualifying values
+are retained with a nil catalog keyword. Extraction checks concept/code identity,
+not Code Meaning, comments, anatomy, pixels or filenames. Unrelated Acquisition
+Context concepts and incomplete/non-CODE items do not become intended views.
+
+Supplied protocol lists, versions, order, repetitions and request identifiers remain
+unchanged. New image/template creation never fabricates a scheduled/performed protocol
+from its intended view, chooses a view by Instance Number, or promotes a prescription
+to performed evidence. Existing datasets are not bulk-migrated.
+
+## Python is separate
+
+PR #86 leaves `python/`, its existing tests and the shared `tools/generate_codes.py`
+unchanged from `develop`. The previous Python request-code/creator changes are not
+part of the Swift delivery. [Issue #88](https://github.com/open-ortho/dicom4ortho/issues/88)
+tracks Python alignment and the required legacy/migration decisions separately.
+This document does not claim that Python already writes or reads the new concept.
+
+The Apple-only maintenance tool `apple/Tools/export_terminology.py` reads the existing
+reviewed lock to export/check Swift's resource offline. It never rewrites the Python
+lock or changes existing Make commands; neither Python nor the exporter is a Swift
+runtime or normal SwiftPM-build dependency.

@@ -23,9 +23,9 @@ layout tests pass. These checks do not establish clinical implementation conform
 - Implement the unchanged PR1 interfaces, reusing reviewed backend/profile code.
 - Bundle offline terminology generated from the same inputs as Python, without
   refreshing the clinical lock just to build and without adding a Python runtime dependency.
-- Create complete images and image-free templates; write photograph-type codes under
-  Request Attributes / Scheduled Protocol Code Sequence as DENT-OIP #12 directs,
-  keeping projection separate and retaining supplied series-level prescriptions.
+- Create complete images and image-free templates; write the intended photograph
+  type in instance-level Acquisition Context using the provisional DENT-OIP #25
+  concept, keeping projection and supplied series-level prescriptions separate.
 - Extract image declarations and every worklist step/protocol occurrence; preserve
   role/association and unknown qualifying codes; exclude unrelated projections.
 - Implement supported local image imports, EXIF fallback, clinical metadata, worklist
@@ -40,8 +40,8 @@ layout tests pass. These checks do not establish clinical implementation conform
 The three public capabilities are implemented, with an offline 73-view catalog,
 clinical/worklist metadata, stable identity, supported image imports, separate
 compressed preservation, 13 output encodings, contract adapters, independent output
-checks, and CI/release documentation. The request-code correction below supersedes
-the earlier structured-comment extraction design.
+checks, and CI/release documentation. The instance-level correction below supersedes
+both the structured-comment and the series-level request-code experiments.
 
 PR1: https://github.com/open-ortho/dicom4ortho/pull/85, merged into `develop` as
 `410f9d4`. Formal reviewer requests are
@@ -51,7 +51,7 @@ See [QUALIFICATION.md](QUALIFICATION.md) for results and unmet acceptance checks
 Do not mark #82 completed while simulator execution or another required check remains blocked.
 PR2: https://github.com/open-ortho/dicom4ortho/pull/86. @zgypa received the second
 review notification there. PR2 merges the current `develop`, retaining the real
-implementation, offline resources/codecs, tests, and the later request-code correction
+implementation, offline resources/codecs and real-result tests
 instead of restoring API-only placeholders. Follow-up qualification fixes continue on PR2.
 
 ## Environmental limit
@@ -61,19 +61,21 @@ Xcode 26.3 cannot resolve a tools-6.4 package for simulator testing. Continue us
 isolated Swift 6.4.1 and available SDKs without upgrading host software. No Linux
 qualification, complete profile conformance, or iOS simulator execution is implied.
 
-## View-code placement correction
+## Instance-level placement correction (2026-10-23)
 
-The maintainer requested that both Python and Swift use DENT-OIP #12's
-`RequestAttributesSequence.ScheduledProtocolCodeSequence` location. The instruction
-is present in current source and nightly §3.4.1.3; inspecting the old August 2024
-`latest` tag had incorrectly suggested it was missing. January 20, 2025 commit
-`5d3fb8a35` supports #12's closure. Findings and reciprocal links were added to
-[issue 12](https://github.com/open-ortho/dent-oip/issues/12#issuecomment-6326356779) and
-[issue 25](https://github.com/open-ortho/dent-oip/issues/25#issuecomment-6326362717).
+The maintainer's [new review](https://github.com/open-ortho/dicom4ortho/pull/86#pullrequestreview-5626642043)
+rejects series-level request protocols as image identifiers and directs implementation
+of [DENT-OIP #25's Acquisition Context proposal](https://github.com/open-ortho/dent-oip/issues/25#issuecomment-6340377599).
+New Swift output records **Intended orthodontic photographic view** with the explicitly
+unassigned CP-style concept `(AAAAAAA, DCM, ...)` and the selected ADA catalog value.
+It reuses Acquisition Context, preserves the other clinical rows, and does not
+assert that the patient achieved every intended pose. Supplied protocol lists and
+request identifiers remain unchanged and separately labeled. Comments are labels only;
+private projection declarations are legacy read input, not newly written.
 
-New output uses coded request protocols; comments are labels only and private
-projection extensions are read-only legacy input. Supplied protocol lists, codes,
-identifiers and request/procedure context survive. Neither implementation infers
-an actual image type from an ambiguous list or treats Instance Number as a code index.
-This explicitly authorized Python behavior change supersedes the earlier promise
-of an unchanged Python runtime; packaging and entry points remain unchanged.
+All changes to `python/` and the shared `tools/generate_codes.py` are removed from
+this PR relative to `develop`. The Apple-only exporter reads the unchanged lock;
+normal Swift builds stay offline. Python alignment is a separate issue, [#88](https://github.com/open-ortho/dicom4ortho/issues/88).
+Earlier request-code and Python-runtime validation results are historical and do
+not qualify this revised representation. WG-22/CP agreement and simulator execution
+remain unverified; do not close #82 or claim an assigned DICOM concept.

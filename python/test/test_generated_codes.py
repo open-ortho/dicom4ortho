@@ -260,15 +260,15 @@ class TestSourceProvenance(unittest.TestCase):
     def test_check_mode_detects_lock_drift_without_network(self):
         from tools import generate_codes
         with self.subTest("current"):
-            with mock.patch.object(generate_codes, "OUTPUT") as output:
-                with mock.patch.object(generate_codes, "build_outputs", return_value={output: "current"}):
+            with mock.patch.object(generate_codes, "build_lock", return_value="current"):
+                with mock.patch.object(generate_codes, "OUTPUT") as output:
                     output.exists.return_value = True
                     output.read_text.return_value = "current"
                     with mock.patch.object(generate_codes.sys, "argv", ["generate_codes.py", "--check"]):
                         generate_codes.main()
         with self.subTest("drift"):
-            with mock.patch.object(generate_codes, "OUTPUT") as output:
-                with mock.patch.object(generate_codes, "build_outputs", return_value={output: "new"}):
+            with mock.patch.object(generate_codes, "build_lock", return_value="new"):
+                with mock.patch.object(generate_codes, "OUTPUT") as output:
                     output.exists.return_value = True
                     output.read_text.return_value = "old"
                     output.relative_to.return_value = Path("_generated_codes.py")

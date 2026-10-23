@@ -6,19 +6,17 @@ Adds SNOMED CT codes in DICOM object for Orthodontic Views.
 '''
 
 from typing import List, Optional
-from copy import deepcopy
 from datetime import date, datetime
 import warnings
 from pydicom.sequence import Sequence
 from pydicom.dataset import Dataset
-from dicom4ortho.config import VL_DENTAL_VIEW_CID, DATE_FORMAT
+from dicom4ortho.config import VL_DENTAL_VIEW_CID, DICOM4ORTHO_ROOT_UID, DATE_FORMAT
 
 from dicom4ortho.model import PhotographBase
 from dicom4ortho.config import IMPORT_DATE_FORMAT, SeriesInstanceUID_ROOT, StudyInstanceUID_ROOT
 from dicom4ortho.utils import generate_dicom_uid
 from dicom4ortho.m_dent_oip import OrthoView
-from dicom4ortho._generated_codes import CODES, VIEWS, IMAGE_TYPES
-from dicom4ortho.photograph_protocols import requested_view_codes, set_view_code
+from dicom4ortho._generated_codes import CODES, VIEWS
 
 import logging
 logger = logging.getLogger(__name__)
@@ -170,60 +168,77 @@ class OrthodonticPhotograph(PhotographBase):
         """
         Get the code that defines this image type.
 
-        Read RequestAttributesSequence.ScheduledProtocolCodeSequence (DENT-OIP #12).
-        Return a code only when exactly one qualifying occurrence exists; a series
-        prescription with several views does not uniquely identify this instance.
-        Legacy private ViewCodeSequence is a read-only fallback.
+        Returns the first code item from ViewCodeSequence with the Context
+        Identifier (CID) VL_DENTAL_VIEW_CID and Context Group Extension Flag set
+        to 'Y'.
+
+        As defined in DENT-OIP. See that for more information.
         """
-        codes = requested_view_codes(ds)
-        if not codes:
-            codes = [item for item in getattr(ds, 'ViewCodeSequence', [])
-                     if getattr(item, 'ContextIdentifier', None) == VL_DENTAL_VIEW_CID
-                     and getattr(item, 'ContextGroupExtensionFlag', None) == 'Y']
-        if len(codes) == 1:
-            return codes[0]
-        if codes:
-            logger.warning('Multiple view prescriptions; no unique instance type can be selected.')
+        view_seq = getattr(ds, 'ViewCodeSequence', None)
+        if not view_seq:
+            logger.warning(
+                "Cannot identify this image: ViewCodeSequence not present.")
+            return None
+        for item in view_seq:
+            if (
+                getattr(item, 'ContextIdentifier', None) == VL_DENTAL_VIEW_CID and
+                getattr(item, 'ContextGroupExtensionFlag', None) == 'Y'
+            ):
+                return item
+        logger.warning(
+            "No ViewCodeSequence item with proprietary ContextIdentifier and extension flag found.")
         return None
 
     @staticmethod
-    def set_image_type_code_dataset(ds: Dataset, code_dataset: Dataset, creator_uid: str = None,
-                                    *, request_index: int | None = None,
-                                    protocol_index: int | None = None) -> None:
+    def set_image_type_code_dataset(ds: Dataset, code_dataset: Dataset, creator_uid: str = None) -> None:
         """
         Set the code that defines this image type.
 
-        Write RequestAttributesSequence.ScheduledProtocolCodeSequence, not
-        ViewCodeSequence. Preserve request context and unrelated codes. Select
-        explicit indices for multi-request/multi-view lists; do not guess an
-        instance association from InstanceNumber. No CID 4063 extension is added:
-        that context describes projections, not scheduled photograph protocols.
+        Adds Context Group Extension attributes as required by DICOM for private
+        codes.  Only the code Dataset with the proprietary CID and extension
+        flag is set or replaced; others are preserved.
 
         This function modifies the given Dataset in place and does not return a value.
 
-        See DENT-OIP #12 and section 3.4.1.3. The historical creator_uid argument
-        is accepted only for an explicitly declared, fully supplied extension
-        context. A creator UID without extension flag Y is invalid, including when
-        it is embedded in code_dataset. Invalid input raises before ds is changed.
+        As defined in DENT-OIP. See that for more information.
 
         :param ds: The DICOM Dataset to modify
         :param code_dataset: The code Dataset to insert/update
-        :param creator_uid: Optional creator for a supplied extension context; no default is invented.
+        :param creator_uid: (optional) The ContextGroupExtensionCreatorUID to use. If not provided, will use code_dataset's value if set, else fallback to DICOM4ORTHO_ROOT_UID with a warning.
         """
         if code_dataset is None:
             return
-        code_dataset = deepcopy(code_dataset)
+        code_dataset.ContextIdentifier = VL_DENTAL_VIEW_CID
+        code_dataset.ContextGroupExtensionFlag = 'Y'
+
+        # set the version to the current date, as this code is private and could
+        # be different for each invocation.
+        code_dataset.ContextGroupLocalVersion = datetime.now().strftime(DATE_FORMAT)
+        # Determine which Creator UID to use
         if creator_uid is not None:
             code_dataset.ContextGroupExtensionCreatorUID = creator_uid
-        if getattr(code_dataset, 'ContextGroupExtensionCreatorUID', None) is not None:
-            if getattr(code_dataset, 'ContextGroupExtensionFlag', None) != 'Y':
-                raise ValueError('ContextGroupExtensionCreatorUID requires extension flag Y.')
-        if getattr(code_dataset, 'ContextGroupExtensionFlag', None) == 'Y':
-            required = ('ContextIdentifier', 'MappingResource', 'ContextGroupVersion',
-                        'ContextGroupLocalVersion', 'ContextGroupExtensionCreatorUID')
-            if any(not getattr(code_dataset, keyword, None) for keyword in required):
-                raise ValueError('A private extension requires its complete supplied context.')
-        set_view_code(ds, code_dataset, request_index=request_index, protocol_index=protocol_index)
+        elif getattr(code_dataset, 'ContextGroupExtensionCreatorUID', None):
+            pass  # already set by caller
+        else:
+            logger.warning(
+                "No ContextGroupExtensionCreatorUID provided by caller or in code_dataset; using dicom4ortho UID. This is probably NOT what you want.")
+            code_dataset.ContextGroupExtensionCreatorUID = DICOM4ORTHO_ROOT_UID
+        view_seq = getattr(ds, 'ViewCodeSequence', None)
+        if not view_seq:
+            ds.ViewCodeSequence = Sequence([code_dataset])
+            return
+        replaced = False
+        for idx, item in enumerate(view_seq):
+            if (
+                getattr(item, 'ContextIdentifier', None) == VL_DENTAL_VIEW_CID and
+                getattr(item, 'ContextGroupExtensionFlag', None) == 'Y'
+            ):
+                view_seq[idx] = code_dataset
+                replaced = True
+                break
+        if not replaced:
+            view_seq.append(code_dataset)
+        ds.ViewCodeSequence = view_seq
 
     def set_dicom_attributes_by_type_keyword(self, type_keyword=None):
         """Automatically set all DICOM tags based on the image type keyword."""
@@ -266,11 +281,6 @@ class OrthodonticPhotograph(PhotographBase):
 
     def _apply_view(self, view: OrthoView) -> None:
         """Set all DICOM tags from a typed OrthoView."""
-        # A supplied worklist/series protocol list is authoritative request context.
-        # Do not replace it with this instance's view or append an unscheduled view.
-        if not any(getattr(request, 'ScheduledProtocolCodeSequence', [])
-                   for request in getattr(self._ds, 'RequestAttributesSequence', [])):
-            self.set_image_type_code_dataset(self._ds, IMAGE_TYPES[view.keyword].code.to_dataset())
         # ImageComments (0020,4000)
         comments = f"{view.keyword}^{view.description}"
         self._ds.ImageComments = comments.replace('\xa0', '\x20')

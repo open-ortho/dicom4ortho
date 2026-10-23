@@ -1,20 +1,36 @@
-// Reads explicit codes only. Scheduled protocols are prescriptions, never evidence
-// that an image was acquired; scanning an unrelated coded sequence would hide that distinction.
+// Reads instance-level intended views and separately labeled protocol prescriptions.
+// Neither clinical intention nor a prescription proves that a pose was achieved.
 import DICOMCore
 import DICOMKit
 import DICOMDictionary
 
 enum ViewExtraction {
+    private enum Location { case intended, legacyImage, prescription }
+
     static func extract(_ dataset: DataSet) throws -> [DeclaredView] {
         let terminology = try Terminology.bundled()
         var results: [DeclaredView] = []
         let sop = dataset.string(for: .sopClassUID)
         let imageSOP = UIDDictionary.lookup(keyword: "VLPhotographicImageStorage")?.uid
         if sop == nil || sop == imageSOP {
+            for (index, item) in (dataset.sequence(for: .acquisitionContextSequence) ?? []).enumerated() {
+                let context = DataSet(elements: item.allElements)
+                guard context.string(for: .valueType) == "CODE",
+                      let names = context.sequence(for: .conceptNameCodeSequence), names.count == 1,
+                      let values = context.sequence(for: .conceptCodeSequence), values.count == 1,
+                      let name = identity(DataSet(elements: names[0].allElements)),
+                      name.value == DentalProfile.intendedViewConcept.value,
+                      name.scheme == DentalProfile.intendedViewConcept.scheme else { continue }
+                if let occurrence = declaration(DataSet(elements: values[0].allElements),
+                    source: .intended(acquisitionContextIndex: index), terminology: terminology,
+                    location: .intended) {
+                    results.append(occurrence)
+                }
+            }
             for (index, item) in (dataset.sequence(for: .viewCodeSequence) ?? []).enumerated() {
                 let code = DataSet(elements: item.allElements)
                 if let occurrence = declaration(code, source: .image(viewCodeIndex: index),
-                                                terminology: terminology, requireExtension: true) {
+                                                terminology: terminology, location: .legacyImage) {
                     results.append(occurrence)
                 }
             }
@@ -26,7 +42,7 @@ enum ViewExtraction {
                     stepIndex: stepIndex, protocolIndex: codeIndex,
                     stepID: step.string(for: .scheduledProcedureStepID))
                 if let occurrence = declaration(DataSet(elements: item.allElements), source: source,
-                                                terminology: terminology, requireExtension: false) {
+                                                 terminology: terminology, location: .prescription) {
                     results.append(occurrence)
                 }
             }
@@ -36,7 +52,7 @@ enum ViewExtraction {
             for (codeIndex, item) in (request.sequence(for: .scheduledProtocolCodeSequence) ?? []).enumerated() {
                 if let occurrence = declaration(DataSet(elements: item.allElements),
                     source: .requested(requestIndex: requestIndex, protocolIndex: codeIndex),
-                    terminology: terminology, requireExtension: false) {
+                     terminology: terminology, location: .prescription) {
                     results.append(occurrence)
                 }
             }
@@ -44,10 +60,7 @@ enum ViewExtraction {
         return results
     }
 
-    private static func declaration(
-        _ code: DataSet, source: DeclaredView.Source, terminology: Terminology,
-        requireExtension: Bool
-    ) -> DeclaredView? {
+    private static func identity(_ code: DataSet) -> (value: String, scheme: String)? {
         let identities = [Tag.codeValue, .longCodeValue, .urnCodeValue].compactMap {
             code.string(for: $0).flatMap { $0.isEmpty ? nil : $0 }
         }
@@ -55,6 +68,13 @@ enum ViewExtraction {
         guard identities.count == 1, let value = identities.first,
               !scheme.isEmpty || code[.urnCodeValue] != nil,
               let meaning = code.string(for: .codeMeaning), !meaning.isEmpty else { return nil }
+        return (value, scheme)
+    }
+
+    private static func declaration(
+        _ code: DataSet, source: DeclaredView.Source, terminology: Terminology, location: Location
+    ) -> DeclaredView? {
+        guard let (value, scheme) = identity(code) else { return nil }
         let extended = code.string(for: .contextIdentifier) == DentalProfile.viewContextIdentifier
             && code.string(for: .contextGroupExtensionFlag) == "Y"
         let type = terminology.imageTypes.values.first { $0.code.value == value && $0.code.scheme == scheme }
@@ -62,7 +82,11 @@ enum ViewExtraction {
         // unresolved: the bundle does not assert that private scheme's aliases.
         let catalogScheme = scheme == "99OPOR"
             || terminology.imageTypes.values.contains { $0.code.scheme == scheme }
-        guard requireExtension ? extended : (catalogScheme || extended) else { return nil }
+        switch location {
+        case .intended: break  // The exact concept identifies intent, even for an unknown value code.
+        case .legacyImage: guard extended else { return nil }
+        case .prescription: guard catalogScheme || extended else { return nil }
+        }
         let creator = code.string(for: .contextGroupExtensionCreatorUID)
         let matchingCreator = extended ? creator == DentalProfile.creatorUID
             : (creator == nil || creator == DentalProfile.creatorUID)

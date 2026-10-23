@@ -15,7 +15,55 @@ The shared GXV/reference suite described in `docs/API_CONTRACT.md` is not availa
 - No changes to the build host's OS, Xcode selection/installation, or security settings.
 - Linux support is not claimed. Python is used only by independent validation/tooling.
 
-## Observed checks (2026-10-21)
+## Current representation: provisional Acquisition Context (2026-10-23)
+
+The [maintainer review](https://github.com/open-ortho/dicom4ortho/pull/86#pullrequestreview-5626642043)
+rejects series-level request protocols as per-instance photograph identifiers.
+Swift now writes an **Intended orthodontic photographic view** Acquisition Context
+item, using the deliberately unassigned `(AAAAAAA, DCM, ...)` CP-style concept.
+This follows [DENT-OIP #25's proposal](https://github.com/open-ortho/dent-oip/issues/25#issuecomment-6340377599),
+not an approved DICOM concept or adopted TID 3465 row. The patient's intended view
+is distinct from proof of achieving a pose and from the series/worklist prescription.
+See [the exact encoding and source roles](../docs/VIEW_CODE_LOCATION.md).
+
+All PR changes to the Python implementation/tests and shared generator are removed
+relative to `develop`; Python alignment is separate [#88](https://github.com/open-ortho/dicom4ortho/issues/88).
+The Apple-only offline exporter and validation tools do not change the Python runtime.
+
+Current-representation checks on mainframe1, with the recorded Swift 6.4.1/Xcode 26.3
+environment and no host-software upgrade:
+
+- **25 Swift tests pass**, including all 73 instance declarations, unknown/repeated/
+  malformed intention items, separate prescriptions, and different intended views
+  in two instances sharing a study/series and unchanged versioned request context.
+- Both iOS 18 arm64 **library cross-builds pass** (device and simulator). Actual iOS
+  test execution is still not qualified.
+- The **98 freshly exported DICOM instances** pass `dciodvfy` snapshot 20260927113651
+  with **zero errors**. Missing DICOMDIR/empty-value, private coding-scheme and standard-
+  extended projection/module warnings remain. The validator does not establish that
+  `AAAAAAA` is assigned or that a proposed TID row has been approved.
+- All **13 output policies** independently decode at **64×64, 1024×1024 and 2048×2048**;
+  lossless samples match exactly at each size. Fresh Mac encoding runs at both larger
+  sizes pass; their 26 additional outputs also have zero `dciodvfy` errors, for
+  **124 independently validated current-representation instances** in total. Lossy
+  errors are measured, not interpreted as clinical quality guarantees.
+  The independent checks also verify all 73 clinical mappings against unchanged Python,
+  the instance-level concept/value, seven serialized UTC instants, and different image
+  intentions with identical series prescriptions. The intended item is excluded only
+  from comparison of the other clinical Acquisition Context rows; Python is not altered
+  to agree with Swift.
+- Apple-only maintenance/oracle tests: **7 pass**, including rejection of request-only
+  instance identification. The Swift bundle matches the reviewed lock without rewriting
+  it. Restored Python non-E2E tests: **125 passed, 4 skipped**; error-only lint passes.
+  `git diff develop -- python/ tools/generate_codes.py` is empty. No new Orthanc E2E
+  execution is claimed for this revision.
+
+**The historical runs below do not qualify this representation.** Hosted CI must also
+run against the eventual published revision. An unassigned concept can cause other
+dictionary/profile validators to warn or reject it; report that rather than treating
+the CP-style placeholder as an approved standard code.
+
+## Historical checks (2026-10-21; superseded representation)
 
 - Twenty-one Swift tests cover public API, templates, all 73 view mappings, extraction, worklist copying,
   clinical dates/personnel/identity, input imports, save lifecycle, and codec tests pass.
@@ -59,7 +107,7 @@ advertised as supported. In particular, DICOMKit refuses Part 2 encoding. Unsupp
 policies/formats throw; they are not silently assigned a different transfer syntax.
 The current tests are synthetic interoperability checks, not a production image corpus.
 
-## Review corrections (2026-10-22)
+## Historical review corrections (2026-10-22)
 
 - Current `develop` (the squash-merged API PR #85, `410f9d4`) is merged into the
   implementation branch. Conflict resolution retains real behavior, backend/resource
@@ -106,22 +154,17 @@ find /path/to/synthetic-artifacts -name '*.dcm' -exec dciodvfy {} \;
 They do not implement clinical mappings or extraction. The Python comparison has
 two deliberate label/orientation differences: a three-field human-readable Image
 Comments label and empty Patient Orientation for IV28/IV30 rather than Python's
-Type 2C omission. Both implementations now write the same coded Request Attributes /
-Scheduled Protocol Code Sequence and keep one projection. Comments do not identify a view.
+Type 2C omission. The proposed intended-view item is checked independently and removed
+only from the comparison of the other clinical Acquisition Context rows. Python is
+not modified to agree with Swift. Neither standalone output invents a request protocol;
+Swift retains one projection, and comments do not identify a view.
 
-## Request-code correction
+Before Swift validation, check the committed offline export without changing Python:
 
-Following the maintainer's instruction and DENT-OIP #12, new codes use Request
-Attributes / Scheduled Protocol Code Sequence instead of private projection extensions
-or comment extraction. Current source/nightly §3.4.1.3 contains the instruction;
-the old `latest` tag inspected earlier predates it. The correction preserves supplied
-series/worklist request lists, repetitions, identifiers and code metadata. It does
-not claim a unique instance association for a multi-view prescription; #25 remains open.
-See [migration behavior](../docs/VIEW_CODE_LOCATION.md) for Python's scalar convenience
-and explicit-index updates. Validation results for the earlier representation are
-historical, not proof of the new output. The corrected outputs are re-exported and
-independently checked, including both languages' exact request-code locations,
-projection cardinality, repeated protocols and separate request identifiers.
+```sh
+python apple/Tools/export_terminology.py --check
+python -m unittest discover -s apple/Tools -p 'test_*.py'
+```
 
 ## Remaining acceptance limits
 
@@ -139,6 +182,8 @@ projection cardinality, repeated protocols and separate request identifiers.
    package manifest to accommodate an older compiler.
 3. Shared DENT-OIP/GXV conformance is not established; expand the reference corpus as it arrives.
 4. No release tag has been published. Use the checklist before claiming a distributable release.
+5. The intended-view concept uses `AAAAAAA` pending WG-22/CP agreement and assignment.
+   A schema/codec pass cannot establish conformance of an unapproved concept.
 
 #82 must remain open while a required acceptance check is unmet. These limits do not
 turn the API into a Python-cloning mandate or authorize a backend/host-OS replacement.

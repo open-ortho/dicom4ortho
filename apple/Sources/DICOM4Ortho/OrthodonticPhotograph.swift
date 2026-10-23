@@ -52,16 +52,17 @@ public struct OrthodonticPhotograph: Sendable {
         }
     }
 
-    /// Reads Request Attributes protocol codes (DENT-OIP #12), legacy/private
-    /// VL image View Code Sequence declarations, and every worklist scheduled
-    /// step/protocol item, and copied Request Attributes protocol items. Returns a
+    /// Reads instance-level intended views from the provisional Acquisition Context
+    /// concept (DENT-OIP #25), legacy/private View Code Sequence declarations, and
+    /// separately labeled worklist/Request Attributes prescriptions. Returns a
     /// collection even for one/zero results; preserves sequence order and repetitions.
     /// Coded matching uses identity, never Code Meaning, Image Comments or anatomy. Unrelated
     /// projection/procedure codes and incomplete coded entries are not type declarations.
     /// Qualifying unknown private codes have a nil keyword. Input is not mutated and
     /// pixels are not decoded. Other IOD-specific locations are not exhaustively searched.
-    /// Request protocol lists describe prescriptions, not necessarily this instance's
-    /// actual view. No implicit Instance Number to protocol-index mapping is performed.
+    /// The intended view does not prove that every specified pose was achieved.
+    /// Request protocols remain prescriptions, never an instance association inferred
+    /// from Instance Number. The proposed concept has no assigned DICOM code yet.
     public static func extractViews(from dataSet: DataSet) throws -> [DeclaredView] {
         try ViewExtraction.extract(dataSet)
     }
